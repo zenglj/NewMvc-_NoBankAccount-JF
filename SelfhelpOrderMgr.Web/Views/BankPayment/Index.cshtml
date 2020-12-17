@@ -1,0 +1,344 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>代发记录</title>
+    @{Html.RenderPartial("~/Views/Shared/_PartialHeadPage.cshtml");}
+    <style type="text/css">
+        form {
+            margin: 0;
+            padding: 0;
+        }
+
+        .dv-table td {
+            border: 0;
+        }
+
+        .dv-table input {
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body >
+
+    @*<h4>银行转账支付管理</h4>*@
+    <div class="easyui-tabs" style="width:100%;height:900px;">
+
+
+        <div title="应付款管理" style="padding:10px;" class="easyui-layout">
+            <div data-options="region:'center',title:'代发记录'" style="padding:5px;height:600px;">
+                @*@{Html.RenderPartial("~/Views/Shared/_PartialXiaopiaoControl.cshtml");}*@
+
+                <table id="test" style="padding:5px;height:590px;" toolbar="#tb"></table>
+                <div id="template"></div>
+
+                <div id="tb" style="padding:5px;height:auto">
+                    <div style="margin-bottom:5px">
+
+                        付款摘要<input id="payPurposeInfo" name="PurposeInfo" class="easyui-textbox" style="width:190px">|
+                        支付方式:
+                        <select id="ccPaySelect" class="easyui-combobox" name="dept" style="width:200px;">
+                            <option value="1">公对公</option>
+                            <option value="2">快捷代发</option>
+                        </select>
+                        
+                        <a href="#" class="easyui-linkbutton" iconcls="icon-reload" onclick="btnPaySubmit()">生成付款</a>
+
+                        <label id="schSumMoney" style="float:right;font-size:1.2em;">结果金额: ____________</label> 
+                    </div>
+                </div>
+            </div>
+
+            <div data-options="region:'east',title:'查询条件',split:true" style="width:300px;">
+                <div data-options="region:'north',title:'North Title',split:true" style="height:600px;">
+                    <form method="post" id="formVcrdSearch">
+                        <table>
+                            <tr>
+                                <th align="right">编号：</th>
+                                <td align="left">
+                                    <input class="easyui-numberbox" id="vcrdSearchFCrimeCode" name="FCrimeCode"
+                                           data-options="min:0,precision:0" style="width:190px">
+                                </td>
+                            </tr>
+                            <tr>
+                                <th align="right">姓名：</th>
+                                <td align="left">
+                                    <input id="vcrdSearchFCriminal" name="FCriminal" class="easyui-textbox" style="width:190px">
+                                </td>
+                            </tr>
+                            <tr>
+                                <th align="right">开始时间：</th>
+                                <td align="left">
+                                    <input class="easyui-datetimebox" id="vcrdSearchCrtDate_Start" name="CrtDate_Start"
+                                           data-options="required:true,showSeconds:false" value="3/4/2010 00:00" style="width:190px">
+                                </td>
+                            </tr>
+                            <tr>
+                                <th align="right">结束时间：</th>
+                                <td align="left">
+                                    <input class="easyui-datetimebox" id="vcrdSearchCrtDate_End" name="CrtDate_End"
+                                           data-options="required:true,showSeconds:false" value="3/4/2010 23:59" style="width:190px">
+                                </td>
+                            </tr>
+                            <tr>
+                                <th align="right">队别：</th>
+                                <td align="left">
+                                    <select id="vcrdSearchFAreaCode" name="FAreaCode" class="easyui-combobox" style="width:190px;">
+                                        <option value="" selected="selected">请选择队别</option>
+                                        @if (ViewData["areas"] != null)
+                                        {
+                                            foreach (SelfhelpOrderMgr.Model.T_AREA area in ViewData["areas"] as List<SelfhelpOrderMgr.Model.T_AREA>)
+                                            {
+                                                <option value="@area.FCode">@area.FName</option>
+                                            }
+                                        }
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr><th>存/取款类型</th></tr>
+                            <tr>
+                                <th align="right">取：</th>
+                                <td align="left">
+                                    <select id="vcrdSearchDType" name="DType" class="easyui-combobox" data-options=" multiple:false" style="width:190px;">
+                                        <option value="" selected="selected">请选择</option>
+                                        @if (ViewData["paytypes"] != null)
+                                        {
+                                            foreach (string paytype in ViewData["paytypes"] as List<string>)
+                                            {
+                                                <option value="@paytype">@paytype</option>
+                                            }
+                                        }
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th align="right">操作员：</th>
+                                <td align="left">
+                                    <select id="vcrdSearchCrtBy" name="CrtBy" class="easyui-combobox" style="width:190px;">
+                                        <option value="" selected="selected">请选择</option>
+                                        @if (ViewData["crtbys"] != null)
+                                        {
+                                            foreach (string crtby in ViewData["crtbys"] as List<string>)
+                                            {
+                                                <option value="@crtby">@crtby</option>
+                                            }
+                                        }
+                                    </select>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th align="right">资金账户：</th>
+                                <td align="left">
+                                    <select id="vcrdSearchAccType" name="AccType" class="easyui-combobox" data-options=" multiple:false" style="width:190px;">
+                                        <option value="0">存款账户</option>
+                                        <option value="1">报酬账户</option>
+                                        <option value="2">留存账户</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th align="right">审核状态：</th>
+                                <td align="left">
+                                    <select id="vcrdSearchPayAuditFlag" name="PayAuditFlag" class="easyui-combobox" data-options=" multiple:false" style="width:190px;">
+                                        <option value="0">未审核</option>
+                                        <option value="1">已审核</option>
+                                        <option value="2">已传送</option>
+                                        <option value="3">已到账</option>
+                                    </select>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th align="right">备注：</th>
+                                <td align="left">
+                                    <input id="vcrdSearchRemark" name="Remark" class="easyui-textbox" style="width:190px;">
+                                </td>
+                            </tr>
+                            <tr>
+                                <th align="right"></th>
+                                <td align="right"><a id="btn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-search'" onclick="btnSearch()">查询</a><a id="A1" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-redo'" onclick="btnClear()">清空</a></td>
+                            </tr>
+                        </table>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+        <div title="支付记录查询" style="padding:10px;" class="easyui-layout">
+            <div data-options="region:'center',title:'转账结算记录'" style="padding:5px;height:800px;">
+                @*@{Html.RenderPartial("~/Views/Shared/_PartialXiaopiaoControl.cshtml");}*@
+                <div data-options="region:'north',title:'North Title',split:true" style="height:55%;">
+                    
+                    <table id="tbPay" class="easyui-datagrid" style="width:100%;height:260px" toolbar="#toolBarPay"></table>
+
+                    <div id="toolBarPay" style="padding:5px;height:auto;color:" >
+                        <div style="margin-bottom:5px">
+                            <a href="javascript:void(0)" id="mbPay" class="easyui-menubutton"
+                               data-options="menu:'#mmPay',iconCls:'icon-reload'">付款审核</a>
+                            <div id="mmPay" style="width:150px;">
+                                <div data-options="iconCls:'icon-man'" onclick="auditMenuBtn('mul')">个别审核</div>
+                                <div data-options="iconCls:'icon-redo'" onclick="auditMenuBtn('all')">全部审核</div>
+                                <div class="menu-sep"></div>
+                                <div onclick="unAuditMenuBtn('mul')">个别撤审</div>
+                                <div onclick="unAuditMenuBtn('all')">全部撤审</div>
+                                <div onclick="pwdCountReset()">密码次数归零</div>
+                                <div onclick="btnExcelSave()">Excel导出</div>
+                                <div onclick="btnExcelSaveDetail()">Excel导出主单明细</div>
+
+                            </div> |
+                            记录Id:
+                            <input type="text" value="" id="resetId" name="id" class="easyui-textbox" disabled="disabled" />
+                            复位重发原因:
+                            <input type="text" value="" id="resetRemark" name="remark" class="easyui-textbox" />
+                            <a href="#" class="easyui-linkbutton" iconcls="icon-save" id="resetBtnSave" onclick="ResetCheckSend()">确认复位</a>
+                            <a href="#" class="easyui-linkbutton" iconcls="icon-help" id="refundBtnSave" onclick="ResetRefund()">退款更正复位</a>
+                            
+                        </div>
+                    </div>
+                </div>
+
+                <div data-options="region:'south',title:'South Title',split:true" style="height:300px;">
+                    <table id="tbPayDetail" class="easyui-datagrid" style="width:100%;height:260px"></table>
+                </div>
+            </div>            
+
+            
+
+            <div data-options="region:'east',title:'查询条件',split:true" style="width:300px;">
+                <div data-options="region:'north',title:'North Title',split:true" style="height:580px;">
+                    <form method="post" id="formPaySearch">
+                        <table>
+                            <tr>
+                                <th align="right">Id：</th>
+                                <td align="left">
+                                    <input class="easyui-numberbox" id="paySearchId" name="Id"
+                                           data-options="min:0,precision:0" style="width:190px">
+                                </td>
+                            </tr>
+                            <tr>
+                                <th align="right">狱号：</th>
+                                <td align="left">
+                                    <input class="easyui-textbox" id="paySearchFCrimeCode" name="FCrimeCode"
+                                           style="width:190px">
+                                </td>
+                            </tr>
+                            <tr>
+                                <th align="right">流水号：</th>
+                                <td align="left">
+                                    <input id="paySearchObssid" name="obssid" class="easyui-textbox" style="width:190px">
+                                </td>
+                            </tr>
+                            <tr>
+                                <th align="right">收款人：</th>
+                                <td align="left">
+                                    <input id="paySearchBankUserName" name="BankUserName" class="easyui-textbox" style="width:190px">
+                                </td>
+                            </tr>                        
+                            <tr>
+                                <th align="right">收款账号：</th>
+                                <td align="left">
+                                    <input id="paySearchBankAccount" name="BankAccount" class="easyui-textbox" style="width:190px">
+                                </td>
+                            </tr>
+                            <tr>
+                                <th align="right">开户行：</th>
+                                <td align="left">
+                                    <input id="paySearchOpeningBankName" name="OpeningBankName" class="easyui-textbox" style="width:190px">
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th align="right">用途：</th>
+                                <td align="left">
+                                    <input id="paySearchPurposeInfo" name="PurposeInfo" class="easyui-textbox" style="width:190px">
+                                </td>
+                            </tr>
+                            <tr>
+                                <th align="right">支付方式：</th>
+                                <td align="left">
+                                    <select id="paySearchPayMode" name="PayMode" class="easyui-combobox" data-options=" multiple:false" style="width:190px;">
+                                        <option value=" ">请选择</option>
+                                        <option value="0">现金</option>
+                                        <option value="1">转账</option>
+                                    </select>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th align="right">审核状态：</th>
+                                <td align="left">
+                                    <select id="paySearchAuditFlag" name="AuditFlag" class="easyui-combobox" data-options=" multiple:false" style="width:190px;">
+                                        <option value=" ">请选择</option>
+                                        <option value="0" selected="selected">待审</option>
+                                        <option value="1">已审</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th align="right">汇款状态：</th>
+                                <td align="left">
+                                    <select id="paySearchTranStatus" name="TranStatus" class="easyui-combobox" data-options=" multiple:false" style="width:190px;">
+                                        <option value=" ">请选择</option>
+                                        <option value="0">待转</option>
+                                        <option value="1">已提交，待银行处理</option>
+                                        <option value="2">转账成功</option>
+                                        <option value="3">银行转账失败</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th align="right">银行流水：</th>
+                                <td align="left">
+                                    <input id="paySearchBankObssid" name="BankObssid" class="easyui-textbox" style="width:190px">
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th align="right">转账类型：</th>
+                                <td align="left">
+                                    <select id="paySearchTranType" name="TranType" class="easyui-combobox" data-options=" multiple:false" style="width:190px;">
+                                        <option value=" ">请选择</option>
+                                        <option value="0">公对私</option>
+                                        <option value="1">公对公</option>
+                                        <option value="2">快捷代发</option>
+                                        <option value="3">其他</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th align="right">创建起日：</th>
+                                <td align="left">
+                                    <input class="easyui-datetimebox" id="paySearchCrtDate_Start" name="CrtDate_Start"
+                                           data-options="required:true,showSeconds:false" value="3/4/2010 00:00" style="width:190px">
+                                </td>
+                            </tr>
+                            <tr>
+                                <th align="right">创建止日：</th>
+                                <td align="left">
+                                    <input class="easyui-datetimebox" id="paySearchCrtDate_End" name="CrtDate_End"
+                                           data-options="required:true,showSeconds:false" value="3/4/2010 23:59" style="width:190px">
+                                </td>
+                            </tr>
+                            <tr>
+                                <th align="right"></th>
+                                <td align="right"><a id="btn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-search'" onclick="btnPaySearch()">查询</a><a id="A1" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-redo'" onclick="btnPayClear()">清空</a></td>
+                            </tr>
+                        </table>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="~/Scripts/myJs/LodopFuncs.js"></script>
+    <script src="~/Scripts/EasyUI/jquery.easyui.datagrid-detailview.js"></script>
+    <script src="~/Scripts/myJs/BankPaymentIndex.js"></script>
+</body>
+</html>

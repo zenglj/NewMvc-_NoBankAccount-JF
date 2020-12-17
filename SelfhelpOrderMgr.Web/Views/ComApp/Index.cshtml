@@ -1,0 +1,159 @@
+﻿@{
+    ViewBag.Title = "队别调动";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@{Html.RenderPartial("~/Views/Shared/_PartialXiaopiaoControl.cshtml");}
+<link href="~/Content/font-awesome.min.css" rel="stylesheet" />
+<link href="~/Content/docs.min.css" rel="stylesheet" />
+<link href="~/Scripts/simple-calendar/tcal.css" rel="stylesheet" />
+<div>
+    @*<h1><small>欢迎进入</small> 队别调动 <small>这里您可以将本队人员调出到其他分监区</small></h1>*@
+    <input type="hidden" id="UserName" name="UserName" value="@ViewData["UserName"]" />
+    <input type="hidden" id="FManagerCard" name="FManagerCard" value="@ViewData["FManagerCard"]" />
+
+    <input type="hidden" id="FCrimeCode" name="FCrimeCode" />
+    <input type="hidden" id="FIcCardCode" name="FIcCardCode" />
+</div>
+
+<div>
+    <object id=MWRFATL style="WIDTH: 0px; HEIGHT: 0px"
+            codebase=eyeFZ.cab#version =1,0,0,1
+            classid=CLSID:CD851DCA-5D3C-4DA9-A0F7-DE018FDC0A7F></object>@*加载数明华读卡器控件*@
+
+            <div class="row">
+                <div class="col-sm-10"></div>
+                <div class="col-sm-2">
+                    @if (ViewData["LoginMode"] != null && ViewData["LoginMode"].ToString() == "1")
+                    {
+                        string loginMode=ViewData["LoginMode"].ToString();
+                        string cardMgrNo=ViewData["FManagerCard"].ToString();
+                        <input type="hidden" id="LoginMode" value="@loginMode" />
+                        <input type="hidden" id="MgrCardNo" value="@cardMgrNo" />
+                    }
+                    else
+                    {
+                        <div style=" text-align:right;">
+                            <a class="btn btn-large btn-primary btn-lg" href="#" role="button" onclick="loginCheck(1)">1请先刷管理卡</a>
+                            <input type="hidden" id="MgrCardNo" value="" />
+                        </div>
+                    }
+                    
+
+                </div>
+                
+            </div>
+    <hr />
+            
+           
+    <div class="row">
+        
+        @if (ViewData["LoginMode"] != null && ViewData["LoginMode"].ToString() == "1")
+        {
+            
+            <div class="col-sm-4">
+                <input type="hidden" id="orderFcrimeCode" />
+                <input type="hidden" id="orderFcrimeName" />
+                <input type="hidden" id="orderCyName" />
+                <input type="hidden" id="orderFareaName" />            
+                <form class="form-inline">
+                    <div class="form-group">
+                        <label for="exampleInputName2">用户编号: </label>
+                        <input type="text" class="form-control" id="userCodeId" name="userCodeId" placeholder="输入编号" onkeydown="if (event.keyCode == 13) QueryUserInfoByFCrimeCode('3504013494');">
+                    </div>
+                    <a  class="btn btn-default" onclick="QueryUserInfoByFCrimeCode('3504013494')">查询</a>
+                </form>
+            </div>
+            <div class="col-sm-7">
+                <h4 id="userNameInfo">你好, 某某某<span class="label label-primary">普管(500)</span>,您的账户信息如下：</h4>
+            </div>
+        }
+        else
+        {
+            <div class="col-sm-2">
+                <input type="hidden" id="orderFcrimeCode" />
+                <input type="hidden" id="orderFcrimeName" />
+                <input type="hidden" id="orderCyName" />
+                <input type="hidden" id="orderFareaName" />            
+                <a class="btn btn-primary btn-lg" href="#" role="button" onclick="btnQueryUserInfo('3504013494')">2读用户IC卡</a>
+            </div>
+            <div class="col-sm-9">
+                <h4 id="userNameInfo">你好, 某某某<span class="label label-primary">普管(500)</span>,您的账户信息如下：</h4>
+            </div>
+        }
+
+        
+
+    </div>
+    <div class="alert alert-danger" role="alert" id="lblInfo">银行账号：</div>
+            <div class="row">
+                <div class="col-md-3">
+                    <table class="table">
+                        <thead>
+                            <tr><th>名称</th><th>金额</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>存款余额</td><td id="amountA">0.00</td></tr>
+                            <tr><td>报酬金额</td><td id="amountB">0.00</td></tr>
+                            <tr><td>留存金额(不可用)</td><td id="amountC">0.00</td></tr>
+                            <tr><td>本月已经消费</td><td><span class="label label-danger" id="curMonthXFE">0.00</span></td></tr>
+                            <tr><td>本月消费限额</td><td><span class="label label-warning" id="xiaofeiYuE">0.00</span></td></tr>
+                            <tr class="danger"><td>账户可用总余额</td><td id="okUseAllMoney">0.00</td></tr>
+                        </tbody>
+                    </table>
+
+                </div>
+                <div class="col-md-9">
+                    
+                    <h3>请选择您要调往的队别 ：</h3>
+                    <div>
+                        <div>                            
+                            <div class="form-group">
+                                <div class="input-group">
+                                    <div class="input-group-addon">调往队别：</div>
+                                    <select class="form-control input-lg" id="selSaveType" name="selSaveType">
+                                        <option value="9999" selected="selected">请选择队别</option>
+                                        @if (ViewData["areas"] != null)
+                                        {
+                                            foreach (SelfhelpOrderMgr.Model.T_AREA area in ViewData["areas"] as List<SelfhelpOrderMgr.Model.T_AREA>)
+                                            {
+                                                <option value="@area.FCode">@area.FName</option>
+                                            }
+                                        }
+
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                
+                                <p class="help-block">操作提示：<span id="rmbDX"></span></p>
+                                <p class="help-block">　　　　　1、先读IC卡，读完显示相应的信息.</p>
+                                <p class="help-block">　　　　　2、选择调往队别后,点【保存】,完成操作.</p>
+
+                            </div>
+
+                            <div class="row">
+                                <div class="col-sm-10">
+                                    <button type="button" id="btnSubmitKK" class="btn btn-danger btn-lg" disabled="disabled" onclick="btnSubmitKK()">3确认调队</button>
+                                </div>
+                                <div class="col-sm-2">
+                                    <a href="/Home/Index" class="btn btn-warning" role="button">退回首页</a>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script src="~/Scripts/jquery-1.11.3.min.js"></script>
+        <!-- Include all compiled plugins (below), or include individual files as needed -->
+        <script src="js/bootstrap.min.js"></script>
+        <script src="~/Scripts/messenger.min.js"></script>
+        <script src="~/Scripts/myJs/minghuaICcardCommon.js"></script>
+        <script src="~/Scripts/myJs/commonJs.js"></script>
+        <script src="~/Scripts/myJs/ComApp.js"></script>
+        <script type="text/javascript">
+            
+        </script>
+

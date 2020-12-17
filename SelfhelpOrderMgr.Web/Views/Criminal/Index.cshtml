@@ -1,0 +1,545 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>人员管理</title>
+    @{Html.RenderPartial("~/Views/Shared/_PartialHeadPage.cshtml");}
+    <link href="~/Scripts/simple-calendar/tcal.css" rel="stylesheet" />
+    <style type="text/css">
+        .bankAccount{
+            font-size:1.5em;
+        }
+        #ffOutBankInfo table tr {
+            height: 35px;
+        }
+    </style>
+
+</head>
+<body class="easyui-layout">
+    <div data-options="region:'center',title:'人员管理'" style="padding:5px;">
+        @*@{Html.RenderPartial("~/Views/Shared/_PartialXiaopiaoControl.cshtml");}*@
+        <table id="test" data-options="toolbar:'#tb'"></table>
+
+        <div id="tb">
+            <div>
+                @*FCheckFlag是“确认”,auditflag是“审核”,FdbcheckFlag是“复核”,Flag是“财务入账”*@
+                <a id="btnAdd" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-add',plain:true" onclick="btnAddCriminal()">增加</a><label>|</label>
+                <a id="btnSave" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-save',plain:true" onclick="btnSaveCriminal()">保存</a><label>|</label>
+                <a id="btnUndo" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-undo',plain:true" onclick="btnCancelEdit()">取消</a> <label>|</label>
+                <a id="btnDel" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-cancel',plain:true" onclick="btnDelCriminal()">删除</a> <label>|</label>
+                <a id="btnRec" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-reload',plain:true" onclick="btnRecCriminal()">恢复</a> <label>|</label>
+                <a id="btnBankInfo" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-edit',plain:true" onclick="btnBankCardEdit()">银行账户信息</a> <label>|</label>
+
+
+                <a href="javascript:void(0)" id="mprint" class="easyui-menubutton"
+                   data-options="menu:'#mp',iconCls:'icon-redo'">Excel操作</a>
+                <div id="mp" style="width:150px;">
+                    <div data-options="iconCls:'icon-man'" onclick="OutExcelSumOrder(1)">Excel列表导出</div>
+                    <div data-options="iconCls:'icon-redo'" onclick="OutExcelSumOrder(2)">Excel开卡清单导出</div>
+                    <div data-options="iconCls:'icon-redo'" onclick="OutExcelSumOrder(3)">Excel税收证明导出</div>
+                    <div data-options="iconCls:'icon-redo'" onclick="OutExcelSumOrder(4)">Excel存款清单模板</div>
+                    <div data-options="iconCls:'icon-redo'" onclick="$('#win').window('open')">Excel用户信息导入</div>
+
+                    <div data-options="iconCls:'icon-redo'" onclick="$('#winSearch').window('open')">Excel批量查找</div>
+
+                    <div data-options="iconCls:'icon-redo'" onclick="$('#winChangeEdu').window('open')">Excel调整存款可用额度</div>
+                </div>
+
+                <a href="javascript:void(0)" id="crimPrint" class="easyui-menubutton"
+                   data-options="menu:'#crimP',iconCls:'icon-redo'">打印</a>
+                <div id="crimP" style="width:150px;">
+                    <div data-options="iconCls:'icon-man'" onclick="OutBillPrint()">离监结算单</div>
+                </div>
+
+
+                <a href="javascript:void(0)" id="mpSets" class="easyui-menubutton"
+                   data-options="menu:'#mpList',iconCls:'icon-redo'">特殊设定</a>
+                <div id="mpList" style="width:150px;">
+                    <div data-options="iconCls:'icon-reload'" onclick="btnBatchDistributionBankCard()">批量分配银行结算账户</div>
+                    <div data-options="iconCls:'icon-save',plain:true" onclick="btnOutBankInfoEdit()">离监收款账户</div>
+                    <div data-options="iconCls:'icon-add',plain:true" onclick="btnTP_YingYangCan()">领导特批营养费</div>
+                    <div data-options="iconCls:'icon-remove',plain:true" onclick="btnRSB_Koukuan()">扣入监/所款</div>
+                </div>
+
+            </div>
+        </div>
+        <div>
+            <form id="ff" method="post">
+                <table>
+                    <tr>
+                        <th>编号</th>
+                        <td>
+                            <input type="text" id="txtFCode" name="txtFCode" style="width:100px;" class="easyui-textbox" />
+                            <input type="hidden" id="doType" name="doType" />
+                        </td>
+                        <th align="right">姓名</th>
+                        <td><input type="text" id="txtFName" name="txtFName" style="width:100px;" class="easyui-textbox" /></td>
+                        <th align="right">性别</th>
+                        <td>
+                            <select id="txtFSex" name="txtFSex" style="width:100px;" class="easyui-combobox">
+                                <option value="" selected="selected">请选择</option>
+                                <option value="男">男</option>
+                                <option value="女">女</option>
+                            </select>
+                        </td>
+                        <th>处遇</th>
+                        <td>
+                            <select id="txtFCyCode" name="txtFCyCode" class="easyui-combobox" disabled="disabled">
+                                <option value="" selected="selected">请选择处遇</option>
+                                @if (ViewData["cys"] != null)
+                                {
+                                    foreach (SelfhelpOrderMgr.Model.T_CY_TYPE cy in ViewData["cys"] as List<SelfhelpOrderMgr.Model.T_CY_TYPE>)
+                                    {
+                                        <option value="@cy.FCode">@cy.FName</option>
+                                    }
+                                }
+                            </select>
+                        </td>
+                        <th>身份证</th>
+                        <td><input type="text" id="txtFIdenNo" name="txtFIdenNo" style="width:160px;" class="easyui-textbox" /></td>
+
+                    </tr>
+                    <tr>
+                        <th>地址</th>
+                        <td colspan="5"><input type="text" id="txtFAddr" name="txtFAddr" style="width:400px;" class="easyui-textbox" /></td>
+                        <th>队别</th>
+                        <td>
+                            @if (ViewData["areaMset"] != null)
+                            {
+                                <input type="hidden" id="areaMset" value="@Convert.ToString(ViewData["areaMset"])" />
+                            }
+                            else
+                            {
+                                <input type="hidden" id="areaMset" value="0" />
+                            }
+                            @if (ViewData["cyMset"] != null)
+                            {
+                                <input type="hidden" id="cyMset" value="@Convert.ToString(ViewData["cyMset"])" />
+                            }
+                            else
+                            {
+                                <input type="hidden" id="cyMset" value="0" />
+                            }
+
+                            <select id="txtFAreaCode" name="txtFAreaCode" style="width:120px;" class="easyui-combobox" disabled="disabled">
+                                <option value="" selected="selected">请选择队别</option>
+                                @if (ViewData["areas"] != null)
+                                {
+                                    foreach (SelfhelpOrderMgr.Model.T_AREA area in ViewData["areas"] as List<SelfhelpOrderMgr.Model.T_AREA>)
+                                    {
+                                        <option value="@area.FCode">@area.FName</option>
+                                    }
+                                }
+                            </select>
+                        </td>
+                        <th>罪行</th>
+                        <td>
+                            <select id="txtFCrimeCode" name="txtFCrimeCode" style="width:160px;" class="easyui-combobox">
+                                <option value="" selected="selected">请选择罪行</option>
+                                @if (ViewData["crimes"] != null)
+                                {
+                                    foreach (SelfhelpOrderMgr.Model.T_CRIME crime in ViewData["crimes"] as List<SelfhelpOrderMgr.Model.T_CRIME>)
+                                    {
+                                        <option value="@crime.FCode">@crime.FName</option>
+                                    }
+                                }
+                            </select>
+                        </td>
+
+                    </tr>
+                    <tr>
+                        <th>刑期</th>
+                        <td><input type="text" id="txtFTerm" name="txtFTerm" style="width:100px;" class="easyui-textbox" /></td>
+                        <th>入狱日期</th>
+                        <td><input type="text" id="txtFInDate" name="txtFInDate" style="width:80px;" class="tcal" /></td>
+                        <th>刑满日期</th>
+                        <td><input type="text" id="txtFOuDate" name="txtFOuDate" style="width:80px;" class="tcal" /></td>
+                        <th>状态</th>
+                        <td><input type="text" id="txtFFlag" name="txtFFlag" style="width:120px;" class="easyui-textbox" data-options="readonly:true" /></td>
+                        <th colspan="2">
+                            <input type="checkbox" id="txtFlimitFlag" name="txtFlimitFlag" />冻结金额
+                            <input type="text" id="txtFlimitAmt" name="txtFlimitAmt" style="width:120px;" class="easyui-textbox" />
+                        </th>
+                    </tr>
+                    <tr>
+                        <th>备注</th>
+                        <td colspan="7"><input type="text" id="txtFDesc" name="txtFDesc" style="width:550px;" class="easyui-textbox" /></td>
+                        <th colspan="2">
+                            <label>特批金额:</label>
+                            <input type="text" id="TP_YingYangCan_Money" name="TP_YingYangCan_Money" style="width:80px;" class="easyui-textbox" disabled="disabled" />
+                        </th>
+                    </tr>
+                </table>
+            </form>
+        </div>
+
+        <div id="template"></div>
+    </div>
+
+    <div data-options="region:'east',title:'查询条件',split:true" style="width:300px;">
+        <div data-options="region:'north',title:'North Title',split:true" style="height:200px;">
+            <form id="searchForm" method="post">
+                <table id="crimeSearch">
+                    <tr>
+                        <th align="right">编号：</th>
+                        <td align="left">
+                            <input class="easyui-numberbox" id="FCode" name="FCode"
+                                   data-options="min:0,precision:0" style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right"></th>
+                        <td align="left">
+                            <input class="easyui-numberbox" id="endFCode" name="endFCode"
+                                   data-options="min:0,precision:0" style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">姓名：</th>
+                        <td align="left">
+                            <input id="FName" name="FName" class="easyui-textbox" style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">处遇：</th>
+                        <td align="left">
+                            <select id="FCyName" name="FCyName" class="easyui-combobox" style="width:190px;">
+                                <option value="" selected="selected">请选择</option>
+                                @if (ViewData["cys"] != null)
+                                {
+                                    foreach (SelfhelpOrderMgr.Model.T_CY_TYPE cy in ViewData["cys"] as List<SelfhelpOrderMgr.Model.T_CY_TYPE>)
+                                    {
+                                        <option value="@cy.FCode">@cy.FName</option>
+                                    }
+                                }
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">入监起日：</th>
+                        <td align="left">
+                            <input class="easyui-datetimebox" id="rjStartDate" name="rjStartDate"
+                                   data-options="required:false,showSeconds:false" value="3/4/2010 00:00" style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">　　止日：</th>
+                        <td align="left">
+                            <input class="easyui-datetimebox" id="rjEndDate" name="rjStartDate"
+                                   data-options="required:false,showSeconds:false" value="3/4/2010 23:59" style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">刑满起日：</th>
+                        <td align="left">
+                            <input class="easyui-datetimebox" id="StartDate" name="StartDate"
+                                   data-options="required:false,showSeconds:false" value="3/4/2010 00:00" style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">　　止日：</th>
+                        <td align="left">
+                            <input class="easyui-datetimebox" id="EndDate" name="EndDate"
+                                   data-options="required:false,showSeconds:false" value="3/4/2010 23:59" style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">队别：</th>
+                        <td align="left">
+                            <select id="FAreaName" name="FAreaName" class="easyui-combobox" style="width:190px;">
+                                <option value="" selected="selected">请选择队别</option>
+                                @if (ViewData["areas"] != null)
+                                {
+                                    foreach (SelfhelpOrderMgr.Model.T_AREA area in ViewData["areas"] as List<SelfhelpOrderMgr.Model.T_AREA>)
+                                    {
+                                        <option value="@area.FCode">@area.FName</option>
+                                    }
+                                }
+                            </select>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th align="right">操作员：</th>
+                        <td align="left">
+                            <select id="FCrtBy" name="FCrtBy" class="easyui-combobox" style="width:190px;">
+                                <option value="" selected="selected">请选择</option>
+                                @if (ViewData["crtbys"] != null)
+                                {
+                                    foreach (string crtby in ViewData["crtbys"] as List<string>)
+                                    {
+                                        <option value="@crtby">@crtby</option>
+                                    }
+                                }
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">在押状态：</th>
+                        <td align="left">
+                            <select id="FCriminalFlag" name="FCriminalFlag" class="easyui-combobox" style="width:190px;">
+                                <option value="" selected="selected">请选择</option>
+                                <option value="0">在押</option>
+                                <option value="1">离监</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">IC卡状态：</th>
+                        <td align="left">
+                            <select id="FAccTypes" name="FAccTypes" class="easyui-combobox" style="width:190px;">
+                                <option value="" selected="selected">IC卡办理状态</option>
+                                <option value="0">未制卡</option>
+                                <option value="1">已制卡</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">银行开户：</th>
+                        <td align="left">
+                            <select id="FBankFlags" name="FBankFlags" class="easyui-combobox" style="width:190px;">
+                                <option value="" selected="selected">银行开户状态</option>
+                                <option value="0">未开户</option>
+                                <option value="1">已开户</option>
+                            </select>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th align="right"></th>
+                        <td align="right"><a id="btn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-search'" onclick="btnSearch()">查询</a><a id="A1" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-redo'" onclick="btnClear()">清空</a></td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+    </div>
+
+    <div id="win" class="easyui-window" title="Excel 文件导入" style="width:400px;height:200px"
+         data-options="iconCls:'icon-save',modal:true">
+        <form id="ffExcel" method="post" enctype="multipart/form-data">
+            <div>
+                <label for="name">Excel文件:</label>
+                <input type="file" id="FExcelFile" name="FExcelFile" formenctype="multipart/form-data" />
+            </div>
+            <div>
+                <a id="btnExcelIn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-reload'" onclick="InExcelCriminalInfo()">开始导入</a>
+            </div>
+            <div><label id="lblInfo"></label></div>
+        </form>
+    </div>
+
+    <div id="winChangeEdu" class="easyui-window" title="Excel格式：编号、姓名、金额、调整事由" style="width:400px;height:200px"
+         data-options="iconCls:'icon-save',modal:true">
+        <form id="ffExcelChgED" method="post" enctype="multipart/form-data">
+            <div>
+                <label for="name">Excel文件:</label>
+                <input type="file" id="FExcelEDUFile" name="FExcelEDUFile" formenctype="multipart/form-data" />
+            </div>
+            <div>
+                <a id="btnExcelEduIn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-reload'" onclick="InExcelChangeEDu()">开始导入</a>
+            </div>
+            <div><label id="lblEduInfo"></label></div>
+        </form>
+    </div>
+
+    <div id="winSearch" class="easyui-window" title="Excel 查找的名单" style="width:400px;height:200px"
+         data-options="iconCls:'icon-save',modal:true">
+        <form id="ffExcelSearch" method="post" enctype="multipart/form-data">
+            <div>
+                <label for="name">Excel名单:</label>
+                <input type="file" id="FExcelSearch" name="FExcelSearch" formenctype="multipart/form-data" />
+            </div>
+            <div>
+                <a id="btnExcelIn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-reload'" onclick="InExcelSearchInfo()">开始导入</a>
+            </div>
+            <div><label id="lblInfo"></label></div>
+        </form>
+    </div>
+    @*银行账户信息*@
+    <div id="winBank" class="easyui-window" title="银行账户信息" style="width:400px;height:300px"
+         data-options="iconCls:'icon-save',modal:true">
+        <form id="ffBankInfoSet" method="post">
+            <table>
+                <tr>
+                    <th align="right">编号:</th>
+                    <td><input type="text" id="FUserCode" name="FUserCode" /></td>
+                </tr>
+                <tr>
+                    <th align="right">姓名:</th>
+                    <td><input type="text" id="FUserName" name="FUserName" /></td>
+                </tr>
+                <tr>
+                    <th align="right">银行账号:</th>
+                    <td><input type="text" id="FBankCardNo" name="FBankCardNo" /></td>
+                </tr>
+                <tr>
+                    <th align="right">中银结算卡:</th>
+                    <td><input type="text" id="FSecondaryBankCard" name="SecondaryBankCard" disabled="disabled" /></td>
+                    <td><a id="btnBankSave" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-reload'" onclick="ReqBankCardNoByNew()">申请</a></td>
+                </tr>
+                <tr>
+                    <th align="right" id="FAmountAMoneyLabel">存款余额:</th>
+                    <td><input type="text" id="FAmountAMoney" name="FAmountAMoney" /></td>
+                </tr>
+                <tr>
+                    <th align="right" id="FAmountBMoneyLabel">报酬余额:</th>
+                    <td><input type="text" id="FAmountBMoney" name="FAmountBMoney" /></td>
+                </tr>
+                <tr>
+                    <th align="right" id="FAmountCMoneyLabel">留存余额:</th>
+                    <td><input type="text" id="FAmountCMoney" name="FAmountCMoney" /></td>
+                </tr>
+                <tr>
+                    <th></th>
+                    <td><a id="btnBankSave" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-save'" onclick="BankCardSave()">保存</a></td>
+                </tr>
+            </table>
+
+            <div>
+
+            </div>
+        </form>
+    </div>
+
+    @*营养餐特批编辑增加*@
+    <div id="winTP_YingYanyCan" class="easyui-window" title="营养餐编辑" style="width:600px;height:400px"
+         data-options="iconCls:'icon-add',modal:true">
+        <div style="text-align:center"><h2>用户营养餐特批补助</h2></div>
+        <div id="tt" class="easyui-tabs" style="width:580px;height:300px;">
+            <div title="新增" data-options="closable:false" style="padding:10px;">
+                <form id="ffYYC" method="post" enctype="multipart/form-data">
+                    <table>
+                        <tr>
+                            <td>
+                                <label for="name">狱号编号:</label>
+                                <input type="tel" id="yycFCode" name="FCode" value="" />
+                            </td>
+                            <td>
+                                <label for="name">人员姓名:</label>
+                                <input type="tel" id="yycFName" name="FName" value="" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label for="name">特批金额:</label>
+                                <input type="number" id="yycTPMoney" name="TPMoney" value="" />
+                            </td>
+                            <td>
+
+                                <label for="name">有效期到:</label>
+                                <input id="yycEffectiveDate" name="EffectiveDate" type="text" class="easyui-datebox" required="required" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">
+                                <label for="name">特批的资金是否受处遇标准限制:</label>
+                                <input type="checkbox" id="MoneyUseFlag" name="MoneyUseFlag" checked="checked" /><label>(否则可以超过处遇限额，是则不可)</label>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">
+                                <label for="name">特批文件:</label>
+                                <input type="file" id="yycFileName" name="SrcFileName" value="" formenctype="multipart/form-data" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">
+                                <label for="name">特批内容:</label>
+                                <textarea id="yycRemark" name="Remark" rows="5" style="width:350px;"></textarea>
+
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <a id="btnYYC" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-add'" onclick="btnYycSave()">确认增加</a>
+                            </td>
+                        </tr>
+                    </table>
+                </form>
+            </div>
+            <div title="领导审批记录" data-options="closable:false" style="padding:10px;">
+                <table id="yycTable"></table>
+            </div>
+        </div>
+    </div>
+    <div id="winOutBankInfo" class="easyui-window" title="离监收款账户" style="width:700px;height:400px"
+             data-options="iconCls:'icon-save',modal:true">
+        <form id="ffOutBankInfo" autocomplete="off" method="post">
+            <table>
+                <tr>
+                    <th align="right">编号:</th>
+                    <td><input type="text" id="FOutUserCode" name="FOutUserCode" disabled="disabled" style="width:300px;" class="easyui-textbox bankAccount" data-options="validType:'minLength[10]'" /></td>
+                </tr>
+                <tr>
+                    <th align="right">犯人姓名:</th>
+                    <td><input type="text" id="FOutFCrimeName" name="FOutFCrimeName" disabled="disabled" style="width:300px;" class="easyui-textbox bankAccount" data-options="validType:'minLength[2]'" /></td>
+                </tr>
+                <tr>
+                    <th align="right">收款人账号:</th>
+                    <td><input type="text" id="OutBankCard" name="OutBankCard" style="width:300px" class="easyui-validatebox bankAccount" data-options="validType:'length[16,19]'" /></td>
+                </tr>
+                <tr>
+                    <th align="right">收款人姓名:</th>
+                    <td><input type="text" id="BankUserName" name="BankUserName" style="width:300px" class="easyui-validatebox bankAccount" data-options="validType:'minLength[2]'" /></td>
+                </tr>
+                <tr>
+                    <th align="right">所属银行:</th>
+                    <td>
+                        <select id="ccBankOrgName" class="easyui-combobox" name="BankOrgName" style="width:298px;"
+                                data-options="onSelect: function(rec){
+                                            OnChangeByBankSelect();
+                                        }">
+                            <option value="1" selected="selected">中国银行</option>
+                            <option value="0">其他银行</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th align="right">开户网点列表:</th>
+                    <td>
+                        <input id="ccBankCNAPS" name="BankCNAPS" class="bankAccount" style="width:300px" />
+                        <input type="hidden" id="OpeningBank" name="OpeningBank" value="中国银行" style="width:300px" />
+                        <label>通过空格来分词查询，如:'建设银行 福州 南门'</label>
+                    </td>
+                </tr>
+                <tr>
+                    <th align="right">家属关系:</th>
+                    <td><input type="text" id="OutBankRemark" name="OutBankRemark" style="width:300px" class="easyui-validatebox" data-options="validType:'length[2,20]'" /></td>
+                </tr>
+                <tr>
+                    <th></th>
+                    <td><a id="btnOutBankSave" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-save'" onclick="OutBankCardSave()">保存</a></td>
+                </tr>
+            </table>
+            <div>
+            </div>
+        </form>
+
+        </div>
+
+        <div id="tbByBank">
+                <form id="ffByBankName" method="post">
+                    <div>
+                        <label for="name">网点名称:</label>
+                        <input class="easyui-validatebox" type="text" id="searchBankOpenName" name="BankOpenName" data-options="required:true" />
+                        <a id="btn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-search'" onclick="btnSearchBankOpenName()" >查询</a>
+                    </div>
+
+                </form>
+            </div>
+
+    <script src="~/Scripts/myJs/LodopFuncs.js"></script>
+
+    <script src="~/Scripts/myJs/CriminalMgr.js"></script>
+    <script src="~/Scripts/simple-calendar/tcal.js"></script>
+    <script type="text/javascript">
+
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,279 @@
+﻿using System;
+using System.Text;
+using System.Data.SqlClient;
+using System.Collections.Generic;
+using System.Data;
+using Dapper;
+using SelfhelpOrderMgr.Model;
+namespace SelfhelpOrderMgr.DAL
+{
+    //T_StockDTL
+    public partial class T_StockDTLDAL
+    {
+
+        public bool Exists(int seqid)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("select count(1) from T_StockDTL");
+            strSql.Append(" where ");
+            strSql.Append(" seqid = @seqid  ");
+            SqlParameter[] parameters = {
+					new SqlParameter("@seqid", SqlDbType.Int,4)
+			};
+            parameters[0].Value = seqid;
+
+            return SqlHelper.Exists(strSql.ToString(), parameters);
+        }
+
+
+
+        /// <summary>
+        /// 增加一条数据
+        /// </summary>
+        public int Add(SelfhelpOrderMgr.Model.T_StockDTL model)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("insert into T_StockDTL(");
+            strSql.Append("Remark,StockId,GCODE,GTXM,GCOUNT,GDJ,flag,stockflag,InOutFlag");
+            strSql.Append(") values (");
+            strSql.Append("@Remark,@StockId,@GCODE,@GTXM,@GCOUNT,@GDJ,@flag,@stockflag,@InOutFlag");
+            strSql.Append(") ");
+            strSql.Append(";select @@IDENTITY");
+            SqlParameter[] parameters = {
+			            new SqlParameter("@Remark", SqlDbType.VarChar,50) ,            
+                        new SqlParameter("@StockId", SqlDbType.VarChar,20) ,            
+                        new SqlParameter("@GCODE", SqlDbType.VarChar,20) ,            
+                        new SqlParameter("@GTXM", SqlDbType.VarChar,20) ,            
+                        new SqlParameter("@GCOUNT", SqlDbType.Decimal,5) ,            
+                        new SqlParameter("@GDJ", SqlDbType.Decimal,5) ,            
+                        new SqlParameter("@flag", SqlDbType.Int,4) ,            
+                        new SqlParameter("@stockflag", SqlDbType.Int,4) ,            
+                        new SqlParameter("@InOutFlag", SqlDbType.Int,4)             
+              
+            };
+
+            parameters[0].Value = model.Remark;
+            parameters[1].Value = model.StockId;
+            parameters[2].Value = model.GCODE;
+            parameters[3].Value = model.GTXM;
+            parameters[4].Value = model.GCOUNT;
+            parameters[5].Value = model.GDJ;
+            parameters[6].Value = model.flag;
+            parameters[7].Value = model.stockflag;
+            parameters[8].Value = model.InOutFlag;
+
+            object obj = SqlHelper.GetSingle(strSql.ToString(), parameters);
+            if (obj == null)
+            {
+                return 0;
+            }
+            else
+            {
+
+                return Convert.ToInt32(obj);
+
+            }
+
+        }
+
+
+        /// <summary>
+        /// 更新一条数据
+        /// </summary>
+        public bool Update(SelfhelpOrderMgr.Model.T_StockDTL model)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("update T_StockDTL set ");
+
+            strSql.Append(" Remark = @Remark , ");
+            strSql.Append(" StockId = @StockId , ");
+            strSql.Append(" GCODE = @GCODE , ");
+            strSql.Append(" GTXM = @GTXM , ");
+            strSql.Append(" GCOUNT = @GCOUNT , ");
+            strSql.Append(" GDJ = @GDJ , ");
+            strSql.Append(" flag = @flag , ");
+            strSql.Append(" stockflag = @stockflag , ");
+            strSql.Append(" InOutFlag = @InOutFlag  ");
+            strSql.Append(" where seqid=@seqid ");
+
+            SqlParameter[] parameters = {
+			            new SqlParameter("@seqid", SqlDbType.Int,4) ,            
+                        new SqlParameter("@Remark", SqlDbType.VarChar,50) ,            
+                        new SqlParameter("@StockId", SqlDbType.VarChar,20) ,            
+                        new SqlParameter("@GCODE", SqlDbType.VarChar,20) ,            
+                        new SqlParameter("@GTXM", SqlDbType.VarChar,20) ,            
+                        new SqlParameter("@GCOUNT", SqlDbType.Decimal,5) ,            
+                        new SqlParameter("@GDJ", SqlDbType.Decimal,5) ,            
+                        new SqlParameter("@flag", SqlDbType.Int,4) ,            
+                        new SqlParameter("@stockflag", SqlDbType.Int,4) ,            
+                        new SqlParameter("@InOutFlag", SqlDbType.Int,4)             
+              
+            };
+
+            parameters[0].Value = model.seqid;
+            parameters[1].Value = model.Remark;
+            parameters[2].Value = model.StockId;
+            parameters[3].Value = model.GCODE;
+            parameters[4].Value = model.GTXM;
+            parameters[5].Value = model.GCOUNT;
+            parameters[6].Value = model.GDJ;
+            parameters[7].Value = model.flag;
+            parameters[8].Value = model.stockflag;
+            parameters[9].Value = model.InOutFlag;
+            int rows = SqlHelper.ExecuteSql(strSql.ToString(), parameters);
+            if (rows > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+
+        /// <summary>
+        /// 删除一条数据
+        /// </summary>
+        public bool Delete(int seqid)
+        {
+
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("delete from T_StockDTL ");
+            strSql.Append(" where seqid=@seqid");
+            SqlParameter[] parameters = {
+					new SqlParameter("@seqid", SqlDbType.Int,4)
+			};
+            parameters[0].Value = seqid;
+
+
+            int rows = SqlHelper.ExecuteSql(strSql.ToString(), parameters);
+            if (rows > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// 批量删除一批数据
+        /// </summary>
+        public bool DeleteList(string seqidlist)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("delete from T_StockDTL ");
+            strSql.Append(" where ID in (" + seqidlist + ")  ");
+            int rows = SqlHelper.ExecuteSql(strSql.ToString());
+            if (rows > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+
+        /// <summary>
+        /// 得到一个对象实体
+        /// </summary>
+        public SelfhelpOrderMgr.Model.T_StockDTL GetModel(int seqid)
+        {
+
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("select seqid, Remark, StockId, GCODE, GTXM, GCOUNT, GDJ, flag, stockflag, InOutFlag  ");
+            strSql.Append("  from T_StockDTL ");
+            strSql.Append(" where seqid=@seqid");
+            SqlParameter[] parameters = {
+					new SqlParameter("@seqid", SqlDbType.Int,4)
+			};
+            parameters[0].Value = seqid;
+
+
+            SelfhelpOrderMgr.Model.T_StockDTL model = new SelfhelpOrderMgr.Model.T_StockDTL();
+            DataSet ds = SqlHelper.Query(strSql.ToString(), parameters);
+
+            if (ds.Tables[0].Rows.Count > 0)
+            {
+                if (ds.Tables[0].Rows[0]["seqid"].ToString() != "")
+                {
+                    model.seqid = int.Parse(ds.Tables[0].Rows[0]["seqid"].ToString());
+                }
+                model.Remark = ds.Tables[0].Rows[0]["Remark"].ToString();
+                model.StockId = ds.Tables[0].Rows[0]["StockId"].ToString();
+                model.GCODE = ds.Tables[0].Rows[0]["GCODE"].ToString();
+                model.GTXM = ds.Tables[0].Rows[0]["GTXM"].ToString();
+                if (ds.Tables[0].Rows[0]["GCOUNT"].ToString() != "")
+                {
+                    model.GCOUNT = decimal.Parse(ds.Tables[0].Rows[0]["GCOUNT"].ToString());
+                }
+                if (ds.Tables[0].Rows[0]["GDJ"].ToString() != "")
+                {
+                    model.GDJ = decimal.Parse(ds.Tables[0].Rows[0]["GDJ"].ToString());
+                }
+                if (ds.Tables[0].Rows[0]["flag"].ToString() != "")
+                {
+                    model.flag = int.Parse(ds.Tables[0].Rows[0]["flag"].ToString());
+                }
+                if (ds.Tables[0].Rows[0]["stockflag"].ToString() != "")
+                {
+                    model.stockflag = int.Parse(ds.Tables[0].Rows[0]["stockflag"].ToString());
+                }
+                if (ds.Tables[0].Rows[0]["InOutFlag"].ToString() != "")
+                {
+                    model.InOutFlag = int.Parse(ds.Tables[0].Rows[0]["InOutFlag"].ToString());
+                }
+
+                return model;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+
+        /// <summary>
+        /// 获得数据列表
+        /// </summary>
+        public DataSet GetList(string strWhere)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("select * ");
+            strSql.Append(" FROM T_StockDTL ");
+            if (strWhere.Trim() != "")
+            {
+                strSql.Append(" where " + strWhere);
+            }
+            return SqlHelper.Query(strSql.ToString());
+        }
+
+        /// <summary>
+        /// 获得前几行数据
+        /// </summary>
+        public DataSet GetList(int Top, string strWhere, string filedOrder)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("select ");
+            if (Top > 0)
+            {
+                strSql.Append(" top " + Top.ToString());
+            }
+            strSql.Append(" * ");
+            strSql.Append(" FROM T_StockDTL ");
+            if (strWhere.Trim() != "")
+            {
+                strSql.Append(" where " + strWhere);
+            }
+            strSql.Append(" order by " + filedOrder);
+            return SqlHelper.Query(strSql.ToString());
+        }
+
+
+    }
+}
+

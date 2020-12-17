@@ -1,0 +1,357 @@
+﻿<link href="/Content/MyCss/font-awesome.min.css" rel="stylesheet" />
+@*<link href="~/Scripts/jquery-easyui-1.4.2/themes/bootstrap/easyui.css" rel="stylesheet" />*@
+<link href="~/Content/zTree.min.css" rel="stylesheet" />
+<link href="~/Content/zTree.theme.metro.min.css" rel="stylesheet" />
+@*<link href="~/Content/bootstrap-table.css" rel="stylesheet" />*@
+<link href="~/Content/bootstrap-table.min.css" rel="stylesheet" />
+<link href="~/Content/bootstrap-select.min.css" rel="stylesheet" />
+<link href="~/Content/jquery.datetimepicker.css" rel="stylesheet" />
+<link href="~/Content/jquery-confirm.css" rel="stylesheet" />
+<link href="~/Content/MyCss/table.css" rel="stylesheet" />
+
+
+
+@*<link href="~/Content/jquery-treegridCss/jquery.treegrid.css" rel="stylesheet" />*@
+@*<h3>----用户权限管理----</h3>
+    <hr />*@
+
+
+<style type="text/css">
+    .search-area {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+    }
+
+        .search-area td, .search-area th {
+            padding-top: 10px;
+        }
+</style>
+
+<div class="col-lg-12">
+    <div class="searctform" style="margin-top:15px; padding:0px 15px 10px; border:1px solid #ccc;">
+        <table class="search-area">
+            <tr>
+                <th>犯人编号：</th>
+                <td><input type="text" class="form-control" id="code" placeholder="请输入犯人编号"></td>
+                <th style="padding-left:20px;">犯人名称：</th>
+                <td><input type="text" class="form-control" id="name" placeholder="请输入犯人名称"></td>
+                <th style="padding-left:20px;">所属中队：</th>
+                <td>
+                    <select class="selectpicker " title="请选择所属中队" data-live-search="true" data-size="5">
+                        <option>一中队</option>
+                        <option>二中队</option>
+                        <option>三中队</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <th>起始时间：</th>
+                <td>
+                    <a class='input-group date' id='datetimepicker2' style="float:left;">
+                        <input type='text' class="form-control" id='nowdate' style="width: 150px; height: 30px;" />
+                        <span class="input-group-addon" style="float: left; width: 50px; height: 30px;">
+                            <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                    </a>
+                </td>
+                <th style="padding-left:20px;">结束时间：</th>
+                <td>
+                    <a class='input-group date' id='datetimepicker3' style="float:left;">
+                        <input type='text' class="form-control" id='nowdate' style="width: 150px; height: 30px;" />
+                        <span class="input-group-addon" style="float: left; width: 50px; height: 30px;">
+                            <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                    </a>
+                </td>
+                <th></th>
+                <td>
+                    <button type="button" class="btn btn-default" style="margin-left:20px;" id="s">搜索</button>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div>
+        <div style="padding:10px 0px;">
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addPup">添加申请单</button>
+        </div>
+
+        <table class="table text-center">
+            @*<caption>人员调整列表</caption>*@
+            <thead>
+                <tr>
+                    <th class="text-center">序号</th>
+                    <th class="text-center">犯人编号</th>
+                    <th class="text-center">犯人姓名</th>
+                    <th class="text-center">调整前队别</th>
+                    <th class="text-center">调整前处遇</th>
+                    <th class="text-center">调整后队别</th>
+                    <th class="text-center">调整后处遇</th>
+                    <th class="text-center">申请时间</th>
+                    <th class="text-center">编辑</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td>1111111111</td>
+                    <td>XXX</td>
+                    <td>一中队</td>
+                    <td>普管</td>
+                    <td>三中队</td>
+                    <td>宽管</td>
+                    <td>2018-06-26 17:57:21</td>
+                    <td>
+                        <button type="button" class="btn btn-link">管理科审核</button>
+                        <button type="button" class="btn btn-link">退回</button>
+                        <button type="button" class="btn btn-link" data-toggle="modal" data-target="#detail">编辑</button>
+                        <button type="button" class="btn btn-link">删除</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>2222222222</td>
+                    <td>XXX</td>
+                    <td>一中队</td>
+                    <td>普管</td>
+                    <td>三中队</td>
+                    <td>宽管</td>
+                    <td>2018-06-26 17:57:21</td>
+                    <td>
+                        <button type="button" class="btn btn-link">大队审核</button>
+                        <button type="button" class="btn btn-link">退回</button>
+                        <button type="button" class="btn btn-link" data-toggle="modal">编辑</button>
+                        <button type="button" class="btn btn-link">删除</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td>3333333333</td>
+                    <td>XXX</td>
+                    <td>一中队</td>
+                    <td>普管</td>
+                    <td>三中队</td>
+                    <td>宽管</td>
+                    <td>2018-06-26 17:57:21</td>
+                    <td>
+                        申请已审核完成
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<!--详情页-->
+
+<div class="modal fade" id="detail" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">人员调动详情</h4>
+            </div>
+            <div class="modal-body">
+                <div class="progress" style=" height:28px;">
+                    <div class="progress-bar progress-bar-warning" role="progressbar"
+                         aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"
+                         style="width: 66.66%; font-size: 16px; line-height: 28px; ">
+                        待管理科审核
+                        <span class="sr-only">66.66%</span>
+                    </div>
+                    @*<div class="progress-bar progress-bar-info" role="progressbar"
+                             aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"
+                             style="width: 33.33%; font-size: 16px; line-height: 28px;">
+                            大队已审核
+                            <span class="sr-only">33.33%</span>
+                        </div>
+                        <div class="progress-bar progress-bar-success" role="progressbar"
+                             aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"
+                             style="width: 0%; font-size: 16px; line-height: 28px; ">
+                            管理科已审核
+                            <span class="sr-only">33.33%</span>
+                        </div>*@
+                </div>
+
+                <div id="prisonInfoForm" style=" padding: 15px; border: 1px solid #ccc;">
+                    <table class="search-area">
+                        <tr>
+                            <th>犯人编号：</th>
+                            <td>1111111111</td>
+                            <th>犯人名称：</th>
+                            <td>XXX</td>
+
+                        </tr>
+                        <tr>
+                            <th>调整前队别：</th>
+                            <td>一中队</td>
+                            <th>调整前处遇：</th>
+                            <td>普管级</td>
+                        </tr>
+                        <tr>
+                            <th>调整前队别：</th>
+                            <td>
+                                <select class=" selectpicker " title="请选择所属中队" data-live-search="true" data-size="5">
+                                    <option selected="selected">一中队</option>
+                                    <option>二中队</option>
+                                    <option>三中队</option>
+                                </select>
+                            </td>
+                            <th>调整前处遇：</th>
+                            <td>
+                                <select class="form-control selectpicker " title="请选择处遇" data-live-search="true" data-size="5">
+                                    <option selected="selected">普管</option>
+                                    <option>严管</option>
+                                    <option>宽管</option>
+                                </select>
+                            </td>
+
+                        </tr>
+                        <tr>
+                            <th>申请时间：</th>
+                            <td>2018-06-26 17:57:21</td>
+                            <th>申请状态：</th>
+                            <td>待管理科审核</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary">确定</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+
+
+<!--添加页-->
+<div class="modal fade" id="addPup" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">添加人员调动</h4>
+            </div>
+            <div class="modal-body">
+                <div style="padding-bottom:10px;">
+                    <label for="code">犯人编号：</label>
+                    <input type="text" class="form-control" id="code" style="width:150px; display:inline-block;" placeholder="请输入犯人编号">
+                    <button type="button" class="btn btn-default">确定</button>
+                </div>
+                <div id="addPrisonInfoForm" style=" padding: 15px; border: 1px solid #ccc;">
+                    <table class=" table search-area" >
+                        <tr>
+                            <th>犯人编号：</th>
+                            <td>1111111111</td>
+                            <th>犯人名称：</th>
+                            <td>XXX</td>
+                        </tr>
+                        <tr>
+                            <th>调整前队别：</th>
+                            <td>一中队</td>
+                            <th>调整前处遇：</th>
+                            <td>普管级</td>
+                        </tr>
+                        <tr>
+                            <th>调整前队别：</th>
+                            <td>
+                                <select class=" selectpicker " title="请选择所属中队" data-live-search="true" data-size="5">
+                                    <option selected="selected">一中队</option>
+                                    <option>二中队</option>
+                                    <option>三中队</option>
+                                </select>
+                            </td>
+                            <th>调整前处遇：</th>
+                            <td>
+                                <select class="form-control selectpicker " title="请选择处遇" data-live-search="true" data-size="5">
+                                    <option selected="selected">普管</option>
+                                    <option>严管</option>
+                                    <option>宽管</option>
+                                </select>
+                            </td>
+
+                        </tr>
+                        <tr>
+                            <th>申请时间：</th>
+                            <td>
+                                <a class='input-group date' id='datetimepicker5' style="float:left;">
+                                    <input type='text' class="form-control" id='nowdate' style="width: 150px; height: 30px;" />
+                                    <span class="input-group-addon" style="float: left; width: 50px; height: 30px;">
+                                        <span class="glyphicon glyphicon-calendar"></span>
+                                    </span>
+                                </a>
+                            </td>
+                            <th></th>
+                            <td></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary">添加</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div>
+
+</div>
+
+
+
+@*<script src="~/Scripts/jquery-easyui-1.4.2/jquery.easyui.min.js"></script>*@
+@*<script src="~/Scripts/BootStrap_TreeGrid.js"></script>*@
+
+<script src="~/Scripts/jquery.ztree.all-3.5.min.js"></script>
+@*<script src="~/Scripts/bootstrap-table.js"></script>*@
+<script src="~/Scripts/bootstrap-table.min.js"></script>
+<script src="~/Scripts/bootstrap-table-filter-control.js"></script>
+<script src="~/Scripts/tableExport.min.js"></script>
+<script src="~/Scripts/bootstrap-table-export.js"></script>
+<script src="~/Scripts/bootstrap-table-toolbar.js"></script>
+@*<script src="~/Scripts/jquery-treegrid/jquery.treegrid.js"></script>
+<script src="~/Scripts/jquery-treegrid/jquery.treegrid.bootstrap3.js"></script>*@
+<script src="~/Scripts/select-defaults-zh_CN.min.js"></script>
+<script src="~/Scripts/jquery.datetimepicker.full.min.js"></script>
+<script src="~/Scripts/bootstrap-datetimepicker.zh-CN.js"></script>
+<script src="~/Scripts/jquery-confirm.js"></script>
+<script src="~/Scripts/jquery.form.js"></script>
+<script src="~/Scripts/myJs/NewLayout/commonJs.js"></script>
+<script src="~/Scripts/myJs/NewLayout/BI_CriminalMgr.js"></script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#goodInfoForm").hide();
+
+        $("#s").click(function () {
+            $("#goodInfoForm").show();
+        });
+
+        $("#b").click(function () {
+            $("#goodInfoForm").hide();
+        });
+
+        $('.date').datetimepicker({
+            language: 'zh-CN',//显示中文
+            format: 'yyyy-mm-dd',//显示格式
+            minView: "month",//设置只显示到月份
+            initialDate: new Date(),//初始化当前日期
+            autoclose: true,//选中自动关闭
+            todayBtn: true//显示今日按钮
+        });
+
+        $('.date').datetimepicker({
+            language: 'zh-CN',//显示中文
+            format: 'yyyy-mm-dd',//显示格式
+            minView: "month",//设置只显示到月份
+            initialDate: new Date(),//初始化当前日期
+            autoclose: true,//选中自动关闭
+            todayBtn: true//显示今日按钮
+        });
+
+    });
+
+
+</script>

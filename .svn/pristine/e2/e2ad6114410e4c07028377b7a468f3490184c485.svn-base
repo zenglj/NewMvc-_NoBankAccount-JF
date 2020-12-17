@@ -1,0 +1,167 @@
+﻿using SelfhelpOrderMgr.BLL;
+using SelfhelpOrderMgr.Model;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Web;
+using System.Web.Mvc;
+using System.Web.Script.Serialization;
+
+namespace SelfhelpOrderMgr.Web.Controllers
+{
+    public class ComAppController : Controller
+    {
+        //
+        // GET: /ComApp/
+        JavaScriptSerializer jss = new JavaScriptSerializer();
+        public ActionResult Index()
+        {
+            string LoginFlag = Request["LoginFlag"];
+            string managerCardNo = Request["managerCardNo"];
+            string UserName = Request["UserName"];
+            //if (string.IsNullOrEmpty(LoginFlag) == true)
+            //{
+            //    return View("Login");
+            //}
+            //else if ("LoginOK122342124121123131231122" != LoginFlag)
+            //{
+            //    return View("Login");
+            //}
+
+            ViewData["FManagerCard"] = managerCardNo;
+            ViewData["UserName"] = UserName;
+
+            List<T_AREA> areas = new T_AREABLL().GetModelList("");
+            ViewData["areas"] = areas;
+            return View();
+        }
+        
+        public ActionResult LoginCheck()
+        {
+            string LoginFlag = Request["LoginFlag"];
+            string managerCardNo = Request["managerCardNo"];
+            string UserName = Request["UserName"];
+            if (string.IsNullOrEmpty(managerCardNo))
+            {
+                return Content("Err|管理卡号不能为空");
+            }
+
+            List<T_AREA> areas = new T_AREABLL().GetModelList(@" fcode in(
+                select fareaCode from t_Czy_Area where fflag=2 and fcode in(
+                select fcode from t_czy where FManagerCard ='"+managerCardNo+"'))");
+
+            return Content("OK|"+ jss.Serialize(areas));
+        }
+
+        public ActionResult QueryUserInfo()
+        {
+            string fcardCode = Request["FCardCode"];
+            string FManagerCard = Request["FManagerCard"];
+            string UserName = Request["UserName"];
+            string ip = System.Web.HttpContext.Current.Request.UserHostAddress;
+            //string ip = System.Web.HttpContext.Current.Request.ServerVariables["REMOTE_ADDR"];
+            string status = "Error|查询失败";
+            if (fcardCode.Length != 10)
+            {
+                return Content(status);
+            }
+            FManagerCard = FManagerCard.Substring(3);
+            List<T_CZY> czys = new T_CZYBLL().GetModelList("FManagerCard='" + FManagerCard + "'");
+            if (czys.Count == 0)
+            {
+                return Content("Error|无效的管理卡，请联系统民警");
+            }
+            List<T_Criminal_card> cards = (List<T_Criminal_card>)new T_Criminal_cardBLL().GetModelList("CardCodeA='" + fcardCode.ToString() + "'");
+            if (cards.Count == 0)
+            {
+                status = "Error|该卡找不对应人员信息";
+                return Content(status);
+            }
+            string fcrimeCode = cards[0].fcrimecode;
+            T_Criminal criminal = new T_CriminalBLL().GetCriminalXE_info(fcrimeCode, 1);
+
+            
+
+            //获取查询到的近三个月的存款记录
+
+            List<T_Vcrd> vcrds = new T_VcrdBLL().GetModelList(100, "flag=0 and fcrimecode='" + criminal.FCode + "' and crtdate>='" + DateTime.Now.AddMonths(-3).ToShortDateString() + "'and crtdate<'" + DateTime.Now.AddDays(1).ToShortDateString() + "'", " CrtDate desc");
+            rtnQueryUserInfo userinfo = new rtnQueryUserInfo();
+            userinfo.UserInfo = criminal;
+            userinfo.vcrds = vcrds;
+
+            status = jss.Serialize(userinfo);
+            status = "There|" + status;
+            return Content(status);
+        }
+
+        public ActionResult btnSubmitKK(int id = 1)
+        {
+            id = 2;//设为是扣款的
+            string FCrimeCode = Request["FCrimeCode"];
+            string FIcCardCode = Request["FIcCardCode"];
+            string FManagerCard = Request["FManagerCard"];            
+            string DType = Request["DType"];
+            #region 验证信息完整性
+            if (string.IsNullOrEmpty(FManagerCard))
+            {
+                return Content("Err|管理卡不能为空");
+            }
+            FManagerCard = FManagerCard.Substring(3);
+            if (string.IsNullOrEmpty(DType))
+            {
+                return Content("Err|队别不能为空");
+            }
+            if (string.IsNullOrEmpty(FIcCardCode))
+            {
+                return Content("Err|扣款的IC卡号不能为空");
+            }
+            if (string.IsNullOrEmpty(FCrimeCode))
+            {
+                return Content("Err|用户编号不能为空");
+            }
+            
+            #endregion
+
+            List<T_CZY> czys = new T_CZYBLL().GetModelList("FManagerCard='" + FManagerCard + "'");
+            if (czys.Count == 0)
+            {
+                return Content("Err|无效管理卡，用户不存在");
+            }
+            string strFCode = FCrimeCode;
+            string strFName = Request["FName"];
+            string strDType = DType;           
+            string strLoginName = czys[0].FName;
+            T_Criminal criminal = new T_CriminalBLL().GetModel(strFCode);
+            
+            if (criminal == null)
+            {
+                return Content("Err|用户不存在");
+            }
+            if (criminal.fflag == 1)
+            {
+                return Content("Err|用户已经离监");
+            }
+
+            T_AREA newArea = new T_AREABLL().GetModel(strDType);
+
+            StringBuilder strSql = new StringBuilder();
+
+            strSql.Append( @"insert into t_area_change(fcrimecode,fcriminal,fareacode,fareaname,fnewareacode,fnewareaname,crtby,crtdate,amount,dvouno,cvouno) ");
+            strSql.Append( @" select a.fcode,a.fname,a.FAreaCode,b.FName FAreaName,'" + strDType + "','" + newArea.FName + "','" + strLoginName + @"',getdate(),0,'',''");
+            strSql.Append( @" from t_Criminal a,T_Area b where a.fareaCode=b.FCode and a.FCode='"+strFCode+"';");
+            strSql.Append( @" update t_criminal set fareacode='" + strDType + "' where fcode='" + strFCode + "';");
+
+            int s=new CommTableInfoBLL().ExecSql(strSql.ToString());
+            if(s>=2)
+            {
+                return Content("OK|调队成功请重新刷卡验证");
+            }
+            else
+            {
+                return Content("OK|调队失败");
+            }
+        }
+
+	}
+}

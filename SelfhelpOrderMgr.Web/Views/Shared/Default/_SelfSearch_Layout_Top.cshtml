@@ -1,0 +1,477 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="refresh" content="600">@*实现定期刷新页面*@
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <title>后台管理系统</title>
+
+    <!-- Bootstrap -->
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Content/MyCss/bg_Image.css" rel="stylesheet" />
+
+    <style type="text/css">
+        <!--
+        .STYLE1 {
+            font-family: "方正宋体-人口信息";
+        }
+
+        .S1 {
+            width: 1440px;
+            margin: 0 auto;
+            color: #01c;
+            border: 0;
+        }
+
+            .S1 table {
+                border: 1px solid #707070;
+            }
+        -->
+    </style>
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://cdn.bootcss.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+<body onbeforeunload="Unload()">
+    <div>
+        <div class="bg_topDiv">
+            @*<img src="/Content/images/SelfSearchTopLogo.jpg" />*@
+
+            <h3 class="col-sm-11 text-right h3_timeDiv" ondblclick="closeSystem()">
+                <a name="exe" href="#" class="colorWhite">当前时间</a>
+            </h3>
+        </div>
+        <nav class="navbar navbar-default">
+            <div class="container-fluid">
+                <!-- Brand and toggle get grouped for better mobile display -->
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="#">建阳监狱</a>
+                </div>
+
+                <!-- Collect the nav links, forms, and other content for toggling -->
+                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                    <ul class="nav navbar-nav" id="topMenu">
+                        <li id="topMenu_00" class="active">
+                            <a onclick="showDiv('bodyArea')" href="#">狱务公开系统</a>
+                        </li>
+                        <li id="topMenu_01">
+                            <a onclick="showDiv('baseInfo')" href="#">基本信息查询</a>
+                        </li>
+                        <li id="topMenu_02">
+                            <a onclick="showDiv('jfInfo')" href="#">奖惩考核管理</a>
+                        </li>
+                        <li id="topMenu_02">
+                            <a onclick="showDiv('customeInfo')" href="#">消费情况</a>
+                        </li>
+                        <li id="topMenu_03">
+                            <a onclick="showDiv('notifyInfo')" href="#">通知公告</a>
+                        </li>
+
+
+                    </ul>
+
+                    <ul class="nav navbar-nav navbar-right">
+                        <li class="list-group-item-info">
+                            @*@Html.ActionLink("返回首页", "Index", "SelfSearch")*@
+                            <a onclick="showDiv('bodyArea')" href="#">返回首页</a>
+                        </li>
+                        <li class="list-group-item-warning">
+
+                            <a onclick="securityExit()" href="#">安全退出</a>
+                        </li>
+                    </ul>
+                </div><!-- /.navbar-collapse -->
+            </div><!-- /.container-fluid -->
+        </nav>
+    </div>
+    @*content-wrapper*@
+
+    <div>
+        @RenderBody()
+    </div>
+
+    <div style="display:none">
+        <div hidden="hidden">
+            <hr>
+            <object classid="clsid:F1317711-6BDE-4658-ABAA-39E31D3704D3"
+                    codebase="SDRdCard.cab#version=1,3,6,4"
+                    width=330
+                    height=210
+                    align=center
+                    hspace=0
+                    vspace=0
+                    id=idcard
+                    name=rdcard></object>
+        </div>
+
+        <table width="680" border="0">
+            <tr>
+                <td><input type="button" value="打开机具" style="width:140px;" name="myopen" onclick="myopen_onclick()" /></td>
+                <td><input type="button" value="关闭机具" style="width:140px;" name="myclose" onclick="myclose_onclick()" /></td>
+                <td><input type="button" value="开始读卡" style="width:140px;" name="beginread" onclick="beginread_onclick()" /></td>
+                <td><input type="button" value="等待读卡" style="width:140px;" name="read3" onclick="read3_onclick()" /></td>
+                <td><input type="button" value="停止读卡" style="width:140px;" name="endread" onclick="endread_onclick()" /></td>
+            </tr>
+            <tr>
+                <td><input type="button" value="手动读卡" style="width:140px;" name="handread" onclick="handread_onclick()" /></td>
+                <td><input type="button" value="保存身份证图片" style="width:140px;" name="SaveCard" onclick="SaveCard_onclick()" /></td>
+                <td><input type="button" value="读设备模块号" style="width:140px;" name="ReadsNum" onclick="ReadsNum_onclick()" /></td>
+                <td><input type="button" value="设置文件路径" style="width:140px;" name="savepath" onclick="savepath_onclick()" /></td>
+                <td><input type="button" value="清空所有属性" style="width:140px;" name="MyClear" onclick="MyClear_onclick()" /></td>
+            </tr>
+        </table>
+        <form name=tcard>
+            <table class="s1">
+                <tr>
+                    <td width="12%"><img height=126 alt="" width=102 border=0 name=photo id=jpgfile style="left:10px;"></td>
+                    <td>
+                        <table width="820" border="1" style="color:#0011CC">
+                            <tr>
+                                <td align="right">姓名name</td>
+                                <td><input name="tName" type="text" size="40" /></td>
+                                <td align="right">姓名nameL</td>
+                                <td><input name="tNameL" type="text" size="40" /></td>
+                            </tr>
+                            <tr>
+                                <td align="right">公民身份号码</td>
+                                <td><input name="tcardID" type="text" size="40" /></td>
+                                <td align="right">住    址</td>
+                                <td><input name="tAddr" type="text" size="40" /></td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+            <input type="text" name="tResult" value="" />
+        </form>
+
+
+
+        <script type="text/javascript" for=idcard event="Readed()">
+            //alert('Readed');
+            getinfo_onclick();
+        </script>
+
+        <script type="text/javascript" for=idcard event="Closed()">
+            //window.close();
+        </script>
+
+
+        <script type="text/javascript" for=idcard event="Opened()">
+            //window.close();
+        </script>
+
+
+        <script type="text/javascript">
+
+
+            function SaveCard_onclick() {
+                var pp
+                pp = rdcard.ExportBMP("D:\\");
+                if (pp == 0) {
+                    document.getElementsByName("tResult")[0].value = "保存成功";
+                }
+                else {
+                    document.getElementsByName("tResult")[0].value = "保存失败: " + pp;
+                }
+            }
+
+            function myopen_onclick() {
+                var pp;
+                pp = rdcard.openport();
+                //alert(pp);
+                if (pp == 0) {
+                    document.getElementsByName("tResult")[0].value = "openport成功";
+                }
+                else {
+                    document.getElementsByName("tResult")[0].value = "openport失败: " + pp;
+                }
+            }
+
+            function myclose_onclick() {
+                var pp
+                pp = rdcard.closeport();
+                if (pp == 0) {
+                    document.getElementsByName("tResult")[0].value = "closeport成功";
+                }
+                else {
+                    document.getElementsByName("tResult")[0].value = "closeport失败: " + pp;
+                }
+            }
+            function Unload() {
+                MyClose_onclick();
+                //alert("Page is Close");
+            }
+
+            function endread_onclick() {
+                var pp
+                pp = rdcard.endread();
+                if (pp == 0) {
+                    document.getElementsByName("tResult")[0].value = "endread成功";
+                }
+                else {
+                    document.getElementsByName("tResult")[0].value = "endread失败: " + pp;
+                }
+            }
+
+            function handread_onclick() {
+
+                var pp
+                pp = rdcard.readcard();
+                if (pp == 0) {
+                    document.getElementsByName("tResult")[0].value = "readcard成功";
+                    //showjpg_onclick();
+                }
+                else {
+                    document.getElementsByName("tResult")[0].value = "readcard失败: " + pp;
+                }
+            }
+
+            function beginread_onclick() {
+
+                var pp
+                pp = rdcard.ReadCard2();
+                if (pp == 0) {
+                    document.getElementsByName("tResult")[0].value = "ReadCard2成功";
+                }
+                else {
+                    document.getElementsByName("tResult")[0].value = "ReadCard2失败: " + pp;
+                }
+            }
+            function read3_onclick() {
+
+                var pp
+                pp = rdcard.ReadCard3();
+                if (pp == 0) {
+                    document.getElementsByName("tResult")[0].value = "ReadCard3成功";
+                }
+                else {
+                    document.getElementsByName("tResult")[0].value = "ReadCard3失败: " + pp;
+                }
+            }
+
+            function ReadsNum_onclick() {
+                var pp
+                pp = rdcard.ReadSecurityNum();
+                if (pp == 0) {
+                    document.getElementsByName("tsNum")[0].value = rdcard.SecurityNum;
+                    document.getElementsByName("tResult")[0].value = rdcard.sResultMsg;
+                }
+                else {
+                    document.getElementsByName("tsNum")[0].value = "读模块号码失败";
+                    document.getElementsByName("tResult")[0].value = "读模块号码失败: " + pp;
+                }
+            }
+
+
+            function showjpgIE6() {
+                //alert('读照片成功');
+                document.getElementsByName("photo")[0].src = "file:///C|/null.JPEG";
+
+                if (rdcard.PhotoPath == "")
+                    document.getElementsByName("photo")[0].src = "file:///C|/null.JPEG";
+                else
+                    document.getElementsByName("photo")[0].src = rdcard.PhotoPath;
+            }
+            function showjpgIE8() {
+                //alert('读照片成功');
+                document.all['photo'].src = 'data:image/jpeg;base64,' + rdcard.JPGBuffer;
+            }
+
+
+            function getinfo_onclick() {
+                var r1, r2;
+                document.getElementsByName("tName")[0].value = rdcard.NameS;
+                document.getElementsByName("tNameL")[0].value = rdcard.NameL;
+                document.getElementsByName("tcardID")[0].value = rdcard.CardNo;
+                document.getElementsByName("tAddr")[0].value = rdcard.Address;
+                r1 = rdcard.FGNUM1;
+                r2 = rdcard.FGNUM2;
+                //switch (r1) {
+                //    case 11:
+                //        document.getElementsByName("FNUM1")[0].value = "右手拇指";
+                //        break;
+                //    case 12:
+                //        document.getElementsByName("FNUM1")[0].value = "右手食指";
+                //        break;
+                //    case 13:
+                //        document.getElementsByName("FNUM1")[0].value = "右手中指";
+                //        break;
+                //    case 14:
+                //        document.getElementsByName("FNUM1")[0].value = "右手环指";
+                //        break;
+                //    case 15:
+                //        document.getElementsByName("FNUM1")[0].value = "右手小指";
+                //        break;
+                //    case 16:
+                //        document.getElementsByName("FNUM1")[0].value = "左手拇指";
+                //        break;
+                //    case 17:
+                //        document.getElementsByName("FNUM1")[0].value = "左手食指";
+                //        break;
+                //    case 18:
+                //        document.getElementsByName("FNUM1")[0].value = "左手中指";
+                //        break;
+                //    case 19:
+                //        document.getElementsByName("FNUM1")[0].value = "左手环指";
+                //        break;
+                //    case 20:
+                //        document.getElementsByName("FNUM1")[0].value = "左手小指";
+                //        break;
+                //    default:
+                //        document.getElementsByName("FNUM1")[0].value = "";
+                //}
+                //switch (r2) {
+                //    case 11:
+                //        document.getElementsByName("FNUM2")[0].value = "右手拇指";
+                //        break;
+                //    case 12:
+                //        document.getElementsByName("FNUM2")[0].value = "右手食指";
+                //        break;
+                //    case 13:
+                //        document.getElementsByName("FNUM2")[0].value = "右手中指";
+                //        break;
+                //    case 14:
+                //        document.getElementsByName("FNUM2")[0].value = "右手环指";
+                //        break;
+                //    case 15:
+                //        document.getElementsByName("FNUM2")[0].value = "右手小指";
+                //        break;
+                //    case 16:
+                //        document.getElementsByName("FNUM2")[0].value = "左手拇指";
+                //        break;
+                //    case 17:
+                //        document.getElementsByName("FNUM2")[0].value = "左手食指";
+                //        break;
+                //    case 18:
+                //        document.getElementsByName("FNUM2")[0].value = "左手中指";
+                //        break;
+                //    case 19:
+                //        document.getElementsByName("FNUM2")[0].value = "左手环指";
+                //        break;
+                //    case 20:
+                //        document.getElementsByName("FNUM2")[0].value = "左手小指";
+                //        break;
+                //    default:
+                //        document.getElementsByName("FNUM2")[0].value = "";
+                //}
+
+
+                //r1 = rdcard.FGQualityScore1;
+                //r2 = rdcard.FGQualityScore2;
+                //if (r1 == 0)
+                //    document.getElementsByName("Fzl1")[0].value = "";
+                //else
+                //    document.getElementsByName("Fzl1")[0].value = rdcard.FGQualityScore1;
+                //if (r2 == 0)
+                //    document.getElementsByName("Fzl2")[0].value = "";
+                //else
+                //    document.getElementsByName("Fzl2")[0].value = rdcard.FGQualityScore2;
+
+
+                //r1 = rdcard.FGRegistry1;
+                //r2 = rdcard.FGRegistry2;
+                //switch (r1) {
+                //    case 1:
+                //        document.getElementsByName("Fzhuce1")[0].value = "注册成功";
+                //        break;
+                //    case 2:
+                //        document.getElementsByName("Fzhuce1")[0].value = "注册失败";
+                //        break;
+                //    case 3:
+                //        document.getElementsByName("Fzhuce1")[0].value = "未注册";
+                //        break;
+                //    case 9:
+                //        document.getElementsByName("Fzhuce1")[0].value = "未知";
+                //        break;
+                //    default:
+                //        document.getElementsByName("Fzhuce1")[0].value = "";
+                //}
+                //switch (r2) {
+                //    case 1:
+                //        document.getElementsByName("Fzhuce2")[0].value = "注册成功";
+                //        break;
+                //    case 2:
+                //        document.getElementsByName("Fzhuce2")[0].value = "注册失败";
+                //        break;
+                //    case 3:
+                //        document.getElementsByName("Fzhuce2")[0].value = "未注册";
+                //        break;
+                //    case 9:
+                //        document.getElementsByName("Fzhuce2")[0].value = "未知";
+                //        break;
+                //    default:
+                //        document.getElementsByName("Fzhuce2")[0].value = "";
+                //}
+                document.getElementsByName("tResult")[0].value = idcard.sResultMsg;
+                document.all['photo'].src = 'data:image/jpeg;base64,' + rdcard.JPGBuffer;
+
+                //查询数据为人员信息
+                readCard(document.getElementsByName("tcardID")[0].value, document.getElementsByName("tName")[0].value);
+            }
+
+
+
+
+            function savepath_onclick() {
+                rdcard.strSavePath = "c:\\aa";
+                document.getElementsByName("tResult")[0].value = "路径设置成功";
+            }
+
+
+            function MyClear_onclick() {
+                var pp
+                pp = rdcard.ClearAll();
+                getinfo_onclick();
+                document.getElementsByName("tsNum")[0].value = "";
+                if (pp == 0) {
+                    document.getElementsByName("tResult")[0].value = "清空成功";
+                }
+                else {
+                    document.getElementsByName("tResult")[0].value = "清空失败: " + pp;
+                }
+            }
+
+
+            function window_onUnload() {
+                rdcard.DeleteOutputFile();
+                rdcard.DeleteAllPicture();
+            }
+
+            //加载完成后，开始读卡
+            $(function () {
+                myopen_onclick();
+                if(document.getElementsByName("tResult")[0].value == "openport成功"){
+                    beginread_onclick();//开始读卡
+                    
+                }
+            });
+
+        </script>
+
+    </div>
+
+    <script src="/Scripts/jquery-1.11.3.min.js"></script>
+    <script src="/Scripts/bootstrap.min.js"></script>
+    @*
+    <script src="/Scripts/MyJs/TopMenuSetting.js"></script>*@
+    @*
+    <script src="~/Scripts/MyJs/SelfSearchMain.js"></script>*@
+</body>
+</html>

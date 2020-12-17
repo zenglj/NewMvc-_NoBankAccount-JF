@@ -1,0 +1,39 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    @{Html.RenderPartial("~/Views/Shared/_PartialHeadPage.cshtml");}
+    <title>SaleTypeMgr</title>
+</head>
+<body class="easyui-layout">
+    <div data-options="region:'center',title:'消费类型管理',split:true" style="padding:5px;">
+        <div style="height:300px;">
+            <input type="hidden" id="typeName" />
+            <table id="test" class="easyui-datagrid" toolbar="#tb"></table>
+        </div>
+
+        <div id="tb" style="padding:5px;height:auto">
+            <div>
+                <a href="#" class="easyui-linkbutton" iconcls="icon-add" onclick="AddTypeGoods()">添加</a>
+                <a href="#" class="easyui-linkbutton" iconcls="icon-save" onclick="BatchSaveDg()">保存</a>
+
+                <a href="#" class="easyui-linkbutton" iconcls="icon-no" onclick="DeleteTypeInfoById()">删除</a>
+            </div>
+        </div>
+
+
+    </div>
+    <div data-options="region:'east',title:'查询条件'" style="width:300px;" >
+
+    </div>
+    
+    <script src="~/Scripts/myJs/SaleTypeMgr.js"></script>
+    
+</body>
+</html>

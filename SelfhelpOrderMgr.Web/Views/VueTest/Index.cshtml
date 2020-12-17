@@ -1,0 +1,75 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Index</title>
+    <script src="~/Scripts/jquery-1.11.3.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    @*<script src="https://unpkg.com/axios/dist/axios.min.js"></script>*@
+</head>
+<body>
+    <div> 
+
+        <div>
+
+            <div id="example">
+                <p>{{ a }}</p>
+                <!-- 这里的 `foo` 不会更新！ -->
+                <button v-on:click="btnClick">Change it</button>
+            </div>
+
+        </div>
+
+    </div>
+    <script type="text/javascript">
+
+        var data = { a: 1 }
+        var vm = new Vue({
+            el: '#example',
+            data: data,
+            created: function () {
+                // `this` 指向 vm 实例
+                console.log('a is: ' + this.a);
+
+            },
+            methods: {
+                btnClick: function () {
+                    $.post("/Goods/GetGoodsInfo", { "ID": "12345" }, function (data, status) {
+                        console.log(data);
+                    });
+
+                }
+                //,
+                //send:function(){                    
+                //    axios.get('/Goods/GetGoodsInfo?ID=12345')
+                //      .then(function (response) {
+                //          console.log(response);
+                //      })
+                //      .catch(function (error) {
+                //          console.log(error);
+                //      });
+                //}
+            }
+        });
+        // => "a is: 1"
+
+        vm.$data === data // => true
+        vm.$el === document.getElementById('example') // => true
+
+        // $watch 是一个实例方法
+        vm.$watch('a', function (newValue, oldValue) {
+            // 这个回调将在 `vm.a` 改变后调用
+            console.log(newValue + ":" + oldValue);
+        });
+
+        
+        
+    </script>
+</body>
+</html>

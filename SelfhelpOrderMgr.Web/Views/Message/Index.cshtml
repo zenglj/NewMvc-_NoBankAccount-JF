@@ -1,0 +1,87 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="page-header">
+    <h2 class="text-center"><small><span class="glyphicon glyphicon-envelope" aria-hidden="true"></span></small>通知公告<small>明细列表</small></h2>
+</div>
+<div class="row">
+    <div class="col-sm-6">
+        @if (ViewData["newNotifies"] != null)
+        {
+            foreach (SelfhelpOrderMgr.Model.T_NotifyFile notify in ViewData["newNotifies"] as List<SelfhelpOrderMgr.Model.T_NotifyFile>)
+            {
+                <div class="bs-callout bs-callout-success" id="callout-badges-ie8-empty">
+                    <h4 id="msgDetail_@notify.ID"><a href="/Message/MsgDetail/@notify.ID">@notify.FTitle</a></h4>
+                    <div class="row">
+                        <div class="col-sm-5">
+                            <h4><small>日期:@notify.FDate</small></h4>
+                        </div>
+                        <div class="col-sm-7">
+                            <h4><small>作者:@notify.FAuthor</small></h4>
+                        </div>
+                    </div>
+                    <p>@notify.FAbstract</p>
+                </div>
+            }
+        }
+        
+        
+
+    </div>
+    <div class="col-sm-6">
+
+            @if (ViewData["notifies"] != null)
+{
+    <div class="bs-callout" id="notifyList">
+        @foreach (SelfhelpOrderMgr.Model.T_NotifyFile notify in ViewData["notifies"] as List<SelfhelpOrderMgr.Model.T_NotifyFile>)
+        {
+            <div>
+                <h4><a href="/Message/MsgDetail/@notify.ID">@notify.FTitle</a><small>　　日期:@notify.FDate</small></h4>
+                <p>@notify.FAbstract</p>
+                <hr />
+            </div>
+        }
+    </div>
+                            <div class="text-right">
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination">
+                            <li>
+                                <a href="#" aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                            <li><a href="#" onclick="loadPage(1)">1</a></li>
+                            <li><a href="#" onclick="loadPage(2)">2</a></li>
+                            <li><a href="#" onclick="loadPage(3)">3</a></li>
+                            <li><a href="#" onclick="loadPage(4)">4</a></li>
+                            <li><a href="#" onclick="loadPage(5)">5</a></li>
+                            <li>
+                                <a href="#" aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+}
+            
+    </div>
+</div>
+<script src="~/Scripts/myJs/commonJs.js"></script>
+<script type="text/javascript">
+    function loadPage(page) {
+        $.post("/Message/GetNotifiesByPage", {"page":page},function (data, status) {
+            if ("success" == status) {
+                var notifies = $.parseJSON(data);
+                $("#notifyList").empty();
+                var div = "";
+                for (var i = 0; i < notifies.length; i++) {                    
+                    div = div + "<div><h4><a href='/Message/MsgDetail/" + notifies[i].ID + "'>" + notifies[i].FTitle + "</a><small>　　日期:" + getShortTime(notifies[i].FDate) + "</small></h4><p>" + notifies[i].FAbstract + "</p><hr /></div>";
+                }
+                $("#notifyList").append(div);
+            }
+        });
+    }
+</script>

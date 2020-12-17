@@ -1,0 +1,60 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>RoleMgr</title>
+    @{Html.RenderPartial("~/Views/Shared/_PartialHeadPage.cshtml");}
+    <link href="~/Content/outzhenComStyle.css" rel="stylesheet" />
+    <script src="~/Scripts/myJs/RoleMgr.js"></script>
+</head>
+<body class="easyui-layout">
+    <div data-options="region:'center',title:'用户权限'" style="padding:5px;">
+        <div>
+            <table id="test" class="easyui-datagrid"></table>
+        </div>
+        <div class="easyui-panel" title="信息编辑栏" data-options="iconCls:'icon-edit'" style="height:200px;padding:10px;background:#fafafa;">
+            <form method="post">
+                <table>
+                    <tr>
+                        <th align="right">ID号：</th>
+                        <td><input disabled="disabled" id="FCode" style="width:300px;" /></td>
+                    </tr>
+                    <tr>
+                        <th align="right">角色名：</th>
+                        <td><input disabled="disabled" id="FName" style="width:300px;" /></td>
+                    </tr>
+                    @*<tr>
+                            <th align="right">审批级别：</th>
+                            <td><input disabled="disabled" id="Level" style="width:300px;" /></td>
+                        </tr>*@
+                    <tr>
+                        <td>　</td>
+                    </tr>
+                    <tr>
+                        <th></th>
+                        <td colspan="3" align="right"><a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-search'" onclick="AddRoleContent()">新增</a> <a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-edit'" onclick="AlterRoleContent()">修改</a>  <a href="#" id="btnSave" class="easyui-linkbutton" data-options="iconCls:'icon-save'" onclick="saveContent()">保存</a> <a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-cancel'" onclick="DelRoleContent()">删除</a> </td>
+                    </tr>
+
+                </table>
+            </form>
+        </div>
+
+
+    </div>
+    <div  data-options="region:'east',title:'权限列表',split:true" style="width:300px;">
+        <div data-options="region:'north',title:'North Title',split:true" style="height:200px;">
+            <div fit="true" border="false">
+                <ul id="tt3"></ul>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>

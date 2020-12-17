@@ -1,0 +1,85 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>InfoListPrint</title>
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Content/site.min.css" rel="stylesheet" />
+    <link href="~/Content/PrintReportCss.css" rel="stylesheet" />
+    <script src="~/Scripts/myJs/commonJs.js"></script>
+</head>
+<body>
+    
+    <div class="row">
+        <div class="col-md-2"></div>
+        <div class="col-md-8">
+            <h2 style="text-align:center">消费记录清单 </h2>
+            
+            <hr />
+            <h5 class="text-right">统计区间:@ViewData["startDate"] 至 @ViewData["endDate"] ,共计:@ViewData["Month"] 月 @ViewData["days"]</h5>
+            <div>
+                <table class="table table-striped table-bordered table-condensed contentFontSizeSmall">
+                    <thead>
+                        
+                        <tr><th colspan="2">编号</th><th>姓名</th><th colspan="2">日期</th><th>金额</th><th colspan="2">摘要</th></tr>
+
+                    </thead>
+                    <tbody>
+
+                        @if (ViewData["lists"] != null)
+                        {
+                            //int i=1;
+                            foreach (SelfhelpOrderMgr.Model.t_XFQueryList list in ViewData["lists"] as List<SelfhelpOrderMgr.Model.t_XFQueryList>)
+                            {
+                                if (list.fname != "")
+                                {
+                                    <tr>
+                                        <td colspan="2">@list.fcrimecode</td>
+                                        <td>@list.fname</td>
+                                        <td colspan="2">@list.CDate</td>
+                                        <td>@list.Cmoney</td>
+                                        <td colspan="2">@list.Dtype</td>
+                                    </tr>
+                                }
+                            }
+                        }
+
+                        
+
+                        @if (ViewData["xfsuminfo"] != null)
+                        {
+                            SelfhelpOrderMgr.Web.Controllers.xfSummaryInfo xf = ViewData["xfsuminfo"] as SelfhelpOrderMgr.Web.Controllers.xfSummaryInfo;
+                            
+                        
+                        
+                        <tr>
+                            <th colspan="5" class="text-right">本期存款:</th>
+                            <th colspan="3">@xf.Zongshouru</th>
+                            
+                        </tr>
+                            <tr>
+                                <th colspan="5" class="text-right">本期取款</th>
+                            <th colspan="3">@xf.Leijizongxf</th>
+                            
+                        </tr>
+                            <tr>
+
+                                <th colspan="5" class="text-right">账户余额:</th>
+                                <th colspan="3">@xf.Zhanghuzongyue</th>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="col-md-2"></div>
+    </div>
+
+</body>
+</html>

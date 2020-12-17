@@ -1,0 +1,81 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>PrintSavePayList</title>
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+</head>
+<body>
+    <div>
+        <div class="row">
+            <div class="col-sm-2"></div>
+            <div class="col-sm-8">
+                
+
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        @if (ViewData["vcrd"] != null)
+                        {
+                            var vcrd = ViewData["vcrd"] as SelfhelpOrderMgr.Model.T_Vcrd;
+                            <div class="text-center">
+                                <h3>@ViewData["savePayTitle"] <small>付款日期:@vcrd.CrtDate.ToShortDateString()</small></h3>
+                            </div>
+                        }
+                    </div>
+                    <div class="panel-body">
+
+                        @if (ViewData["vcrd"] != null)
+                        {
+                            var vcrd = ViewData["vcrd"] as SelfhelpOrderMgr.Model.T_Vcrd;
+                            decimal fmoney = vcrd.DAmount - vcrd.CAmount;
+                            <table class="table table-bordered">
+                                <tr>
+                                    <th>流水单号:</th>
+                                    <td>@vcrd.Vouno</td>
+                                    <th>存取类型:</th>
+                                    <td>@vcrd.DType</td>
+                                    <th>金额:</th>
+                                    <td>@fmoney 元</td>
+                                </tr>
+                                <tr>
+                                    <th>用户名称:</th>
+                                    <td>@vcrd.FCriminal</td>
+                                    <th>用户编号:</th>
+                                    <td>@vcrd.FCrimeCode</td>
+                                    <th>备注:</th>
+                                    <td>@vcrd.Remark</td>
+                                </tr>
+                                
+                            </table>
+                            <table class="table">
+                                <tr>
+                                    <th>操作员:</th>
+                                    <td>@vcrd.CrtBy</td>
+                                    <th>经办人:</th>
+                                    <td></td>
+                                    <th>用户(签字):</th>
+                                    <td></td>
+                                </tr>
+                            </table>
+                        }
+
+
+                    </div>
+
+                    <div class="panel-footer">@@监狱--财务科</div>
+                </div>
+            </div>
+            <div class="col-sm-1"></div>
+
+        </div>
+    </div>
+    <script src="~/Scripts/jquery-1.11.3.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+</body>
+</html>

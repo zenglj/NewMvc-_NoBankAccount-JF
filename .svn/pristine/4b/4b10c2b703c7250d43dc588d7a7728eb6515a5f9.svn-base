@@ -1,0 +1,7 @@
+﻿<link href="~/Scripts/EasyUI/themes/bootstrap/layout.css" rel="stylesheet" />
+<link href="~/Scripts/EasyUI/themes/bootstrap/easyui.css" rel="stylesheet" />
+<link href="~/Scripts/EasyUI/themes/icon.css" rel="stylesheet" />
+<script src="~/Scripts/EasyUI/jquery.min.js"></script>
+<script src="~/Scripts/EasyUI/jquery.easyui.min.js"></script>
+<script src="~/Scripts/EasyUI/locale/easyui-lang-zh_CN.js"></script>
+<script src="~/Scripts/myJs/commonJs.js"></script>

@@ -1,0 +1,92 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="refresh" content="60">@*实现定期刷新页面*@
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <title>后台管理系统</title>
+
+    <!-- Bootstrap -->
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Content/MyCss/bg_Image.css" rel="stylesheet" />
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://cdn.bootcss.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+<body>
+    <div>
+        <div class="bg_topDiv">
+            @*<img src="/Content/images/SelfSearchTopLogo.jpg" />*@
+            
+            <h3 class="col-sm-11 text-right h3_timeDiv" ondblclick="closeSystem()">
+                <a name="exe" href="#" class="colorWhite">当前时间</a>
+            </h3>
+        </div>
+        <nav class="navbar navbar-default">
+            <div class="container-fluid">
+                <!-- Brand and toggle get grouped for better mobile display -->
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="#">建阳监狱</a>
+                </div>
+
+                <!-- Collect the nav links, forms, and other content for toggling -->
+                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                    <ul class="nav navbar-nav" id="topMenu">
+                        <li id="topMenu_00" class="active">
+                            <a onclick="showDiv('bodyArea')" href="#">狱务公开系统</a>
+                        </li>
+                        <li id="topMenu_01">
+                            <a onclick="showDiv('baseInfo')" href="#">基本信息查询</a>
+                        </li>
+                        <li id="topMenu_02">
+                            <a onclick="showDiv('jfInfo')" href="#">奖惩考核管理</a>
+                        </li>
+                        <li id="topMenu_02">
+                            <a onclick="showDiv('customeInfo')" href="#">消费情况</a>
+                        </li>
+                        <li id="topMenu_03">
+                            <a onclick="showDiv('notifyInfo')" href="#">通知公告</a>
+                        </li>
+
+
+                    </ul>
+
+                    <ul class="nav navbar-nav navbar-right">
+                        <li class="list-group-item-info" >
+                            @*@Html.ActionLink("返回首页", "Index", "SelfSearch")*@
+                            <a onclick="showDiv('bodyArea')" href="#">返回首页</a>
+                        </li>
+                    </ul>
+                </div><!-- /.navbar-collapse -->
+            </div><!-- /.container-fluid -->
+        </nav>
+    </div>
+    @*content-wrapper*@
+    
+    <div>
+        @RenderBody()
+    </div>
+
+    <script src="/Scripts/jquery-1.11.3.min.js"></script>
+    <script src="/Scripts/bootstrap.min.js"></script>
+    @*<script src="/Scripts/MyJs/TopMenuSetting.js"></script>*@
+    @*<script src="~/Scripts/MyJs/SelfSearchMain.js"></script>*@
+</body>
+</html>

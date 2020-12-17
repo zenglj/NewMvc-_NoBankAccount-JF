@@ -1,0 +1,79 @@
+﻿
+@{
+    ViewBag.Title = "Lists";
+}
+@{Html.RenderPartial("~/Views/Shared/_PartialXiaopiaoControl.cshtml");}
+
+<h1 style="text-align:center">网站相关优质商品推荐</h1>
+<h3 style="text-align:center"><small>这些商品是监狱或省局规定的目录产品，所有商品都是来自正规渠道,并与市场价格进行比对过的</small></h3>
+<hr />
+
+<div>
+    <table class="table table-striped">
+        <tr><td><a class="btn btn-default" href="#" role="button" onclick="printMyAddHtml('myPrint')">打印目录</a></td></tr>
+        <thead>
+            <tr><th>品种</th><th>序号</th><th>货号</th><th>商品名称</th><th>规格</th><th>单位</th><th>单价</th><th>备注</th></tr>
+        </thead>
+        <tbody>
+            @if (ViewData["types"] != null)
+            {
+                int i=1;
+                foreach(SelfhelpOrderMgr.Model.T_GoodsType type in ViewData["types"] as List<SelfhelpOrderMgr.Model.T_GoodsType>)
+                {
+                    <tr><th colspan="9">@type.Fname</th></tr>
+                    if (ViewData["goods"] != null)
+                    {
+                        foreach (SelfhelpOrderMgr.Model.T_Goods good in ViewData["goods"] as List<SelfhelpOrderMgr.Model.T_Goods>)
+                        { 
+                            if(type.Fcode==good.GTYPE)
+                            {
+                                <tr><td></td><td>@i</td><td>@good.SPShortCode</td><td>@good.GNAME</td><td>@good.GStandard</td><td>@good.GUnit</td><td>@good.GDJ</td><td>@good.madein</td></tr>
+                                i++;
+                            }
+                        }
+                    }
+                }
+            }
+
+        </tbody>
+    </table>
+</div>
+
+
+<div id="myPrint" style="display:none;" >
+    <h1 style="text-align:center">本期网站相关优质商品推荐</h1>
+    <table >
+        <thead >
+            <tr style="border-bottom:double;"><th >品种</th><th>序号</th><th style="text-align: center">货号</th><th>商品名称</th><th>规格</th><th>单位</th><th style="width:80px;text-align:right;">单价</th><th>备注</th></tr>
+        </thead>
+        <tbody>
+            @if (ViewData["types"] != null)
+            {
+                int i = 1;
+                foreach (SelfhelpOrderMgr.Model.T_GoodsType type in ViewData["types"] as List<SelfhelpOrderMgr.Model.T_GoodsType>)
+                {
+                    <tr style="text-align: left; border-width: 1px; border:solid; "><th colspan="9">@type.Fname</th></tr>
+                    if (ViewData["goods"] != null)
+                    {
+                        foreach (SelfhelpOrderMgr.Model.T_Goods good in ViewData["goods"] as List<SelfhelpOrderMgr.Model.T_Goods>)
+                        {
+                            if (type.Fcode == good.GTYPE)
+                            {
+                                <tr style="border-bottom: dotted; border-bottom-width: 1px;"><td></td><td>@i</td><td style="width:120px;" >@good.SPShortCode</td><td style="width:200px;">@good.GNAME</td><td>@good.GStandard</td><td>@good.GUnit</td><td align="right" style="width:80px;">@good.GDJ</td><td>@good.madein</td></tr>
+                                i++;
+                            }
+                        }
+                    }
+                }
+            }
+        </tbody>
+    </table>
+</div>
+
+<script src="~/Scripts/myJs/LodopFuncs.js"></script>
+<script src="~/Scripts/myJs/opertorXiaopiaoFunc.js"></script>
+<script type="text/javascript">
+    function printTable() {
+        printMyAddHtml();
+    }
+</script>

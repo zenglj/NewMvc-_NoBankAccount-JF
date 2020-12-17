@@ -1,0 +1,259 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>批量扣款管理</title>
+    @{Html.RenderPartial("~/Views/Shared/_PartialHeadPage.cshtml");}
+    <script src="~/Scripts/diyUpload/js/webuploader.html5only.min.js"></script>
+    <script src="~/Scripts/diyUpload/js/diyUpload.js"></script>
+</head>
+<body class="easyui-layout">
+    <input type="hidden" id="PowerId" name="PowerId" value="@ViewData["PowerId"]">
+
+    <div data-options="region:'east',title:'条件查询',split:true" style="width:280px;">
+        <form method="post">
+            <table id="crimeSearch">
+                <tr>
+                    <th align="right">编号：</th>
+                    <td align="left">
+                        <input name="fCrimeCode" class="easyui-validatebox" style="width:205px;" data-options="required:true,validType:'text'" />
+                    </td>
+                </tr>
+                <tr>
+                    <th align="right">姓名：</th>
+                    <td align="left">
+                        <input name="fCrimeName" class="easyui-validatebox" style="width:205px;" data-options="required:true,validType:'text'" />
+                    </td>
+                </tr>
+                <tr>
+                    <th align="right">消费类型：</th>
+                    <td align="left">
+                        <!--<select id="cc" name="fAreaName" style="width:305px;">
+                            <option value="000">请选择队别</option>
+
+                        </select>  -->
+                        <select id="PType" name="PType" class="easyui-combobox" style="width: 205px;">
+                            <option value="0" selected="selected">请选消费类型</option>
+                            @if (ViewData["saleTypes"] != null)
+                            {
+                                foreach (SelfhelpOrderMgr.Model.T_SHO_SaleType saleType in ViewData["saleTypes"] as List<SelfhelpOrderMgr.Model.T_SHO_SaleType>)
+                                {
+                                    <option value="@saleType.TypeFlagId">@saleType.PType</option>
+                                }
+                            }
+                        </select>
+
+                    </td>
+                </tr>
+                <tr>
+                    <th align="right">科目名称：</th>
+                    <td align="left">
+
+                        <select id="FCourseType" name="FCourseType" class="easyui-combobox" style="width: 205px;">
+                            <option value="0" selected="selected">请选科目名称</option>
+                            @if (ViewData["custTypes"] != null)
+                            {
+                                foreach (SelfhelpOrderMgr.Model.T_Savetype custType in ViewData["custTypes"] as List<SelfhelpOrderMgr.Model.T_Savetype>)
+                                {
+                                    <option value="@custType.fcode">@custType.fname</option>
+                                }
+                            }
+                        </select>
+
+                    </td>
+                </tr>
+                <tr>
+                    <th align="right">日期：</th>
+                    <td align="left">
+                        <input id="startDate" name="startDate" class="easyui-datetimebox" name="birthday" data-options="required:true,showSeconds:false" value="3/4/2010 00:00" style="width:205px">
+                    </td>
+                </tr>
+                <tr>
+                    <th align="right"></th>
+                    <td align="left">
+                        <input id="endDate" name="endDate" class="easyui-datetimebox" name="birthday" data-options="required:true,showSeconds:false" value="3/4/2010 23:59" style="width:205px">
+                    </td>
+                </tr>
+                <tr>
+                    <th align="right">备注：</th>
+                    <td align="left">
+                        <input name="fRemark" style="width:205px;" data-options="required:true,validType:'text'" />
+                    </td>
+                </tr>
+                <tr>
+                    <th align="right"></th>
+                    <td align="right"><a id="btn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-search'" onclick="FilterSearch()">查询</a><a id="A1" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-redo'" onclick="clearSearch()">清空</a></td>
+                </tr>
+            </table>
+        </form>
+    </div>
+
+    <div data-options="region:'north',title:'劳动报酬主单',split:true" style="height:210px;">
+        <div>
+            <form id="ffExcel" method="post">
+                <input type="hidden" id="action" name="action" />
+                <input type="hidden" id="FBidExcel" name="FBidExcel" />
+            </form>
+            <form id="ffMainOrder" method="post">
+                <table id="mainOrder">
+                    <tr>
+                        <th align="right">消费类型：</th>
+                        <td align="left">
+                            <input type="hidden" id="sBid" /><!--主单的Bid-->
+                            <input type="hidden" id="sOrderStatus" /><!--主单的确认状态-->
+                            <input type="hidden" id="sYearMonth" /><!--主单的归属年月-->
+                            <input type="hidden" id="sMainRemark" /><!--主单的备注信息-->
+                            <input type="hidden" id="MainAction" name="action" />
+                            <input type="hidden" id="MainDoType" name="DoType" />
+                            <input type="hidden" id="sAreaName" name="sAreaName" />
+                            <input type="hidden" id="sAreaCode" name="sAreaCode" />
+                            <input type="hidden" id="saleTypeNameMain" name="saleTypeNameMain" />
+                            <input type="hidden" id="saleTypeFlagId" name="saleTypeFlagId" />
+                            <input type="hidden" id="custTypeNameMain" name="custTypeNameMain" />
+                            <input type="hidden" id="custTypeCodeMain" name="custTypeCodeMain" />
+                            <select id="saleTypeName" name="saleTypeName" class="easyui-combobox" style="width: 135px;">
+                                <option value="0" selected="selected">请选消费类型</option>
+                                @if (ViewData["saleTypes"] != null)
+                                {
+                                    foreach (SelfhelpOrderMgr.Model.T_SHO_SaleType saleType in ViewData["saleTypes"] as List<SelfhelpOrderMgr.Model.T_SHO_SaleType>)
+                                    {
+                                        <option value="@saleType.TypeFlagId">@saleType.PType</option>
+                                    }
+                                }
+                            </select>
+                            扣款名称：
+                            <select id="custTypeName" name="custTypeName" class="easyui-combobox" style="width: 135px;">
+                                <option value="0" selected="selected">请选扣款名称</option>
+                                @if (ViewData["custTypes"] != null)
+                                {
+                                    foreach (SelfhelpOrderMgr.Model.T_Savetype custType in ViewData["custTypes"] as List<SelfhelpOrderMgr.Model.T_Savetype>)
+                                    {
+                                        <option value="@custType.fcode">@custType.fname</option>
+                                    }
+                                }
+                            </select>
+                        </td>
+
+                        <th>申请人</th>
+                        <td><input id="sapplyby" name="sapplyby" type="text" style="width:100px"></td>
+                        <th>摘要说明</th>
+                        <td colspan="5"><input id="sremark" name="sremark" type="text" style="width:300px"></td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+        <table id="mainOrderTable" data-options="toolbar:'#tb'"></table>
+        <div id="tb">
+            <div>@*FCheckFlag是“确认”,auditflag是“审核”,FdbcheckFlag是“复核”,Flag是“财务入账”*@
+                <a href="#" id="btnAdd" class="easyui-linkbutton" iconcls="icon-add" plain="true" onclick="AddMain()">增加主单</a><label>|</label>
+                <a href="#" id="btnSave" class="easyui-linkbutton" iconcls="icon-save" plain="true" onclick="SaveMain()">保存主单</a><label>|</label>
+                <a href="#" id="btnSubmit" class="easyui-linkbutton" iconcls="icon-ok" plain="true" onclick="SubmitMain()">确认提交</a><label>|</label>
+                <a href="#" id="btnDel" class="easyui-linkbutton" iconcls="icon-cancel" plain="true" onclick="DeleteMain()">删除主单</a><label>|</label>
+                <a href="#" id="btnInDb" class="easyui-linkbutton" iconcls="icon-save" plain="true" onclick="InDbMain()">财务入账</a>
+                 
+                <a href="#" id="btnPrint" class="easyui-linkbutton" iconcls="icon-print" plain="true" onclick="PrintMain()">打印列表</a><label>|</label>
+                <a href="#" id="btnExcel" class="easyui-linkbutton" iconcls="icon-redo" plain="true" onclick="ExcelMain()">Excel导出</a><label>|</label>
+
+            <a href="#" id="ddts" title="This is the tooltip message." class="easyui-tooltip">状态提示</a>
+
+</div>
+        </div>
+    </div>
+    <div data-options="region:'center',title:'劳动报酬明细列表:（2003版Excel格式 【编号】【姓名】【金额】【备注】）'" style="padding:5px;background:#eee;">
+        <div>
+            <form id="ffDetailEditBoxExcel" method="post" enctype="multipart/form-data">
+                <table id="infoInput">
+                    <tr>
+                        <th>编号</th>
+                        <td>
+                            <input id="iCpct" name="iCpct" type="hidden" />
+                            <input id="iCode" name="iCode" type="text" value="" style="width:120px" onkeydown="if (event.keyCode == 13) noNumbers();">
+                        </td>
+
+                        <th>姓名</th>
+                        <td><input id="iName" name="iName" type="text" style="width:120px"></td>
+
+                        <th>金额</th>
+                        <td>
+                            <input id="iMoney" name="iMoney" type="text" value="" style="width:100px" onkeydown="if(event.keyCode==13) noMoneyEnter();">
+                            <a id="btnDetailSave" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-save'" onclick="noMoneyEnter()">发放</a>
+                            提示信息<label id="lblInfo" style=" background-color:Red;"></label>
+                        </td>
+
+                        <th>
+
+                        </th>
+                        <th></th>
+                        <td></td>
+
+                    </tr>
+                    <tr>
+                        <th>Excel</th>
+                        <td colspan="4">
+                            <input id="excelFileName" name="excelFileName" type="file" />
+                            <input id="excelAction" name="action" type="hidden" />
+                            <input id="excelBid" name="excelBid" type="hidden" />
+                        </td>
+                        <td>
+                            <a href="#" id="btnExcelImport" class="easyui-linkbutton" data-options="iconCls:'icon-search'" onclick="ExcelFileInport()">Excel导入</a>
+                            @*<a href="#" id="CreateAreaList" class="easyui-linkbutton" data-options="iconCls:'icon-redo'" onclick="CreateAreaList()">批量生成</a>
+                            <a href="#" id="SaveList" class="easyui-linkbutton" data-options="iconCls:'icon-save'" onclick="BatchSaveDg()">保存记录</a>*@
+                            <a href="#" id="btnErrorExcelOut" class="easyui-linkbutton" data-options="iconCls:'icon-redo'" onclick="ErrorListExcelOut()">失败记录</a>
+                        </td>
+
+                    </tr>
+                </table>
+            </form>
+        </div>
+
+        <table id="test"></table>
+    </div>
+
+    <div id="winShenHuYuanYing" class="easyui-window" title="审核窗口" style="width:400px;height:200px"
+         data-options="iconCls:'icon-save',modal:true">
+        <div class="easyui-layout" data-options="fit:true">
+            <div data-options="region:'north',split:true" style="height:200px">
+                <h2>退回原因说明：</h2>
+                <div>
+                    <input type="hidden" id="undoAction" />@*退回动作*@
+                    退回意见:<input id="FrealAreaName" name="FrealAreaName" style="width:300px;" />
+                    <a id="btn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-ok'" onclick="undoYuanYingTJ()" >确认</a>
+
+                </div>
+                <h3>在这里，您可以简要描述退回原因</h3>
+            </div>
+        </div>
+    </div> 
+
+    <div id="winBankReturn" class="easyui-window" title="银行处理结果导入" style="width:400px;height:300px"
+         data-options="iconCls:'icon-save',modal:true">
+        <div class="easyui-layout" data-options="fit:true">
+            <div data-options="region:'north',split:true" style="height:300px">
+                <h2>银行处理结果导入：</h2>
+                <div>
+
+                    <form id="ffBankExcel" method="post" enctype="multipart/form-data">
+                        <input type="hidden" id="BankResultExcelBid" name="BankResultExcelBid" />@*退回动作*@
+                        银行文件:<input type="file" id="BankResultFileName" name="BankResultFileName" />
+                        <a id="btnBankResultDo" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-ok'" onclick="ImportBankExcelResult()">确认</a>
+
+                    </form>
+
+                </div>
+                <h3>Excel文件格式要求：</h3>
+                <div>第一个行是列标题</div>
+                <div>第二行开始是数据行</div>
+                <h3>数据列格式：</h3>
+                <div>序号， 账号/卡号， 客户姓名，交易金额，处理信息</div>
+            </div>
+        </div>
+    </div>
+    <script src="~/Scripts/myJs/BatchCustomer.js"></script>
+</body>
+
+</html>

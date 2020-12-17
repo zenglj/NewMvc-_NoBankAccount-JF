@@ -1,0 +1,13 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+
+namespace SelfhelpOrderMgr.Model
+{
+    public partial class T_TempLeavePrison
+    {
+        public string strOutDate { get; set; }
+        public string BankCardNo { get; set; }
+    }
+}

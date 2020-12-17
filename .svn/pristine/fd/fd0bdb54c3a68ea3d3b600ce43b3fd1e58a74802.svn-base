@@ -1,0 +1,44 @@
+﻿using SelfhelpOrderMgr.DAL;
+using SelfhelpOrderMgr.Model;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Web;
+
+namespace SelfhelpOrderMgr.BLL
+{
+    public partial class CommTableInfoBLL
+    {
+        public DataTable GetDataTable(string sql)
+        {
+            return new CommTableInfoDAL().GetDataTable(sql);
+        }
+
+        public List<PeihuoDanPrintList> GetListData(string sql)
+        {
+            return new CommTableInfoDAL().GetListData(sql);
+        }
+
+        public List<xfMingxi> GetXfMingxi(string sql)
+        {
+            return new CommTableInfoDAL().GetXfMingxi(sql);
+        }
+
+        public List<T_XFGSList> GetXFGSList(string sql, object param)
+        {
+            return new CommTableInfoDAL().GetXFGSList(sql, param);
+        }
+
+        public bool AddDataTableToDB(DataTable source, string TargetTableName)
+        {
+            return new CommTableInfoDAL().AddDataTableToDB(source, TargetTableName);
+        }
+
+        public int ExecSql(string Sql)
+        {
+            return new CommTableInfoDAL().ExecSql(Sql);
+        }
+        
+    }
+}

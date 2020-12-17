@@ -1,0 +1,61 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>GetLeavePrisonList</title>
+    @{Html.RenderPartial("~/Views/Shared/_PartialHeadPage.cshtml");}
+    <script src="~/Scripts/myJs/commonJs.js"></script>
+    
+</head>
+<body class="easyui-layout">
+    <div data-options="region:'north',title:'过虑条件',split:true" style="height:100px;">
+        <form method="post">
+            <table id="crimeSearch">
+                <tr>
+                    <th align="right">日期：</th>
+                    <td align="left" colspan="3">
+
+                        <input class="easyui-datetimebox" id="fStartDate" name="fStartDate"
+                               data-options="required:true,showSeconds:false" value="3/4/2010 00:00" style="width:150px">至<input class="easyui-datetimebox" id="fEndDate" name="fEndDate"
+       data-options="required:true,showSeconds:false" value="3/4/2010 23:59" style="width:150px">
+                    </td>
+
+                    <th align="right">监区：</th>
+                    <td align="left">
+                        <select id="FAreaCode" name="FAreaCode" class="easyui-combobox">
+                            <option value="" selected="selected">请选择监区</option>
+                            @if (ViewData["areas"] != null)
+                            {
+                                foreach (SelfhelpOrderMgr.Model.T_AREA area in ViewData["areas"] as List<SelfhelpOrderMgr.Model.T_AREA>)
+                                {
+                                    <option value="@area.FCode">@area.FName</option>
+                                }
+                            }
+                        </select>
+                    </td>
+                </tr>
+                
+                    
+                
+                <tr>
+                    <th align="right">编号:</th>
+                    <td><input type="text" id="FCode" name="FCode" style="width:120px;" /></td>
+                    <th>姓名:</th>
+                    <td><input type="text" id="FName" name="FName" style="width:120px;" /></td>
+                    <td colspan="2"><a id="btn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-search'" onclick="FilterSearch()">查询</a><a id="A1" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-redo'" onclick="clearSearch()">清空</a></td>
+                </tr>
+            </table>
+        </form>
+    </div>
+    <div data-options="region:'center'" style="padding:5px;background:#eee;">
+        <table id="test"></table>
+    </div>
+    <script src="~/Scripts/myJs/LeavePrisonList.js"></script>
+</body>
+</html>

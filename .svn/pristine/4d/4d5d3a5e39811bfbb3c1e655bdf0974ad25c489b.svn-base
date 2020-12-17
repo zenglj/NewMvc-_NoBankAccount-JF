@@ -1,0 +1,63 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="page-header">
+    <h1>系统注册 <small>System Register</small></h1>
+</div>
+<form id="ffLicense" method="post" enctype="multipart/form-data">
+    <table class="table">
+        <tr><th>注册ID</th><td><input type="button" value="获取注册ID" onclick="getUserReg()" /></td></tr>
+        <tr><th>授权码</th><td><input type="file" id="LicenseCode" name="LicenseCode" style="width:400px;" /></td></tr>
+        <tr><th>用户注册</th><td><input type="button" value="确认注册" onclick="startReg()" /></td></tr>
+    </table>
+</form>
+<script src="~/Scripts/EasyUI/jquery.easyui.min.js"></script>
+<script type="text/javascript">
+    function getUserReg() {
+        $.post('/RegMgr/GetRegInfo', { "FName": "" },
+            function (data, status) {
+                if ('success' != status) {
+                    return false;
+                } else {
+                    if (data != null) {
+                        var ss = data.split("|");
+                        if (ss[0] == "OK") {
+                            window.open("/Upload/" + ss[1]);
+                        } else {
+                            alert(data);
+                        }
+                    }
+                }
+            });
+    }
+
+    function startReg() {
+        $('#ffLicense').form({
+            url: "/RegMgr/StartReg",
+            onSubmit: function(){    
+                // do some check    
+                // return false to prevent submit;    
+            },    
+            success:function(data){    
+                if (data != null) {
+                    alert(data);
+                }
+            }    
+        });    
+        // submit the form    
+        $('#ffLicense').submit();
+        //$.post('/RegMgr/StartReg', { "licenseCode": $("#LicenseCode").val() },
+        //    function (data, status) {
+        //        if ('success' != status) {
+        //            return false;
+        //        } else {
+        //            if (data != null) {
+        //                alert(data);                        
+        //            }
+        //        }
+        //    });
+    }
+</script>

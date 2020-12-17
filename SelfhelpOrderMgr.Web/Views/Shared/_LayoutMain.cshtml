@@ -1,0 +1,90 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - 监狱一卡通消费管理系统</title>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+    <link href="~/Content/Site.css" rel="stylesheet" />
+    @*<link href="~/Content/bootstrap.css" rel="stylesheet" />
+    <link href="~/Content/bootstrap-theme.min.css" rel="stylesheet" />
+    <link href="~/Content/docs.min.css" rel="stylesheet" />
+    <link href="~/Content/Site.css" rel="stylesheet" />
+    <link href="~/Content/buttons.css" rel="stylesheet" />
+    <link href="~/Content/messenger.css" rel="stylesheet" />
+    <link href="~/Content/messenger-theme-future.css" rel="stylesheet" />
+    <link href="~/Content/font-awesome.min.css" rel="stylesheet" />
+    <link href="~/Content/responsive-nav.css" rel="stylesheet" />
+    <script src="~/Scripts/jquery-1.11.3.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <script src="~/Scripts/respond.js"></script>
+    <script src="~/Scripts/responsive-nav.min.js"></script>*@
+</head>
+<body>
+    
+
+    @Html.Partial("_PartialNavbar")
+
+    <div id="carousel-example-generic" class="carousel slide" data-ride="carousel">
+        <!-- Indicators -->
+        @*<ol class="carousel-indicators">
+            <li data-target="#carousel-example-generic" data-slide-to="0" class="active"></li>
+            <li data-target="#carousel-example-generic" data-slide-to="1"></li>
+        </ol>*@
+        <!-- Wrapper for slides -->
+        <div class="carousel-inner" role="listbox">
+            <div class="item active">
+                <img src="~/Content/images/sb02.png" />
+                <div class="carousel-caption">
+                    <h1>网购消费</h1>
+                    <h3>自主、直观、快速的消费下单体验，让操作更迅速、简单、方便。</h3>
+                </div>
+            </div>
+            <div class="item">
+                <img src="~/Content/images/sb03.jpg" />
+                <div class="carousel-caption">
+                    <h1>供应齐全</h1>
+                    <h3>在规范要求，平台提供品种多样齐的产品，满足日常所需...</h3>
+                </div>
+            </div>
+            @*<div class="item">
+                <img src="~/Content/images/sb02.png" />
+                <div class="carousel-caption">
+                    <h1>网购，网购，网购</h1>
+                    <h3>足不出户，商品送到手，快乐轻松购...</h3>
+                </div>
+            </div>*@
+        </div>
+        <!-- Controls -->
+        <a class="left carousel-control" href="#carousel-example-generic" role="button" data-slide="prev">
+            <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+            <span class="sr-only">Previous</span>
+        </a>
+        <a class="right carousel-control" href="#carousel-example-generic" role="button" data-slide="next">
+            <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+            <span class="sr-only">Next</span>
+        </a>
+    </div>
+
+    <div class="bs-docs-header" id="content" tabindex="-1">
+        <div class="container">
+            <h1>自助网购系统</h1>
+            <p>自主、直观、快速的消费下单体验，让操作更迅速、简单、方便。</p>
+        </div>
+    </div>
+
+    <div class="container body-content">
+        @RenderBody()
+        
+
+    </div>
+    @Html.Partial("_PartialFooter")
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @RenderSection("scripts", required: false)
+
+</body>
+</html>

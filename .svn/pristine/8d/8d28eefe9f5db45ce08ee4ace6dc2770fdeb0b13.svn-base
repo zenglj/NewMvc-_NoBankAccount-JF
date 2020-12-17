@@ -1,0 +1,16 @@
+INFO  2017-03-01 09:02:02,609 19408ms Log4NetHelper          LoginCheck         - 后台系统登录,操作员：admin,登录时间=2017-03-01 09:02:02,登录IP为：::1
+INFO  2017-03-01 09:12:50,433 27221ms Log4NetHelper          LoginCheck         - 后台系统登录,操作员：admin,登录时间=2017-03-01 09:12:50,登录IP为：::1
+WARN  2017-03-01 09:16:20,710 237498ms Log4NetHelper          DelDetailList      - 删除存取款记录,操作员：admin,删除信息 ID=4,录入员：admin,流水号为：VOU170300002,记录创建日期:2017-03-01 09:15:24,类型为：文体用品,金额:30.00,摘要:wew
+INFO  2017-03-01 12:37:40,356 68638ms Log4NetHelper          LoginCheck         - 后台系统登录,操作员：admin,登录时间=2017-03-01 12:37:40,登录IP为：::1
+INFO  2017-03-01 13:31:21,552 26900ms Log4NetHelper          LoginCheck         - 后台系统登录,操作员：admin,登录时间=2017-03-01 13:31:21,登录IP为：::1
+INFO  2017-03-01 13:41:33,741 65676ms Log4NetHelper          LoginCheck         - 后台系统登录,操作员：admin,登录时间=2017-03-01 13:41:33,登录IP为：::1
+INFO  2017-03-01 13:58:18,382 20491ms Log4NetHelper          LoginCheck         - 后台系统登录,操作员：admin,登录时间=2017-03-01 13:58:18,登录IP为：::1
+INFO  2017-03-01 14:02:23,978 46902ms Log4NetHelper          LoginCheck         - 后台系统登录,操作员：admin,登录时间=2017-03-01 14:02:23,登录IP为：::1
+INFO  2017-03-01 14:09:01,382 15503ms Log4NetHelper          LoginCheck         - 后台系统登录,操作员：admin,登录时间=2017-03-01 14:09:01,登录IP为：::1
+WARN  2017-03-01 14:10:41,428 115549ms Log4NetHelper          DelDetailList      - 删除存取款记录,操作员：admin,删除信息 ID=17,录入员：admin,流水号为：VOU170300011,记录创建日期:2017-03-01 14:09:51,类型为：文体用品,金额:200.00,摘要:
+WARN  2017-03-01 14:11:03,422 137543ms Log4NetHelper          DelDetailList      - 删除存取款记录,操作员：admin,删除信息 ID=16,录入员：admin,流水号为：VOU170300010,记录创建日期:2017-03-01 14:09:51,类型为：文体用品,金额:200.00,摘要:
+INFO  2017-03-01 14:20:06,481 31065ms Log4NetHelper          LoginCheck         - 后台系统登录,操作员：admin,登录时间=2017-03-01 14:20:06,登录IP为：::1
+WARN  2017-03-01 14:21:19,866 104450ms Log4NetHelper          DelDetailList      - 删除存取款记录,操作员：admin,删除信息 ID=21,录入员：admin,流水号为：VOU170300015,记录创建日期:2017-03-01 14:20:45,类型为：文体用品,金额:200.00,摘要:
+WARN  2017-03-01 14:21:31,872 116456ms Log4NetHelper          DelDetailList      - 删除存取款记录,操作员：admin,删除信息 ID=20,录入员：admin,流水号为：VOU170300014,记录创建日期:2017-03-01 14:20:45,类型为：文体用品,金额:200.00,摘要:
+INFO  2017-03-01 14:28:12,167 25879ms Log4NetHelper          LoginCheck         - 后台系统登录,操作员：admin,登录时间=2017-03-01 14:28:12,登录IP为：::1
+INFO  2017-03-01 16:09:26,130 345291ms Log4NetHelper          LoginCheck         - 后台系统登录,操作员：admin,登录时间=2017-03-01 16:09:26,登录IP为：::1

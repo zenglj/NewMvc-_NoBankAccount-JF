@@ -1,0 +1,332 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>银行存款记录</title>
+    @{Html.RenderPartial("~/Views/Shared/_PartialHeadPage.cshtml");}
+    <style>
+        #ffAudit div{
+            text-align:center;
+            margin:5px 0px;
+        }
+    </style>
+
+</head>
+<body class="easyui-layout">
+    <div data-options="region:'center',title:'银行存款清单'" style="padding:5px;">
+        @*@{Html.RenderPartial("~/Views/Shared/_PartialXiaopiaoControl.cshtml");}*@
+        <table id="test" data-options="toolbar:'#tb'"></table>
+
+        <div id="tb">
+            <div>
+                @*FCheckFlag是“确认”,auditflag是“审核”,FdbcheckFlag是“复核”,Flag是“财务入账”*@
+
+                <a href="javascript:void(0)" id="mb" class="easyui-menubutton"
+                   data-options="menu:'#mm',iconCls:'icon-print'">打印报表</a>
+                <div id="mm" style="width:150px;">
+                    <div data-options="iconCls:'icon-man'" onclick="printMenuBtn(1)">按用户汇总总单</div>
+                    <div data-options="iconCls:'icon-redo'" onclick="printMenuBtn(2)">按用户个人清单</div>
+                    <div data-options="iconCls:'icon-man'" onclick="printMenuBtn(21)">罚金打印清单</div>
+                    <div class="menu-sep"></div>
+                    <div onclick="printMenuBtn(3)">按队别分类总单</div>
+                    <div onclick="printMenuBtn(4)">按队别分类清单</div>
+                    <div class="menu-sep"></div>
+                    <div data-options="iconCls:'icon-sum'" onclick="printMenuBtn(5)">按存取类汇总总单</div>
+                    <div data-options="iconCls:'icon-reload'" onclick="printMenuBtn(6)">按存取类型清单</div>
+                    <div data-options="iconCls:'icon-search'" onclick="printMenuBtn(22)">按类型个人汇总清单</div>
+                    <div class="menu-sep"></div>
+                    <div onclick="printMenuBtn(7)">超市消费汇总表</div>
+                    <div onclick="printMenuBtn(8)">明细记录清单</div>
+                    <div onclick="printMenuBtn(20)">个人消费明细清单</div>
+                    <div class="menu-sep"></div>
+                    <div data-options="iconCls:'icon-sum'" onclick="printMenuBtn(9)">银行交易汇总报表</div>
+                    <div data-options="iconCls:'icon-search'" onclick="printMenuBtn(10)">银行交易明细清单</div>
+                    <div data-options="iconCls:'icon-search'" onclick="printMenuBtn(11)">银行每日交易报表</div>
+                    <div class="menu-sep"></div>
+                    <div data-options="iconCls:'icon-man'" onclick="printMenuBtn(12)">需离监冻结人员名单</div>
+                    <div class="menu-sep"></div>
+                    <div data-options="iconCls:'icon-sum'" onclick="printMenuBtn(13)">回款日银行交易汇总</div>
+                    <div data-options="iconCls:'icon-search'" onclick="printMenuBtn(14)">回款日交银行易明细</div>
+                    <div data-options="iconCls:'icon-search'" onclick="printMenuBtn(15)">银行回款日交易表</div>
+                </div> <label>|</label>
+
+                <a href="javascript:void(0)" id="mprint" class="easyui-menubutton"
+                   data-options="menu:'#mp',iconCls:'icon-redo'">Excel导出数据</a>
+                <div id="mp" style="width:150px;">
+                    <div data-options="iconCls:'icon-man'" onclick="OutExcelSumOrder(1)">按用户汇总Excel</div>
+                    <div data-options="iconCls:'icon-redo'" onclick="OutExcelSumOrder(2)">按用户个人Excel</div>
+                    <div data-options="iconCls:'icon-man'" onclick="OutExcelSumOrder(21)">罚金Excel清单</div>
+                    <div class="menu-sep"></div>
+                    <div onclick="OutExcelSumOrder(3)">按队别分类Excel</div>
+                    <div onclick="OutExcelSumOrder(4)">按队别分类Excel</div>
+                    <div class="menu-sep"></div>
+                    <div data-options="iconCls:'icon-sum'" onclick="OutExcelSumOrder(5)">按存取类汇总Excel</div>
+                    <div data-options="iconCls:'icon-reload'" onclick="OutExcelSumOrder(6)">按存取类型Excel</div>
+                    <div data-options="iconCls:'icon-search'" onclick="OutExcelSumOrder(22)">（两栏）个人汇总清单</div>
+                    <div data-options="iconCls:'icon-search'" onclick="OutExcelSumOrder(23)">（两栏日期）个人汇总清单</div>
+                    <div data-options="iconCls:'icon-search'" onclick="OutExcelSumOrder(24)">（一栏）个人汇总清单</div>
+                    <div class="menu-sep"></div>
+                    <div onclick="OutExcelSumOrder(7)">超市消费汇Excel</div>
+                    <div onclick="OutExcelSumOrder(8)">明细记录Excel</div>
+                    <div onclick="OutExcelSumOrder(20)">个人消费明细清单</div>
+                    <div class="menu-sep"></div>
+                    <div data-options="iconCls:'icon-sum'" onclick="OutExcelSumOrder(9)">银行交易汇总报表</div>
+                    <div data-options="iconCls:'icon-search'" onclick="OutExcelSumOrder(10)">银行交易明细清单</div>
+                    <div data-options="iconCls:'icon-search'" onclick="OutExcelSumOrder(11)">银行每日交易报表</div>
+                    <div class="menu-sep"></div>
+                    <div data-options="iconCls:'icon-man'" onclick="OutExcelSumOrder(12)">需离监冻结人员名单</div>
+                    <div class="menu-sep"></div>
+                    <div data-options="iconCls:'icon-sum'" onclick="OutExcelSumOrder(13)">回款日银行交易汇总</div>
+                    <div data-options="iconCls:'icon-search'" onclick="OutExcelSumOrder(14)">回款日交银行易明细</div>
+                    <div data-options="iconCls:'icon-search'" onclick="OutExcelSumOrder(15)">银行回款日交易表</div>
+                </div> <label>|</label>
+
+                
+
+                @*<a href="javascript:void(0)" id="mbOpt" class="easyui-menubutton"
+                   data-options="menu:'#mmOpt',iconCls:'icon-undo'">数据审核</a>
+                <div id="mmOpt" style="width:150px;">
+                    <div data-options="iconCls:'icon-ok'" onclick="$('#auditEditBox').window('open');  ">入账审核</div>
+                    <div data-options="iconCls:'icon-cancel'" onclick="UnAuditIncome()">退账审核</div>
+                </div>*@
+
+
+            </div>
+        </div>
+
+
+
+        <div id="template"></div>
+
+        @*<div>
+            <div id="auditEditBox" class="easyui-window" title="存款记录入账审核" style="width:400px;height:200px;"
+                 data-options="iconCls:'icon-save',resizable:true,modal:true">
+                <form id="ffAudit" method="post">
+                    <div>
+                        <label for="name">流水单号:</label>
+                        <input class="easyui-textbox" type="text" id="formObssid" name="Obssid" />
+                    </div>
+                    <div>
+                        <label for="TranAmount">转账金额:</label>
+                        <input class="easyui-numberbox" type="text" id="formTranAmount" name="TranAmount" data-options="min:0,precision:2" />
+                    </div>
+                    <div>
+                        <label for="FCrimecode">罪犯编号:</label>
+                        <input class="easyui-textbox" type="text" id="formFCrimecode" name="FCrimecode" data-options="iconCls:'icon-search'" />
+                    </div>
+                    <div>
+                        <label for="FCrimeName">罪犯姓名:</label>
+                        <input class="easyui-textbox" type="text" id="formFCrimeName" name="FCrimeName" />
+                    </div>
+                    <div>
+                        <label for="Remark">审核备注:</label>
+                        <input class="easyui-textbox" type="text" id="formRemark" name="Remark" />
+                    </div>
+                </form>
+            </div>  
+        </div>*@
+
+    </div>
+
+    <div data-options="region:'east',title:'查询条件',split:true" style="width:300px;">
+        <div data-options="region:'north',title:'North Title',split:true" style="height:200px;">
+            <form method="post">
+                <table id="crimeSearch">
+                    <tr>
+                        <th align="right">Id：</th>
+                        <td align="left">
+                            <input class="easyui-numberbox" id="SearchId" name="Id"
+                                   data-options="min:0,precision:0" style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">狱号：</th>
+                        <td align="left">
+                            <input class="easyui-textbox" id="SearchFCrimecode" name="FCrimecode"
+                                    style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">流水号：</th>
+                        <td align="left">
+                            <input id="SearchObssid" name="obssid" class="easyui-textbox" style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">付款账号：</th>
+                        <td align="left">
+                            <input id="SearchFormActAccount" name="FromActAccount" class="easyui-textbox" style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">付款人：</th>
+                        <td align="left">
+                            <input id="SearchFromActName" name="FromActName" class="easyui-textbox" style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">收款账号：</th>
+                        <td align="left">
+                            <input id="SearchToActAccount" name="ToActAccount" class="easyui-textbox" style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">收款人：</th>
+                        <td align="left">
+                            <input id="SearchToActName" name="ToActName" class="easyui-textbox" style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">汇款金额：</th>
+                        <td align="left">
+                            <input id="SearchTranAmount" name="TranAmount" class="easyui-textbox" style="width:190px">
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th align="right">汇款起日：</th>
+                        <td align="left">
+                            <input class="easyui-datetimebox" id="SearchTranSuccDate_Start" name="TranSuccDate_Start"
+                                   data-options="required:true,showSeconds:false" value="3/4/2010 00:00" style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">汇款止日：</th>
+                        <td align="left">
+                            <input class="easyui-datetimebox" id="SearchTranSuccDate_End" name="TranSuccDate_End"
+                                   data-options="required:true,showSeconds:false" value="3/4/2010 23:59" style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">汇款状态：</th>
+                        <td align="left">
+                            <input id="SearchTranStatus" name="TranStatus" class="easyui-textbox" style="width:190px">
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th align="right">用途：</th>
+                        <td align="left">
+                            <input id="SearchPurposeInfo" name="PurposeInfo" class="easyui-textbox" style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">到账起日：</th>
+                        <td align="left">
+                            <input class="easyui-datetimebox" id="SearchAccountingTime_Start" name="AccountingTime_Start"
+                                   data-options="required:true,showSeconds:false" value="3/4/2010 00:00" style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">到账止日：</th>
+                        <td align="left">
+                            <input class="easyui-datetimebox" id="SearchAccountingTime_End" name="AccountingTime_End"
+                                   data-options="required:true,showSeconds:false" value="3/4/2010 23:59" style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">Vcrd标志：</th>
+                        <td align="left">
+                            <select id="SearchInVcrdFlag" name="InVcrdFlag" class="easyui-combobox" data-options=" multiple:false" style="width:190px;">
+                                <option value=" ">请选择</option>
+                                <option value="-1">确认失败</option>
+                                <option value="0">未审核</option>
+                                <option value="1">已入账</option>
+                                <option value="2">已退账</option>
+                                <option value="3">其他</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">导入起日：</th>
+                        <td align="left">
+                            <input class="easyui-datetimebox" id="SearchCrtDate_Start" name="CrtDate_Start"
+                                   data-options="required:true,showSeconds:false" value="3/4/2010 00:00" style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">导入止日：</th>
+                        <td align="left">
+                            <input class="easyui-datetimebox" id="SearchCrtDate_End" name="CrtDate_End"
+                                   data-options="required:true,showSeconds:false" value="3/4/2010 23:59" style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">入账审核说明：</th>
+                        <td align="left">
+                            <input id="SearchAuditRemark" name="AuditRemark" class="easyui-textbox" style="width:190px">
+                        </td>
+                    </tr>
+                    
+                    
+
+                    <tr>
+                        <th align="right"></th>
+                        <td align="right"><a id="btn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-search'" onclick="btnSearch()">查询</a><a id="A1" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-redo'" onclick="btnClear()">清空</a></td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+    </div>
+
+    @*修改消费记录为调账取款*@
+    <div>
+        <div id="winChangeList" class="easyui-window" title="My Window" style="width:600px;height:400px"
+             data-options="iconCls:'icon-save',modal:true">
+            <div class="easyui-layout" data-options="fit:true">
+                <div data-options="region:'north',split:true" style="height:150px">
+                    <table>
+                        <tr>
+                            <th>流水号:</th>
+                            <td><label id="tInvno"></label></td>
+                            <th>编号:</th>
+                            <td><label id="tFCrimeCode"></label></td>
+                            <th>姓名:</th>
+                            <td><label id="tFCriminal"></label></td>
+                            <th>类型:</th>
+                            <td>
+                                <label id="tPType"></label>
+                                <input id="tTypeFlag" type="hidden" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>日期:</th>
+                            <td><label id="tOrderDate"></label></td>
+                            <th>金额:</th>
+                            <td><label id="tAmount"></label></td>
+                            <th>变更类型:</th>
+                            <td>
+                                <select id="comChangeType" class="easyui-combobox" name="comChangeType" style="width:150px;">
+                                    <option value="0">请选择修改类型</option>
+                                    @if (ViewData["SaveType"] != null)
+                                    {
+                                        foreach (SelfhelpOrderMgr.Model.T_Savetype savetype in ViewData["SaveType"] as List<SelfhelpOrderMgr.Model.T_Savetype>)
+                                        {
+                                            <option value="@savetype.fcode"> @savetype.fname</option>
+                                        }
+                                    }
+                                </select>
+                            </td>
+                        </tr>
+
+                        <tr><td colspan="6" align="right"><a id="btnChange" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-save'" onclick="btnSaveChangeType()">确认调账</a> </td></tr>
+                    </table>
+                </div>
+                <div data-options="region:'center'">
+                    注意：本退款操作，适用于消费记录银行已经成功扣款，但未给货物的情况处理。如果您处理的数据是已发送到银行扣款了，更改后，请让财务部门给予存入相应的退款。
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="~/Scripts/EasyUI/jquery.easyui.min.js"></script>
+    <script src="~/Scripts/myJs/LodopFuncs.js"></script>
+
+    <script src="~/Scripts/myJs/DepositIndex.js"></script>
+</body>
+</html>

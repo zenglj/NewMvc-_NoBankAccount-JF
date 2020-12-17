@@ -1,0 +1,85 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>MulitImageUpload</title>
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Scripts/diyUpload/css/webuploader.css" rel="stylesheet" />
+    <link href="~/Scripts/diyUpload/css/diyUpload.css" rel="stylesheet" />
+    <script src="~/Scripts/jquery-1.11.3.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <script src="~/Scripts/diyUpload/js/diyUpload.js"></script>
+    <script src="~/Scripts/diyUpload/js/webuploader.html5only.min.js"></script>
+</head>
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+    }
+
+    #box {
+        margin: 50px auto;
+        width: 540px;
+        min-height: 400px;
+        background: #FF9;
+    }
+
+    #demo {
+        margin: 50px auto;
+        width: 540px;
+        min-height: 800px;
+        background: #CF9;
+    }
+</style>
+<body>
+    <div> 
+        <div id="box">
+            <div id="test"></div>
+        </div>
+    </div>
+</body>
+
+
+</html>
+<script type="text/javascript">
+
+    /*
+    * 服务器地址,成功返回,失败返回参数格式依照jquery.ajax习惯;
+    * 其他参数同WebUploader
+    */
+
+    $('#test').diyUpload({
+        url: '/Super/BatchUploadImages',
+        success: function (data) {
+            console.info(data);
+        },
+        error: function (err) {
+            console.info(err);
+        }
+    });
+
+    //$('#as').diyUpload({
+    //    url: 'server/fileupload.php',
+    //    success: function (data) {
+    //        console.info(data);
+    //    },
+    //    error: function (err) {
+    //        console.info(err);
+    //    },
+    //    buttonText: '选择文件',
+    //    chunked: true,
+    //    // 分片大小
+    //    chunkSize: 512 * 1024,
+    //    //最大上传的文件数量, 总文件大小,单个文件大小(单位字节);
+    //    fileNumLimit: 50,
+    //    fileSizeLimit: 500000 * 1024,
+    //    fileSingleSizeLimit: 50000 * 1024,
+    //    accept: {}
+    //});
+</script>

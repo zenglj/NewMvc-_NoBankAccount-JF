@@ -1,0 +1,122 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title></title>
+
+    @{Html.RenderPartial("~/Views/Shared/_PartialHeadPage.cshtml");}
+
+    <script type="text/javascript">
+        $(function () {
+            bindEvent();
+        });
+        //绑定事件
+        function bindEvent() {
+            $(".cs-navi-tab").click(function () {
+                var title = $(this).text();
+                var url = $(this).attr("url");
+                var isExt = $('#tt').tabs('exists', title);//判断页签是否已经存在
+                if (isExt) {
+                    $('#tt').tabs('select', title);//如果存在选中
+                    return;
+                }
+                $('#tt').tabs('add', {//添加页签
+                    title: title,
+                    content: createContent(url),
+                    closable: true
+                });
+
+            });
+        }
+        function createContent(url) {
+            var strHtml = '<iframe src="' + url + '" scrolling="no" frameborder="0" width="100%" height="100%"></iframe>';
+            return strHtml;
+        }
+    </script>
+</head>
+<body class="easyui-layout">
+    <div data-options="region:'north',border:false" style="height: 80px; background: #007ACC; padding: 0px; overflow: hidden; background-image: url(/Content/images/bgTop.png); ">
+        <h1 style="color:white;">狱内消费后台管理系统</h1>
+        <div style="float:right; padding-right:20px;">
+            <a id="btn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-undo'" onclick="exitsystem()">退出系统</a>
+        </div>
+    </div>
+    <div data-options="region:'west',split:true,title:'系统导航'" style="width:180px;padding:1px;">
+        <div id="aa" class="easyui-accordion" style="width:170px;height:450px;">
+
+            @foreach (var menus in ViewData["menus"] as Dictionary<string, object>)
+            {
+                <div title="@menus.Key.ToString()" data-options="iconCls:'icon-man'" style="overflow: auto; padding: 10px;">
+                    @foreach (SelfhelpOrderMgr.Web.Controllers.subMenu submenu in menus.Value as List<SelfhelpOrderMgr.Web.Controllers.subMenu>)
+                    {
+                        <a class="cs-navi-tab" href="#" url="@submenu.url">@submenu.text</a><br />
+                    }
+                </div>
+            }
+        </div>
+
+    </div>
+    <div data-options="region:'east',split:true,collapsed:true,title:'East'" style="width:100px;padding:10px;">east region</div>
+    <div data-options="region:'south',border:false" style="height: 30px; background: #007ACC; padding: 1px; ">south region</div>
+    <div data-options="region:'center'">
+        <div class="easyui-tabs" style="width:700px;height:250px" fit="true" id="tt">
+            <div title="Home">
+                <div class="cs-home-remark">
+                    <h1>JVD Prison CustomerMgrSys Web V2.0版</h1> <br>
+                    制作：JVDing <br>
+                    电话：0591-83754355 <br>
+                    网站：<a href="http://www.fzjuding.com" target="_blank">http://www.fzjuding.com</a><br>
+                    说明：JVD一卡通消费管理系统。
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style type="text/css">
+        body {
+            font: 12px/20px "微软雅黑", "宋体", Arial, sans-serif, Verdana, Tahoma;
+            padding: 0;
+            margin: 0;
+        }
+
+        a:link {
+            text-decoration: none;
+        }
+
+        a:visited {
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        a:active {
+            text-decoration: none;
+        }
+
+        .cs-navi-tab {
+            padding: 5px;
+        }
+
+        #aa a {
+            font-size: 14px;
+        }
+
+        h1 {
+            padding-left: 100px;
+        }
+    </style>
+    <script type="text/javascript">
+        function exitsystem() {
+            //alert("ddsee");
+            window.location.href = "/Mainpanel/ExitSystem";
+        }
+    </script>
+</body>
+</html>

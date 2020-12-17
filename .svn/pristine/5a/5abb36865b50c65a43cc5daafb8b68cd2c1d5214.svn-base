@@ -1,0 +1,391 @@
+﻿using SelfhelpOrderMgr.DAL;
+using SelfhelpOrderMgr.Model;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Web;
+
+namespace SelfhelpOrderMgr.BLL
+{
+    public partial class T_CriminalBLL
+    {
+        public void Add(SelfhelpOrderMgr.Model.T_Criminal model, string param)
+        {
+            new T_CriminalDAL().Add(model,param);
+        }
+        public bool Update(SelfhelpOrderMgr.Model.T_Criminal model, string param)
+        {
+            return new T_CriminalDAL().Update(model, param);
+        }
+        public T_Criminal GetCriminalXE_info(string fcode,int saleTypeId)
+        {
+            /*T_Criminal扩展属性说明
+                AmountAmoney //存款账户上金额
+                AmountBmoney //劳酬账户上金额
+                Xiaofeimoney //本月已经消费金额
+                NoXiaofeimoney //当前可消费金额
+             *  CanUseMoneyA   //A账户能用金额
+             *  CanUseMoneyB   //B账户能用金额
+                MonthStandard //月消费金额标准
+                XianEMethod//限额方法：
+                        //1是存款账户限额;
+                        //2是报酬账户限额;
+                        //3是总额限额;
+                        //4是存款和报酬两个分别限;
+                  */
+
+            #region 查找不同类型的消费限额参数
+            //查找不同类型的消费限额参数
+            T_SHO_SaleType saleType = new T_SHO_SaleTypeBLL().GetModel(saleTypeId);
+            //int saleTypeId = 7;
+            int firstPaymentAccount = 0;
+            int canconsumeAccount = 0;
+            if (saleType != null)
+            {
+                firstPaymentAccount = saleType.FirstPaymentAccount;
+                canconsumeAccount = saleType.CanconsumeAccount;
+            } 
+            #endregion
+
+            T_Criminal model = GetModel(fcode);
+            T_Criminal_card card = new T_Criminal_cardBLL().GetModel(fcode);
+            T_CY_TYPE cy = new T_CY_TYPEDAL().GetModel(model.FCYCode);//处遇信息
+            List<T_AREA> areas = new T_AREABLL().GetModelList( "fcode='"+model.FAreaCode+"'");//队别编号
+            model.CyName = cy.FName;
+            decimal dongjieMoney = 0;//被冻结金额
+
+            #region 获得犯人被冻结金额
+            if (model.flimitamt == null)
+            {
+                model.flimitamt = 0;
+            }
+            if (model.flimitflag == null)
+            {
+                model.flimitflag = 0;
+            }
+            dongjieMoney = (decimal)model.flimitflag * (decimal)model.flimitamt; //被冻结金额
+            #endregion
+
+            //账户当前可用总金额
+            //model.OkUseAllMoney = card.AmountA + card.AmountB - dongjieMoney;
+
+            model.AmountA = card.AmountA;
+            model.AmountB = card.AmountB;
+            model.AmountC = card.AmountC;
+            model.dongjieMoney = dongjieMoney;//斌值冻结金额
+            model.OkUseAllMoney = 0;
+            if( card.AmountA >= dongjieMoney)
+            {
+                model.AmountAmoney = card.AmountA - dongjieMoney;
+                model.AmountBmoney = card.AmountB;
+            }
+            else
+            {
+                model.AmountAmoney = 0;
+                model.AmountBmoney = card.AmountB - (dongjieMoney - card.AmountA);
+            }
+            
+            //if(card.AmountA - dongjieMoney<=0)
+            //{
+            //    model.AmountAmoney = 0;
+            //}
+            //else
+            //{
+            //    model.AmountAmoney = card.AmountA - dongjieMoney;
+            //}
+
+            
+            model.AmountCmoney = card.AmountC;
+            model.BankCardNo = card.BankAccNo;
+            model.CardCode = card.cardcodea;//设定卡号
+            model.FAreaName = areas[0].FName;//队别名称
+
+            #region 判断是否是在特殊的消费时段里          
+
+            //初始相关参数的值
+            string startDate ="";
+            string endDate = "";
+            decimal beiShu=1;//默认消费的倍数为1，如果在特定时段内再根据相关值调整
+            startDate = DateTime.Now.Year.ToString() + "-" + DateTime.Now.Month.ToString() + "-1";
+            endDate = DateTime.Now.AddMonths(1).Year.ToString() + "-" + DateTime.Now.AddMonths(1).Month.ToString() + "-1";
+
+            //判断是否在消费限额之内
+            T_SHO_ManagerSet xfDateRect = new T_SHO_ManagerSetBLL().GetModel("XFDateRect");
+            if (xfDateRect.MgrValue == "1")
+            {
+                if (DateTime.Today <= new T_SHO_ManagerSetBLL().GetModel("XFDateEnd").StartTime)
+                {
+                    startDate = new T_SHO_ManagerSetBLL().GetModel("XFDateStart").StartTime.ToString();
+                    endDate = new T_SHO_ManagerSetBLL().GetModel("XFDateEnd").StartTime.ToString();
+                    T_SHO_ManagerSet xfBeiShu = new T_SHO_ManagerSetBLL().GetModel("XFDateEnd");
+                    beiShu = Convert.ToDecimal(xfBeiShu.MgrValue);
+                }
+            }
+
+            #endregion
+            CrimeXFinfo xfmoney = new CrimeXFinfo();//限额相关信息
+
+            #region 获得消费相相情况
+            string strWhere = " FCrimeCode='" + fcode + "' and OrderDate>='" + startDate + "' and OrderDate<'" + endDate + "' and flag=1";
+            List<T_Invoice> invLists = new T_InvoiceBLL().GetModelList(strWhere);
+
+            if (invLists != null)
+            {
+                foreach (T_Invoice vs in invLists)
+                {
+                    xfmoney.Amoney = xfmoney.Amoney + (vs.AmountA*vs.Fifoflag*-1);
+                    xfmoney.Bmoney = xfmoney.Bmoney + (vs.AmountB * vs.Fifoflag * -1);
+                    xfmoney.FreeAmoney = xfmoney.FreeAmoney + (vs.FreeAmountA * vs.Fifoflag * -1);
+                    xfmoney.FreeBmoney = xfmoney.FreeBmoney + (vs.FreeAmountB * vs.Fifoflag * -1);
+                }
+            } 
+            #endregion
+
+            #region 判断账户的可消费情况
+            //判断账户的可消费情况
+            //首先判断账是哪个账户可以消费
+            switch (canconsumeAccount)
+            {
+                case 0://A和B都可以消费
+                    {
+                        model.CanUseMoneyA = model.AmountAmoney;
+                        model.CanUseMoneyB = model.AmountBmoney;
+                    } break;
+                case 1:
+                    {
+                        model.CanUseMoneyA = model.AmountAmoney;
+                        model.CanUseMoneyB = 0;
+                        model.AmountBmoney = 0;
+                    } break;
+                case 2:
+                    {
+                        model.CanUseMoneyA = 0;
+                        model.AmountAmoney = 0;                        
+                        if (model.AmountBmoney - dongjieMoney <= 0)
+                        {
+                            model.CanUseMoneyB = 0;
+                        }
+                        else
+                        {
+                            model.CanUseMoneyB = model.AmountBmoney - dongjieMoney;
+                        }
+                    } break;
+                default:
+                    break;
+            }
+            model.OkUseAllMoney = model.CanUseMoneyA + model.CanUseMoneyB;//根据可消费账户判断结果再相加
+            
+            #endregion
+
+            #region 获取消费限额数据及可消费金额
+            //启用特殊时段的倍数参数 * beiShu
+            //根据处遇级别 乘以 倍数beiShu
+            if (  cy.ftotamtmonth != 0)//如果启用总额限制
+            {
+                #region 启用总额限制计算相关设定
+                model.MonthStandard = cy.ftotamtmonth * beiShu;//启用特殊时段的倍数参数
+                model.Xiaofeimoney = xfmoney.Amoney + xfmoney.Bmoney - xfmoney.FreeAmoney - xfmoney.FreeBmoney;
+                model.XianEMethod = 3;//是总额限额;
+                if ((model.MonthStandard - model.Xiaofeimoney) > (model.CanUseMoneyA + model.CanUseMoneyB))
+                {//如是消费限额大于当前账户余额
+                    model.NoXiaofeimoney = model.CanUseMoneyA + model.CanUseMoneyB;
+                }
+                else
+                {//如是消费限额小于当前账户余额
+                    model.NoXiaofeimoney = model.MonthStandard - model.Xiaofeimoney;
+                    if (firstPaymentAccount == 0)//如果A优先，否则A全扣，余下B扣
+                    {
+                        if (model.CanUseMoneyA > model.NoXiaofeimoney)
+                        {
+                            model.CanUseMoneyA = model.NoXiaofeimoney;
+                            model.CanUseMoneyB = 0;
+                        }
+                        else
+                        {
+                            model.CanUseMoneyB = model.NoXiaofeimoney - model.CanUseMoneyA;
+                        }
+                    }
+                    else//否则B全扣，余下A扣
+                    {
+                        if (model.CanUseMoneyB > model.NoXiaofeimoney)
+                        {
+                            model.CanUseMoneyB = model.NoXiaofeimoney;
+                            model.CanUseMoneyA = 0;
+                        }
+                        else
+                        {
+                            model.CanUseMoneyA = model.NoXiaofeimoney - model.CanUseMoneyB;
+                        }
+                    }
+                }  
+                #endregion               
+            }
+            else if (cy.famtmonth != 0 && cy.FBamtMonth != 0)//A账户限额，B账户也限额
+            {
+                #region A账户限额，B账户也限额
+                model.MonthStandard = (cy.FBamtMonth + cy.famtmonth) * beiShu;//启用特殊时段的倍数参数
+                model.Xiaofeimoney = xfmoney.Amoney + xfmoney.Bmoney - xfmoney.FreeAmoney - xfmoney.FreeBmoney;
+                model.XianEMethod = 4;//是存款和报酬两个分别限;
+                if (cy.famtmonth - (xfmoney.Amoney-xfmoney.FreeAmoney)< model.CanUseMoneyA)
+                {
+                    if (xfmoney.Amoney - xfmoney.FreeAmoney > 0)
+                    {
+                        model.CanUseMoneyA = cy.famtmonth - (xfmoney.Amoney - xfmoney.FreeAmoney);
+                    }
+                    else
+                    {
+                        model.CanUseMoneyA = cy.famtmonth;
+                    }
+                }
+                if (cy.FBamtMonth - (xfmoney.Bmoney - xfmoney.FreeBmoney) < model.CanUseMoneyB)
+                {
+                    if (xfmoney.Bmoney - xfmoney.FreeBmoney > 0)
+                    {
+                        model.CanUseMoneyB = cy.FBamtMonth - (xfmoney.Bmoney - xfmoney.FreeBmoney);
+                    }
+                    else
+                    {
+                        model.CanUseMoneyB = cy.FBamtMonth;
+                    }
+                }
+                model.NoXiaofeimoney = model.CanUseMoneyA + model.CanUseMoneyB;
+
+                //if (model.MonthStandard - model.Xiaofeimoney > model.CanUseMoneyA + model.CanUseMoneyB)
+                //{//如是消费限额大于当前账户余额
+                //    model.NoXiaofeimoney = model.CanUseMoneyA + model.CanUseMoneyB;
+                //}
+                //else
+                //{//如是消费限额小于当前账户余额
+                //    model.NoXiaofeimoney = model.MonthStandard - model.Xiaofeimoney;
+                //    if (firstPaymentAccount == 0)//如果A优先，否则A全扣，余下B扣
+                //    {
+                //        if (model.CanUseMoneyA > model.NoXiaofeimoney)
+                //        {
+                //            model.CanUseMoneyA = model.NoXiaofeimoney;
+                //            model.CanUseMoneyB = 0;
+                //        }
+                //        else
+                //        {
+                //            model.CanUseMoneyB = model.NoXiaofeimoney - model.CanUseMoneyA;
+                //        }
+                //    }
+                //    else//否则B全扣，余下A扣
+                //    {
+                //        if (model.CanUseMoneyB > model.NoXiaofeimoney)
+                //        {
+                //            model.CanUseMoneyB = model.NoXiaofeimoney;
+                //            model.CanUseMoneyA = 0;
+                //        }
+                //        else
+                //        {
+                //            model.CanUseMoneyA = model.NoXiaofeimoney - model.CanUseMoneyB;
+                //        }
+                //    }
+                //} 
+                #endregion
+
+            }
+            else if (cy.famtmonth != 0 && cy.FBamtMonth == 0)//A账户限额，B账户不限额
+            {
+                #region A账户限额，B账户不限额
+                model.MonthStandard = cy.famtmonth * beiShu;//启用特殊时段的倍数参数
+                model.Xiaofeimoney = xfmoney.Amoney - xfmoney.FreeAmoney;
+                model.XianEMethod = 1;//是存款账户限额;
+                if (model.MonthStandard - model.Xiaofeimoney > model.CanUseMoneyA)
+                {//如是消费限额大于当前账户余额
+                    model.NoXiaofeimoney = model.CanUseMoneyA + model.CanUseMoneyB;
+                }
+                else
+                {//如是消费限额小于当前账户余额
+                    model.NoXiaofeimoney = model.MonthStandard + model.CanUseMoneyB - model.Xiaofeimoney;
+                    model.CanUseMoneyA = model.MonthStandard - model.Xiaofeimoney;
+                } 
+                #endregion                
+            }
+            else if (cy.famtmonth == 0 && cy.FBamtMonth != 0)//B账户限额，A账户不限额
+            {
+                #region B账户限额，A账户不限额
+                model.MonthStandard = cy.FBamtMonth * beiShu;//启用特殊时段的倍数参数
+                model.Xiaofeimoney = xfmoney.Bmoney - xfmoney.FreeBmoney;
+                model.XianEMethod = 2;//是报酬账户限额;
+                if (model.MonthStandard - model.Xiaofeimoney > model.CanUseMoneyB)
+                {//如是消费限额大于当前账户余额
+                    model.NoXiaofeimoney = model.CanUseMoneyB - model.Xiaofeimoney + model.CanUseMoneyA;
+                }
+                else
+                {//如是消费限额小于当前账户余额
+                    model.NoXiaofeimoney = model.MonthStandard - model.Xiaofeimoney + model.CanUseMoneyA;
+                    model.CanUseMoneyB = model.MonthStandard - model.Xiaofeimoney;
+                } 
+                #endregion
+            }
+
+            #endregion
+
+            return model;
+        }
+
+        public IEnumerable<T_Criminal> GetPageListOfIEnumerable(int page, int pageRow, string strWhere)
+        {
+            return new T_CriminalDAL().GetPageListOfIEnumerable(page, pageRow, strWhere);
+        }
+
+        public List<T_Criminal> GetCrimeBySearch( string fcode, string fname, string areaname, string usercode)
+        {
+
+            DataTable dt= new T_CriminalDAL().GetCrimeBySearch( fcode, fname, areaname, usercode);
+            return DataTableToList(dt);
+        }
+
+        /// <summary>
+        /// 扩展的犯人信息，包括队别名称，处遇名称，罪名
+        /// </summary>
+        /// <param name="page"></param>
+        /// <param name="pageRow"></param>
+        /// <param name="strWhere"></param>
+        /// <param name="orderByField"></param>
+        /// <returns></returns>
+        public List<T_Criminal> GetPageCriminalExtInfo(int page, int pageRow, string strWhere, string orderByField)
+        {
+            return new T_CriminalDAL().GetPageCriminalExtInfo(page,pageRow,strWhere,orderByField);
+        }
+
+        public int GetCriminalsCount(string strWhere)
+        {
+            return new T_CriminalDAL().GetCriminalsCount(strWhere);
+
+        }
+        public List<T_UserInfoExt> GetUserInfo(string strWhere)
+        {
+            return new T_CriminalDAL().GetUserInfo(strWhere); 
+        }
+        public List<T_UserInfoExt> GetUserInfo(int page, int pageRow, string strWhere)
+        {
+            return new T_CriminalDAL().GetUserInfo(page, pageRow, strWhere);
+        }
+
+        public int GetUserInfoCount(string strWhere)
+        {
+            return new T_CriminalDAL().GetUserInfoCount(strWhere);
+        }
+
+        //批量Excel导入
+        public string PLExcelImport(string crtby) 
+        {
+            return new T_CriminalDAL().PLExcelImport(crtby);
+        }
+
+    }
+
+    public class CrimeXFinfo
+    {
+        public decimal Amoney { get; set; }
+        public decimal Bmoney { get; set; }
+        public decimal FreeAmoney { get; set; }
+        public decimal FreeBmoney { get; set; }
+    }
+
+
+    
+}

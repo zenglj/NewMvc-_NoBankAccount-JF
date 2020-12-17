@@ -1,0 +1,39 @@
+﻿
+@{
+    ViewBag.Title = "MsgDetail";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div class="page-header">
+    <div class="row">
+        
+        <div class="col-sm-11">
+            @if (ViewData["newNotify"] != null)
+            {
+                SelfhelpOrderMgr.Model.T_NotifyFile nf=ViewData["newNotify"] as SelfhelpOrderMgr.Model.T_NotifyFile;
+                <h4>内容详情   <small><code>日期</code>:@nf.FDate</small>     <small><code>作者</code>:@nf.FAuthor</small></h4>
+            }
+
+        </div>
+        <div class="col-sm-1">
+            <h2>
+                <a href="/Message/Index" class="btn btn-default">返回列表</a>
+            </h2>
+        </div>
+    </div>
+
+</div>
+
+<div>
+    @if (ViewData["newNotify"] != null)
+    {
+        SelfhelpOrderMgr.Model.T_NotifyFile nf = ViewData["newNotify"] as SelfhelpOrderMgr.Model.T_NotifyFile;
+        <iframe id="myIframe" style=" width:100%; height:400px;" src="/@nf.LinkWebFile" frameborder="0"></iframe>
+    }
+    else
+    {
+        <h2>没有相应的文件</h2>
+    }
+</div>
+

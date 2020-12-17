@@ -1,0 +1,205 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>财务付款审核</title>
+    @{Html.RenderPartial("~/Views/Shared/_PartialHeadPage.cshtml");}
+
+</head>
+<body class="easyui-layout">
+    <div data-options="region:'west',title:'付审清单',split:true" style="width:850px;">
+        @*@{Html.RenderPartial("~/Views/Shared/_PartialXiaopiaoControl.cshtml");}*@
+        <table id="test" data-options="toolbar:'#tb'"></table>
+
+        <div id="tb">
+            <div>
+                @*FCheckFlag是“确认”,auditflag是“审核”,FdbcheckFlag是“复核”,Flag是“财务入账”*@
+
+                <a href="javascript:void(0)" id="mb" class="easyui-menubutton"
+                   data-options="menu:'#mm',iconCls:'icon-reload'">付款审核</a>
+                <div id="mm" style="width:150px;">
+                    <div data-options="iconCls:'icon-man'" onclick="auditMenuBtn('mul')">个别审核</div>
+                    <div data-options="iconCls:'icon-redo'" onclick="auditMenuBtn('all')">全部审核</div>
+                    <div class="menu-sep"></div>
+                    <div onclick="unAuditMenuBtn('mul')">个别撤审</div>
+                    <div onclick="unAuditMenuBtn('all')">全部撤审</div>
+                    
+                </div> |
+                <label>金额:<span id="VcrdSumMoney">0</span>元</label> | 　　
+                 -----发送数据到银行，狱号：<input type="text" id="sendFCrimeCode" name="sendFCrimeCode" value="" /> 
+                <a href="javascript:void(0)" id="sendBankDataAll" class="easyui-linkbutton"
+                   data-options="iconCls:'icon-redo'" onclick="sendBankDataAll()">发送到银行</a> （狱号不填为全部人员）
+            </div>
+        </div>
+
+        @if (ViewData["idOperationType"] != null)
+        {
+            string idOperationType= ViewData["idOperationType"].ToString() ;
+             <input type="hidden" id="idOperationType" value="@idOperationType" />
+        }else
+        {
+            <input type="hidden" id="idOperationType" value="1" />
+        }
+        
+        <div id="template"></div>
+    </div>
+
+    <div data-options="region:'center',title:'查询条件'" style="padding:5px;">
+        <div data-options="region:'north',title:'North Title',split:true" style="height:200px;">
+            <form method="post">
+                <table id="crimeSearch">
+                    <tr>
+                        <th align="right">编号：</th>
+                        <td align="left">
+                            <input class="easyui-numberbox" id="FCode" name="FCode"
+                                   data-options="min:0,precision:0" style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">姓名：</th>
+                        <td align="left">
+                            <input id="FName" name="FName" class="easyui-textbox" style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">处遇：</th>
+                        <td align="left">
+                            <select id="FCyName" name="FCyName" class="easyui-combobox" style="width:190px;">
+                                <option value="" selected="selected">请选择</option>
+                                @if (ViewData["cys"] != null)
+                                {
+                                    foreach (SelfhelpOrderMgr.Model.T_CY_TYPE cy in ViewData["cys"] as List<SelfhelpOrderMgr.Model.T_CY_TYPE>)
+                                    {
+                                        <option value="@cy.FCode">@cy.FName</option>
+                                    }
+                                }
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">开始时间：</th>
+                        <td align="left">
+                            <input class="easyui-datetimebox" id="StartDate" name="StartDate"
+                                   data-options="required:true,showSeconds:false" value="3/4/2010 00:00" style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">结束时间：</th>
+                        <td align="left">
+                            <input class="easyui-datetimebox" id="EndDate" name="EndDate"
+                                   data-options="required:true,showSeconds:false" value="3/4/2010 23:59" style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">队别：</th>
+                        <td align="left">
+                            <select id="FAreaName" name="FAreaName" class="easyui-combobox" style="width:190px;">
+                                <option value="" selected="selected">请选择队别</option>
+                                @if (ViewData["areas"] != null)
+                                {
+                                    foreach (SelfhelpOrderMgr.Model.T_AREA area in ViewData["areas"] as List<SelfhelpOrderMgr.Model.T_AREA>)
+                                    {
+                                        <option value="@area.FCode">@area.FName</option>
+                                    }
+                                }
+                            </select>
+                        </td>
+                    </tr>
+                    <tr><th>付款类型</th></tr>
+                    <tr>
+                        <th align="right">存：</th>
+                        <td align="left">
+                            <select id="FCashTypes" name="FCashTypes" class="easyui-combobox" data-options=" multiple:true" style="width:190px;">
+
+                                @if (ViewData["cashtypes"] != null)
+                                {
+                                    foreach (string cashtype in ViewData["cashtypes"] as List<string>)
+                                    {
+                                        <option value="@cashtype">@cashtype</option>
+                                    }
+                                }
+                            </select>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th align="right">取：</th>
+                        <td align="left">
+                            <select id="FPayTypes" name="FPayTypes" class="easyui-combobox" data-options=" multiple:true" style="width:190px;">
+                                @if (ViewData["paytypes"] != null)
+                                {
+                                    foreach (string paytype in ViewData["paytypes"] as List<string>)
+                                    {
+                                        <option value="@paytype">@paytype</option>
+                                    }
+                                }
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">操作员：</th>
+                        <td align="left">
+                            <select id="FCrtBy" name="FCrtBy" class="easyui-combobox" style="width:190px;">
+                                <option value="" selected="selected">请选择</option>
+                                @if (ViewData["crtbys"] != null)
+                                {
+                                    foreach (string crtby in ViewData["crtbys"] as List<string>)
+                                    {
+                                        <option value="@crtby">@crtby</option>
+                                    }
+                                }
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">在押状态：</th>
+                        <td align="left">
+                            <select id="FCriminalFlag" name="FCriminalFlag" class="easyui-combobox" style="width:190px;">
+                                <option value="" selected="selected">请选择</option>
+                                <option value="0">在押</option>
+                                <option value="1">离监</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">资金账户：</th>
+                        <td align="left">
+                            <select id="FAccTypes" name="FAccTypes" class="easyui-combobox" data-options=" multiple:true" style="width:190px;">
+                                <option value="0">存款账户</option>
+                                <option value="1">报酬账户</option>
+                                <option value="2">留存账户</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">扣款状态：</th>
+                        <td align="left">
+                            <select id="FBankFlags" name="FBankFlags" class="easyui-combobox" style="width:190px;">
+                                <option value="0" selected="selected">待发送</option>
+                                <option value="1" >发送中</option>
+                                <option value="2">成功</option>
+                                <option value="3">手动成功</option>
+                                <option value="-1">失败</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right"></th>
+                        <td align="right"><a id="btn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-search'" onclick="btnSearch()">查询</a><a id="A1" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-redo'" onclick="btnClear()">清空</a></td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+    </div>
+
+
+    <script src="~/Scripts/myJs/LodopFuncs.js"></script>
+
+    <script src="~/Scripts/myJs/PayAudit.js"></script>
+</body>
+</html>

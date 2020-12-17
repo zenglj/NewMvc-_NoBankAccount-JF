@@ -1,0 +1,211 @@
+﻿@{
+    ViewBag.Title = "出监账号录入";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@{Html.RenderPartial("~/Views/Shared/_PartialXiaopiaoControl.cshtml");}
+<link href="~/Content/font-awesome.min.css" rel="stylesheet" />
+<link href="~/Content/docs.min.css" rel="stylesheet" />
+<link href="~/Scripts/simple-calendar/tcal.css" rel="stylesheet" />
+<div class="page-header text-center">
+    <h1><small>欢迎进入</small> 出监账号录入 <small>这里您可以填写出监时的收款账户</small></h1>
+    <input type="hidden" id="UserName" name="UserName" value="@ViewData["UserName"]" />
+    <input type="hidden" id="FManagerCard" name="FManagerCard" value="@ViewData["FManagerCard"]" />
+
+    
+</div>
+
+<div>
+    <object id=MWRFATL style="WIDTH: 0px; HEIGHT: 0px"
+            codebase=eyeFZ.cab#version =1,0,0,1
+            classid=CLSID:CD851DCA-5D3C-4DA9-A0F7-DE018FDC0A7F></object>@*加载数明华读卡器控件*@
+
+
+            <div class="row">
+                <div class="col-sm-10">
+                    <h3 id="userNameInfo">你好, 某某某<span class="label label-primary">普管(500)</span>,您的账户信息如下：</h3>
+
+                </div>
+                <div class="col-sm-2">
+                    <div style=" text-align:right;">
+                        <input type="hidden" id="orderFcrimeCode" />
+                        <input type="hidden" id="orderFcrimeName" />
+                        <input type="hidden" id="orderCyName" />
+                        <input type="hidden" id="orderFareaName" />
+                        <a class="btn btn-large btn-primary btn-lg" href="#" role="button" onclick="btnQueryUserInfo('3504013494')">请先刷IC卡查询</a>
+                    </div>
+                </div>
+
+            </div>
+            <div class="alert alert-danger" role="alert" id="lblInfo">银行账号：</div>
+            <div class="row">
+                <div class="col-sm-3">
+                    
+                    <input type="hidden" id="SettleMode" value="0" />
+                    <p>
+                        <a role="button" class="btn btn-success btn-lg" style="margin-top:5em" onclick="settleMode('tran')"><input type="checkbox" id="chkTran" checked="checked">（ 推荐 ）转账收款方式</a>
+                        <a role="button" class="btn btn-default btn-lg" style="margin-top:5em" onclick="settleMode('cash')"><input type="checkbox" id="chkCash">（不建议）现金取款方式</a>
+                    </p>
+                </div>
+                <div class="col-sm-9">
+                    <div class="row" id="divTranArea">
+                        <div class="col-sm-6">
+                            <form>
+                                <div id="divFirstArea">
+                                    <div class="form-group">
+                                        <h4>收款账号</h4>
+                                        <input type="hidden" id="FCrimeCode" name="FCrimeCode" />
+                                        <input type="hidden" id="FIcCardCode" name="FIcCardCode" />
+                                        <input type="text" class="form-control input-lg" id="inputOutBankCard" name="OutBankCard" disabled="disabled" placeholder="收款账号">
+                                    </div>
+                                    <div class="form-group">
+                                        <h4>收款人姓名</h4>
+                                        <input type="tel" class="form-control  input-lg" id="inputBankUserName" name="BankUserName" disabled="disabled" placeholder="收款人">
+                                    </div>
+                                    <div class="form-group">
+                                        <h4>开户行名称</h4>
+                                        <input type="text" class="form-control  input-lg" id="inputOpeningBank" name="OpeningBank" disabled="disabled" placeholder="开户行名称">
+                                    </div>
+                                    <div class="form-group">
+                                        <h4>与收款人关系</h4>
+                                        <input type="text" class="form-control  input-lg" id="inputOutBankRemark" name="OutBankRemark" disabled="disabled" placeholder="账户关系备注">
+                                    </div>
+                                    <button type="button" class="btn btn-default btn-lg" id="btnNext" disabled="disabled" onclick="BtnNext()">
+                                        下一步 -》
+                                    </button>
+
+                                </div>
+                                <div id="divNextArea" style="display:none">
+                                    <div class="panel panel-default">
+                                        <div class="panel-heading">
+                                            <h3 class="panel-title">收款账户信息确认框</h3>
+
+                                        </div>
+                                        <div class="panel-body">
+                                            <h4 id="displayAccount" style="padding-left: 1em; padding-bottom: 1.5em; ">收款 账 号:</h4>
+                                            <h4 id="displayPayeeName" style="padding-left: 1em; padding-bottom: 1.5em; ">收款人姓名:</h4>
+                                            <h4 id="displayOpeningBank" style="padding-left: 1em; padding-bottom: 1.5em;">开户行名称:</h4>
+                                            <h4 id="displayOutBankRemark" style="padding-left: 1em; padding-bottom: 1.5em;">与收款人关系:</h4>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="btn btn-default btn-lg" onclick="BtnFirst()">《- 上一步</button>
+                                    <button type="submit" class="btn btn-danger btn-lg" onclick="BtnSubmit();return false;">确认提交</button>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="col-sm-6">
+                            <h3>填写注意事项</h3>
+                            <h4>1、此处填写的账号是用于您释放时余款的收款账号</h4>
+                            <h4>2、请认真填写收款账号信息，确保无误，否则出监后，无法收到结余款</h4>
+                            <h4>3、收款的账号是19位，如：6127 8517 0000 8443 730</h4>
+                            <h4>4、收款人姓名(不能错)，注意同音字</h4>
+                            <h4>5、收款开户行，如：中国银行福州台江支行</h4>
+                        </div>
+
+                    </div>
+
+                    <div class="row" id="divCashArea" style="display:none">
+                        <div class="col-sm-12">
+                            <form>
+                                <div >
+                                    <div class="panel panel-default">
+                                        <div class="panel-heading">
+                                            <h3 class="panel-title">收款账户信息确认框</h3>
+
+                                        </div>
+                                        <div class="panel-body">
+                                            <div >
+                                                <h3>填写注意事项</h3>
+                                                <h4>1、我的账户余款余额不足****元</h4>
+                                                <h4>2、我没有可以代收款的账户，需要采用现金支取方式</h4>
+                                                <h4>3、我很熟悉监外的交通环境</h4>
+                                                <h4>4、我有能力自我保管现金安全</h4>
+                                            </div>
+                                            <h2 style="padding-left: 1em; padding-bottom: 1.5em; ">我要采用现金取款方式！！！</h2>
+                                            
+                                        </div>
+                                    </div>
+                
+                                    <button type="submit" class="btn btn-danger btn-lg" onclick="BtnSubmit();return false;">确认提交</button>
+                                </div>
+                            </form>
+                        </div>
+                        
+
+                    </div>
+                </div>
+
+
+            </div>
+
+
+        </div>
+
+
+        <script src="~/Scripts/jquery-1.11.3.min.js"></script>
+        @*<script src="js/bootstrap.min.js"></script>*@
+        @*<script src="~/Scripts/messenger.min.js"></script>*@
+        <script src="~/Scripts/myJs/minghuaICcardCommon.js"></script>
+        <script src="~/Scripts/myJs/commonJs.js"></script>
+        @*<script src="~/Scripts/myJs/MyNumerKeyBoard.js"></script>*@
+        <script src="~/Scripts/myJs/PayeeAccountIndex.js"></script>
+        <script type="text/javascript">
+            function changeRmbDX() {
+                if ($("#selSaveType").find("option:selected").val() == "") {
+                    alert("请先选择一个扣款类型");
+                    return false;
+                }
+                var kkmoney = $("#KKMoney").val();
+                var rmbdx = DX(kkmoney);
+                $("#rmbDX").html(rmbdx);
+            }
+
+            //提交扣款
+            function btnSubmitKK() {
+
+                var kkmoney = $("#KKMoney").val();
+                if (kkmoney == "") {
+                    alert("请输入金额");
+                    return false;
+                }
+                if (parseFloat(kkmoney) < 10) {
+                    alert("冻结金额不能小于10元，要完全解除冻结须与供应站联系，谢谢");
+                    return false;
+                }
+                var oldDJMoney = $("#dongJieMoney").html();
+                if (parseFloat(kkmoney) < parseFloat(oldDJMoney)) {
+                    if(!confirm("您冻结的金额小于原先冻结的金额【须报告财务科】，是否确认冻结这个金额？")){
+                        return false;
+                    }
+                }
+                if (isNaN(kkmoney)) {
+                    $("#lblInfo").text("错误：数量必须是数字的，不能其他字母");
+                    return false;
+                }
+                $("#btnSubmitKK").attr("disabled", "disabled");//禁用扣款提交按钮
+                $.post("/SelfDongJie/btnSubmitKK", {
+                    "FCrimeCode": $("#FCrimeCode").val()
+                    , "KKMoney": kkmoney
+                    , "FIcCardCode": $("#FIcCardCode").val()
+                    , "FManagerCard": $("#FManagerCard").val()
+                    , "DType": $("#selSaveType").find("option:selected").val()
+                }
+                    , function (data, status) {
+                        if ("success" != status) {
+                            return false;
+                        } else {
+                            var words = data.split("|");
+                            if (words[0] == "OK") {                                
+                                $("#lblInfo").html("冻结成功");
+                                $("#FCrimeCode").val('');
+                                $("#FIcCardCode").val('');
+                                $("#KKMoney").val('');
+                                $("#dongJieMoney").html(words[1]);
+                                alert("恭喜您，冻结成功");
+                            } else {
+                                $("#lblInfo").html("冻结失败：" + data);
+                                alert(data);
+                            }
+                        }
+                    });
+            }
+        </script>

@@ -1,0 +1,65 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>PrintOutPrisonReport</title>
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+</head>
+<body>
+    <div> 
+        <div class="row">
+            <div class="col-md-2"></div>
+            <div class="col-md-8">
+                <h2 class="text-center">证　　明</h2>
+                
+                @if (ViewData["prove"] != null)
+{
+    SelfhelpOrderMgr.Model.t_BankProve prove = ViewData["prove"] as SelfhelpOrderMgr.Model.t_BankProve;
+    <div style="font-size:16px;">
+        <p>中国银行：<u>　　　　　　　：</u></p>
+        <p>
+            <span>　　兹证明</span> <strong><u>　　 @prove.fname 　　</u></strong>,身份证件类型：<strong>
+                <u>身份证</u>
+            </strong>身份证号码：<u>　　　　　　　　　</u>,原档案号：<u>　　 @prove.fcode 　　</u>,于<strong>
+                <u>　　 @prove.crtDate.ToString("yyyy年MM月DD日") 　　</u>
+            </strong>
+            已经办理出狱手续。
+
+        </p>
+        <p>特此证明！</p>
+        
+        <br />
+        <br />
+        <p class="text-right"><strong>福建省清流监狱生活卫生科</strong></p>
+        <p class="text-right"><strong>@prove.crtDate.ToDateString() 　　　　</strong></p>
+    </div>
+}
+            
+                    
+
+                
+
+
+            <div class="col-md-2"></div>
+        </div> 
+    </div>
+    </div>
+    <script src="~/Scripts/jquery-1.11.3.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <script src="~/Scripts/myJs/commonJs.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            var jsmoney = $("#jsMoney").val();
+            $("#jsMoney1").html("人民币:" + DX(jsmoney) + "");
+            $("#jsMoney2").html("人民币:" + DX(jsmoney) + "");
+
+        });
+    </script>
+</body>
+</html>

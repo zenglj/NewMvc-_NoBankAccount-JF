@@ -1,0 +1,446 @@
+﻿
+@{
+    ViewBag.Title = "PrintXiaoPiao";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@{Html.RenderPartial("~/Views/Shared/_PartialXiaopiaoControl.cshtml");}
+<link href="~/Content/font-awesome.min.css" rel="stylesheet" />
+<link href="~/Content/docs.min.css" rel="stylesheet" />
+<link href="~/Scripts/simple-calendar/tcal.css" rel="stylesheet" />
+<div class="page-header">
+    <h1>打印消费小票 <small>这里您可以查询今天的消费记录单，并可批量生成打印相应的小票</small></h1>
+</div>
+
+<div>
+    <!-- Nav tabs -->
+    <ul class="nav nav-tabs" role="tablist">
+        <li role="presentation" class="active"><a href="#home" aria-controls="home" role="tab" data-toggle="tab">小票打印</a></li>
+        <li role="presentation"><a href="#profile" aria-controls="profile" role="tab" data-toggle="tab">消费统计</a></li>
+        <li role="presentation"><a href="#messages" aria-controls="messages" role="tab" data-toggle="tab">消费明细查询</a></li>
+    </ul>
+    <!-- Tab panes -->
+    <div class="tab-content">
+        <div role="tabpanel" class="tab-pane active" id="home">
+            <div>
+                <div class="row">
+
+                    <div class="col-md-3">
+                        <ul class="list-group">
+                            <li class="list-group-item">
+                                <form>
+                                    <div class="form-group">
+                                        <label for="FCode">编号</label>
+                                        <label class="sr-only" for="FCode">Amount (in dollars)</label>
+                                        <input type="number" class="form-control" id="FCode" placeholder="请输入编号">
+
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="FName">姓名</label>
+                                        <input type="text" class="form-control" id="FName" placeholder="请输入姓名">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="FName">日期</label>
+                                        <input type="text" class="form-control tcal" id="FDate" placeholder="请输入日期">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="startTime">开始时间</label>
+                                        <label class="sr-only" for="startTime">Amount (in dollars)</label>
+                                        <input type="number" class="form-control" id="startTime" placeholder="请输入开始24小时点">
+
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="endTime">终止时间</label>
+                                        <label class="sr-only" for="endTime">Amount (in dollars)</label>
+                                        <input type="number" class="form-control" id="endTime" placeholder="请输入终止24小时点">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="FAreaName">消费队别</label>
+                                        <select id="FAreaName" name="FAreaName" class="form-control input-lg">
+                                            @if (ViewData["areas"] != null)
+                                            {
+                                                <option value="">请选择队别</option>
+                                                foreach (SelfhelpOrderMgr.Model.T_AREA area in ViewData["areas"] as List<SelfhelpOrderMgr.Model.T_AREA>)
+                                                {
+                                                    <option value="@area.FCode">@area.FName</option>
+                                                }
+                                            }
+                                        </select>
+
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="FSaleType">消费类型</label>
+                                        <select id="FSaleType" name="FSaleType" class="form-control input-lg">
+                                            @if (ViewData["saleTypes"] != null)
+                                            {
+                                                foreach (SelfhelpOrderMgr.Model.T_SHO_SaleType saleType in ViewData["saleTypes"] as List<SelfhelpOrderMgr.Model.T_SHO_SaleType>)
+                                                {
+                                                    <option value="@saleType.TypeFlagId">@saleType.PType</option>
+                                                }
+                                            }
+                                        </select>
+
+                                    </div>
+                                    @if (ViewData["managerCardNo"] != null)
+                                    {
+                                        <input type="hidden" id="managerCardNo" value="@ViewData["managerCardNo"]" />
+                                    }
+                                    else
+                                    {
+                                        <input type="hidden" id="managerCardNo" value="123123123123123" />
+                                    }
+
+                                    <button type="button" class="btn btn-lg btn-primary btn-block" onclick="btnSearch()">提交</button>
+                                </form>
+                            </li>
+
+                        </ul>
+
+
+
+                    </div>
+                    <div class="col-md-9">
+                        <ul class="list-group">
+                            <li class="list-group-item">
+                                <strong>数据：</strong> <br />
+                                今天下单消费的记录
+                            </li>
+                            <li class="list-group-item text-right">
+                                <span class="text-right">
+                                    <button type="button" class="btn btn-primary" onclick="PrintCustomers('Mul')">(Create)生成小票</button>
+                                    <button type="button" class="btn btn-primary" onclick="printMulXiaoPiao()">(Print)打印小票</button>
+                                </span>
+                            </li>
+                            <li class="list-group-item">
+                                <table id="test" class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th></th>
+                                            <th>单号</th>
+                                            <th>姓名</th>
+                                            <th>编号</th>
+                                            <th>队别</th>
+                                            <th style="width:50px;">号房</th>
+                                            <th>日期</th>
+                                            <th>类型</th>
+                                            <th>金额</th>
+                                            <th>操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbody">
+                                        @if (ViewData["invoices"] != null)
+                                        {
+                                            int i = 0;
+                                            foreach (SelfhelpOrderMgr.Model.T_Invoice invoice in ViewData["invoices"] as List<SelfhelpOrderMgr.Model.T_Invoice>)
+                                            {
+                                                i++;
+                                                int checkflag = invoice.Checkflag;
+                                                <tr>
+                                                    <td>@i.ToString()</td>
+                                                    <td>@invoice.InvoiceNo</td>
+                                                    <td>@invoice.FCriminal</td>
+                                                    <td>@invoice.FCrimeCode</td>
+                                                    <td>@invoice.FAreaName</td>
+                                                    <td>@invoice.RoomNo</td>
+                                                    <td>@invoice.OrderDate</td>
+                                                    <td>@invoice.PType</td>
+                                                    <td>@invoice.Amount</td>
+                                                    @if(checkflag==1)
+                                                    {
+                                                        <td><input class="btn btn-danger" type="button" value="取消" disabled="disabled" onclick="CancelOrder('@invoice.InvoiceNo')"></td>
+                                                        <td><input class="btn btn-warning" type="button" value="改单" disabled="disabled" onclick="ChangeOrder('@invoice.InvoiceNo')"></td>
+                                                    }
+                                                    else
+                                                    {
+                                                        <td><input class="btn btn-danger" type="button" value="取消" onclick="CancelOrder('@invoice.InvoiceNo')"></td>
+                                                        <td><input class="btn btn-warning" type="button" value="改单" onclick="ChangeOrder('@invoice.InvoiceNo')"></td>
+                                                    }
+                                                </tr>
+                                            }
+                                        }
+                                    </tbody>
+                                </table>
+                                @if (ViewData["invoiceNos"] != null)
+                                {
+                                    string invoiceNos = Convert.ToString(ViewData["invoiceNos"]);
+                                    <input type="hidden" id="InvoiceNos" value="@invoiceNos" />
+                                }
+                                <input type="hidden" id="PrintXPItemS" value="" />
+                            </li>
+                            <li class="list-group-item">
+                                消费日期 @DateTime.Today
+                            </li>
+                        </ul>
+
+                        <div id="template"></div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+        <div role="tabpanel" class="tab-pane" id="profile">
+            <div>
+                <div class="row">
+
+                    <div class="col-md-3">
+                        <ul class="list-group">
+                            <li class="list-group-item">
+                                <form>
+                                    <div class="form-group">
+                                        <label for="tjSPShortCode">商品简码</label>
+                                        <input type="text" class="form-control" id="tjSPShortCode" placeholder="请输入简码（货号）">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="tjStartDate">开始日期</label>
+                                        <input type="text" class="form-control tcal" id="tjStartDate" placeholder="请输入日期">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="tjEndDate">结束日期</label>
+                                        <input type="text" class="form-control tcal" id="tjEndDate" placeholder="请输入日期">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="tjFAreaName">消费队别</label>
+                                        <select id="tjFAreaName" name="tjFAreaName" class="form-control input-lg">
+                                            @if (ViewData["areas"] != null)
+                                            {
+                                                <option value="0">请选择队别</option>
+                                                foreach (SelfhelpOrderMgr.Model.T_AREA area in ViewData["areas"] as List<SelfhelpOrderMgr.Model.T_AREA>)
+                                                {
+                                                    <option value="@area.FCode">@area.FName</option>
+                                                }
+                                            }
+                                        </select>
+
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="tjRoomNo">号房编号</label>
+                                        <input type="text" class="form-control" id="tjRoomNo" placeholder="请输入房号">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="tjFSaleType">消费类型</label>
+                                        <select id="tjFSaleType" name="tjFSaleType" class="form-control input-lg">
+                                            @if (ViewData["saleTypes"] != null)
+                                            {
+                                                foreach (SelfhelpOrderMgr.Model.T_SHO_SaleType saleType in ViewData["saleTypes"] as List<SelfhelpOrderMgr.Model.T_SHO_SaleType>)
+                                                {
+                                                    <option value="@saleType.TypeFlagId">@saleType.PType</option>
+                                                }
+                                            }
+                                        </select>
+
+                                    </div>
+                                    @if (ViewData["managerCardNo"] != null)
+                                    {
+                                        <input type="hidden" id="managerCardNo" value="@ViewData["managerCardNo"]" />
+                                    }
+                                    else
+                                    {
+                                        <input type="hidden" id="managerCardNo" value="123123123123123" />
+                                    }
+
+                                    <button type="button" class="btn btn-lg btn-primary btn-block" onclick="XiaoFeiTongji('0')">提交统计(中队)</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-md-9">
+                        <ul class="list-group">
+                            <li class="list-group-item">
+                                <strong class="text-danger">特别提示：</strong> <br />
+                                1、由于数据较大，查询时如果不选一个“队别”就只会按商品货号进行统计<br />
+                                2、打印小票统计单请选择显示比例60-70%
+                            </li>
+                            <li class="list-group-item text-right">
+                                
+                                <span class="text-right">
+                                    <button type="button" class="btn btn-primary" onclick="XiaoFeiTongji('1')">按号房统计</button>
+                                    <button type="button" class="btn btn-primary" onclick="printMyAddHtml('myTJPrint')()">(A4)打印统计单</button>
+                                    <button type="button" class="btn btn-primary" onclick="printMyAddHtml('myTJXiaoPrint')()">(小票纸)打印统计单</button>
+                                </span>
+                            </li>                           
+
+                        </ul>
+                        <div id="myTJPrint">
+                            <table class="table">
+                                <thead id="tjThead">
+                                    <tr>
+                                        <th>序号</th>
+                                        <th>队别</th>
+                                        <th>房号</th>
+                                        <th>简码</th>
+                                        <th>品名</th>
+                                        <th>规格</th>
+                                        <th>条码</th>
+                                        <th>数量</th>
+                                        <th>金额</th>                                       
+                                        
+                                    </tr>
+                                </thead>
+                                <tbody id="tjTBody"></tbody>
+
+                            </table>
+                        </div>
+
+                        <div id="myTJXiaoPrint" hidden="hidden">
+                            <table class="table">
+                                <thead id="tjXiaoThead">
+                                    <tr>                                        
+                                        <th>房号</th>
+                                        <th>简码</th>
+                                        <th>品名</th>                                        
+                                        <th>数量</th>
+                                        <th>金额</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tjXiaoTBody"></tbody>
+
+                            </table>
+                        </div>
+                        
+                        <div id="tjTemplate"></div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+        <div role="tabpanel" class="tab-pane" id="messages">
+            <div>
+                <div class="row">
+
+                    <div class="col-md-3">
+                        <ul class="list-group">
+                            <li class="list-group-item">
+                                <form>
+                                    <div class="form-group">
+                                        <label for="mxSPShortCode">商品简码</label>
+                                        <input type="text" class="form-control" id="mxSPShortCode" placeholder="请输入简码（货号）">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="mxFGoodsType">商品类别</label>
+                                        <select id="mxFGoodsType" name="mxFGoodsType" class="form-control input-lg">
+                                            @if (ViewData["goodsTypes"] != null)
+                                            {
+                                                <option value="">请选择商品类别</option>
+                                                foreach (SelfhelpOrderMgr.Model.T_GoodsType area in ViewData["goodsTypes"] as List<SelfhelpOrderMgr.Model.T_GoodsType>)
+                                                {
+                                                    <option value="@area.Fcode">@area.Fname</option>
+                                                }
+                                            }
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="mxStartDate">开始日期</label>
+                                        <input type="text" class="form-control tcal" id="mxStartDate" placeholder="请输入日期">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="mxEndDate">结束日期</label>
+                                        <input type="text" class="form-control tcal" id="mxEndDate" placeholder="请输入日期">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="mxFCrimeCode">狱政编号</label>
+                                        <input type="text" class="form-control" id="mxFCrimeCode" placeholder="请输入狱政编号">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="mxFAreaName">所在队别</label>
+                                        <select id="mxFAreaName" name="mxFAreaName" class="form-control input-lg">
+                                            @if (ViewData["areas"] != null)
+                                            {
+                                                <option value="">请选择队别</option>
+                                                foreach (SelfhelpOrderMgr.Model.T_AREA area in ViewData["areas"] as List<SelfhelpOrderMgr.Model.T_AREA>)
+                                                {
+                                                    <option value="@area.FCode">@area.FName</option>
+                                                }
+                                            }
+                                        </select>
+
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="mxFSaleType">消费类型</label>
+                                        <select id="mxFSaleType" name="mxFSaleType" class="form-control input-lg">
+                                            @if (ViewData["saleTypes"] != null)
+                                            {
+                                                foreach (SelfhelpOrderMgr.Model.T_SHO_SaleType saleType in ViewData["saleTypes"] as List<SelfhelpOrderMgr.Model.T_SHO_SaleType>)
+                                                {
+                                                    <option value="@saleType.TypeFlagId">@saleType.PType</option>
+                                                }
+                                            }
+                                        </select>
+
+                                    </div>
+                                    @if (ViewData["managerCardNo"] != null)
+                                    {
+                                        <input type="hidden" id="managerCardNo" value="@ViewData["managerCardNo"]" />
+                                    }
+                                    else
+                                    {
+                                        <input type="hidden" id="managerCardNo" value="123123123123123" />
+                                    }
+
+                                    <button type="button" class="btn btn-lg btn-primary btn-block" onclick="SearchXFMingxi()">提交</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-md-9">
+                        <ul class="list-group">
+                            <li class="list-group-item">
+                                <strong class="text-danger">特别提示：</strong> <br />
+                                由于数据较大，超过3000条将不给予显示，请增加多个查询条件，以便更精确查询到您要数据，谢谢。
+                                <div class="alert alert-info" role="alert" id="tsInfo" style="display:none;">您好！数据正在查询中请耐心等待....</div>
+                            </li>
+                            <li class="list-group-item text-right">
+                                <span class="text-right">
+                                    <button type="button" class="btn btn-primary" onclick="SearchXFMingxiExcelOut()">(Excel)数据导出</button>
+                                    <button type="button" class="btn btn-primary" onclick="printMyAddHtml('myMXPrint')()">(Print)打印明细单</button>
+                                </span>
+                            </li>
+
+                        </ul>
+                        <div id="myMXPrint">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>序号</th>
+                                        <th>队别</th>
+                                        <th>号房</th>
+                                        <th>姓名</th>
+                                        <th>货号</th>
+                                        <th>品名</th>
+                                        <th>规格</th>
+                                        <th>数量</th>
+                                        <th>金额</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="mxTBody"></tbody>
+
+                            </table>
+                        </div>
+
+                        <div id="mxTemplate"></div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    @if (ViewData["mset"] != null)
+    {
+        SelfhelpOrderMgr.Model.T_SHO_ManagerSet mset = ViewData["mset"] as SelfhelpOrderMgr.Model.T_SHO_ManagerSet;
+        <input type="hidden" id="xiaoPiaoPageWidth" name="xiaoPiaoPageWidth" value="@mset.KeyMode" />
+        <input type="hidden" id="xiaoPiaoFontSize" name="xiaoPiaoFontSize" value="@mset.MgrValue" />
+    }
+<script src="~/Scripts/simple-calendar/tcal.js"></script>
+<script src="~/Scripts/myJs/LodopFuncs.js"></script>
+<script src="~/Scripts/myJs/opertorXiaopiaoFunc.js"></script>
+<script src="~/Scripts/myJs/commonJs.js"></script>
+<script src="~/Scripts/myJs/PrintXiaoPiao.js"></script>
+<script type="text/javascript">
+    function printTable() {
+        printMyAddHtml();
+    }
+</script>

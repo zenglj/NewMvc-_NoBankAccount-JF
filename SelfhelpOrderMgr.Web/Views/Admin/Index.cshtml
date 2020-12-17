@@ -1,0 +1,122 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>消费系统后台登录</title>
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Content/site.min.css" rel="stylesheet" />
+
+</head>
+<body>
+
+    <nav class="navbar navbar-fixed-top navbar-inverse">
+        <div class="container">
+            <a class="navbar-brand" href="/Home/Index">狱内消费一卡通管理系统</a>
+            <ul class="nav navbar-nav">
+                <li class="active"><a href="#">系统登录 <span class="sr-only">(current)</span></a></li>
+                <li class="active"><a href="/RegMgr" >注册 <span class="sr-only">(current)</span></a></li>
+            </ul>
+</div>
+    </nav>
+
+    <h1>　</h1>
+    <div class="container ">
+        <div class="row">
+            <div class="col-md-6">
+                <img src="~/Content/GoodsImages/Logo.png" />
+                <h2>专注 专业 创新</h2>
+                <h4>数字监所方向的引领者</h4>
+                <h5>以客户为第一、以创新为核心、专注行业领域、用专业技术服务管理需要</h5>
+            </div>
+
+            <div class="col-md-4">
+                <form class="form-signin" role="form">
+                    <h2 class="form-signin-heading">请登录</h2>
+                    <div class="form-group">
+                        <label class="sr-only" for="exampleInputAmount">Amount (in dollars)</label>
+                        <div class="input-group">
+                            <div class="input-group-addon">用户名</div>
+                            <input id="FName" name="FName" type="text" class="form-control" placeholder="请输入用户名" required autofocus>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="sr-only" for="exampleInputAmount">Amount (in dollars)</label>
+                        <div class="input-group">
+                            <div class="input-group-addon">密　码</div>
+                            <input id="FPwd" name="FPwd" type="password" class="form-control" placeholder="请输入密码" required onkeydown="if (event.keyCode == 13) loginCheck();">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="">
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox"> 记住我
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn btn-lg btn-primary btn-block" type="button" onclick="loginCheck()">登录</button>
+                </form>
+            </div>
+        </div>
+        @if (ViewData["vcrdCount"] != null)
+        {
+            <input id="vcrdCount" value="@ViewData["vcrdCount"]" type="hidden" />
+        }
+        else
+        {
+            <input id="vcrdCount" value="0" type="hidden" />
+        }
+
+    </div> <!-- /container -->
+
+    
+
+    
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="~/Scripts/jquery-1.11.3.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+ 
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <script src="~/Scripts/messenger.min.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            
+            $('#myAlert').on('closed.bs.alert', function () {
+                // do something…
+            });
+            
+            if ($("#vcrdCount").val() > 0) {
+                alert("紧急情况,系统当前有" + $("#vcrdCount").val() + "条消费记录银行扣款不成功，请管理员及时处理！");
+            }
+        });
+        function loginCheck() {
+            $.post('/Admin/LoginCheck', { "FName": $('#FName').val(), "FPwd": $('#FPwd').val() },
+                function (data, status) {
+                    if ('success' != status) {
+                        return false;
+                    } else {
+                        if (data != null) {
+                            var ss = data.split("|");
+                            if (ss[0] == "OK") {
+                                window.location.href = "/Mainpanel/Index";
+                            } else {
+                                msg = $.globalMessenger().post("提示");
+                                msg.update(data);
+                            }
+                        }
+                    }
+                });
+        }
+
+        
+    </script>
+</body>
+</html>

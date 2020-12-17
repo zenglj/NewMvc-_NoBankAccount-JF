@@ -1,0 +1,57 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>PrintReportList</title>
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Content/site.min.css" rel="stylesheet" />
+    <link href="~/Content/bootstrap-theme.css" rel="stylesheet" />
+    <script src="~/Scripts/jquery-1.11.3.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+</head>
+<body>
+    <div> 
+        <div class="container">
+            <div class="page-header">
+                <h1>零用金报表 <small>成功数据列表</small></h1>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>单号</th>
+                                <th>编号</th>
+                                <th>姓名</th>
+                                <th>队别</th>
+                                <th>金额</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (ViewData["lists"] != null)
+                            {
+                                foreach (SelfhelpOrderMgr.Model.T_ProvideDTL dtl in ViewData["lists"] as List<SelfhelpOrderMgr.Model.T_ProvideDTL>)
+                                {
+                                    <tr><td>@dtl.PId</td><td>@dtl.FCrimeCode</td><td>@dtl.FCriminal</td><td>@dtl.FAreaName</td><td>@dtl.FAmount</td></tr>
+                                }
+                            }
+                            @if (ViewData["bonus"] != null)
+                            {
+                                SelfhelpOrderMgr.Model.T_Provide bonus = ViewData["bonus"] as SelfhelpOrderMgr.Model.T_Provide;
+                                decimal Cnt = bonus.FManNb + bonus.FWomNb;
+                                <tr><th>合计</th><th>人数：</th><td>@Cnt</td><th>金额</th><td>@bonus.FAmount</td></tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

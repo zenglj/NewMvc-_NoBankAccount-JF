@@ -1,0 +1,52 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>密码修改</title>
+    @{Html.RenderPartial("~/Views/Shared/_PartialHeadPage.cshtml");}
+    <link href="~/Content/outzhenComStyle.css" rel="stylesheet" />
+
+    <script type="text/javascript">
+        function SavePwd() {
+            $('#ff').form({
+                url: '/Power/SavePassword',
+                onSubmit: function () {
+                    // do some check    
+                    // return false to prevent submit;  
+                },
+                success: function (data) {
+                    alert(data)
+                }
+            });
+            $('#ff').submit();
+        }
+    </script>
+</head>
+<body>
+    <div> 
+        <div id="p" class="easyui-panel" 
+             style="width:500px;height:150px;padding:10px;background:#fafafa;"
+             data-options="iconCls:'icon-save'">
+            <div>
+                <form id="ff">
+                    <input type="hidden" name="userName" value="admin" />
+                    <table>
+                        <tr><th>原密码:</th><td><input type="password" name="oldPassword" class="easyui-textbox" data-options="iconCls:'icon-lock'" /></td></tr>
+                        <tr><th>新密码:</th><td><input type="password" name="newPassword" class="easyui-textbox" data-options="iconCls:'icon-lock'" /></td></tr>
+                        <tr><th>确认密码:</th><td><input type="password" name="checkPassword" class="easyui-textbox" data-options="iconCls:'icon-lock'" /></td></tr>
+                        <tr><th></th><td colspan="2"><a id="btnSave" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-save'" onclick="SavePwd()" >保存</a> 
+                                <a id="btnCancel" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-undo'">取消</a> 
+                            </td></tr>
+                    </table>
+                </form>
+            </div>
+        </div>  
+    </div>
+</body>
+</html>

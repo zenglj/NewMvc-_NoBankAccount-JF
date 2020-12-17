@@ -1,0 +1,155 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>PrintBankDataReport</title>
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+</head>
+<body>
+    <div> 
+        <div class="container">
+            <div class="row">
+                <div class="page-header text-center">
+                    <h1>中行接口对账报表 <small>按主单交易报表</small></h1>
+                </div>
+
+                <table class="table table-striped table-responsive table-bordered text-center">
+                    <thead class="">
+                        <tr>
+                            <th rowspan="2" class="text-center">主单号</th>
+                            <th rowspan="2" class="text-center">摘要</th>
+                            <th rowspan="2" class="text-center">日期</th>
+                            <th colspan="2" class="text-center">发款金额</th>
+                            <th colspan="3" class="text-center">回款金额</th>
+                            <th rowspan="2" class="text-center">回款合计</th>
+                            <th rowspan="2" class="text-center">状态</th>
+                            <th rowspan="2" class="text-center">上传</th>
+                            <th rowspan="2" class="text-center">回盘</th>
+
+                        </tr>
+                        <tr>                            
+                            <th>代发总金额</th>
+                            <th>代发成功金额</th>
+                            <th>失败应退金额</th>
+                            <th>代收成功金额</th>
+                            <th>未处理金额</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (ViewData["lists"] != null)
+                        {
+                            decimal dfMoney=0,dfsuccMoney=0,dffailMoney=0,dssuccMoney=0,nodoMoney=0;
+                            foreach (SelfhelpOrderMgr.Model.T_EdiBankSumList ls in ViewData["lists"] as List<SelfhelpOrderMgr.Model.T_EdiBankSumList>)
+                            {
+                                string updateFlag = ls.UpLoadDate > Convert.ToDateTime("1990-01-01") ? "有" : "";
+                                string DownLoadFlag = ls.DetailDownLoadDate > Convert.ToDateTime("1990-01-01") ? "有" : "";
+                                <tr>
+                                    <td>
+                                        @ls.MainSeqno
+                                    </td>
+                                    <td>
+                                        @ls.Remark
+                                    </td>
+                                    <td>
+                                        @ls.UpLoadDate.ToString("yyyy-MM-dd")
+                                    </td>
+                                    <td>
+                                        @ls.DfMoney
+                                    </td>
+                                    <td>
+                                        @ls.DfSuccMoney
+                                    </td>
+                                    <td>
+                                        @ls.DfFailMoney
+                                    </td>
+                                    <td>
+                                        @ls.DsSuccMoney
+                                    </td>
+                                    <td>
+                                        @ls.NodoMoney
+                                    </td>
+                                    @if (ls.dayRows!="")
+                                    {
+                                        <td rowspan="@ls.dayRows">
+                                        @ls.daySum
+                                        </td>
+
+                                    }
+                                    <td>
+                                        @ls.SuccFlag
+                                    </td>
+                                    <td>
+                                        @updateFlag
+                                    </td>
+                                    <td>
+                                        @DownLoadFlag
+                                    </td>
+                                </tr>
+                                
+                            
+                                dfMoney+=ls.DfMoney;
+                                dfsuccMoney+=ls.DfSuccMoney;
+                                dffailMoney+=ls.DfFailMoney;
+                                dssuccMoney+=ls.DsSuccMoney;
+                                nodoMoney += ls.NodoMoney;
+                            }
+                            <tr>
+                                    
+                                    <td colspan="3" rowspan="2">
+                                        合计：
+                                    </td>
+                                    <td>
+                                        @dfMoney
+                                    </td>
+                                    <td>
+                                        @dfsuccMoney
+                                    </td>
+                                    <td>
+                                        @dffailMoney
+                                    </td>
+                                    <td>
+                                        @dssuccMoney
+                                    </td>
+                                    <td>
+                                        @nodoMoney
+                                    </td>
+                                    
+                                    <td>
+                                        
+                                    </td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                            <tr>
+                                <td colspan="2">
+                                    @dfMoney
+                                </td>
+
+                                <td colspan="2">
+                                    @(dffailMoney+dssuccMoney)
+                                </td>
+
+                                <td>
+                                    @nodoMoney
+                                </td>
+                                <td>
+                                        
+                                </td><td></td><td></td><td></td>
+                            </tr>
+                        }
+                    </tbody>
+
+                </table>
+            </div>
+        </div>
+        
+    </div>
+</body>
+</html>

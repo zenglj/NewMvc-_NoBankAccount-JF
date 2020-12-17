@@ -1,0 +1,127 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>出监账号录入</title>
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Content/site.min.css" rel="stylesheet" />
+</head>
+<body>
+    <object id=MWRFATL style="WIDTH: 0px; HEIGHT: 0px"
+            codebase=eyeFZ.cab#version =1,0,0,1
+            classid=CLSID:CD851DCA-5D3C-4DA9-A0F7-DE018FDC0A7F></object>@*加载数明华读卡器控件*@
+            <nav class="navbar navbar-fixed-top navbar-inverse">
+                <div class="container">
+                    <a class="navbar-brand" href="/Home/Index">易购在线，欢迎您</a>
+                    <ul class="nav navbar-nav">
+                        <li class="active"><a href="#">刷卡开启 <span class="sr-only">(current)</span></a></li>
+                    </ul>
+                </div>
+            </nav>
+            @if (ViewData["LoginMode"].ToString() == "1")
+            {
+                <div id="signInForm">
+                    <div class="page-header text-center">
+                        <h1>消费查询 <small>查询、统计、打印...</small></h1>
+                    </div>
+                    <div class="container-fluid" style="background-image:url(~/Content/images/SignIn.jpg)">
+                        <div class="col-md-7" style="background-image:url(~/Content/images/SignIn.jpg)">
+
+                            <a href="#" class="thumbnail">
+                                <img src="~/Content/images/SignIn.jpg" style="height:350px;" />
+                            </a>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="panel panel-danger">
+                                <div class="panel-heading">欢迎登录</div>
+                                <div class="panel-body">
+                                    <form role="form">
+                                        <input type="hidden" id="managerCard" />
+                                        <div class="form-group-lg">
+                                            <h2>请登录</h2>
+                                            <div class="input-group">
+                                                <div class="input-group-addon">用户名</div>
+                                                <input type="text" class="form-control" id="UserName1" onkeydown="if(event.keyCode==13) $('#UserPwd1').focus();" placeholder="请输入用户名">
+                                            </div>
+                                        </div>
+                                        <div class="form-group-lg">
+                                            <label for="UserPwd1"></label>
+                                            <div class="input-group">
+                                                <div class="input-group-addon">密　码</div>
+                                                <input type="password" class="form-control" id="UserPwd1" onkeydown="if (event.keyCode == 13) $('#btnSignIn').focus();" placeholder="密码">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <p class="help-block">欢迎来到狱内网购平台,这里提供种类齐全的商品供您选择.系统采用实名配送机制,任何盗刷都将无效,敬请放心使用.</p>
+
+                                        </div>
+
+                                        <button type="button" id="btnSignIn" onclick="UserLoginCheck()" class="btn btn-primary btn-lg btn-block">登录</button>
+                                    </form>
+                                </div>
+                            </div>
+
+
+                        </div>
+                    </div>
+
+                </div>
+            }
+            else
+            {
+                <h1>　</h1>
+                <div class="container">
+                    <div class="col-md-6">
+                        <img src="~/Content/GoodsImages/Logo.png" />
+                        <h2>专注 专业 创新</h2>
+                        <h4>数字监狱方向的引领者</h4>
+                        <h5>以客户为第一、以创新为核心、专注行业领域、用专业技术服务管理需要</h5>
+                    </div>
+
+                    <div class="col-md-4">
+                        <form class="form-signin" role="form">
+                            <h2 class="form-signin-heading">请登录</h2>
+                            <div class="form-group">
+                                <label class="sr-only" for="exampleInputAmount">Amount (in dollars)</label>
+                                <div class="input-group">
+
+                                    <h4>请刷管理卡，进入[冻结]程序</h4>
+                                    <h4><small>冻结完成，请记得及时退出首页</small></h4>
+                                </div>
+
+                            </div>
+                            <div class="form-group">
+                                <div class="">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox"> 记住我
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="btn btn-lg btn-primary btn-block" type="button" onclick="loginCheck()">读管理卡</button>
+                            <div class="alert alert-success btn-block" role="alert" id="managerCard">...</div>
+                        </form>
+                    </div>
+
+
+                </div> <!-- /container -->
+            }
+
+            <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+            <script src="~/Scripts/jquery-1.11.3.min.js"></script>
+            <!-- Include all compiled plugins (below), or include individual files as needed -->
+            <script src="js/bootstrap.min.js"></script>
+            <script src="~/Scripts/messenger.min.js"></script>
+            <script src="~/Scripts/myJs/minghuaICcardCommon.js"></script>
+            <script src="~/Scripts/myJs/PayeeAccountLogin.js"></script>
+            <script type="text/javascript">
+
+            </script>
+        </body>
+    </html>

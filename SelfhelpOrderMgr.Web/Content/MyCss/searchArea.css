@@ -1,0 +1,9 @@
+﻿.search-area {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+        }
+
+        .search-area td, .search-area th {
+            padding-top: 10px;
+        }

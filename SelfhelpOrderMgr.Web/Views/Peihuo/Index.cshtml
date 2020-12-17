@@ -1,0 +1,272 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Index</title>
+    @{Html.RenderPartial("~/Views/Shared/_PartialHeadPage.cshtml");}
+</head>
+<body class="easyui-layout">
+    <div data-options="region:'east',title:'条件查询',split:true" style="width:280px;">
+        <form method="post">
+            <table id="crimeSearch">
+                <tr>
+                    <th align="right">编号：</th>
+                    <td align="left">
+                        <input name="fCrimeCode" class="easyui-validatebox" style="width:205px;" data-options="required:true,validType:'text'" />
+                    </td>
+                </tr>
+                <tr>
+                    <th align="right">姓名：</th>
+                    <td align="left">
+                        <input name="fCrimeName" class="easyui-validatebox" style="width:205px;" data-options="required:true,validType:'text'" />
+                    </td>
+                </tr>
+                <tr>
+                    <th align="right">队别：</th>
+                    <td align="left">
+                        <!--<select id="cc" name="fAreaName" style="width:305px;">
+                            <option value="000">请选择队别</option>
+
+                        </select>  -->
+                        <select id="cc" name="fAreaName" class="easyui-combobox" style="width: 205px;">
+                            <option value="0" selected="selected">请选择队别</option>
+                            @if (ViewData["areas"] != null)
+                            {
+                                foreach (SelfhelpOrderMgr.Model.T_AREA tarea in ViewData["areas"] as List<SelfhelpOrderMgr.Model.T_AREA>)
+                                {
+                                    <option value="@tarea.FCode">@tarea.FName</option>
+                                }
+                            }
+                        </select>
+
+                    </td>
+                </tr>
+                <tr>
+                    <th align="right">状态：</th>
+                    <td align="left">
+                        <!--<select id="cc" name="fAreaName" style="width:305px;">
+                <option value="000">请选择队别</option>
+
+            </select>  -->
+                        <select id="searchFlag" name="searchFlag" class="easyui-combobox" style="width: 205px;">
+                            <option value="" selected="selected">请选择状态</option>
+                            <option value="0">未配货</option>
+                            <option value="1">已配货</option>
+                            <option value="2">已收货</option>
+                        </select>
+
+                    </td>
+                </tr>
+                <tr>
+                    <th align="right">日期：</th>
+                    <td align="left">
+                        <input id="startDate" name="startDate" class="easyui-datetimebox" name="birthday" data-options="required:true,showSeconds:false" value="3/4/2010 00:00" style="width:205px">
+                    </td>
+                </tr>
+                <tr>
+                    <th align="right"></th>
+                    <td align="left">
+                        <input id="endDate" name="endDate" class="easyui-datetimebox" name="birthday" data-options="required:true,showSeconds:false" value="3/4/2010 23:59" style="width:205px">
+                    </td>
+                </tr>
+                <tr>
+                    <th align="right">摘要：</th>
+                    <td align="left">
+                        <input name="fRemark" style="width:205px;" data-options="required:true,validType:'text'" />
+                    </td>
+                </tr>
+                <tr>
+                    <th align="right"></th>
+                    <td align="right"><a id="btn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-search'" onclick="FilterSearch()">查询</a><a id="A1" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-redo'" onclick="clearSearch()">清空</a></td>
+                </tr>
+            </table>
+        </form>
+    </div>
+
+    <div data-options="region:'north',title:'配货主单',split:true" style="height:210px;">
+        <div>
+            <form id="ffExcel" method="post">
+                <input type="hidden" id="action" name="action" />
+                <input type="hidden" id="FBidExcel" name="FBidExcel" />
+            </form>
+            <form id="ffMainOrder" method="post">
+                <table id="mainOrder">
+                    <tr>
+                        
+                        <th>配货摘要</th>
+                        <td colspan="5"><input id="sremark" name="sremark" type="text" style="width:300px"></td>
+                        <th>收货人</th>
+                        <td><input id="srcvby" name="srcvby" type="text" ></td>
+                        <th align="right">说明：</th>
+                        <td align="left">
+                            <input type="hidden" id="xfTypeFlag" value="@ViewData["XFType"]" />@*消费配货类弄：超市配货7、医院配货16、加餐配货21、书报等*@
+                            <input type="hidden" id="sbid" /><!--主单的Bid-->
+                            <input type="hidden" id="sOrderStatus" /><!--主单的确认状态-->
+                            <input type="hidden" id="sYearMonth" /><!--主单的归属年月-->
+                            <input type="hidden" id="sMainRemark" /><!--主单的备注信息-->
+                            <input type="hidden" id="MainAction" name="action" />
+                            <input type="hidden" id="MainDoType" name="DoType" />
+                            <input type="hidden" id="sAreaName" name="sAreaName" />
+                            <input type="hidden" id="sAreaCode" name="sAreaCode" />
+                            <input type="hidden" id="sapplyby" name="sapplyby">@*申请人*@
+                            @*<select id="mainAreaName" name="mainAreaName" class="easyui-combobox" style="width: 135px;">
+                                <option value="0" selected="selected">请选择队别</option>
+                                @if (ViewData["areas"] != null)
+                                {
+                                    foreach (SelfhelpOrderMgr.Model.T_AREA area in ViewData["areas"] as List<SelfhelpOrderMgr.Model.T_AREA>)
+                                    {
+                                        <option value="@area.FCode">@area.FName</option>
+                                    }
+                                }
+                            </select>*@
+                            在摘要处写明是哪个队几月分配货单
+                        </td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+        <table id="mainOrderTable" data-options="toolbar:'#tb'"></table>
+        <div id="tb">
+            <div>
+                @*FCheckFlag是“确认”,auditflag是“审核”,FdbcheckFlag是“复核”,Flag是“财务入账”*@
+                @if(Convert.ToString( ViewData["loginPower"])!="0")
+                { 
+                <a href="#" id="btnadd" class="easyui-linkbutton" iconcls="icon-add" plain="true" onclick="AddPeihuoOrder()">增加主单</a><label>|</label>
+                <a href="#" id="btnsave" class="easyui-linkbutton" iconcls="icon-save" plain="true" onclick="SavePeihuoOrder()">保存主单</a><label>|</label>
+                <a href="#" id="btnLoadInv" class="easyui-linkbutton" iconcls="icon-reload" plain="true" onclick="LoadPeihuoDetail()">载入明细</a><label>|</label>
+
+                <a href="#" id="btnPeihuo" class="easyui-linkbutton" iconcls="icon-ok" plain="true" onclick="CheckPeihuo()">确认配货</a><label>|</label>
+                <a href="#" id="btnShouhuo" class="easyui-linkbutton" iconcls="icon-redo" plain="true" onclick="CheckShouhuo()">确认收货</a><label>|</label>
+                <a href="#" id="btndel" class="easyui-linkbutton" iconcls="icon-cancel" plain="true" onclick="DelPeihuoOrder()">删除主单</a><label>|</label>
+
+                }
+                <a href="javascript:void(0)" id="mb" class="easyui-menubutton"
+                   data-options="menu:'#mm',iconCls:'icon-print'">打印报表</a>
+                <div id="mm" style="width:150px;">
+                    <div data-options="iconCls:'icon-man'" onclick="PrintOutArea(0)">按队别统计单</div>
+                    <div class="menu-sep"></div>
+                    <div data-options="iconCls:'icon-redo'" onclick="PrintOutArea(1)">按号房统计单</div>
+                    <div class="menu-sep"></div>
+                    <div data-options="iconCls:'icon-redo'" onclick="PrintOutArea(2)">按机号统计</div>
+                    <div class="menu-sep"></div>
+                    <div data-options="iconCls:'icon-redo'" onclick="PrintOutArea(3)">按个人打包清单</div>
+                    <div class="menu-sep"></div>
+                    <div data-options="iconCls:'icon-redo'" onclick="PrintOutArea(4)">按单号打包清单</div>
+                    <div class="menu-sep"></div>
+                    <div data-options="iconCls:'icon-redo'" onclick="PrintOutArea(5)">按单号汇领货签字表</div>
+
+                </div> <label>|</label>
+
+                <a href="javascript:void(0)" id="mprint" class="easyui-menubutton"
+                   data-options="menu:'#mp',iconCls:'icon-redo'">Excel导出数据</a>
+                <div id="mp" style="width:150px;">
+                    <div data-options="iconCls:'icon-man'" onclick="ExcelSumOrder(0)">按队别统计单</div>
+                    <div class="menu-sep"></div>
+                    <div onclick="ExcelSumOrder(1)">按号房统计单</div>
+                    <div onclick="ExcelSumOrder(6)">按号房(单表)统计单</div>
+                    <div class="menu-sep"></div>
+                    <div onclick="ExcelSumOrder(2)">按机号统计单</div>
+                    <div class="menu-sep"></div>
+                    <div onclick="ExcelSumOrder(3)">按个人打包清单</div>
+                    <div onclick="ExcelSumOrder(4)">按单号打包清单</div>
+                    <div onclick="ExcelSumOrder(5)">按单号领货签字表</div>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+    <div data-options="region:'center',title:'劳动报酬明细列表:'" style="padding:5px;background:#eee;" >
+        
+
+        <table id="test"></table>
+    </div>
+
+    <div id="winCustList" class="easyui-window" title="载入消费记录" style="width:800px;height:400px"
+         data-options="iconCls:'icon-reload',modal:true">
+        <table>
+            <tr>
+                <th>队别</th>
+                <td>
+                    <input type="hidden" id="wselOutId" />
+                    <select id="wselAreaName" name="wselAreaName" class="easyui-combobox" style="width: 135px;">
+                        <option value="" selected="selected">请选择队别</option>
+                        @if (ViewData["areas"] != null)
+                        {
+                            foreach (SelfhelpOrderMgr.Model.T_AREA tarea in ViewData["areas"] as List<SelfhelpOrderMgr.Model.T_AREA>)
+                            {
+                                <option value="@tarea.FCode">@tarea.FName</option>
+                            }
+                        }
+                    </select>
+                </td>
+                <th>日期</th>
+                <td>
+                    <input class="easyui-datetimebox" id="wselStartDate" name="wselStartDate"
+                           data-options="required:true,showSeconds:false" value="3/4/2010 0:0" style="width:135px">
+                </td>
+                <th>至</th>
+                <td>
+                    <input class="easyui-datetimebox" id="wselEndDate" name="wselEndDate"
+                           data-options="required:true,showSeconds:false" value="3/4/2010 23:59" style="width:135px">
+                </td>
+                <th>消费机</th>@*操作员——IP地址*@
+                <td>
+                    <select id="wselCrtBy" name="wselCrtBy" class="easyui-combobox" style="width: 135px;">
+                        <option value="" selected="selected">请选择机号</option>
+                        @if (ViewData["crtbys"] != null)
+                        {
+                            foreach (string crtby in ViewData["crtbys"] as List<string>)
+                            {
+                                <option value="@crtby">@crtby</option>
+                            }
+                        }
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <th>编号</th>
+                <td>
+                    <input type="text" id="wselFCode" name="wselFCode" style="width:135px" />
+                </td>
+                <th>姓名</th>
+                <td>
+                    <input type="text" id="wselFName" name="wselFName" style="width:135px" />
+                </td>
+                <th>备注</th>
+                <td>
+                    <input type="text" id="wselRemark" name="wselRemark" style="width:135px" />
+                </td>
+                <th>回款状态</th>
+                <td>
+                    <select id="rtnBankFlag" name="rtnBankFlag" class="easyui-combobox" style="width: 135px;">
+                        <option value="" selected="selected">所有</option>
+                        <option value="1">未回款</option>
+                        <option value="2">已回款</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="5"></td>
+                <td align="right">
+                    <a id="btn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-search'" onclick="wselSelectInvs()">查询</a>
+                </td>
+            </tr>
+        </table>
+        <table id="invDetails"></table>
+        <div>
+            <a id="btn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-more'" onclick="wSelectAll()">全选(所有记录)</a>
+            <a id="btn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-ok'" onclick="wLoadPeihuoList()">确定载入记录</a>
+        </div>
+    </div>
+
+    <script src="~/Scripts/myJs/PeihuoInput.js"></script>
+</body>
+
+</html>

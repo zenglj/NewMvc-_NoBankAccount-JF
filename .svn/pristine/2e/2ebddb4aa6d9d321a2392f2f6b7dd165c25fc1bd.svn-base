@@ -1,0 +1,2 @@
+INFO  2017-02-12 09:01:15,713 99167ms Log4NetHelper          LoginCheck         - 后台系统登录,操作员：admin,登录时间=2017-02-12 09:01:15,登录IP为：::1
+INFO  2017-02-12 09:08:39,270 85983ms Log4NetHelper          LoginCheck         - 后台系统登录,操作员：admin,登录时间=2017-02-12 09:08:39,登录IP为：::1

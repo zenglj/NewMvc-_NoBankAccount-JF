@@ -1,0 +1,137 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Index</title>
+    @{Html.RenderPartial("~/Views/Shared/_PartialHeadPage.cshtml");}
+    <link href="~/Content/outzhenComStyle.css" rel="stylesheet" />
+    <script src="~/Scripts/myJs/commonJs.js"></script>
+    <script src="~/Scripts/myJs/PowerMgr.js"></script>
+    <style type="text/css">
+        .radioOption {
+            width: 20px;
+        }
+
+        #tbEdit select {
+            width: 130px;
+        }
+    </style>
+</head>
+<body class="easyui-layout">
+    <div data-options="region:'west',title:'用户权限',split:true" style="width:800px;">
+        <div style="height:250px;">
+            <table id="test" class="easyui-datagrid" style="height:250px">
+                <thead>
+                    <tr>
+                        <th data-options="field:'ck',checkbox:true"></th>
+                        <th data-options="field:'FCode',width:50">用户编号</th>
+                        <th data-options="field:'FName',width:100">登录名</th>
+                        <th data-options="field:'FUserChinaName',width:100">用户姓名</th>
+                        <th data-options="field:'FPwd',width:100,type:'password'">密  码</th>
+                        <th data-options="field:'FUserArea',width:100">队别名称</th>
+                        <th data-options="field:'FRole',width:100">角色</th>
+                        <th data-options="field:'FPrivate',width:60,align:'center'">管理员</th>
+
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (SelfhelpOrderMgr.Model.T_CZY czy in ViewData["czys"] as List<SelfhelpOrderMgr.Model.T_CZY>)
+                    {
+                        string strPriv = "否";
+                        if (Convert.ToBoolean(czy.FPRIVATE))
+                        {
+                            strPriv = "是";
+                        }
+                        <tr>
+                            <td></td>
+                            <td>@czy.FCode</td>
+                            <td>@czy.FName</td>
+                            <td>@czy.FUserChinaName</td>
+                            <td>@czy.FPwd</td>
+                            <td>@czy.FUserArea</td>                            
+                            <td>@czy.TreeRole.RoleName</td>
+                            <td>@czy.TreeRole.RoleID</td>
+                            <td>@strPriv</td>
+                            <td>@czy.FManagerCard</td>
+                        </tr>
+                    }
+                </tbody>
+
+            </table>
+        </div>
+        <div class="easyui-panel" title="信息编辑栏" data-options="iconCls:'icon-edit'" style="height:200px;padding:10px;background:#fafafa;">
+            <form id="ff" method="post">
+                <input type="hidden" id="selectTree" name="selectTree">
+                <table id="tbEdit">
+                    <tr>
+                        <th align="right">用户号：</th>
+                        <td><input id="FCode" name="UserCode" style="width:100px;" /></td>
+                        <th align="right">监区/单位：</th>
+                        <td>
+                            @*<input id="cc" name="fAreaName" value="请选择队别" style="width:130px;" />*@
+                        <select id="cc" name="UserArea" class="easyui-combobox">
+                            <option value="0" selected="selected">--请选择监区--</option>
+                            @foreach (var userArea in ViewData["userAreas"] as Dictionary<string, string>)
+                            {
+                                <option value="@userArea.Value">@userArea.Key</option>
+                            }
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th align="right">登录名：</th>
+                    <td><input id="FName" name="UserName" style="width:100px;" /></td>
+                    <th align="right">角　　　色：</th>
+                    <td>
+                        <select id="Role" name="UserRole" class="easyui-combobox">
+                            <option value="-1" selected="selected">--请选择角色--</option>
+                            @foreach (var userRole in ViewData["userRoles"] as Dictionary<string, string>)
+                            {
+                                <option value="@userRole.Value">@userRole.Key</option>
+                            }
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th align="right">密　码：</th>
+                    <td><input id="FPwd" name="UserPwd" type="password" style="width:100px;" /></td>
+                    <th align="right">是否管理员：</th>
+                    <td id="FPrivate" colspan="2"><input type="radio" class="radioOption" name="selectRadio" value="1" />是　<input type="radio" class="radioOption" checked="checked" name="selectRadio" value="0" />否</td>
+                </tr>
+                <tr>
+                    <th align="right">姓　名：</th>
+                    <td><input id="FUserChinaName" name="FUserChinaName" style="width:100px;" /></td>
+                    <th align="right">管理卡：</th>
+                    <td><input id="FManagerCard" name="FManagerCard"  /></td>
+                </tr>
+                <tr>
+                    <td>　</td>
+                </tr>
+                <tr>
+                    <th></th>
+                    <td colspan="3" align="right"><a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-search'" onclick="AddRoleContent()">新增</a> <a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-edit'" onclick="AlterRoleContent()">修改</a>  <a href="#" id="btnSave" class="easyui-linkbutton" data-options="iconCls:'icon-save'" onclick="saveContent()">保存</a> <a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-cancel'" onclick="DelRoleContent()">删除</a> </td>
+                </tr>
+
+            </table>
+        </form>
+    </div>
+
+
+</div>
+<div data-options="region:'center',title:'管理监区'" style="padding:5px;">
+    <div data-options="region:'north',title:'North Title',split:true" style="height:200px;">
+        <div style="padding:2px;background:#eee;">授权的管理单位：</div>
+        <div data-options="region:'center',title:'center title'" style="padding:2px;">
+            <div fit="true" border="false">
+                <ul id="tt5" class="easyui-tree" checkbox="true" lines="true"></ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

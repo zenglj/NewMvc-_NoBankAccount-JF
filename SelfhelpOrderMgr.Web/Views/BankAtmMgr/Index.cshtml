@@ -1,0 +1,140 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>ATM机记录管理</title>
+    @{Html.RenderPartial("~/Views/Shared/_PartialHeadPage.cshtml");}
+    <style type="text/css">
+        form {
+            margin: 0;
+            padding: 0;
+        }
+
+        .dv-table td {
+            border: 0;
+        }
+
+        .dv-table input {
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body class="easyui-layout">
+
+    <div data-options="region:'center',title:'转账结算记录'" style="padding:5px;">
+        @*@{Html.RenderPartial("~/Views/Shared/_PartialXiaopiaoControl.cshtml");}*@
+        <div data-options="region:'north',title:'North Title',split:true" style="height:55%;">
+
+            <table id="tbPay" class="easyui-datagrid" style="width:100%;height:260px" toolbar="#toolBarPay"></table>
+
+            <div id="toolBarPay" style="padding:5px;height:auto">
+                <form id="ff" method="post">
+                    <table>
+                        <tr>
+                            <th>机器名:</th>
+                            <td>
+                                <input id="formId" type="hidden" name="Id" />
+                                <input id="formMachineName" class="easyui-textbox" data-options="readonly:true" type="text" name="MachineName" />
+                            </td>
+                            <th>机器余额:</th>
+                            <td>
+                                <input id="formMachineBalance" class="easyui-textbox" data-options="readonly:true" type="text" name="MachineBalance" />
+                            </td>
+                            <th>最后流水:</th>
+                            <td>
+                                <input id="formAtmSerialNo" class="easyui-textbox" data-options="readonly:true" type="text" name="AtmSerialNo" />
+                            </td>
+                        </tr>
+                        <tr>                            
+                            <th>对账日期:</th>
+                            <td>
+                                <input id="formReconciliationDate" class="easyui-datetimebox" name="ReconciliationDate"
+                                       data-options="required:true,showSeconds:false" value="3/4/2010 00:00" style="width:150px">
+                            </td>
+                            <th>对账状态:</th>
+                            <td>
+                                <input id="formStatusFlag" class="easyui-textbox" data-options="readonly:true" type="text" name="StatusFlag" />
+                            </td>
+                            <th>备注:</th>
+                            <td>
+                                <input id="formRemark" class="easyui-textbox" data-options="readonly:true" type="text" name="Remark" />
+                            </td>
+                        </tr>
+                    </table>
+                </form>  
+            </div>
+        </div>
+
+    </div>
+
+
+
+    <div data-options="region:'east',title:'查询条件',split:true" style="width:300px;">
+        <div data-options="region:'north',title:'North Title',split:true" style="height:580px;">
+            <form method="post" id="formPaySearch">
+                <table>
+                    <tr>
+                        <th align="right">Id：</th>
+                        <td align="left">
+                            <input class="easyui-numberbox" id="paySearchId" name="Id"
+                                   data-options="min:0,precision:0" style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">流水号：</th>
+                        <td align="left">
+                            <input id="paySearchObssid" name="obssid" class="easyui-textbox" style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">操作类型：</th>
+                        <td align="left">
+                            <input id="paySearchActionType" name="ActionType" class="easyui-textbox" style="width:190px">
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th align="right">对账状态：</th>
+                        <td align="left">
+                            <select id="paySearchStatusFlag" name="StatusFlag" class="easyui-combobox" data-options=" multiple:false" style="width:190px;">
+                                <option value=" ">请选择</option>
+                                <option value="1">对账成功</option>
+                                <option value="0">未对账</option>
+                                <option value="-1">对账失败</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">创建起日：</th>
+                        <td align="left">
+                            <input class="easyui-datetimebox" id="paySearchCrtDate_Start" name="CrtDate_Start"
+                                   data-options="required:true,showSeconds:false" value="3/4/2010 00:00" style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">创建止日：</th>
+                        <td align="left">
+                            <input class="easyui-datetimebox" id="paySearchCrtDate_End" name="CrtDate_End"
+                                   data-options="required:true,showSeconds:false" value="3/4/2010 23:59" style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right"></th>
+                        <td align="right"><a id="btn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-search'" onclick="btnPaySearch()">查询</a><a id="A1" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-redo'" onclick="btnPayClear()">清空</a></td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+    </div>
+
+    <script src="~/Scripts/myJs/commonJs.js"></script>
+    <script src="~/Scripts/myJs/LodopFuncs.js"></script>
+    <script src="~/Scripts/EasyUI/jquery.easyui.datagrid-detailview.js"></script>
+    <script src="~/Scripts/myJs/BankAtmMgrIndex.js"></script>
+</body>
+</html>

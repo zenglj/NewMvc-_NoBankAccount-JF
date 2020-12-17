@@ -1,0 +1,71 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Index</title>
+    @{Html.RenderPartial("~/Views/Shared/_PartialHeadPage.cshtml");}
+</head>
+<body>
+    <div> 
+
+
+        <div>
+            <table>
+                <tr>
+                    <td>
+                        类型:
+                        <select id="cc" class="easyui-combobox" name="dept" style="width:120px;">
+                            <option value="aa">aitem1</option>
+                            <option>bitem2</option>
+                            <option>bitem3</option>
+                            <option>ditem4</option>
+                            <option>eitem5</option>
+                        </select>
+
+                    </td>
+                    <td>
+                        编号:<input class="easyui-textbox" data-options="iconCls:'icon-search'" style="width:150px">
+
+                    </td>
+                    <td>
+                        姓名:<input class="easyui-textbox"  style="width:150px">
+                    </td>
+                    <td>
+                        队别:<input class="easyui-textbox"  style="width:150px">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        条码:<input class="easyui-textbox" data-options="iconCls:'icon-search'" style="width:120px">
+
+                    </td>
+                    <td>
+                        名称:<input class="easyui-textbox"  style="width:150px">
+
+                    </td>
+                    <td>
+                        数量:<input class="easyui-textbox"  style="width:150px">
+
+                    </td>
+                    <td>
+                        金额<input class="easyui-textbox" d style="width:150px">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <a id="btn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-save'">保存</a>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <script src="~/Scripts/jquery-1.11.3.min.js"></script>
+        <link href="~/Scripts/EasyUI/themes/bootstrap/easyui.css" rel="stylesheet" />
+    </div>
+</body>
+</html>

@@ -1,0 +1,256 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>customerPrint</title>
+    @{Html.RenderPartial("~/Views/Shared/_PartialHeadPage.cshtml");}
+    
+</head>
+<body class="easyui-layout">
+    <div data-options="region:'center',title:'消费单查询'" style="padding:5px;">
+        @{Html.RenderPartial("~/Views/Shared/_PartialXiaopiaoControl.cshtml");}
+        <table id="test" class="easyui-datagrid" data-options="toolbar:'#tb'"></table>
+
+        <div id="tb">
+            <div>
+                @*FCheckFlag是“确认”,auditflag是“审核”,FdbcheckFlag是“复核”,Flag是“财务入账”*@
+                <a href="#" id="btnCreateXiappiao" class="easyui-linkbutton" iconcls="icon-print" plain="true" onclick="PrintCustomers('mul')">生成小票</a><label>|</label>
+                <a href="#" id="btnView" class="easyui-linkbutton" iconcls="icon-search" plain="true" onclick="PrintCustomers('one')">查看明细</a><label>|</label>
+                <a href="#" id="btnRedo" class="easyui-linkbutton" iconcls="icon-redo" plain="true" onclick="PrintCustomers('all')">全部重打</a><label>|</label>
+
+                <a href="javascript:void(0)" id="mb" class="easyui-menubutton"
+                   data-options="menu:'#mm',iconCls:'icon-print'">打印报表</a>
+                <div id="mm" style="width:150px;">
+                    <div data-options="iconCls:'icon-man'" onclick="printMulXiaoPiao()">打印小票</div>
+                    <div data-options="iconCls:'icon-redo'" onclick="printMulXiaofeiDan('0')">打印A4清单</div>
+                    <div class="menu-sep"></div>
+                    <div onclick="printMulXiaofeiDan('1')">打印签字确认单(多选)</div>
+                    <div onclick="printAllXiaofeiDan()">打印签字确认单（全部）</div>
+
+                    <div class="menu-sep"></div>
+                    <div data-options="iconCls:'icon-sum'" onclick="PrintSumOrder(0)">按队别统计单</div>
+                    <div data-options="iconCls:'icon-reload'" onclick="PrintSumOrder(1)">按号房统计单</div>
+                    <div class="menu-sep"></div>
+                    <div data-options="iconCls:'icon-print'" onclick="PrintSumOrder(2)">按商品货号统计</div>
+                    <div data-options="iconCls:'icon-print'" onclick="PrintSumOrder(3)">按商品大类汇总</div>
+                    <div class="menu-sep"></div>
+                    <div data-options="iconCls:'icon-print'" onclick="PrintSumOrder(4)">按商品价格统计</div>
+                    <div data-options="iconCls:'icon-print'" onclick="PrintSumOrder(5)">打印消费明细清单</div>
+                    <div data-options="iconCls:'icon-print'" onclick="PrintSumOrder(6)">横向队别商品报表</div>
+                </div> <label>|</label>
+
+                <a href="javascript:void(0)" id="mprint" class="easyui-menubutton"
+                   data-options="menu:'#mp',iconCls:'icon-redo'">Excel导出数据</a>
+                <div id="mp" style="width:150px;">
+                    <div data-options="iconCls:'icon-man'" onclick="ExcelAllXiaofeiDan()">Excel签字确认单(全部)</div>
+                    <div data-options="iconCls:'icon-man'" onclick="ExcelSumOrder(0)">按队别统计单</div>
+                    <div class="menu-sep"></div>
+                    <div onclick="ExcelSumOrder(7)">按号房统计单</div>
+                    <div onclick="ExcelSumOrder(1)">按号房(单表)统计单</div>
+                    <div class="menu-sep"></div>
+                    <div data-options="iconCls:'icon-print'" onclick="ExcelSumOrder(2)">按商品货号统计</div>
+                    <div data-options="iconCls:'icon-print'" onclick="ExcelSumOrder(3)">按商品大类汇总</div>
+                    <div class="menu-sep"></div>
+                    <div data-options="iconCls:'icon-print'" onclick="ExcelSumOrder(4)">按商品价格统计</div>
+                    <div data-options="iconCls:'icon-print'" onclick="ExcelSumOrder(5)">消费明细清单导出</div>
+                    <div data-options="iconCls:'icon-print'" onclick="ExcelSumOrder(6)">横向队别商品报表</div>
+                </div>
+                <a href="#" id="btnCancelInvoiceOrder" class="easyui-linkbutton" iconcls="icon-undo" plain="true" onclick="CancelInvoiceOrder()">撤消订单</a><label>|</label>
+
+
+
+            </div>
+            @if (ViewData["operatorId"] != null)
+            {
+                if (ViewData["operatorId"].ToString() == "2")
+                {
+                    <div>
+                        <a href="#" id="btnSalesOrderReturn" class="easyui-linkbutton" iconcls="icon-redo" plain="true" onclick="SalesOrderReturn()">消费退货</a><label>|</label>
+                    </div>
+                }
+            }
+            
+        </div>
+
+        <div id="template"></div>
+        <input type="hidden" id="PrintXPItemS" value="" />
+    </div>
+    
+    <div data-options="region:'east',title:'查询条件',split:true" style="width:300px;">
+        <div data-options="region:'north',title:'North Title',split:true" style="height:200px;">
+            <form method="post">
+                <table id="crimeSearch">
+                    <tr>
+                        <th align="right">编号：</th>
+                        <td align="left">
+                            <input class="easyui-numberbox" id="FCode" name="FCode"
+                                   data-options="min:0,precision:0" style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">姓名：</th>
+                        <td align="left">
+                            <input id="FName" name="FName" style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">开始时间：</th>
+                        <td align="left">
+                            <input class="easyui-datetimebox" id="StartDate" name="StartDate"
+                                   data-options="required:true,showSeconds:false" value="3/4/2010 00:00" style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">结束时间：</th>
+                        <td align="left">
+                            <input class="easyui-datetimebox" id="EndDate" name="EndDate"
+                                   data-options="required:true,showSeconds:false" value="3/4/2010 23:59" style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">队别：</th>
+                        <td align="left">
+                            <select id="FAreaName" name="FAreaName" class="easyui-combobox" style="width:190px;">
+                                <option value="">请选择队别</option>
+                                @if (ViewData["areas"] != null)
+                                {
+                                    foreach (SelfhelpOrderMgr.Model.T_AREA area in ViewData["areas"] as List<SelfhelpOrderMgr.Model.T_AREA>)
+                                    {
+                                        <option value="@area.FCode">@area.FName</option>
+                                    }
+                                }
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">消费机：</th>
+                        <td align="left">
+                            <select id="FCrtBy" name="FCrtBy" class="easyui-combobox" style="width:190px;">
+                                <option value="" selected="selected">请选择消费机</option>
+                                @if (ViewData["crtbys"] != null)
+                                {
+                                    foreach (string crtby in ViewData["crtbys"] as List<string>)
+                                    {
+                                        <option value="@crtby">@crtby</option>
+                                    }
+                                }
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">消费类型：</th>
+                        <td align="left">
+                            <select id="TypeFlag" name="TypeFlag" class="easyui-combobox" data-options=" multiple:true" style="width:190px;">
+                                @*<option value="" >请选择类型</option>*@
+                                @if (ViewData["saleTypes"] != null)
+                                {
+                                    foreach (SelfhelpOrderMgr.Model.T_SHO_SaleType saleType in ViewData["saleTypes"] as List<SelfhelpOrderMgr.Model.T_SHO_SaleType>)
+                                    {
+                                        <option value="@saleType.TypeFlagId">@saleType.PType</option>
+                                    }
+                                }
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">商品类别：</th>
+                        <td align="left">
+                            <select id="GoodsType" name="GoodsType" class="easyui-combobox" style="width:190px;">
+                                <option value="" selected="selected">请选择类别</option>
+                                @if (ViewData["goodsTypes"] != null)
+                                {
+                                    foreach (SelfhelpOrderMgr.Model.T_GoodsType goodsType in ViewData["goodsTypes"] as List<SelfhelpOrderMgr.Model.T_GoodsType>)
+                                    {
+                                        <option value="@goodsType.Fcode">@goodsType.Fname</option>
+                                    }
+                                }
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">订单状态：</th>
+                        <td align="left">
+                            <select id="Flag" name="Flag" class="easyui-combobox" style="width:190px;">
+                                <option value="">请选订单状态</option>
+                                <option value="1" selected="selected">正常</option>
+                                <option value="0" >撤单</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">商品名称：</th>
+                        <td align="left">
+                            <input id="GoodName" name="GoodName" type="text" style="width: 190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">商品条码：</th>
+                        <td align="left">
+                            <input id="GoodGTXM" name="GoodGTXM" type="text" style="width: 190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">店内码：</th>
+                        <td align="left">
+                            <input id="SpShortCode" name="SpShortCode" type="text" style="width: 190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right"></th>
+                        <td align="right"><a id="btn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-search'" onclick="btnSearch()">查询</a><a id="A1" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-redo'" onclick="    clearSearch()">清空</a></td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+    </div>
+
+    @*退货对话框窗口*@
+    <div id="winTuiHuo" class="easyui-window" title="消费退货" style="width:800px;height:400px"
+         data-options="iconCls:'icon-save',modal:true">
+        消费单明细记录
+        
+        <div>
+            <div style="width:45%;float:left">
+                <table id="invDetails"></table>
+            </div>            
+            <div style="width: 8%; float: left;padding:1%;">
+                <br /><br /><br />
+                退货数量:<input type="text" id="returnCount" style="width:50px;" class="easyui-numberbox" value="" data-options="min:0,precision:0" />
+                <br /><br />
+                <a id="btnAddList" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-redo'" onclick="btnAddList()">加入</a>
+                <br /><br /><br />
+                <a id="btnDelList" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-undo'" onclick="btnDelList()">移走</a>
+
+            </div>
+            <div style="width: 45%; float: left">
+                <table id="tuihuoDetail"></table>
+                <div>
+                     <strong>退货合计:</strong><input type="text" id="returnMoney" style="width:100px;" class="easyui-numberbox" value="" data-options="min:0,precision:2"/>
+                    &nbsp&nbsp&nbsp&nbsp<a id="btnSubmitTuihuo" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-save'" onclick="btnSubmitTuihuo()">提交</a>
+
+                </div>
+            </div>
+            
+        </div>
+        <div>
+        </div>
+    </div>  
+    
+    @if (ViewData["mset"] != null)
+    {
+        SelfhelpOrderMgr.Model.T_SHO_ManagerSet mset = ViewData["mset"] as SelfhelpOrderMgr.Model.T_SHO_ManagerSet;
+        <input type="hidden" id="xiaoPiaoPageWidth" name="xiaoPiaoPageWidth" value="@mset.KeyMode" />
+        <input type="hidden" id="xiaoPiaoFontSize" name="xiaoPiaoFontSize" value="@mset.MgrValue" />
+    }
+    <script src="~/Scripts/myJs/LodopFuncs.js"></script>
+    <script src="~/Scripts/myJs/opertorXiaopiaoFunc.js"></script>
+    <script src="~/Scripts/myJs/commonJs.js"></script>
+    <script src="~/Scripts/myJs/customerPrint.js"></script>
+</body>
+</html>

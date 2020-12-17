@@ -1,0 +1,78 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>GetLeavePrisonList</title>
+    @{Html.RenderPartial("~/Views/Shared/_PartialHeadPage.cshtml");}
+    <script src="~/Scripts/myJs/commonJs.js"></script>
+    
+</head>
+<body class="easyui-layout">
+    <div data-options="region:'north',title:'过虑条件',split:true" style="height:300px;">
+        <form id="formSearch" method="post">
+            <table id="crimeSearch">
+                <tr>
+                    <th align="right">日期：</th>
+                    <td align="left" colspan="3">
+
+                        <input class="easyui-datetimebox" id="fStartDate" name="fStartDate"
+                               data-options="required:true,showSeconds:false" value="3/4/2010 00:00" style="width:150px">至<input class="easyui-datetimebox" id="fEndDate" name="fEndDate"
+       data-options="required:true,showSeconds:false" value="3/4/2010 23:59" style="width:150px">
+                    </td>
+
+                    <th align="right">监区：</th>
+                    <td align="left">
+                        <select id="FAreaCode" name="FAreaCode" class="easyui-combobox">
+                            <option value="" selected="selected">请选择监区</option>
+                            @if (ViewData["areas"] != null)
+                            {
+                                foreach (SelfhelpOrderMgr.Model.T_AREA area in ViewData["areas"] as List<SelfhelpOrderMgr.Model.T_AREA>)
+                                {
+                                    <option value="@area.FCode">@area.FName</option>
+                                }
+                            }
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th align="right">编号:</th>
+                    <td><input type="text" id="FCode" name="FCode" style="width:120px;" /></td>
+                    <th>姓名:</th>
+                    <td><input type="text" id="FName" name="FName" style="width:120px;" /></td>
+                    <td colspan="2"><a id="btn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-search'" onclick="FilterSearch()">查询</a><a id="A1" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-redo'" onclick="clearSearch()">清空</a></td>
+                </tr>
+            </table>
+        </form>
+
+        <table id="test" data-options="toolbar:'#tb'"></table>
+
+        <div id="tb">
+            <div>
+                @*FCheckFlag是“确认”,auditflag是“审核”,FdbcheckFlag是“复核”,Flag是“财务入账”*@
+                <a id="btnAdd" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-print',plain:true" onclick="PrintList()">名单列表</a><label>|</label>
+                <a id="btnSave" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-print',plain:true" onclick="PrintLossReport()">挂失结算证明</a><label>|</label>
+                <a id="btnSave" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-save',plain:true" onclick="ExcelExport()">Excel清单</a><label>|</label>
+                <a id="btnUndo" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-reload',plain:true" onclick="RecoveryInPrison()">恢复在押</a> <label>|</label>
+                <select id="ccPayMode" class="easyui-combobox" name="PayMode" style="width:200px;">
+                    <option value="">请选择结算方式</option>
+                    <option value="0">(网点/现金)取款</option>
+                    <option value="1">ATM机取款</option>
+                    <option value=" 2">转账支付</option>
+                </select>
+                <a id="btnUndo" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-save'" onclick="OutPrisonSettle()">出监结算</a> <label>|</label>
+            </div>
+        </div>
+    </div>
+    <div data-options="region:'center'" style="padding:5px;background:#eee;">
+        <input type="hidden" id="selectFCode" value="" />
+        <table id="vcrdList"></table>
+    </div>
+    <script src="~/Scripts/myJs/LeavePrisonList.js"></script>
+</body>
+</html>

@@ -1,0 +1,190 @@
+﻿
+@{
+    ViewBag.Title = "自助扣款";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@{Html.RenderPartial("~/Views/Shared/_PartialXiaopiaoControl.cshtml");}
+<link href="~/Content/font-awesome.min.css" rel="stylesheet" />
+<link href="~/Content/docs.min.css" rel="stylesheet" />
+<link href="~/Scripts/simple-calendar/tcal.css" rel="stylesheet" />
+<div class="page-header text-center">
+    <h1><small>欢迎进入</small> 自助扣款 <small>这里您可以进行部分科目的自助扣款操作</small></h1>
+    <input type="hidden" id="UserName" name="UserName" value="@ViewData["UserName"]" />
+    <input type="hidden" id="FManagerCard" name="FManagerCard" value="@ViewData["FManagerCard"]" />
+    
+    <input type="hidden" id="FCrimeCode" name="FCrimeCode" />
+    <input type="hidden" id="FIcCardCode" name="FIcCardCode" />
+</div>
+
+<div>
+    <object id=MWRFATL style="WIDTH: 0px; HEIGHT: 0px"
+            codebase=eyeFZ.cab#version =1,0,0,1
+            classid=CLSID:CD851DCA-5D3C-4DA9-A0F7-DE018FDC0A7F></object>@*加载数明华读卡器控件*@
+
+    
+            <div class="row">
+                <div class="col-sm-10">
+                    <h3 id="userNameInfo">你好, 某某某<span class="label label-primary">普管(500)</span>,您的账户信息如下：</h3>
+
+                </div>
+                <div class="col-sm-2">
+                    <div style=" text-align:right;">
+                        <input type="hidden" id="orderFcrimeCode" />
+                        <input type="hidden" id="orderFcrimeName" />
+                        <input type="hidden" id="orderCyName" />
+                        <input type="hidden" id="orderFareaName" />
+                        <a class="btn btn-large btn-primary btn-lg" href="#" role="button" onclick="btnQueryUserInfo('3504013494')">请先刷IC卡查询</a>
+                    </div>
+                </div>
+
+            </div>
+            <div class="alert alert-danger" role="alert" id="lblInfo">银行账号：</div>
+            <div class="row">
+                <div class="col-md-3">
+                    <table class="table">
+                        <thead>
+                            <tr><th>名称</th><th>金额</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>存款余额</td><td id="amountA">0.00</td></tr>
+                            <tr><td>报酬金额</td><td id="amountB">0.00</td></tr>
+                            <tr><td>留存金额(不可用)</td><td id="amountC">0.00</td></tr>
+                            <tr><td>本月已经消费</td><td><span class="label label-danger" id="curMonthXFE">0.00</span></td></tr>
+                            <tr><td>本月消费限额</td><td><span class="label label-warning" id="xiaofeiYuE">0.00</span></td></tr>
+                            <tr class="danger"><td>账户可用总余额</td><td id="okUseAllMoney">0.00</td></tr>
+                        </tbody>
+                    </table>
+
+                </div>
+                <div class="col-md-9">
+                    <h3>请输入要缴纳罚金的金额 ：</h3>
+                    <div>
+                        <div>
+                            <div class="form-group">
+                                <div class="input-group">
+                                    <div class="input-group-addon">扣款类型：</div>
+                                    <select class="form-control input-lg" id="selSaveType" name="selSaveType">
+                                        <option value="" selected="selected">请选择扣款类型</option>
+                                        @if (ViewData["saveTypes"] != null)
+                                        {
+                                            foreach (SelfhelpOrderMgr.Model.T_Savetype savetype in ViewData["saveTypes"] as List<SelfhelpOrderMgr.Model.T_Savetype>)
+                                            {
+                                                <option value="@savetype.fcode">@savetype.fname</option>
+                                            }
+                                        }
+
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="input-group">
+                                    <div class="input-group-addon">扣款金额：</div>
+                                    <input type="number" class="form-control input-lg" id="KKMoney" onkeyup="changeRmbDX()" onkeydown="if (event.keyCode == 13) $('#btnSubmitKK').focus();" placeholder="只能输入数字金额">
+                                </div>
+                                <p class="help-block">人民币大写：<span id="rmbDX"></span></p>
+                                <p class="help-block">操作提示，输入金额后记得一定得点击【确认扣款】按钮，否则不会生效.</p>
+                                <p class="help-block">　　　　　扣款完成后，请点黄色按钮【退回到首页】退出，以防止他人盗扣.</p>
+
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-sm-10">
+                                    <button type="button" id="btnSubmitKK" class="btn btn-danger btn-lg" disabled="disabled" onclick="btnSubmitKK()">确认扣款</button>
+                                </div>
+                                <div class="col-sm-2">
+                                    <a href="/Home/Index" class="btn btn-warning" role="button">退回首页</a>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+</div>
+
+<script src="~/Scripts/jquery-1.11.3.min.js"></script>
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="js/bootstrap.min.js"></script>
+<script src="~/Scripts/messenger.min.js"></script>
+<script src="~/Scripts/myJs/minghuaICcardCommon.js"></script>
+<script src="~/Scripts/myJs/commonJs.js"></script>
+<script src="~/Scripts/myJs/SelfPayment.js"></script>
+<script type="text/javascript">
+    function changeRmbDX() {
+        if ($("#selSaveType").find("option:selected").val() == "")
+        {
+            alert("请先选择一个扣款类型");
+            return false;
+        }
+        var kkmoney = $("#KKMoney").val();
+        var rmbdx = DX(kkmoney);
+        $("#rmbDX").html(rmbdx);
+    }
+
+    //提交扣款
+    function btnSubmitKK() {
+        
+        if ($("#selSaveType").find("option:selected").val() == "") {
+            alert("请先选择一个扣款类型");
+            return false;
+        }
+
+        var kkmoney = $("#KKMoney").val();
+        if (kkmoney == "") {
+            alert("请输入金额");
+            return false;
+        }
+
+        if (isNaN(kkmoney)) {
+            $("#lblInfo").text("错误：数量必须是数字的，不能其他字母");
+            return false;
+        }
+        $("#btnSubmitKK").attr("disabled", "disabled");//禁用扣款提交按钮
+        $.post("/SelfPayment/btnSubmitKK", {
+            "FCrimeCode": $("#FCrimeCode").val()
+            , "KKMoney": kkmoney
+            , "FIcCardCode": $("#FIcCardCode").val()
+            , "FManagerCard": $("#FManagerCard").val()
+            , "DType": $("#selSaveType").find("option:selected").val()
+        }
+            , function (data, status) {
+                if ("success" != status) {
+                    return false;
+                } else {
+                    var words = data.split("|");
+                    if (words[0] == "OK") {
+                        var vcrds = $.parseJSON(words[1]);
+                        var moneyInfo = "";
+                        for (var i = 0; i < vcrds.length;i++){
+                            if (vcrds[i].AccType == 0) {
+                                if (moneyInfo == ""){
+                                    moneyInfo = "存款账户扣：" + vcrds[i].CAmount + " 元";
+
+                                } else {
+                                    moneyInfo =moneyInfo+ ",存款账户扣：" + vcrds[i].CAmount + " 元";
+                                }
+                            } else {
+                                if (moneyInfo == "") {
+                                    moneyInfo = "报酬账户扣：" + vcrds[i].CAmount + " 元";
+
+                                } else {
+                                    moneyInfo = moneyInfo + ",报酬账户扣：" + vcrds[i].CAmount + " 元";
+                                }
+                            }
+                        }
+                        $("#lblInfo").html("扣款成功：" + moneyInfo);
+                        $("#FCrimeCode").val('');
+                        $("#FIcCardCode").val('');
+                        $("#KKMoney").val('');
+                        alert("恭喜您，扣款成功");
+                    } else {
+                        $("#lblInfo").html("扣款失败：" + data);
+                        alert(data);
+                    }
+
+                }
+
+        });
+    }
+</script>
+

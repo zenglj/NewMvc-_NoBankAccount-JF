@@ -1,0 +1,153 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" charset="utf-8" lang="zh-cn" />
+    <title>银行存款记录</title>
+    @{Html.RenderPartial("~/Views/Shared/_PartialHeadPage.cshtml");}
+    <style>
+        #ffAudit div {
+            text-align: center;
+            margin: 5px 0px;
+        }
+    </style>
+
+</head>
+<body class="easyui-layout">
+    <div data-options="region:'center',title:'银行存款清单'" style="padding:5px;">
+        <table id="test" toolbar="#tb"></table>
+
+        <div id="template"></div>
+
+        <div id="tb" style="height:70px">
+            <a id="btnPrint" href="#" onclick="btnPrintSum()" class="easyui-linkbutton" data-options="iconCls:'icon-print'">打印汇总单</a>
+            <a id="btnPrint" href="#" onclick="btnPrintList()" class="easyui-linkbutton" data-options="iconCls:'icon-print'">打印清单</a>
+            <a id="btnPrint" href="#" onclick="btnExcelSave()" class="easyui-linkbutton" data-options="iconCls:'icon-save'">Excel导出</a>
+            <a id="btnExcel_02" href="#" onclick="btnExcelNoFindCashReport()" class="easyui-linkbutton" data-options="iconCls:'icon-search'">未识别的记录</a>
+            <input class="easyui-textbox" id="search_vchnum" data-options="iconCls:'icon-search'" style="width:150px">
+            <a id="btnExcel_02" href="#" onclick="btnCheckVchnum()" class="easyui-linkbutton" data-options="iconCls:'icon-redo'">手动识别流水单</a>
+            <a id="btnPrint" href="#" onclick="btnExcelReportSave()" class="easyui-linkbutton" data-options="iconCls:'icon-save'">Excel月统计报表</a>
+
+            <label id="schSumMoney" style="float:right;font-size:1.2em;">查询结果总额: ____________</label>
+            <div id="divAuditRec" style="display:none">
+                <form id="ffBankRecAudit">
+                    <input type="hidden" id="addVchnum" name="vchnum" />
+                    <label>编号:</label><input type="text" style="width:100px;" class="easyui-numberbox" id="addFCrimeCode" name="fcrimecode" />
+                    <label>姓名:</label><input type="text" style="width:150px;" class="easyui-textbox" id="addFCrimeName" name="fcrimename" />
+                    <label>审核备注:</label><input type="text" style="width:150px;" class="easyui-textbox" id="addFRemark" name="remark" />
+                    <select id="forceCheckFlag" class="easyui-combobox" name="checkFlag" style="width:200px;">
+                        <option value="1" selected="selected">标准入账</option>
+                        <option value="2">强制入账</option>
+                    </select>
+                    <a id="btn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-save'" onclick="btnAuditBankRec()">确认审核入账</a>
+                </form>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+    <div data-options="region:'east',title:'查询条件',split:true" style="width:300px;">
+        <div data-options="region:'north',title:'North Title',split:true" style="height:200px;">
+            <form method="post" id="formSearch">
+                <table id="crimeSearch">
+                    <tr>
+                        <th align="right">Id：</th>
+                        <td align="left">
+                            <input class="easyui-numberbox" id="SearchId" name="Id"
+                                   data-options="min:0,precision:0" style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">狱号：</th>
+                        <td align="left">
+                            <input class="easyui-textbox" id="SearchFCrimeCode" name="FCrimeCode"
+                                   style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">姓名：</th>
+                        <td align="left">
+                            <input class="easyui-textbox" id="SearchFName" name="FName"
+                                   style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">流水号：</th>
+                        <td align="left">
+                            <input id="SearchVchNum" name="VchNum" class="easyui-textbox" style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">收款账号：</th>
+                        <td align="left">
+                            <input id="SearchCardNo" name="CardNo" class="easyui-textbox" style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">汇款金额：</th>
+                        <td align="left">
+                            <input id="SearchRcvAmount" name="RcvAmount" class="easyui-textbox" style="width:190px">
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th align="right">汇款日期：</th>
+                        <td align="left">
+                            <input id="Searchtnxdate" name="tnxdate" class="easyui-textbox" style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">导入标志：</th>
+                        <td align="left">
+                            <select id="SearchImportFlag" name="ImportFlag" class="easyui-combobox" style="width:190px">
+                                <option value="1">是</option>
+                                <option value="0">否</option>
+                            </select>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th align="right">备注：</th>
+                        <td align="left">
+                            <input id="SearchRemark" name="Remark" class="easyui-textbox" style="width:190px">
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th align="right">导入起日：</th>
+                        <td align="left">
+                            <input class="easyui-datetimebox" id="SearchCreateDate_Start" name="CreateDate_Start"
+                                   data-options="required:true,showSeconds:false" value="3/4/2010 00:00" style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">导入止日：</th>
+                        <td align="left">
+                            <input class="easyui-datetimebox" id="SearchCreateDate_End" name="CreateDate_End"
+                                   data-options="required:true,showSeconds:false" value="3/4/2010 23:59" style="width:190px">
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th align="right"></th>
+                        <td align="right"><a id="btn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-search'" onclick="btnSearch()">查询</a><a id="A1" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-redo'" onclick="btnClear()">清空</a></td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+    </div>
+
+    <script src="~/Scripts/EasyUI/jquery.easyui.min.js"></script>
+    <script src="~/Scripts/EasyUI/locale/easyui-lang-zh_CN.js"></script>
+    <script src="~/Scripts/myJs/LodopFuncs.js"></script>
+
+    <script src="~/Scripts/myJs/BankRcvIndex.js"></script>
+</body>
+</html>

@@ -1,0 +1,3 @@
+INFO  2017-02-07 12:20:35,806 28098ms Log4NetHelper          LoginCheck         - 后台系统登录,操作员：admin,登录时间=2017-02-07 12:20:35,登录IP为：::1
+INFO  2017-02-07 13:23:03,718 3776011ms Log4NetHelper          LoginCheck         - 后台系统登录,操作员：admin,登录时间=2017-02-07 13:23:03,登录IP为：::1
+INFO  2017-02-07 17:01:43,278 358162ms Log4NetHelper          UserSignInCheck    - 消费登录开启,操作员：admin,登录时间=2017-02-07 17:01:43,登录IP为：::1,登录结果：OK|开启集中消费模式成功

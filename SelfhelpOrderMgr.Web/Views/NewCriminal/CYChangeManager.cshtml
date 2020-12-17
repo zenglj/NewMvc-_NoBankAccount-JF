@@ -1,0 +1,213 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>处遇调整申请</title>
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Content/bootstrap-datetimepicker.min.css" rel="stylesheet" />
+    <link href="~/Content/bootstrap-select.min.css" rel="stylesheet" />
+    <link href="~/Content/MyCss/searchArea.css" rel="stylesheet" />
+</head>
+<body>
+    <h4 class="text-center">处遇调整申请</h4>
+    <div class="col-lg-12">
+
+        <div class="searctform" style="margin-top:15px; padding:0px 15px 10px; border:1px solid #ccc;">
+            <table class="search-area ">
+                <tr>
+                    <th>起始时间：</th>
+                    <td>
+                        <a class='input-group date' id='datetimepicker2' style="float:left;">
+                            <input type='text' class="form-control" id='nowdate' style="width: 150px; height: 30px;" />
+                            <span class="input-group-addon" style="float: left; width: 50px; height: 30px;">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </a>
+                    </td>
+                    <th style="padding-left:20px;">结束时间：</th>
+                    <td>
+                        <a class='input-group date' id='datetimepicker3' style="float:left;">
+                            <input type='text' class="form-control" id='nowdate' style="width: 150px; height: 30px;" />
+                            <span class="input-group-addon" style="float: left; width: 50px; height: 30px;">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </a>
+                    </td>
+                    <th style="padding-left:20px;">状态：</th>
+                    <td>
+                        <select class="form-control">
+                            <option value="0" selected="selected">全部</option>
+                            <option value="1">待管理科审核</option>
+                            <option value="2">已完成</option>
+                        </select>
+                    </td>
+                    <th></th>
+                    <td>
+                        <button type="button" class="btn btn-default" style="margin-left:20px;">搜索</button>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <div>
+
+            <div class="row" style="padding:10px 0px;">
+                <div class="col-sm-6">
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addChangePup">添加调价单</button>
+                </div>
+                <div class="col-sm-1"><label>申请进度:</label></div>
+                <div class="col-sm-5">
+                    <div class="progress" style=" height:28px;" id="OrderStatusProgress">
+
+                        <div class="progress-bar progress-bar-striped" role="progressbar"
+                             aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"
+                             style="width: 0%; font-size: 16px; line-height: 28px; ">
+
+                            <span class="sr-only">66.66%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <table class="table text-center table-hover table-striped">
+                <caption>调价申请单列表:</caption>
+                <thead>
+                    <tr>
+                        <th class="text-center">调价编号</th>
+                        <th class="text-center">申请人</th>
+                        <th class="text-center">调价单状态</th>
+                        <th class="text-center">申请时间</th>
+                        <th class="text-center">审核时间</th>
+                        <th class="text-center">备注</th>
+                        <th class="text-center">编辑</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr id="rd01" onclick="SetPriceChangeStatus('待提交',20)">
+                        <td>1</td>
+                        <td>服务部</td>
+                        <td>待提交</td>
+                        <td>2018-06-26 17:57:21</td>
+                        <td></td>
+                        <td>XXXXXXXXXXXXXXXXXXXXX</td>
+                        <td>
+                            <button type="button" class="btn btn-link">审批</button>
+                            <button type="button" class="btn btn-link">提交</button>
+                            <button type="button" class="btn btn-link" data-toggle="modal" data-target="#detail">详情</button>
+                            <button type="button" class="btn btn-link">删除</button>
+                        </td>
+                    </tr>
+                    <tr id="rd02" onclick="SetPriceChangeStatus('审批已完成', 100)">
+                        <td>2</td>
+                        <td>服务部</td>
+                        <td><b><span class="label label-success">审批已完成</span></b></td>
+                        <td>2018-06-26 17:57:21</td>
+                        <td>2018-06-26 17:57:21</td>
+                        <td>XXXXXXXXXXXXXXXXXXXXX</td>
+                        <td>
+                            <button type="button" class="btn btn-link" disabled="">审批</button>
+                            <button type="button" class="btn btn-link" disabled="">退回</button>
+                            <button type="button" class="btn btn-link" data-toggle="modal" data-target="#detail">详情</button>
+                            <button type="button" class="btn btn-link" disabled="">删除</button>
+                        </td>
+                    </tr>
+                    <tr id="rd03" onclick="SetPriceChangeStatus('待生卫科审核', 60)">
+                        <td>3</td>
+                        <td>服务部</td>
+                        <td><b><span class="label label-primary">待生卫科审核</span></b></td>
+                        <td>2018-06-26 17:57:21</td>
+                        <td>2018-06-26 17:57:21</td>
+                        <td>XXXXXXXXXXXXXXXXXXXXX</td>
+                        <td>
+                            <button type="button" class="btn btn-link">审批</button>
+                            <button type="button" class="btn btn-link">退回</button>
+                            <button type="button" class="btn btn-link" data-toggle="modal" data-target="#detail">详情</button>
+                            <button type="button" class="btn btn-link" disabled="">删除</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="text-right">
+                <nav aria-label="Page navigation text-right">
+                    <ul class="pagination">
+                        <li>
+                            <a href="#" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                        <li><a href="#">1</a></li>
+                        <li><a href="#">2</a></li>
+                        <li><a href="#">3</a></li>
+                        <li><a href="#">4</a></li>
+                        <li><a href="#">5</a></li>
+                        <li>
+                            <a href="#" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+
+        </div>
+    </div>
+</body>
+</html>
+<script src="~/Scripts/jquery-1.11.3.min.js"></script>
+<script src="~/Scripts/bootstrap.min.js"></script>
+<script src="~/Scripts/bootstrap-datetimepicker.min.js"></script>
+<script src="~/Scripts/bootstrap-datetimepicker.zh-CN.js"></script>
+<script src="~/Scripts/bootstrap-select.min.js"></script>
+<script src="~/Scripts/select-defaults-zh_CN.min.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#GoodInfo").hide();
+
+        $("#s").click(function () {
+            $("#GoodInfo").show();
+        });
+
+        $("#b").click(function () {
+            $("#GoodInfo").hide();
+        });
+
+        $('.date').datetimepicker({
+            language: 'zh-CN',//显示中文
+            format: 'yyyy-mm-dd',//显示格式
+            minView: "month",//设置只显示到月份
+            initialDate: new Date(),//初始化当前日期
+            autoclose: true,//选中自动关闭
+            todayBtn: true//显示今日按钮
+        });
+
+        $('.date').datetimepicker({
+            language: 'zh-CN',//显示中文
+            format: 'yyyy-mm-dd',//显示格式
+            minView: "month",//设置只显示到月份
+            initialDate: new Date(),//初始化当前日期
+            autoclose: true,//选中自动关闭
+            todayBtn: true//显示今日按钮
+        });
+    });
+
+
+    function SetPriceChangeStatus(statusText, progressValue) {
+        //alert(progressValue);
+        var prs = "<div class='progress-bar progress-bar-striped' role='progressbar'"
+        + "  aria-valuenow='60' aria-valuemin='0' aria-valuemax='100'"
+        + " style='width: " + progressValue + "%; font-size: 16px; line-height: 28px; '>" + statusText + ""
+        + " <span class='sr-only'>66.66%</span></div>";
+        $("#OrderStatusProgress").html(prs);
+        $("#OrderDetailStatus").html(prs);
+
+    }
+
+
+
+</script>

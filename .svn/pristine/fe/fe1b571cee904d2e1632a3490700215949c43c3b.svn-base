@@ -1,0 +1,37 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    @{Html.RenderPartial("~/Views/Shared/_PartialHeadPage.cshtml");}
+    <title>处遇等级管理</title>
+</head>
+<body class="easyui-layout">
+    <div data-options="region:'west',title:'处遇等级管理',split:true" style="width:900px;">
+        <div style="height:300px;">
+            <input type="hidden" id="typeName" />
+            <table id="test" class="easyui-datagrid" toolbar="#tb"></table>
+        </div>
+
+        <div id="tb" style="padding:5px;height:auto">
+            <div>
+                <a href="#" class="easyui-linkbutton" iconcls="icon-add" onclick="AddTypeGoods()">添加</a>
+                <a href="#" class="easyui-linkbutton" iconcls="icon-save" onclick="BatchSaveDg()">保存</a>
+
+                <a href="#" class="easyui-linkbutton" iconcls="icon-no" onclick="DeleteTypeInfoById()">删除</a>
+            </div>
+        </div>
+
+
+    </div>
+    <div data-options="region:'center',title:'查询条件'" style="padding:5px;">
+
+    </div>
+
+    <script src="~/Scripts/myJs/CYTypeSetting.js"></script>
+</body>
+</html>

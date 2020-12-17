@@ -1,0 +1,23 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>testPrint</title>
+    @{Html.RenderPartial("~/Views/Shared/_PartialHeadPage.cshtml");}
+</head>
+<body>
+    @{Html.RenderPartial("~/Views/Shared/_PartialXiaopiaoControl.cshtml");}
+    <div id="template"><div> <div style="text-align:center">监狱一卡通系统</div><table style="font-size:10px; width:250px;"><tbody><tr><td>单号：INV160100079001</td><td>日期：2016/1/31 上午10:47</td></tr><tr><td>编号：3506008582</td><td>姓名：张金法</td></tr><tr><td colspan="2">监区：六监区十八分监区</td></tr></tbody></table><hr><table style="font-size:11px;"><thead><tr><th>品名</th><th style="width:50px;">单价</th><th style="width:50px;">数量</th><th>金额</th></tr></thead><tbody><tr><td>6901073110174</td><td align="center">6.9</td><td align="center">2</td><td align="right">13.8</td></tr><tr><td colspan="4" style=" border-bottom:dashed;border-bottom-width:1px;">古龙白糖</td></tr></tbody></table><hr><span>消费合计：13.8元</span><hr><div>存款账户余额:50元</div><div>报酬账户余额:349.41元</div><div>留存账户余额:30.6元</div><div>账户总余额:430.01元</div></div><br><div> <div style="text-align:center">监狱一卡通系统</div><table style="font-size:10px; width:250px;"><tbody><tr><td>单号：INV160100078001</td><td>日期：2016/1/31 上午12:00</td></tr><tr><td>编号：3506008582</td><td>姓名：张金法</td></tr><tr><td colspan="2">监区：六监区十八分监区</td></tr></tbody></table><hr><table style="font-size:11px;"><thead><tr><th>品名</th><th style="width:50px;">单价</th><th style="width:50px;">数量</th><th>金额</th></tr></thead><tbody><tr><td>8012</td><td align="center">1.99</td><td align="center">1</td><td align="right">1.99</td></tr><tr><td colspan="4" style=" border-bottom:dashed;border-bottom-width:1px;">柚子</td></tr></tbody></table><hr><span>消费合计：1.99元</span><hr><div>存款账户余额:50元</div><div>报酬账户余额:349.41元</div><div>留存账户余额:30.6元</div><div>账户总余额:430.01元</div></div><br><div> <div style="text-align:center">监狱一卡通系统</div><table style="font-size:10px; width:250px;"><tbody><tr><td>单号：INV160100077001</td><td>日期：2016/1/31 上午12:00</td></tr><tr><td>编号：3506008582</td><td>姓名：张金法</td></tr><tr><td colspan="2">监区：六监区十八分监区</td></tr></tbody></table><hr><table style="font-size:11px;"><thead><tr><th>品名</th><th style="width:50px;">单价</th><th style="width:50px;">数量</th><th>金额</th></tr></thead><tbody><tr><td>4891338015134</td><td align="center">8.2</td><td align="center">2</td><td align="right">16.4</td></tr><tr><td colspan="4" style=" border-bottom:dashed;border-bottom-width:1px;">黑人90g茶倍健</td></tr><tr><td>4991338005814</td><td align="center">2.5</td><td align="center">1</td><td align="right">2.5</td></tr><tr><td colspan="4" style=" border-bottom:dashed;border-bottom-width:1px;">黑人健齿型牙刷</td></tr></tbody></table><hr><span>消费合计：18.9元</span><hr><div>存款账户余额:50元</div><div>报酬账户余额:349.41元</div><div>留存账户余额:30.6元</div><div>账户总余额:430.01元</div></div><br></div>
+
+    <input type="button" onclick="myTestHtml()" value="print">
+    <script src="~/Scripts/myJs/LodopFuncs.js"></script>
+    <script src="~/Scripts/myJs/opertorXiaopiaoFunc.js"></script>
+    
+</body>
+</html>

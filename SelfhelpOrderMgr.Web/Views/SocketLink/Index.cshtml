@@ -1,0 +1,85 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Index</h2>
+<div class="row">
+    <div class="col-sm-6">
+        <div>
+            <input type="button" value="连接" onclick="doStringTest()" />
+            <label>请求动作:</label>
+            <select id="action">
+                <option value="0001">0001</option>
+                <option value="0002">0002</option>
+                <option value="0003">0003</option>
+                <option value="0004">0004</option>
+                <option value="0005">0005</option>
+                <option value="0006">0006</option>
+                <option value="0007">0007</option>
+            </select>
+            <textarea cols="50" rows="10" id="reqInfo"></textarea>
+
+        </div>
+        <div>
+            <label>结果</label>
+            <textarea cols="50" rows="10" id="rtnInfo"></textarea>
+        </div>
+    </div>
+    <div class="col-sm-6">
+        <div>
+            <input type="button" value="银行余额查询" onclick="doSearchAmount()" />
+
+            <textarea cols="50" rows="1" id="reqFCode"></textarea>
+
+        </div>
+        <div>
+            <label>结果</label>
+            <textarea cols="50" rows="10" id="bankAmount"></textarea>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+
+    function doStringTest() {
+        //alert($("#reqInfo").html());
+        $.post("/SocketLink/SearchUser", {
+            "action": $("#action").find("option:selected").val(),
+            "reqInfo": $("#reqInfo").html()
+        }, function (data, status) {
+            if ("success" != status) {
+                return false;
+            }
+            else {
+                $("#rtnInfo").html(data);
+                //alert(data);
+
+            }
+        });
+    }
+
+    //银行余额查询
+    function doSearchAmount() {
+        //alert($("#reqInfo").html());
+        $.post("/SocketLink/SearchBankAmount", {
+            //"action": $("#action").find("option:selected").val(),
+            "fcode": $("#reqFCode").html()
+        }, function (data, status) {
+            if ("success" != status) {
+                return false;
+            }
+            else {
+                $("#bankAmount").html(data);
+                //alert(data);
+
+            }
+        });
+    }
+
+</script>
+
+
+

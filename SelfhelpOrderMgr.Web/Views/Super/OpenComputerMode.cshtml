@@ -1,0 +1,252 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    @{Html.RenderPartial("~/Views/Shared/_PartialHeadPage.cshtml");}
+    <title>OpenComputerMode</title>
+    <style type="text/css">
+        .td {
+            border: solid #ccc;
+            border-width: 1px 1px 1px 1px;
+            padding-left: 10px;
+        }
+        .tr{
+            height:40px;
+        }
+        .table {
+            border: solid #ccc;
+            border-width: 1px 1px 1px 1px;
+        }
+    </style>
+</head>
+<body>
+    
+
+    <div>
+        <h3>消费控制参数设定</h3>
+        <table class="table" >
+            <tr class="tr"><th colspan="2" class="td">消费机开启模式</th><th colspan="2" class="td">小票打印方式</th><th colspan="2" class="td">是否验证库存量</th></tr>
+            <tr>
+                <td class="td">开启模式</td>
+                <td class="td">
+                    <select class="easyui-combobox" id="OpenMode" style="width:150px;">
+                        @if (ViewData["OpenMode"] != null)
+                        {
+                            SelfhelpOrderMgr.Model.T_SHO_ManagerSet rect = ViewData["OpenMode"] as SelfhelpOrderMgr.Model.T_SHO_ManagerSet;
+                            if (rect.KeyMode == 1)
+                            {
+                                <option value="1" selected="selected">分别开启</option>
+                                <option value="2">集中开启</option>
+                            }
+                            else
+                            {
+                                <option value="1">分别开启</option>
+                                <option value="2" selected="selected">集中开启</option>
+                            }
+                        }
+
+                    </select>
+                </td>
+                <td class="td">打印小票汇总</td>
+                <td class="td">
+                    <select class="easyui-combobox" id="PrintSumOpion" style="width:150px;">
+                        @if (ViewData["PrintSumOpion"] != null)
+                        {
+                            SelfhelpOrderMgr.Model.T_SHO_ManagerSet rect = ViewData["PrintSumOpion"] as SelfhelpOrderMgr.Model.T_SHO_ManagerSet;
+                            if (rect.MgrValue == "1")
+                            {
+                                <option value="1" selected="selected">是</option>
+                                <option value="0">否</option>
+                            }
+                            else
+                            {
+                                <option value="1">是</option>
+                                <option value="0" selected="selected">否</option>
+                            }
+                        }
+
+                    </select>
+                </td>
+
+                <td class="td">验证库存</td>
+                <td class="td">
+                    <select class="easyui-combobox" id="YanZhenKCL" style="width:150px;">
+                        @if (ViewData["YanZhenKCL"] != null)
+                        {
+                            SelfhelpOrderMgr.Model.T_SHO_ManagerSet rect = ViewData["YanZhenKCL"] as SelfhelpOrderMgr.Model.T_SHO_ManagerSet;
+                            if (rect.MgrValue == "1")
+                            {
+                                <option value="1" selected="selected">是</option>
+                                <option value="0">否</option>
+                            }
+                            else
+                            {
+                                <option value="1">是</option>
+                                <option value="2" selected="selected">否</option>
+                            }
+                        }
+
+                    </select>
+                </td>
+
+            </tr>
+            <tr>
+                <td class="td">每次开启用</td>
+                <td class="td">
+                    @if (ViewData["OpenMode"] != null)
+                    {
+                        SelfhelpOrderMgr.Model.T_SHO_ManagerSet start = ViewData["OpenMode"] as SelfhelpOrderMgr.Model.T_SHO_ManagerSet;
+                        <input class="easyui-numberbox" value="@start.MgrValue" data-options="min:1,max:10,precision:0" id="OpenModeHour" style="width:150px">
+                    }
+
+                </td>
+
+                <td class="td">自动打印小票</td>
+                <td class="td">
+                    <select class="easyui-combobox" id="PrintXiaoPiao" style="width:150px;">
+                        @if (ViewData["PrintXiaoPiao"] != null)
+                        {
+                            SelfhelpOrderMgr.Model.T_SHO_ManagerSet rect = ViewData["PrintXiaoPiao"] as SelfhelpOrderMgr.Model.T_SHO_ManagerSet;
+                            if (rect.MgrValue == "1")
+                            {
+                                <option value="1" selected="selected">是</option>
+                                <option value="0">否</option>
+                            }
+                            else
+                            {
+                                <option value="1">是</option>
+                                <option value="0" selected="selected">否</option>
+                            }
+                        }
+
+                    </select>
+
+                </td>
+
+                <td class="td"></td>
+                <td class="td"></td>
+            </tr>
+
+            <tr class="tr"><th colspan="2" class="td">商品图片导入格式</th><th colspan="2" class="td">结算时Checkflag值</th><th colspan="2" class="td">系统关机密码</th></tr>
+
+            <tr>
+                <td class="td">导入模式</td>
+                <td class="td">
+                    <select class="easyui-combobox" id="ImgDRGS_Mode" style="width:150px;">
+                        @if (ViewData["ImgDRGS"] != null)
+                        {
+                            SelfhelpOrderMgr.Model.T_SHO_ManagerSet rect = ViewData["ImgDRGS"] as SelfhelpOrderMgr.Model.T_SHO_ManagerSet;
+                            if (rect.KeyMode == 1)
+                            {
+                                <option value="1" selected="selected">品名模式</option>
+                                <option value="0">简码模式</option>
+                            }
+                            else
+                            {
+                                <option value="1">品名模式</option>
+                                <option value="0" selected="selected">简码模式</option>
+                            }
+                        }
+
+                    </select>
+                </td>
+
+                <td class="td">Checkflag值</td>
+                <td class="td">
+                    <select class="easyui-combobox" id="JsVcrdCheckFlag" style="width:150px;">
+                        @if (ViewData["JsVcrdCheckFlag"] != null)
+                        {
+                            SelfhelpOrderMgr.Model.T_SHO_ManagerSet rect = ViewData["JsVcrdCheckFlag"] as SelfhelpOrderMgr.Model.T_SHO_ManagerSet;
+                            if (rect.MgrValue == "-1")
+                            {
+                                <option value="-1" selected="selected">配货后银行扣款</option>
+                                <option value="0">自动银行扣款</option>
+                            }
+                            else
+                            {
+                                <option value="-1">配货后银行扣款</option>
+                                <option value="0" selected="selected">自动银行扣款</option>
+                            }
+                        }
+
+                    </select>
+                </td>
+
+                <td class="td">关机密码</td>
+                <td class="td">
+                    @if (ViewData["ExitSystemPwd"] != null)
+                    {
+                        SelfhelpOrderMgr.Model.T_SHO_ManagerSet start = ViewData["ExitSystemPwd"] as SelfhelpOrderMgr.Model.T_SHO_ManagerSet;
+                        <input class="easyui-numberbox" value="@start.MgrValue" data-options="min:1,precision:0" id="ExitSystemPwd" style="width:150px">
+                    }
+
+                </td>
+            </tr>
+            <tr>
+                <td class="td">图片类型</td>
+                <td class="td">
+                    <select class="easyui-combobox" id="ImgDRGS_Format" style="width:150px;">
+                        @if (ViewData["ImgDRGS"] != null)
+                        {
+                            SelfhelpOrderMgr.Model.T_SHO_ManagerSet rect = ViewData["ImgDRGS"] as SelfhelpOrderMgr.Model.T_SHO_ManagerSet;
+                            if (rect.MgrValue == "jpg")
+                            {
+                                <option value="jpg" selected="selected">jpg格式</option>
+                                <option value="png">png格式</option>
+                            }
+                            else
+                            {
+                                <option value="jpg">jpg格式</option>
+                                <option value="png" selected="selected">png格式</option>
+                            }
+                        }
+
+                    </select>
+                </td>
+
+                <td class="td"></td>
+                <td class="td"></td>
+                <td class="td"></td>
+                <td class="td"></td>
+            </tr>
+            
+        </table>
+        <div>
+            <a id="btn" href="#" onclick="SaveInfo()" class="easyui-linkbutton" data-options="iconCls:'icon-save'">保存</a>
+
+        </div>
+    </div>
+  
+
+    
+    <script type="text/javascript">
+        function SaveInfo() {
+
+            $.post("/Super/SaveOpenComputerMode", {
+                "OpenMode": $("#OpenMode").combobox('getValue'),
+                "OpenModeName": $("#OpenMode").combobox('getText'),
+                "OpenModeHour": $("#OpenModeHour").numberbox('getValue'),
+                "PrintSumOpion": $("#PrintSumOpion").combobox('getValue'),
+                "PrintXiaoPiao": $("#PrintXiaoPiao").combobox('getValue'),
+                "YanZhenKCL": $("#YanZhenKCL").combobox('getValue'),
+                "ImgDRGS_Mode": $("#ImgDRGS_Mode").combobox('getValue'),
+                "ImgDRGS_Format": $("#ImgDRGS_Format").combobox('getValue'),
+                "JsVcrdCheckFlag": $("#JsVcrdCheckFlag").combobox('getValue'),
+                "ExitSystemPwd": $("#ExitSystemPwd").numberbox('getValue') 
+            }, function (data, status) {
+                if ("success" != status) {
+                    return false;
+                } else {
+                    $.messager.alert('提示', data);
+                }
+            });
+        }
+    </script>
+</body>
+</html>

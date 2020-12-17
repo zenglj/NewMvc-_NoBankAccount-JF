@@ -1,0 +1,133 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <title>后台管理系统</title>
+
+    <!-- Bootstrap -->
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Content/bootstrap-select.min.css" rel="stylesheet" />
+    <link href="~/Content/bootstrap-datetimepicker.min.css" rel="stylesheet" />
+    <link href="~/Content/bootstrap-table.min.css" rel="stylesheet" />
+    <link href="~/Content/MyCss/searchArea.css" rel="stylesheet" />
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://cdn.bootcss.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <link href="~/Content/MyCss/bg_Image.css" rel="stylesheet" />
+</head>
+<body>
+    <div>
+        @*<div id="topImage">
+            <img src="/Content/images/MeetRecordManager.jpg" style="width:100%;" />
+        </div>*@
+        <div class="bg_topDiv">
+            @*<img src="~/Content/images/SelfOrderManager1.jpg" />*@
+            <div class="row">
+                <div class="col-sm-10"></div>
+                <div class="col-sm-2">
+                    <div>
+                        <div style="height:40px;"></div>
+                        <div>
+                            <a class="btn btn-link" href="/Message/Index"><span class="glyphicon glyphicon-envelope colorWhite" aria-hidden="true"> 通知消息(New)</span></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <nav class="navbar navbar-default">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <div class="col-sm-2"></div>
+                    <a class="navbar-brand" href="/SuperMarket/Index">消费管理平台</a>
+                </div>                
+
+                <!-- Collect the nav links, forms, and other content for toggling -->
+                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                    <ul class="nav navbar-nav" id="topMenu">
+                        @*<li><a href="/Message/Index">会见通知 <span class="sr-only">(current)</span></a></li>*@
+                        @if (ViewData["CtrName"] != null)
+                        {
+                            switch (ViewData["CtrName"].ToString())
+                            {
+                                case "Message":
+                                    {
+                                        <li id="topMenu_01" class="active">@Html.ActionLink("发布通知", "PublishMessage", "Message")</li>
+                                        @*<li id="topMenu_02">@Html.ActionLink("带犯管理", "Index", "BringCriminal")</li>*@
+                                        <li id="topMenu_03">@Html.ActionLink("后台管理", "Index", "Admin")</li>
+                                    } break;
+                                case "BringCriminal":
+                                    {
+                                        <li id="topMenu_01">@Html.ActionLink("发布通知", "PublishMessage", "Message")</li>
+                                        @*<li id="topMenu_02" class="active">@Html.ActionLink("带犯管理", "Index", "BringCriminal")</li>*@
+                                        <li id="topMenu_03">@Html.ActionLink("后台管理", "Index", "Admin")</li>
+                                    } break;
+                                case "Admin":
+                                    {
+                                        <li id="topMenu_01">@Html.ActionLink("发布通知", "PublishMessage", "Message")</li>
+                                        @*<li id="topMenu_02">@Html.ActionLink("带犯管理", "Index", "BringCriminal")</li>*@
+                                        <li id="topMenu_03" class="active">@Html.ActionLink("后台管理", "Index", "Admin")</li>
+                                    } break;
+
+                            }
+                        }
+                        else
+                        {
+                            <li id="topMenu_01" class="active">@Html.ActionLink("发布通知", "PublishMessage", "Message")</li>
+                            <li id="topMenu_02">@*@Html.ActionLink("带犯管理", "Index", "BringCriminal")*@</li>
+                            <li id="topMenu_03">@Html.ActionLink("后台管理", "Index", "SuperMarket")</li>
+                            <li id="topMenu_04">@*@Html.ActionLink("窗口重排", "Index", "DoorCheck")*@</li>
+                            <li id="topMenu_09">@Html.ActionLink("自助网购", "Index", "Home")</li>
+
+                        }
+
+
+                    </ul>
+
+                    <ul class="nav navbar-nav navbar-right">
+                        <li><a href="#">注册</a></li>
+                        <li>@Html.ActionLink("登录", "Index", "Login")</li>
+                    </ul>
+                </div><!-- /.navbar-collapse -->
+            </div><!-- /.container-fluid -->
+        </nav>
+
+        <div id="site-navbar" style="position: absolute; top: -4px; left: -3px; border: 0; z-index: 2000;padding:0;margin:0;"><a href="/Default" title="返回首页" style="background:none;"><img src="/Content/images/return-back.png" style="padding:0;margin:0;border:0; -webkit-box-shadow: none;-moz-box-shadow: none;box-shadow: none;"></a></div>
+
+    </div>
+    <div>
+        @RenderBody()
+    </div>
+
+ 
+
+
+
+
+    <script src="~/Scripts/jquery-1.11.3.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <script src="~/Scripts/bootstrap-select.min.js"></script>
+    <script src="~/Scripts/select-defaults-zh_CN.min.js"></script>
+    <script src="~/Scripts/bootstrap-datetimepicker.min.js"></script>
+    <script src="~/Scripts/bootstrap-datetimepicker.zh-CN.js"></script>
+    <script src="~/Scripts/bootstrap-table.min.js"></script>
+    <script src="~/Scripts/bootstrap-table-toolbar.js"></script>
+    <script src="~/Scripts/bootstrap-table-export.js"></script>
+    <script src="~/Scripts/bootstrap-table-filter-control.js"></script>
+    <script src="~/Scripts/myJs/commonJs.js"></script>
+    <script src="~/Scripts/jquery-confirm.js"></script>
+    <script src="~/Scripts/jquery.form.js"></script>
+    <script src="/Scripts/myJs/NewLayout/TopMenuSetting.js"></script>
+
+</body>
+</html>

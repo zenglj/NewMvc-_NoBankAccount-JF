@@ -1,0 +1,73 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>ICCardManager</title>
+    @{Html.RenderPartial("~/Views/Shared/_PartialHeadPage.cshtml");}
+</head>
+<body class="easyui-layout">
+    <object id=MWRFATL style="WIDTH: 0px; HEIGHT: 0px"
+            codebase=eyeFZ.cab#version =1,0,0,1
+            classid=CLSID:CD851DCA-5D3C-4DA9-A0F7-DE018FDC0A7F></object> @*加载数明华读卡器控件*@
+    <div data-options="region:'center',title:'用户列表'" style="padding:5px;">
+        <div style="height:250px;">
+            <table id="test"></table>
+        </div>
+        <div class="easyui-panel" title="IC卡列表" data-options="iconCls:'icon-edit'" style="height:200px;padding:10px;background:#fafafa;">
+            <table id="ICCardList" class="easyui-datagrid"></table>
+        </div>
+
+
+    </div>
+    <div  data-options="region:'east',title:'',split:true" style="width:300px;">
+        <div data-options="region:'north',title:'North Title',split:true" style="height:200px;">
+            <form method="post">
+                <table id="crimeSearch">
+                    <tr>
+                        <th align="right">编号：</th>
+                        <td align="left">
+                            <input id="fCrimeCode" name="fCrimeCode" class="easyui-validatebox" style="width:190px;" data-options="required:true,validType:'text'" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">姓名：</th>
+                        <td align="left">
+                            <input id="fCrimeName" name="fCrimeName" class="easyui-validatebox" style="width:190px;" data-options="required:true,validType:'text'" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">队别：</th>
+                        <td align="left">
+                            <select id="cc" name="fAreaName" class="easyui-combobox" style="width:190px;">
+                                <option value="">请选择队别</option>
+                                @if (ViewData["areas"] != null)
+                                {
+                                    foreach (SelfhelpOrderMgr.Model.T_AREA item in ViewData["areas"] as List<SelfhelpOrderMgr.Model.T_AREA>)
+                                    {
+                                        <option value="@item.FCode">@item.FName</option>
+                                    }
+                                }
+                            </select>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th align="right"></th>
+                        <td align="right"><a id="btn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-search'" onclick="FilterSearch()">查询</a><a id="A1" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-redo'" onclick="clearSearch()">清空</a></td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+
+    </div>
+    @*<script src="~/Scripts/myJs/minghuaICcardCommon.js"></script>*@
+    <script src="~/Scripts/myJs/commonJs.js"></script>
+    <script src="~/Scripts/myJs/ICCardManager.js"></script>
+</body>
+</html>

@@ -1,0 +1,594 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>人员调整列表</title>
+
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Content/bootstrap-select.min.css" rel="stylesheet" />
+    <link href="~/Content/bootstrap-datetimepicker.min.css" rel="stylesheet" />
+    <link href="~/Content/bootstrap-table.min.css" rel="stylesheet" />
+    <link href="~/Content/MyCss/searchArea.css" rel="stylesheet" />
+</head>
+
+<body>
+    
+    <h4 class="text-center">人员调动申请</h4>
+    <div class="col-lg-12">
+        <div class="searctform" style="margin-top:15px; padding:0px 15px 10px; border:1px solid #ccc;">
+            <table class="search-area">
+                <tr>
+                    <th>犯人编号：</th>
+                    <td><input type="text" class="form-control" id="code" placeholder="请输入犯人编号"></td>
+                    <th style="padding-left:20px;">犯人名称：</th>
+                    <td><input type="text" class="form-control" id="name" placeholder="请输入犯人名称"></td>
+                    <th style="padding-left:20px;">所属中队：</th>
+                    <td>
+                        <select class="selectpicker " title="请选择所属中队" data-live-search="true" data-size="5">
+                            <option>一中队</option>
+                            <option>二中队</option>
+                            <option>三中队</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th>起始时间：</th>
+                    <td>
+                        <a class='input-group date' id='datetimepicker2' style="float:left;">
+                            <input type='text' class="form-control" id='nowdate' style="width: 150px; height: 30px;" />
+                            <span class="input-group-addon" style="float: left; width: 50px; height: 30px;">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </a>
+                    </td>
+                    <th style="padding-left:20px;">结束时间：</th>
+                    <td>
+                        <a class='input-group date' id='datetimepicker3' style="float:left;">
+                            <input type='text' class="form-control" id='nowdate' style="width: 150px; height: 30px;" />
+                            <span class="input-group-addon" style="float: left; width: 50px; height: 30px;">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </a>
+                    </td>
+                    <th>
+                    <td>
+                        <select class="form-control">
+                            <option value="1" selected="selected">全部</option>
+                            <option value="2">待审核</option>
+                            <option value="9">已完成</option>
+                            <option value="0">待提交</option>
+                        </select>
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-default" style="margin-left:20px;" id="s">搜索</button>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <div>
+
+            <div class="row" style="padding:10px 0px;">
+                <div class="col-sm-6">
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addPup">添加申请单</button>
+                    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#auditPup">申请单审核</button>
+                </div>
+                <div class="col-sm-1"><label>申请进度:</label></div>
+                <div class="col-sm-5">
+                    <div class="progress" style=" height:28px;" id="OrderStatusProgress">
+
+                        <div class="progress-bar progress-bar-striped" role="progressbar"
+                             aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"
+                             style="width: 0%; font-size: 16px; line-height: 28px; ">
+
+                            <span class="sr-only">66.66%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @*<table class="table text-center table-hover table-striped">
+                <caption>人员调整列表</caption>
+                <thead>
+                    <tr>
+                        <th class="text-center">申请编号</th>
+                        <th class="text-center">申请人</th>
+                        <th class="text-center">人数</th>
+                        <th class="text-center">调价单状态</th>
+                        <th class="text-center">申请时间</th>
+                        <th class="text-center">审核时间</th>
+                        <th class="text-center">备注</th>
+                        <th class="text-center">编辑</th>
+                    </tr>
+
+                </thead>
+                <tbody>
+                    <tr id="rd01" onclick="SetPriceChangeStatus('待提交',20)">
+                        <td>1</td>
+                        <td>一中队</td>
+                        <td>20</td>
+                        <td>待提交</td>
+                        <td>2018-06-26 17:57:21</td>
+                        <td></td>
+                        <td>XXXXXXXXXXXXXXXXXXXXX</td>
+                        <td>
+                            <button type="button" class="btn btn-link">审批</button>
+                            <button type="button" class="btn btn-link">提交</button>
+                            <button type="button" class="btn btn-link" data-toggle="modal" data-target="#detail">详情</button>
+                            <button type="button" class="btn btn-link">删除</button>
+                        </td>
+                    </tr>
+                    <tr id="rd02" onclick="SetPriceChangeStatus('审批已完成', 100)">
+                        <td>2</td>
+                        <td>五中队</td>
+                        <td>15</td>
+                        <td><b><span class="label label-success">审批已完成</span></b></td>
+                        <td>2018-06-26 17:57:21</td>
+                        <td>2018-06-26 17:57:21</td>
+                        <td>XXXXXXXXXXXXXXXXXXXXX</td>
+                        <td>
+                            <button type="button" class="btn btn-link" disabled="">审批</button>
+                            <button type="button" class="btn btn-link" disabled="">退回</button>
+                            <button type="button" class="btn btn-link" data-toggle="modal" data-target="#detail">详情</button>
+                            <button type="button" class="btn btn-link" disabled="">删除</button>
+                        </td>
+                    </tr>
+                    <tr id="rd03" onclick="SetPriceChangeStatus('待生卫科审核', 60)">
+                        <td>3</td>
+                        <td>十一中队</td>
+                        <td>8</td>
+                        <td><b><span class="label label-primary">待生卫科审核</span></b></td>
+                        <td>2018-06-26 17:57:21</td>
+                        <td>2018-06-26 17:57:21</td>
+                        <td>XXXXXXXXXXXXXXXXXXXXX</td>
+                        <td>
+                            <button type="button" class="btn btn-link">审批</button>
+                            <button type="button" class="btn btn-link">退回</button>
+                            <button type="button" class="btn btn-link" data-toggle="modal" data-target="#detail">详情</button>
+                            <button type="button" class="btn btn-link" disabled="">删除</button>
+                        </td>
+                    </tr>
+
+                    
+                </tbody>
+            </table>*@
+            <table class="table text-center">
+                @*<caption>人员调整列表</caption>*@
+                <thead>
+                    <tr>
+                        <th class="text-center">序号</th>
+                        <th class="text-center">犯人编号</th>
+                        <th class="text-center">犯人姓名</th>
+                        <th class="text-center">申请状态</th>
+                        <th class="text-center">调整前队别</th>
+                        <th class="text-center">调整前处遇</th>
+                        <th class="text-center">调整后队别</th>
+                        <th class="text-center">调整后处遇</th>
+                        <th class="text-center">申请时间</th>
+                        <th class="text-center">编辑</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr id="rd01" onclick="SetPriceChangeStatus('管理科审核', 60)">
+                        <td>1</td>
+                        <td>3501000029</td>
+                        <td>段延庆</td>
+                        <td><b><span class="label label-primary">待管理科审核</span></b></td>
+                        <td>一中队</td>
+                        <td>普管</td>
+                        <td>三中队</td>
+                        <td>宽管</td>
+                        <td>2018-06-26 17:57:21</td>
+                        <td>
+                            <button type="button" class="btn btn-link">退回</button>
+                            <button type="button" class="btn btn-link" data-toggle="modal" data-target="#detail">编辑</button>
+                            <button type="button" class="btn btn-link">删除</button>
+                        </td>
+                    </tr>
+                    <tr id="rd02" onclick="SetPriceChangeStatus('大队审核', 30)">
+                        <td>2</td>
+                        <td>3501000026</td>
+                        <td>云中鹤</td>
+                        <td><b><span class="label label-default">待大队审核</span></b></td>
+                        <td>一中队</td>
+                        <td>普管</td>
+                        <td>三中队</td>
+                        <td>宽管</td>
+                        <td>2018-06-26 17:57:21</td>
+                        <td>
+                            <button type="button" class="btn btn-link">退回</button>
+                            <button type="button" class="btn btn-link" data-toggle="modal">编辑</button>
+                            <button type="button" class="btn btn-link">删除</button>
+                        </td>
+                    </tr>
+                    <tr id="rd03" onclick="SetPriceChangeStatus('已审核完成', 100)">
+                        <td>3</td>
+                        <td>3501000022</td>
+                        <td>南海鳄神</td>
+                        <td><b><span class="label label-success">已审核完成</span></b></td>
+                        <td>一中队</td>
+                        <td>普管</td>
+                        <td>三中队</td>
+                        <td>宽管</td>
+                        <td>2018-06-26 17:57:21</td>
+                        <td>
+                            <button type="button" class="btn btn-link">退回</button>
+                            <button type="button" class="btn btn-link" data-toggle="modal">编辑</button>
+                            <button type="button" class="btn btn-link">删除</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="text-right">
+                <nav aria-label="Page navigation text-right">
+                    <ul class="pagination">
+                        <li>
+                            <a href="#" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                        <li><a href="#">1</a></li>
+                        <li><a href="#">2</a></li>
+                        <li><a href="#">3</a></li>
+                        <li><a href="#">4</a></li>
+                        <li><a href="#">5</a></li>
+                        <li>
+                            <a href="#" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+
+    </div>
+
+    <!--详情页-->
+
+    
+    <div class="modal fade" id="detail" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document" style="width:800px">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="myModalLabel">人员调动详情</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="progress" style=" height:28px;" id="OrderDetailStatus">
+                        <div class="progress-bar progress-bar-striped" role="progressbar"
+                             aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"
+                             style="width: 0%; font-size: 16px; line-height: 28px; ">
+
+                            <span class="sr-only">66.66%</span>
+                        </div>
+                    </div>
+
+
+
+                    <div id="prisonInfoForm" style=" padding: 15px; border: 1px solid #ccc;">
+                        <table class="search-area">
+                            <tr>
+                                <th>犯人编号：</th>
+                                <td>1111111111</td>
+                                <th>犯人名称：</th>
+                                <td>XXX</td>
+
+                            </tr>
+                            <tr>
+                                <th>调整前队别：</th>
+                                <td>一中队</td>
+                                <th>调整前处遇：</th>
+                                <td>普管级</td>
+                            </tr>
+                            <tr>
+                                <th>调整前队别：</th>
+                                <td>
+                                    <select class=" selectpicker " title="请选择所属中队" data-live-search="true" data-size="5">
+                                        <option selected="selected">一中队</option>
+                                        <option>二中队</option>
+                                        <option>三中队</option>
+                                    </select>
+                                </td>
+                                <th>调整前处遇：</th>
+                                <td>
+                                    <select class="form-control selectpicker " title="请选择处遇" data-live-search="true" data-size="5">
+                                        <option selected="selected">普管</option>
+                                        <option>严管</option>
+                                        <option>宽管</option>
+                                    </select>
+                                </td>
+
+                            </tr>
+                            <tr>
+                                <th>申请时间：</th>
+                                <td>2018-06-26 17:57:21</td>
+                                <th>申请状态：</th>
+                                <td>待管理科审核</td>
+                            </tr>
+                        </table> 
+                        
+
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-primary">确定</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal -->
+    </div>
+
+
+    <!--添加页-->
+    
+    <div class="modal fade" id="addPup" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document" style="width:800px">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="myModalLabel">添加人员调动</h4>
+                </div>
+                <div class="modal-body">
+                    <div style="padding-bottom:10px;">
+                        <label for="code">犯人编号：</label>
+                        <input type="text" class="form-control" id="code" style="width:150px; display:inline-block;" placeholder="请输入犯人编号">
+                        <button type="button" class="btn btn-default">确定</button>
+                    </div>
+                    <div id="addPrisonInfoForm" style=" padding: 15px; border: 1px solid #ccc;">
+                        <table class="search-area">
+                            <tr>
+                                <th>犯人编号：</th>
+                                <td>1111111111</td>
+                                <th>犯人名称：</th>
+                                <td>XXX</td>
+                            </tr>
+                            <tr>
+                                <th>调整前队别：</th>
+                                <td>一中队</td>
+                                <th>调整前处遇：</th>
+                                <td>普管级</td>
+                            </tr>
+                            <tr>
+                                <th>调整前队别：</th>
+                                <td>
+                                    <select class=" selectpicker " title="请选择所属中队" data-live-search="true" data-size="5">
+                                        <option selected="selected">一中队</option>
+                                        <option>二中队</option>
+                                        <option>三中队</option>
+                                    </select>
+                                </td>
+                                <th>调整前处遇：</th>
+                                <td>
+                                    <select class="form-control selectpicker " title="请选择处遇" data-live-search="true" data-size="5">
+                                        <option selected="selected">普管</option>
+                                        <option>严管</option>
+                                        <option>宽管</option>
+                                    </select>
+                                </td>
+
+                            </tr>
+                            <tr>
+                                <th>申请时间：</th>
+                                <td>
+                                    <a class='input-group date' id='datetimepicker5' style="float:left;">
+                                        <input type='text' class="form-control" id='nowdate' style="width: 150px; height: 30px;" />
+                                        <span class="input-group-addon" style="float: left; width: 50px; height: 30px;">
+                                            <span class="glyphicon glyphicon-calendar"></span>
+                                        </span>
+                                    </a>
+                                </td>
+                                <th></th>
+                                <td></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary">添加</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div>
+
+    </div>
+
+
+    <!--审核页-->
+
+
+    <!-- Modal -->
+    <div class="modal fade" id="auditPup" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document" style="width:1000px;">
+            
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">申请单审核</h4>
+                </div>
+                <div class="modal-body">
+                    <div id="toolbar11" class="form-inline">
+                        <label for="SHRemark">审核意见:</label>
+                        <input id="SHRemark" value="" class="form-control" style=" width:60%;" />
+                        <button type="button" class="btn btn-primary" onclick="SetEditMode()"><i class="fa fa-edit"></i> 审核（Audit）</button>
+
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <table id="tb"></table>
+                        </div>
+                        <div class="col-sm-1 text-center">
+                            <div class="text-center">
+                                <br />
+                                <div class="form-group">
+
+                                    <select id="selAuditRst" class="form-control " style=" width:80px;" title="请选择意见" data-live-search="true" data-size="5">
+                                        <option value="8">通过</option>
+                                        <option value="11">驳回</option>
+                                    </select>
+
+                                </div>
+                                <button type="button" class="btn btn-primary" onclick="joinMeetPC()">加入》》</button>
+                                <br />
+                                <button type="button" class="btn btn-danger" onclick="leaveMeetPC()">《《移走</button>
+                                <br />
+                                <button type="button" class="btn btn-info" onclick="moveUpMeetPC()">全加》》</button>
+                                <br />
+                                <button type="button" class="btn btn-success" onclick="moveNextMeetPC()">《《全清</button>
+                            </div>
+                            
+                        </div>
+                        <div class="col-sm-5">
+                            <table id="tbSelectMeets"></table>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭(Close)</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+</body>
+</html>
+<script src="~/Scripts/jquery-1.11.3.min.js"></script>
+@*<script src="~/Scripts/EasyUI/jquery.min.js"></script>*@
+<script src="~/Scripts/EasyUI/jquery.easyui.min.js"></script>
+<script src="~/Scripts/EasyUI/locale/easyui-lang-zh_CN.js"></script>
+<script src="~/Scripts/bootstrap.min.js"></script>
+<script src="~/Scripts/bootstrap-select.min.js"></script>
+<script src="~/Scripts/select-defaults-zh_CN.min.js"></script>
+<script src="~/Scripts/bootstrap-datetimepicker.min.js"></script>
+<script src="~/Scripts/bootstrap-datetimepicker.zh-CN.js"></script>
+<script src="~/Scripts/bootstrap-table.min.js"></script>
+<script src="~/Scripts/bootstrap-table-toolbar.js"></script>
+<script src="~/Scripts/bootstrap-table-export.js"></script>
+<script src="~/Scripts/bootstrap-table-filter-control.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#goodInfoForm").hide();
+
+        $("#s").click(function () {
+            $("#goodInfoForm").show();
+        });
+
+        $("#b").click(function () {
+            $("#goodInfoForm").hide();
+        });
+
+        $('.date').datetimepicker({
+            language: 'zh-CN',//显示中文
+            format: 'yyyy-mm-dd',//显示格式
+            minView: "month",//设置只显示到月份
+            initialDate: new Date(),//初始化当前日期
+            autoclose: true,//选中自动关闭
+            todayBtn: true//显示今日按钮
+        });
+
+        $('.date').datetimepicker({
+            language: 'zh-CN',//显示中文
+            format: 'yyyy-mm-dd',//显示格式
+            minView: "month",//设置只显示到月份
+            initialDate: new Date(),//初始化当前日期
+            autoclose: true,//选中自动关闭
+            todayBtn: true//显示今日按钮
+        });
+
+        var $table = $('#tb').bootstrapTable({
+            columns: [
+                { field: 'FCode', title: '编号', align: 'center', valign: 'middle', width: 100, sortable: true },
+                { field: 'FName', title: '姓名', align: 'center', valign: 'middle', width: 150, sortable: true },
+                {
+                    field: 'FArea', title: '所在队别', align: 'center', valign: 'middle', width: 100, visible: false, sortable: true
+                },
+                { field: 'FCy', title: '处遇等级', align: 'center', valign: 'middle', width: 100, visible: false, sortable: true },
+                { field: 'NewArea', title: '调往队别', align: 'center', valign: 'middle', width: 100, sortable: true },
+                { field: 'NewCy', title: '调新处遇', align: 'center', valign: 'middle', width: 100, sortable: true },
+                { field: 'FResult', title: '审核结果', align: 'center', valign: 'middle', width: 200, visible: false, sortable: true }
+
+            ],
+            //url: "/NewCriminal/GetAreaInfoStr",
+            data: dataInfo,
+            uniqueId: "FCode",
+            //toolbar: "#toolbar",
+            //search: true,
+            striped: true,
+            pagination: true,
+            //height: 260,
+            pageSize: 4,                       //每页的记录行数（*）
+            pageList: [4, 10, 20],        //可供选择的每页的行数（*）
+            clickToSelect: true,                //是否启用点击选中行
+            //showExport: true,                     //是否显示导出
+            exportDataType: "all",              //basic', 'all', 'selected'.
+            onClickRow: function (row) {
+                //roleRowEdit(row, false);//显示该行相应的数据
+            }
+
+        });
+
+
+        var $table = $('#tbSelectMeets').bootstrapTable({
+            columns: [
+                { field: 'FCode', title: '编号', align: 'center', valign: 'middle', width: 100, sortable: true },
+                { field: 'FName', title: '姓名', align: 'center', valign: 'middle', width: 150, sortable: true },
+                {
+                    field: 'FArea', title: '所在队别', align: 'center', valign: 'middle', width: 200, visible: false, sortable: true
+                },
+                { field: 'FCy', title: '处遇等级', align: 'center', valign: 'middle', width: 100, visible: false, sortable: true },
+                { field: 'NewArea', title: '调往队别', align: 'center', valign: 'middle', width: 100, visible: false, sortable: true },
+                { field: 'NewCy', title: '调新处遇', align: 'center', valign: 'middle', width: 100, visible: false, sortable: true },
+                { field: 'FResult', title: '审核结果', align: 'center', valign: 'middle', width: 200, visible: true, sortable: true }
+
+            ],
+            //url: "/NewCriminal/GetAreaInfoStr",
+            data: dataInfo,
+            uniqueId: "FCode",
+            //toolbar: "#toolbar",
+            //search: true,
+            striped: true,
+            pagination: true,
+            //height: 260,
+            pageSize: 4,                       //每页的记录行数（*）
+            pageList: [4, 10, 20],        //可供选择的每页的行数（*）
+            clickToSelect: true,                //是否启用点击选中行
+            //showExport: true,                     //是否显示导出
+            exportDataType: "all",              //basic', 'all', 'selected'.
+            onClickRow: function (row) {
+                //roleRowEdit(row, false);//显示该行相应的数据
+            }
+
+        });
+
+        
+    });
+
+    function SetPriceChangeStatus(statusText, progressValue) {
+        //alert(progressValue);
+        var prs = "<div class='progress-bar progress-bar-striped' role='progressbar'"
+        + "  aria-valuenow='60' aria-valuemin='0' aria-valuemax='100'"
+        + " style='width: " + progressValue + "%; font-size: 16px; line-height: 28px; '>" + statusText + ""
+        + " <span class='sr-only'>66.66%</span></div>";
+        $("#OrderStatusProgress").html(prs);
+        $("#OrderDetailStatus").html(prs);
+
+    }
+
+    var dataInfo = [{ "FCode": "3501000021", "FName": "鸠摩智", "FArea": "一中队", "FCy": "普管级", "NewArea": "三中队", "NewCy": "普管级", "FResult": "" },
+{ "FCode": "3501000055", "FName": "慕容复", "FArea": "一中队", "FCy": "普管级", "NewArea": "三中队", "NewCy": "普管级", "FResult": "" },
+{ "FCode": "3501000099", "FName": "段正淳", "FArea": "一中队", "FCy": "普管级", "NewArea": "三中队", "NewCy": "宽管级", "FResult": "" },
+{ "FCode": "3501000058", "FName": "段延庆", "FArea": "一中队", "FCy": "普管级", "NewArea": "三中队", "NewCy": "普管级", "FResult": "" },
+{ "FCode": "3501000061", "FName": "叶二娘", "FArea": "一中队", "FCy": "普管级", "NewArea": "三中队", "NewCy": "普管级", "FResult": "" },
+{ "FCode": "3501000062", "FName": "南海鳄神", "FArea": "一中队", "FCy": "普管级", "NewArea": "三中队", "NewCy": "宽管级", "FResult": "" },
+{ "FCode": "3501000063", "FName": "云中鹤", "FArea": "一中队", "FCy": "普管级", "NewArea": "三中队", "NewCy": "普管级", "FResult": "" }];
+</script>

@@ -1,0 +1,436 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>PrintOutArea</title>
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Content/PrintReportCss.css" rel="stylesheet" />
+</head>
+<body>
+    <div> 
+        <div class="page-header text-center">
+        @if (ViewData["roomNoFlag"] != null)
+        {
+            string roomNoFlag = ViewData["roomNoFlag"] as string;
+            if (roomNoFlag == "1")
+            {
+                <h1>商品配货表 <small>按房号进行统计清单</small></h1>
+            }
+            else if (roomNoFlag == "2")
+            {
+                <h1>商品配货表 <small>按消费机号进行统计</small></h1>
+            }
+            else if (roomNoFlag == "3")
+            {
+                <h1>商品配货表 <small>按个人打包进行统计</small></h1>
+            }
+            else if (roomNoFlag == "4")
+            {
+                <h1>商品配货表 <small>按单号打包进行统计</small></h1>
+            }
+            else if (roomNoFlag == "5")
+            {
+                <h1>商品配货表 <small>按单号汇总领货签字表</small></h1>
+            }
+            else
+            {
+                <h1>商品配货表 <small>按队别进行统计清单</small></h1>
+            }
+        }
+            
+        </div>
+        <div class="row">
+            <div class="col-sm-1"></div>
+            <div class="col-sm-10">
+                <table class="table table-condensed table-striped contentFontSize" >
+                    <thead>
+                        @if (ViewData["roomNoFlag"] != null)
+                        {
+                            string roomNoFlag = ViewData["roomNoFlag"] as string;
+                            if (roomNoFlag == "1")
+                            {
+                                <tr>                                    
+                                    <th>队别</th>
+                                    <th>房号</th>
+                                    <th>简码</th>
+                                    <th>品名</th>
+                                    <th>规格</th>
+                                    <th>单价</th>
+                                    <th>数量</th>
+                                    <th>金额</th>
+                                </tr>
+                            }
+                            else if (roomNoFlag == "2")
+                            {
+                                <tr>
+                                    <th>机号</th>
+                                    <th>简码</th>
+                                    <th>品名</th>
+                                    <th>规格</th>
+                                    <th>单价</th>
+                                    <th>数量</th>
+                                    <th>金额</th>
+                                </tr>
+                            }
+                            else if (roomNoFlag == "3")
+                            {
+                                <tr>
+                                    <th>队别</th>
+                                    <th>编号</th>
+                                    <th>简码</th>
+                                    <th>品名</th>
+                                    <th>单价</th>
+                                    <th>规格</th>
+                                    <th>条码</th>
+                                    <th>数量</th>
+                                    <th>金额</th>
+                                </tr>
+                            }
+                            else if (roomNoFlag == "4")
+                            {
+                                <tr>
+                                    <th>队别</th>
+                                    <th>单号</th>
+                                    <th>简码</th>
+                                    <th>品名</th>                                    
+                                    <th>规格</th>
+                                    <th>单价</th>
+                                    <th>条码</th>
+                                    <th>数量</th>
+                                    <th>金额</th>
+                                </tr>
+                            }
+                            else if (roomNoFlag == "5")
+                            {
+                                <tr>
+                                    <th>队别</th>
+                                    <th>编号</th>
+                                    <th>姓名</th>
+                                    <th>单号</th>
+
+                                    <th>金额</th>
+                                    <th>领货日期</th>
+                                    <th>签字</th>
+                                </tr>
+                            }
+                            else
+                            {
+                                <tr>
+                                    <th>序号</th>
+                                    <th>队别</th>
+                                    <th>简码</th>
+                                    <th>品名</th>
+                                    <th>规格</th>
+                                    <th>单价</th>
+                                    <th>数量</th>
+                                    <th>金额</th>
+                                </tr>
+                            }
+
+                        }
+
+                    </thead>
+                    <tbody>
+                        @if (ViewData["roomNoFlag"] != null)
+                        {
+                            string roomNoFlag = ViewData["roomNoFlag"] as string;
+                            if (roomNoFlag == "1")
+                            {
+                                if (ViewData["phds"] != null)
+                                {
+                                    decimal sumMoney = 0;
+                                    decimal groupMoney = 0;
+                                    string groupName = "";
+                                    int i = 0;
+                                    foreach (SelfhelpOrderMgr.Model.PeihuoDanPrintList phd in ViewData["phds"] as List<SelfhelpOrderMgr.Model.PeihuoDanPrintList>)
+                                    {
+                                        i++;
+                                        if (groupName != phd.RoomNo && i != 1)
+                                        {
+
+                                            <tr class="success">                                               
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td>小计</td>
+                                                <th>@groupMoney</th>
+                                            </tr>
+                                            groupMoney = 0;
+                                        }
+                                        groupName = phd.RoomNo;
+                                        sumMoney = sumMoney + phd.FMoney;
+                                        groupMoney = groupMoney + phd.FMoney;
+                                        <tr>                                            
+                                            <td>@phd.FAreaName</td>
+                                            <td>@phd.RoomNo</td>
+                                            <td>@phd.SPShortCode</td>
+                                            <td>@phd.GName</td>
+                                            <td>@phd.Remark</td>
+                                            <td>@phd.Gdj</td>
+                                            <td>@phd.FCount</td>
+                                            <th>@phd.FMoney</th>
+                                        </tr>
+                                        
+                                    }
+                                    <tr class="success">
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td>小计</td>
+                                        <th>@groupMoney</th>
+                                    </tr>
+                                    <tr class="danger">
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td>合计</td>
+                                        <th>@sumMoney</th>
+                                    </tr>
+                                    <tr>
+                                            <td colspan="2"><label>中队经办（签字）：</label> </td>
+                                            <td colspan="3"><label>发货人（签字）：</label> </td>
+                                            <td colspan="3"><label> 供货商（签字）：</label></td>
+
+                                        </tr>
+                                        <tr>
+                                            <td colspan="2"><label>供应站（签字）：</label> </td>
+                                            <td colspan="3"><label></label> </td>
+                                            <td colspan="3"><label>制表人：</label></td>
+
+                                   </tr>
+                                }
+                            }
+                            else if (roomNoFlag == "3")
+                            {
+                                if (ViewData["phds"] != null)
+                                {
+                                    decimal sumMoney = 0;
+                                    decimal groupMoney = 0;
+                                    string groupName = "";
+                                    int i = 0;
+                                    foreach (SelfhelpOrderMgr.Model.PeihuoDanPrintList phd in ViewData["phds"] as List<SelfhelpOrderMgr.Model.PeihuoDanPrintList>)
+                                    {
+                                        i++;
+                                        if (groupName != phd.FCrimeCode && i != 1)
+                                        {
+
+                                            <tr class="success">
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td>小计</td>
+                                                <th>@groupMoney</th>
+                                            </tr>
+                                            groupMoney = 0;
+                                        }
+                                        groupName = phd.FCrimeCode;
+                                        sumMoney = sumMoney + phd.FMoney;
+                                        groupMoney = groupMoney + phd.FMoney;
+                                        <tr>
+                                            <td>@phd.FAreaName</td>
+                                            <td>@phd.FCrimeCode</td>
+                                            <td>@phd.SPShortCode</td>
+                                            <td>@phd.GName</td>
+                                            <td>@phd.Remark</td>
+                                            <td>@phd.Gdj</td>
+                                            <td>@phd.FCount</td>
+                                            <th>@phd.FMoney</th>
+                                        </tr>
+
+                                    }
+                                    <tr class="success">
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td>小计</td>
+                                        <th>@groupMoney</th>
+                                    </tr>
+                                    <tr class="danger">
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td>合计</td>
+                                        <th>@sumMoney</th>
+                                    </tr>
+
+                                }
+                            }
+                            else if (roomNoFlag == "4")
+                            {
+                                if (ViewData["phds"] != null)
+                                {
+                                    decimal sumMoney = 0;
+                                    decimal groupMoney = 0;
+                                    string groupName = "";
+                                    int i = 0;
+                                    foreach (SelfhelpOrderMgr.Model.PeihuoDanPrintList phd in ViewData["phds"] as List<SelfhelpOrderMgr.Model.PeihuoDanPrintList>)
+                                    {
+                                        i++;
+                                        if (groupName != phd.InvoiceNo && i != 1)
+                                        {
+
+                                            <tr class="success">
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td>小计</td>
+                                                <th>@groupMoney</th>
+                                            </tr>
+                                            groupMoney = 0;
+                                        }
+                                        groupName = phd.InvoiceNo;
+                                        sumMoney = sumMoney + phd.FMoney;
+                                        groupMoney = groupMoney + phd.FMoney;
+                                        <tr>
+                                            <td>@phd.FAreaName</td>
+                                            <td>@phd.InvoiceNo</td>
+                                            <td>@phd.SPShortCode</td>
+                                            <td>@phd.GName</td>
+                                            <td>@phd.Remark</td>
+                                            <td>@phd.Gdj</td>
+                                            <td>@phd.FCount</td>
+                                            <th>@phd.FMoney</th>
+                                        </tr>
+
+                                    }
+                                    <tr class="success">
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td>小计</td>
+                                        <th>@groupMoney</th>
+                                    </tr>
+                                    <tr class="danger">
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td>合计</td>
+                                        <th>@sumMoney</th>
+                                    </tr>
+                                }
+                            }
+                            else if(roomNoFlag=="5")
+                            {
+                                if (ViewData["phds"] != null)
+                                {
+                                    decimal sumMoney = 0;
+                                    foreach (SelfhelpOrderMgr.Model.PeihuoDanPrintList phd in ViewData["phds"] as List<SelfhelpOrderMgr.Model.PeihuoDanPrintList>)
+                                    {
+                                        sumMoney = sumMoney + phd.FMoney;
+                                        <tr>
+                                            <td>@phd.FAreaName</td>
+                                            <td>@phd.FCrimeCode</td>
+                                            <td>@phd.FCriminal</td>
+                                            <td>@phd.InvoiceNo</td>
+                                            <td>@phd.FMoney</td>
+                                            <td>@phd.Gdj</td>
+                                            <td>@phd.Remark</td>
+                                            <th>@phd.SPShortCode</th>
+                                        </tr>
+
+                                    }
+                                    <tr class="danger">
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td>合计</td>
+                                        <td>@sumMoney</td>
+
+                                        <td></td>
+                                        <th></th>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                if (ViewData["phds"] != null)
+                                {
+                                    decimal sumMoney = 0;
+                                    int i=0;
+                                    foreach (SelfhelpOrderMgr.Model.PeihuoDanPrintList phd in ViewData["phds"] as List<SelfhelpOrderMgr.Model.PeihuoDanPrintList>)
+                                    {
+                                        i++;
+                                        sumMoney = sumMoney + phd.FMoney;
+                                        <tr>
+                                            <td>@i</td>
+                                            <td>@phd.FAreaName</td>
+                                            <td>@phd.SPShortCode</td>
+                                            <td>@phd.GName</td>
+                                            <td>@phd.Remark</td>
+                                            <td>@phd.Gdj</td>
+                                            <td>@phd.FCount</td>
+                                            <th>@phd.FMoney</th>
+                                        </tr>
+
+                                    }
+                                    <tr class="danger">
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td>合计</td>
+                                        <th>@sumMoney</th>
+                                    </tr>
+                                }
+                            }
+
+                        }
+                        <tr>
+                            <td colspan="2"><label>中队经办：</label> </td>
+                            <td colspan="3"><label></label> </td>
+                            <td colspan="3"><label> 供货商：</label></td>
+
+                        </tr>
+                        <tr>
+                            <td colspan="2"><label>供应站：</label> </td>
+                            <td colspan="3"><label></label> </td>
+                            <td colspan="3"><label>制表人：</label></td>
+
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-sm-1"></div>
+            
+        </div>
+    </div>
+    <script src="~/Scripts/jquery-1.11.3.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+</body>
+</html>

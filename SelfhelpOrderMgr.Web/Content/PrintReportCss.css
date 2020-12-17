@@ -1,0 +1,14 @@
+﻿
+/*中等字号*/
+.contentFontSize {
+    font-size:14px;
+}
+/*小字号*/
+.contentFontSizeSmall {
+    font-size:10px;
+}
+/*超小字号*/
+.contentFontSizeMicrSmall {
+    font-size:8px;
+}
+

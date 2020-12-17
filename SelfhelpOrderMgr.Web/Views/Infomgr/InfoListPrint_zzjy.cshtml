@@ -1,0 +1,108 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>InfoListPrint</title>
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Content/site.min.css" rel="stylesheet" />
+    <script src="~/Scripts/myJs/commonJs.js"></script>
+</head>
+<body>
+    
+    <div class="row">
+        <div class="col-md-2"></div>
+        <div class="col-md-8">
+            <h2 style="text-align:center">消费记录清单 </h2>
+            <hr />
+            <div>
+                <h4>统计区间：@ViewData["startDate"] ~ @ViewData["endDate"]</h4>
+                <table class="table table-striped table-bordered">
+                    <thead>                        
+                        <tr><th colspan="2">编号</th><th>姓名</th><th colspan="2">日期</th><th>金额</th><th colspan="2">摘要</th></tr>
+
+                    </thead>
+                    <tbody>
+                        @if (ViewData["lists"] != null)
+                        {
+                            //int i=1;
+                            foreach (SelfhelpOrderMgr.Model.t_XFQueryList list in ViewData["lists"] as List<SelfhelpOrderMgr.Model.t_XFQueryList>)
+                            {
+                                if(list.fname!="")
+                                { 
+                                    <tr>
+                                        <td colspan="2">@list.fcrimecode</td>
+                                        <td>@list.fname</td>
+                                        <td colspan ="2">@list.CDate</td>
+                                        <td>@list.Cmoney</td>
+                                        <td colspan ="2">@list.Dtype</td>
+                                    </tr>
+                                }
+                            }
+                        }
+                        
+                        @*@if (ViewData["lists"] != null)
+                        {
+                            //int i=1;
+                            foreach (SelfhelpOrderMgr.Model.t_XFQueryList ls in ViewData["lists"] as List<SelfhelpOrderMgr.Model.t_XFQueryList>)
+                            {
+                                if (ls.fname != "")
+                                {
+                                    <tr><th>银行卡号</th><td colspan="3">@ls.BankCard</td><th>所在队别</th><td colspan="3">@ls.FAreaName</td></tr>
+                                    break;
+                                }
+                            }
+                        }*@
+
+                        @if (ViewData["xfsuminfo"] != null) { 
+                            SelfhelpOrderMgr.Web.Controllers.xfSummaryInfo xf=ViewData["xfsuminfo"] as SelfhelpOrderMgr.Web.Controllers.xfSummaryInfo;
+                            decimal qcye=0;//期初余额
+                            if (ViewData["lists"] != null)
+                            {
+                                var list = ViewData["lists"] as List<SelfhelpOrderMgr.Model.t_XFQueryList>;
+                                qcye = list[0].Cmoney;
+                            }
+			            <tr>
+                            <td>1、总收入:</td>
+                            <td colspan="2">@(xf.Zongshouru + qcye) (含期初余额:@qcye)</td>
+                            <td>其中汇款: @xf.Huikuanshouru</td>
+                            <td colspan="2">劳动报酬: @xf.Laodongbaochou</td>
+                            <td colspan="2">零用金: @xf.Ningyongjin</td>
+                        </tr>
+                        <tr>
+			                <td rowspan="3">2、总支出</td>
+                            <td colspan ="5">@xf.Leijizongxf (其中刚性消费 @xf.gxFood)</td>
+                            <td colspan="2">统计月数:@xf.Tongjiyueshu</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="1">支出项目分类</td>
+			                <td>购物/购餐消费:</td>
+                            <td colspan="3">@xf.Chaoshigouwu （含棉衣、被服等免限额物品:@xf.Yufubeizi）</td>
+			    
+			    <td colspan="2">月均:(@xf.Chaoshigouwu - @xf.Yufubeizi)÷ @xf.Tongjiyueshu = @Convert.ToDecimal(((xf.Chaoshigouwu-xf.Yufubeizi)/xf.Tongjiyueshu)).ToString("0.00")</td>
+
+                        </tr>
+                        <tr>
+                            <td>其他排除项:</td>
+                            <td colspan="6">@(xf.Xiaochao+xf.Shukanbaozi+xf.Jiaofajin+xf.Yaopinqita) (特殊消费: @xf.Xiaochao,书刊报纸: @xf.Shukanbaozi ,交罚金(总共): @xf.Jiaofajin ,药品、体检、诊疗等: @xf.Yaopinqita)</td>
+                        </tr>
+                        
+                        <tr>
+                            <td>3、账户余额:</td>
+                            <td colspan="7">@xf.Zhanghuzongyue (其中劳动报酬不可用金额: @xf.BuKeYongMoney)</td>
+                        </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="col-md-2"></div>
+    </div>
+
+</body>
+</html>

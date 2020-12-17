@@ -1,0 +1,258 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>劳报Excel文件校验</title>
+    @{Html.RenderPartial("~/Views/Shared/_PartialHeadPage.cshtml");}
+    <script src="~/Scripts/diyUpload/js/webuploader.html5only.min.js"></script>
+    <script src="~/Scripts/diyUpload/js/diyUpload.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            //jquery js 当文本框获得焦点时，自动选中里面的文字
+            $(function () {
+                $(":text").focus(function () {
+                    this.select();
+                });
+            });
+
+            //加载并显示检验失败劳报明细列表
+            $('#test').datagrid({
+                //title: '账户余额列表',
+                iconCls: 'icon-save',
+                width: 850,
+                height: 380,
+                queryParams: {
+                    fName: '',
+                    fCode: '00000',
+                    fAreaName: '',
+                    action: 'NewSystem'
+                },
+                fitColumns: true,
+                nowrap: true,
+                singleSelect: true,
+                autoRowHeight: false,
+                striped: true,
+                collapsible: true,
+                url: '/LBExcelCheck/ExcelFileCheck',
+                sortName: 'seqno',
+                sortOrder: 'asc',
+                remoteSort: false,
+                idField: 'seqno',
+                pageSize: 50,
+                pageList: [50, 100],
+                onClickRow: function (rowIndex, rowData) {//单击选择一行
+                    $('#test').datagrid('selectRow', rowIndex);
+                },
+                frozenColumns: [[
+                { field: 'ck', checkbox: true },
+                { field: 'pc', title: '批次号', width: 120, sortable: true },
+                { title: '编号', field: 'fcrimecode', width: 100, sortable: true }
+                ]],
+                columns: [[
+                { field: 'seqno', title: 'seqno', width: 120, hidden: true },
+                { field: 'fname', title: '用户姓名', width: 120 },
+                { field: 'Amount', title: '金额', width: 220, sortable: true },
+                { field: 'Remark', title: '错误原因', width: 250 }
+                ]],
+                pagination: true,
+                rownumbers: true
+
+            });
+
+            //获取DataGrid Table页数据
+            var p = $('#test').datagrid('getPager');
+            $(p).pagination({
+                onBeforeRefresh: function () {
+                    alert('before refresh');
+                }
+            });
+
+
+        });
+        function resize() {
+            $('#test').datagrid('resize', {
+                width: 700,
+                height: 400
+            });
+        }
+
+        function getSelected() {
+            var selected = $('#test').datagrid('getSelected');
+            if (selected) {
+                alert(selected.code + ":" + selected.name + ":" + selected.addr + ":" + selected.col4);
+            }
+        }
+
+        function getSelections() {
+            var ids = [];
+            var rows = $('#test').datagrid('getSelections');
+            for (var i = 0; i < rows.length; i++) {
+                ids.push(rows[i].code);
+            }
+            alert(ids.join(':'));
+        }
+        function clearSelections() {
+            $('#test').datagrid('clearSelections');
+        }
+        function selectRow() {
+            $('#test').datagrid('selectRow', 2);
+        }
+        function selectRecord() {
+            $('#test').datagrid('selectRecord', '002');
+        }
+        function unselectRow() {
+            $('#test').datagrid('unselectRow', 2);
+        }
+        function mergeCells() {
+            $('#test').datagrid('mergeCells', {
+                index: 2,
+                field: 'addr',
+                rowspan: 2,
+                colspan: 2
+            });
+        }
+
+
+
+        //获取指定单的明细记录并显示在Test列表中
+        function GetOrderDetailToTable(bid) {
+            $('#test').datagrid('load', {
+                FBid: bid,
+                action: 'GetOrderDetail'
+            });
+        }
+
+        //加载失败列表
+        function LoadErrorList() {
+            $('#test').datagrid('load', {
+                excelBid: $('#excelBid').val(),
+                action: 'LoadErrorListByPcNo'
+            });
+        }
+
+        //Excel文件导入
+        function ExcelFileInport() {
+            if ($("#excelFileName").val() == "") {
+                $.messager.alert('提示', "请选择一个Excel文件!");
+                return false;
+            } else {
+                var rows = $('#test').datagrid('getRows');
+                if (rows.length > 0) {
+                    for (var i = 0; i < rows.length; i++) {
+                        $('#test').datagrid('deleteRow', i);
+                    }
+                }
+                $('#excelAction').val("ExcelFileCheck");//设定action动作
+                $('#ffDetailEditBoxExcel').form({
+                    url: "/LBExcelCheck/ExcelFileCheck",
+                    onSubmit: function () {
+                        // do some check
+                        // return false to prevent submit;
+                    },
+                    success: function (data) {
+                        var words = data.split("|");
+                        if (words[0] == "Error") {
+                            $("#excelBid").val(words[1]);//设定流水PC单号
+                            //加载显示明细记录
+                            var infos = $.parseJSON(words[3]);
+                            for (var i = 0; i < infos.length; i++) {
+                                var info = infos[i];
+                                $('#test').datagrid('appendRow', {
+                                    pc: info.pc,
+                                    fcrimecode: info.fcrimecode,
+                                    seqno: info.seqno,
+                                    fname: info.fname,
+                                    Amount: info.Amount,
+                                    Remark: info.Remark
+                                });
+                            }
+                            $.messager.alert('提示', words[2]);
+                        } else {
+                            $.messager.alert('提示', data);
+                        }
+                    }
+                });
+                $('#ffDetailEditBoxExcel').submit();
+            }
+        }
+
+        //导出Excel导入的失败记录
+        function ErrorListExcelOut() {
+            $('#excelAction').val("ErrorListOutport");//设定action动作
+
+            $('#ffDetailEditBoxExcel').form({
+                url: "/LBExcelCheck/ExcelFileCheck",
+                onSubmit: function () {
+                    // do some check
+                    // return false to prevent submit;
+                },
+                success: function (data) {
+                    //alert(data)
+                    var words = data.split("|");
+                    if (words[0] == "OK") {
+                        window.open("/Upload/" + words[1]);
+                    }
+                    else {
+                        $.messager.alert("提示", data);
+                    }
+                }
+            });
+            $('#ffDetailEditBoxExcel').submit();
+
+        }
+
+
+    </script>
+
+</head>
+<body class="easyui-layout">
+    <div data-options="region:'east',title:'Excel格式说明',split:true" style="width:280px;">
+        <div>Excel文件示例：</div>
+        <div>
+            <table>
+                <thead>
+                    <tr><th>编号</th><th>姓名</th><th>金额</th><th>备注</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>3506018723</td><td>张小明</td><td>120.30</td><td>一监区</td></tr>
+                    <tr><td>3506018723</td><td>张小明</td><td>10.30</td><td>一监区</td></tr>
+                    <tr><td>3506018723</td><td>张小明</td><td>220.30</td><td>一监区</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+
+    </div>
+
+    <div data-options="region:'center',title:'劳报Excel格式数据验证结果列表:'" style="padding:5px;background:#eee;">
+        <div>
+            <form id="ffDetailEditBoxExcel" method="post" enctype="multipart/form-data">
+                <table id="infoInput">
+                    <tr>
+                        <th>Excel文件：</th>
+                        <td colspan="4">
+                            <input id="excelFileName" name="excelFileName" type="file" />
+                            <input id="excelAction" name="action" type="hidden" />
+                            <input id="excelBid" name="excelBid" type="hidden" />
+                        </td>
+                        <td>
+                            <a href="#" id="btnExcelImport" class="easyui-linkbutton" data-options="iconCls:'icon-search'" onclick="ExcelFileInport()">Excel导入</a>
+                            <a href="#" id="btnErrorExcelOut" class="easyui-linkbutton" data-options="iconCls:'icon-redo'" onclick="ErrorListExcelOut()">失败记录</a>
+                        </td>
+
+                    </tr>
+                </table>
+            </form>
+        </div>
+
+        <table id="test"></table>
+    </div>
+
+</body>
+</html>

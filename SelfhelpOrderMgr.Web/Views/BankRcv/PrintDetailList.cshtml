@@ -1,0 +1,96 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>总账清单</title>
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Content/buttons.css" rel="stylesheet" />
+    <link href="~/Content/PrintReportCss.css" rel="stylesheet" />
+</head>
+<body>
+    <div>
+        <input type="hidden" id="printId" value="@ViewData["id"]" />
+        <div class="row">
+            <div class="col-sm-1"></div>
+            <div class="col-sm-10">
+                <div class="page-header text-center">
+                    <h3> @ViewData["title"] <small>报表日期: @DateTime.Today.ToShortDateString()</small></h3>
+
+                    <div class="row">
+                        <div class="col-sm-7 text-left">[统计日期]: @ViewData["startTime"] ~ @ViewData["endTime"]  </div>
+
+                        <div class="col-sm-5 text-right"></div>
+                    </div>
+                </div>
+
+
+
+
+                @if (ViewData["sumList"] != null)
+                {
+                    decimal sumMoney = 0;
+                    <table class="table table-condensed">
+                        <thead>
+                            <tr><th>汇款日期</th><th>银行流水号</th><th>金额</th><th>子卡号码</th><th>狱政编号</th><th>犯人姓名</th><th>导入标志</th><th>存款附言</th></tr>
+                        </thead>
+
+                        @foreach (var item in ViewData["sumList"] as List
+                        <SelfhelpOrderMgr.Model.T_Bank_Rcv>
+                            )
+                        {
+                            sumMoney += item.RcvAmount;
+
+                    <tr>
+                        <td>@item.tnxdate</td>
+                        <td>@item.VchNum</td>
+                        <td>@item.RcvAmount</td>
+                        <td>@item.CardNo</td>
+
+                        <td>@item.FCrimeCode</td>
+                        <td>@item.FName</td>
+                        @if (item.ImportFlag == 1)
+                        {
+                            <td>是</td>
+                        }
+                        else
+                        {
+                            <td>否</td>
+                        }
+                        <td>@item.Remark</td>
+
+                    </tr>
+
+                        }
+                        <tr><td>汇总合计：</td><td>@sumMoney</td><td></td><td></td><td></td><td></td><td></td></tr>
+                    </table>
+
+                }
+                <table></table>
+
+
+
+                <div class="row">
+                    <div class="col-md-10">
+                    </div>
+                    <div class="col-md-2">
+                        <label>制单人:</label>
+                    </div>
+                </div>
+
+            </div>
+            <div class="col-sm-1"></div>
+
+        </div>
+    </div>
+    <script src="~/Scripts/jquery-1.11.3.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <script src="~/Scripts/myJs/commonJs.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,487 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>调拨管理</title>
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Content/bootstrap-select.min.css" rel="stylesheet" />
+    <link href="~/Content/bootstrap-datetimepicker.min.css" rel="stylesheet" />
+    <link href="~/Content/bootstrap-table.min.css" rel="stylesheet" />
+    <link href="~/Content/MyCss/searchArea.css" rel="stylesheet" />
+</head>
+<body>
+    
+    <h2 class="text-center">调拨管理</h2>
+    <div class="col-lg-12">
+
+        <div class="searctform" style="margin-top:15px; padding:0px 15px 10px; border:1px solid #ccc;">
+            <table class="search-area ">
+                <tr>
+                    <th>起始时间：</th>
+                    <td>
+                        <a class='input-group date' id='datetimepicker2' style="float:left;">
+                            <input type='text' class="form-control" id='nowdate' style="width: 150px; height: 30px;" />
+                            <span class="input-group-addon" style="float: left; width: 50px; height: 30px;">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </a>
+                    </td>
+                    <th style="padding-left:20px;">结束时间：</th>
+                    <td>
+                        <a class='input-group date' id='datetimepicker3' style="float:left;">
+                            <input type='text' class="form-control" id='nowdate' style="width: 150px; height: 30px;" />
+                            <span class="input-group-addon" style="float: left; width: 50px; height: 30px;">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </a>
+                    </td>
+                    <th style="padding-left:20px;">类型：</th>
+                    <td>
+                        <select class="form-control" title="请选择出入库类型">
+                            <option value="1" >调拨出库</option>
+                            <option value="2">调拨入库</option>
+                        </select>
+                    </td>
+                    <th></th>
+                    <td>
+                        <button type="button" class="btn btn-default" style="margin-left:20px;">搜索</button>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <div>
+
+            <div class="row" style="padding:10px 0px;">
+                <div class="col-sm-6">
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addTransferOutPup">添加调拨出库单</button>
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addTransferInPup">添加调拨入库单</button>
+                </div>
+
+            </div>
+
+            <table class="table text-center table-hover table-striped">
+                <caption>调拨单列表:</caption>
+                <thead>
+                    <tr>
+                        <th class="text-center">编号</th>
+                        <th class="text-center">操作人</th>
+                        <th class="text-center">调拨类型</th>
+                        <th class="text-center">调拨时间</th>
+                        <th class="text-center">调拨金额</th>
+                        <th class="text-center">备注</th>
+                        <th class="text-center">编辑</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr id="rd01">
+                        <td>1</td>
+                        <td>服务部</td>
+                        <td>调拨入库</td>
+                        <td>2018-06-26 17:57:21</td>
+                        <td>10000.00</td>
+                        <td>XXXXXXXXXXXXXXXXXXXXX</td>
+                        <td>
+                            <button type="button" class="btn btn-link" data-toggle="modal" data-target="#detail">编辑</button>
+                            <button type="button" class="btn btn-link">删除</button>
+                        </td>
+                    </tr>
+                    <tr id="rd02">
+                        <td>2</td>
+                        <td>服务部</td>
+                        <td>调拨入库</td>
+                        <td>2018-06-26 17:57:21</td>
+                        <td>12000.00</td>
+                        <td>XXXXXXXXXXXXXXXXXXXXX</td>
+                        <td>
+                            <button type="button" class="btn btn-link" data-toggle="modal" data-target="#detail">编辑</button>
+                            <button type="button" class="btn btn-link" disabled="">删除</button>
+                        </td>
+                    </tr>
+                    <tr id="rd03">
+                        <td>3</td>
+                        <td>服务部</td>
+                        <td>调拨入库</td>
+                        <td>2018-06-26 17:57:21</td>
+                        <td>12000.00</td>
+                        <td>XXXXXXXXXXXXXXXXXXXXX</td>
+                        <td>
+                            <button type="button" class="btn btn-link" data-toggle="modal" data-target="#detail">编辑</button>
+                            <button type="button" class="btn btn-link" disabled="">删除</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="text-right">
+                <nav aria-label="Page navigation text-right">
+                    <ul class="pagination">
+                        <li>
+                            <a href="#" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                        <li><a href="#">1</a></li>
+                        <li><a href="#">2</a></li>
+                        <li><a href="#">3</a></li>
+                        <li><a href="#">4</a></li>
+                        <li><a href="#">5</a></li>
+                        <li>
+                            <a href="#" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+
+        </div>
+    </div>
+
+    <!--添加调拨入库单-->
+    <div class="modal fade" id="addTransferInPup" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document" style="width:800px">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="myModalLabel">添加调拨入库单</h4>
+                </div>
+                <div class="modal-body">
+                    <div>
+                        <label for="code">商品编码：</label>
+                        <input type="text" class="form-control" id="code" style="width:150px; display:inline-block;" placeholder="请输入商品编码">
+                        <label for="name">商品名称：</label>
+                        <input type="text" class="form-control" id="name" style="width:150px; display:inline-block;" placeholder="请输入商品名称">
+                        <button type="button" class="btn btn-default" id="s1">查询</button>
+                    </div>
+                    <div id="GoodInfo" style="margin:10px 0px; padding:5px; border:1px solid #ccc">
+                        <table class="search-area">
+                            <tr>
+                                <th>商品编码：</th>
+                                <td>11111</td>
+                                <th>商品名称：</th>
+                                <td>XXXXXXXXX</td>
+
+                            </tr>
+                            <tr>
+                                <th>商品类别：</th>
+                                <td>休闲食品</td>
+                                <th>单价：</th>
+                                <td>10.00</td>
+                            </tr>
+                            <tr>
+                                <th>入库数量：</th>
+                                <td>
+                                    <input type="text" class="form-control" placeholder="请输入要入库的数量">
+                                </td>
+                                <th></th>
+                                <td>
+                                    <button type="button" class="btn btn-default" id="b1">添加</button>
+                                </td>
+
+                            </tr>
+
+                        </table>
+                    </div>
+
+                    <table class="search-area table text-center" style="margin-top:10px;">
+                        <thead>
+                            <tr>
+                                <th>商品编码</th>
+                                <th>商品名称</th>
+                                <th>商品类别</th>
+                                <th>单价</th>
+                                <th>数量</th>
+                                <th>编辑</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>11111</td>
+                                <td>XXXXXXXX</td>
+                                <td>休闲食品</td>
+                                <td>10.00</td>
+                                <td><input type="text" class="form-control" style="width:70px;" value="100"></td>
+                                <td><button type="button" class="btn btn-link">删除</button></td>
+                            </tr>
+                            <tr>
+                                <td>22222</td>
+                                <td>XXXXXXXX</td>
+                                <td>休闲食品</td>
+                                <td>10.00</td>
+                                <td><input type="text" class="form-control" style="width:70px;" value="1500"></td>
+                                <td><button type="button" class="btn btn-link">删除</button></td>
+                            </tr>
+                            <tr>
+                                <td>33333</td>
+                                <td>XXXXXXXX</td>
+                                <td>休闲食品</td>
+                                <td>10.00</td>
+                                <td><input type="text" class="form-control" style="width:70px;" value="1200"></td>
+                                <td><button type="button" class="btn btn-link">删除</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary">入库</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div>
+
+    </div>
+
+    <!--添加调拨出库单-->
+    <div class="modal fade" id="addTransferOutPup" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document" style="width:800px">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="myModalLabel">添加调拨出库单</h4>
+                </div>
+                <div class="modal-body">
+                    <div>
+                        <label for="code">商品编码：</label>
+                        <input type="text" class="form-control" id="code2" style="width:150px; display:inline-block;" placeholder="请输入商品编码">
+                        <label for="name">商品名称：</label>
+                        <input type="text" class="form-control" id="name2" style="width:150px; display:inline-block;" placeholder="请输入商品名称">
+                        <button type="button" class="btn btn-default" id="s2">查询</button>
+                    </div>
+                    <div id="GoodInfo2" style="margin:10px 0px; padding:5px; border:1px solid #ccc">
+                        <table class="search-area">
+                            <tr>
+                                <th>商品编码：</th>
+                                <td>11111</td>
+                                <th>商品名称：</th>
+                                <td>XXXXXXXXX</td>
+
+                            </tr>
+                            <tr>
+                                <th>商品类别：</th>
+                                <td>休闲食品</td>
+                                <th>单价：</th>
+                                <td>10.00</td>
+                            </tr>
+                            <tr>
+                                <th>入库数量：</th>
+                                <td>
+                                    <input type="text" class="form-control" placeholder="请输入要入库的数量">
+                                </td>
+                                <th></th>
+                                <td>
+                                    <button type="button" class="btn btn-default" id="b2">添加</button>
+                                </td>
+
+                            </tr>
+
+                        </table>
+                    </div>
+
+                    <table class="search-area table text-center" style="margin-top:10px;">
+                        <thead>
+                            <tr>
+                                <th>商品编码</th>
+                                <th>商品名称</th>
+                                <th>商品类别</th>
+                                <th>单价</th>
+                                <th>数量</th>
+                                <th>编辑</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>11111</td>
+                                <td>XXXXXXXX</td>
+                                <td>休闲食品</td>
+                                <td>10.00</td>
+                                <td><input type="text" class="form-control" style="width:70px;" value="100"></td>
+                                <td><button type="button" class="btn btn-link">删除</button></td>
+                            </tr>
+                            <tr>
+                                <td>22222</td>
+                                <td>XXXXXXXX</td>
+                                <td>休闲食品</td>
+                                <td>10.00</td>
+                                <td><input type="text" class="form-control" style="width:70px;" value="1500"></td>
+                                <td><button type="button" class="btn btn-link">删除</button></td>
+                            </tr>
+                            <tr>
+                                <td>33333</td>
+                                <td>XXXXXXXX</td>
+                                <td>休闲食品</td>
+                                <td>10.00</td>
+                                <td><input type="text" class="form-control" style="width:70px;" value="1200"></td>
+                                <td><button type="button" class="btn btn-link">删除</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary">出库</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div>
+
+    </div>
+
+    <!--详情页-->
+    <div class="modal fade" id="detail" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document" style="width:800px">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="myModalLabel">调拨入库单详情页</h4>
+                </div>
+                <div class="modal-body">
+                    <div>
+                        <label for="code">商品编码：</label>
+                        <input type="text" class="form-control" id="code1" style="width:150px; display:inline-block;" placeholder="请输入商品编码">
+                        <label for="name">商品名称：</label>
+                        <input type="text" class="form-control" id="name1" style="width:150px; display:inline-block;" placeholder="请输入商品名称">
+                        <button type="button" class="btn btn-default" id="s">查询</button>
+                    </div>
+                    <div id="GoodInfo1" style="margin:10px 0px; padding:5px; border:1px solid #ccc;display:none;">
+                        <table class="search-area">
+                            <tr>
+                                <th>商品编码：</th>
+                                <td>11111</td>
+                                <th>商品名称：</th>
+                                <td>XXXXXXXXX</td>
+                                <th>商品规格：</th>
+                                <td>100ML</td>
+
+                            </tr>
+                            <tr>
+                                <th>商品类别：</th>
+                                <td>休闲食品</td>
+                                <th>单价：</th>
+                                <td>10.00</td>
+                                <th>单位：</th>
+                                <td>罐</td>
+                            </tr>
+                            <tr>
+                                <th>入库数量：</th>
+                                <td>
+                                    <input type="text" class="form-control" placeholder="请输入要入库的数量">
+                                </td>
+                                <th></th>
+                                <td>
+                                    <button type="button" class="btn btn-default" id="b">添加</button>
+                                </td>
+
+                            </tr>
+
+                        </table>
+                    </div>
+                    <table class="search-area table text-center" style="margin-top:10px;">
+                        <thead>
+                            <tr>
+                                <th>商品编码</th>
+                                <th>商品名称</th>
+                                <th>商品类别</th>
+                                <th>单位</th>
+                                <th>规格</th>
+                                <th>单价</th>
+                                <th>数量</th>
+                                <th>编辑</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>11111</td>
+                                <td>XXXXXXXXdddddddd</td>
+                                <td>休闲食品</td>
+                                <td>包</td>
+                                <td>100g</td>
+                                <td>10.00</td>
+                                <td><input type="text" class="form-control" style="width:70px;" value="100"></td>
+                                <td><button type="button" class="btn btn-link">删除</button></td>
+                            </tr>
+                            <tr>
+                                <td>22222</td>
+                                <td>XXXXXXXXdddddddd</td>
+                                <td>休闲食品</td>
+                                <td>包</td>
+                                <td>100g</td>
+                                <td>10.00</td>
+                                <td><input type="text" class="form-control" style="width:70px;" value="1500"></td>
+                                <td><button type="button" class="btn btn-link">删除</button></td>
+                            </tr>
+                            <tr>
+                                <td>33333</td>
+                                <td>XXXXXXXX</td>
+                                <td>休闲食品</td>
+                                <td>包</td>
+                                <td>100g</td>
+                                <td>10.00</td>
+                                <td><input type="text" class="form-control" style="width:70px;" value="1200"></td>
+                                <td><button type="button" class="btn btn-link">删除</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-primary">确定</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal -->
+    </div>
+
+</body>
+
+</html>
+<script src="~/Scripts/jquery-1.11.3.min.js"></script>
+<script src="~/Scripts/EasyUI/jquery.easyui.min.js"></script>
+<script src="~/Scripts/EasyUI/locale/easyui-lang-zh_CN.js"></script>
+<script src="~/Scripts/bootstrap.min.js"></script>
+<script src="~/Scripts/bootstrap-select.min.js"></script>
+<script src="~/Scripts/select-defaults-zh_CN.min.js"></script>
+<script src="~/Scripts/bootstrap-datetimepicker.min.js"></script>
+<script src="~/Scripts/bootstrap-datetimepicker.zh-CN.js"></script>
+<script src="~/Scripts/bootstrap-table.min.js"></script>
+<script src="~/Scripts/bootstrap-table-toolbar.js"></script>
+<script src="~/Scripts/bootstrap-table-export.js"></script>
+<script src="~/Scripts/bootstrap-table-filter-control.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#goodInfoForm").hide();
+
+        $("#s").click(function () {
+            $("#GoodInfo1").show();
+        });
+
+        $("#b").click(function () {
+            $("#GoodInfo1").hide();
+        });
+
+        $('.date').datetimepicker({
+            language: 'zh-CN',//显示中文
+            format: 'yyyy-mm-dd',//显示格式
+            minView: "month",//设置只显示到月份
+            initialDate: new Date(),//初始化当前日期
+            autoclose: true,//选中自动关闭
+            todayBtn: true//显示今日按钮
+        });
+
+        $('.date').datetimepicker({
+            language: 'zh-CN',//显示中文
+            format: 'yyyy-mm-dd',//显示格式
+            minView: "month",//设置只显示到月份
+            initialDate: new Date(),//初始化当前日期
+            autoclose: true,//选中自动关闭
+            todayBtn: true//显示今日按钮
+        });
+
+    });
+</script>
+

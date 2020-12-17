@@ -1,0 +1,103 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>PrintPayList</title>
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+</head>
+<body>
+    <div>
+        <div class="row">
+            <div class="col-sm-1"></div>
+            <div class="col-sm-10">
+                @if (ViewData["pay"] != null)
+                {
+                    var pay = ViewData["pay"] as SelfhelpOrderMgr.Model.T_SHO_FinancePay;
+                    <div class="text-center">
+                    <h3>财务付款单 <small>付款日期:@pay.CrtDt.ToShortDateString()</small></h3>
+                </div>
+                }
+                
+                <div class="panel panel-default">
+                    
+                        <div class="panel-heading">                           
+                                
+                            @if (ViewData["pay"] != null)
+{
+    var pay = ViewData["pay"] as SelfhelpOrderMgr.Model.T_SHO_FinancePay;
+    <table class="table table-bordered">
+        <tr>
+            <th>单号:</th>
+            <td>@pay.Id</td>
+            <th>类型:</th>
+            <td>@pay.FType</td>
+            <th>金额:</th>
+            <td>@pay.FMoney 元</td>
+        </tr>
+        <tr>
+            <th>收款人:</th>
+            <td>@pay.PosName</td>
+            <th>收款账号:</th>
+            <td>@pay.BankCard</td>
+            <th>备注:</th>
+            <td>@pay.Remark</td>
+        </tr>
+    </table>
+}
+    
+                            
+                        </div>
+                    <div class="panel-body">
+                        @if (ViewData["vcrds"] != null)
+{
+    <table class="table table-striped table-condensed">
+        <thead>
+            <tr>
+                <th>序号</th>
+                <th>超市类型</th>
+                <th>金额</th>
+                <th>日期</th>
+                <th>狱号</th>
+                <th>姓名</th>
+                <th>队别</th>
+                <th>操作员</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            @foreach (SelfhelpOrderMgr.Model.T_Vcrd vcrd in ViewData["vcrds"] as List<SelfhelpOrderMgr.Model.T_Vcrd>)
+            {
+                <tr>
+                    <td>@vcrd.seqno</td>
+                    <td>@vcrd.DType</td>
+                    <td>@vcrd.CAmount</td>
+                    <td>@vcrd.CrtDate</td>
+                    <td>@vcrd.FCrimeCode</td>
+                    <td>@vcrd.FCriminal</td>
+                    <td>@vcrd.FAreaName</td>
+                    <td>@vcrd.CrtBy</td>
+                </tr>
+
+            }
+        </tbody>
+    </table>
+
+}
+                    </div>
+                    <div class="panel-footer">@@监狱--财务科</div>
+                </div>
+            </div>
+            <div class="col-sm-1"></div>
+
+        </div>
+    </div>
+    <script src="~/Scripts/jquery-1.11.3.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+</body>
+</html>
