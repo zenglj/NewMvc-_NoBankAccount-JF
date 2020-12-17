@@ -1,0 +1,70 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>月公示报表</title>
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Content/site.min.css" rel="stylesheet" />
+    <link href="~/Content/PrintReportCss.css" rel="stylesheet" />
+</head>
+<body>
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-10">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    @if (ViewData["cards"] != null)
+                    {
+                        var cards = ViewData["cards"] as List<SelfhelpOrderMgr.Model.T_XFGSList>;
+                        <h3 style="text-align:center">消费公示报表<small>@cards[0].FAreaName</small></h3>
+                    }
+                    <div class="row">
+                        <div class="col-md-9">统计区间: @ViewData["StartDate"].ToString() 至 @ViewData["EndDate"].ToString()</div>
+                        <div class="col-md-3">打印日期:@DateTime.Today.ToString()</div>
+                    </div>                        
+                </div>
+                
+                <div class="panel-body">
+                    <table class="table table-striped table-condensed contentFontSizeSmall">
+                        <thead>
+                            <tr><th>序号</th><th>狱号</th><th>姓名</th><th>队别</th><th>本期收入</th><th>本期支出</th><th>最新余额</th><th>其中不可金额</th></tr>
+                        </thead>
+                        <tbody>
+                            @if (ViewData["cards"] != null)
+                            {
+                                int i = 0;
+                                foreach (SelfhelpOrderMgr.Model.T_XFGSList card in ViewData["cards"] as List<SelfhelpOrderMgr.Model.T_XFGSList>)
+                                {
+                                    i++;
+                                    <tr>
+                                        <td>@i</td>
+                                        <td>@card.FCode</td>
+                                        <td>@card.FName</td>
+                                        <td>@card.FAreaName</td>
+                                        <td>@card.FMoneyIn</td>
+                                        <td>@card.FMoneyOut</td>
+                                        <td>@card.FUserMoneyAll</td>
+                                        <td>@card.AmountC</td>
+                                    </tr>
+                                }
+
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <div class="panel-footer">
+                    @@监狱
+                </div>
+            </div>
+
+        </div>
+        <div class="col-md-1"></div>
+
+    </div>
+</body>
+</html>

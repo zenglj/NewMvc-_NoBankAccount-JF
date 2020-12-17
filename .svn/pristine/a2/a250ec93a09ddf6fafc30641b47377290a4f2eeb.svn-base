@@ -1,0 +1,25 @@
+﻿using SelfhelpOrderMgr.DAL;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+
+namespace SelfhelpOrderMgr.BLL
+{
+    public partial class T_Criminal_cardBLL
+    {
+        /// <summary>
+        /// 得到一个对象实体
+        /// </summary>
+        public SelfhelpOrderMgr.Model.T_Criminal_card GetModel(string fcrimecode)
+        {
+            return new T_Criminal_cardDAL().GetModel(fcrimecode);            
+        }
+
+        public bool UpdateBankInfo(string fcode, string bankCard, int regflag)
+        {
+            return new T_Criminal_cardDAL().UpdateBankInfo(fcode, bankCard, regflag);  
+        }
+		
+    }
+}

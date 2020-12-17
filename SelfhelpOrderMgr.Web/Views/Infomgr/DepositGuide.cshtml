@@ -1,0 +1,55 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>DepositGuide</title>
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Content/site.min.css" rel="stylesheet" />
+</head>
+<body>
+    <div class="row">
+        <div class="col-md-2"></div>
+        <div class="col-md-8">
+            <h1 style="text-align:center">服 刑 人 员 存 款 指 南</h1>
+            <hr />
+            <p>
+                　　为了进一步加强服刑人员存款管理，监管人员不接触现金资产，
+                切实维护服刑人员权益，我监对服刑人员亲友存款、日用品补助、劳
+                动报酬等现金资产实行开立<u><strong>个人银行账户管理</strong></u>，服刑人员在狱内消费
+                等支出实行<u><strong>限额刷卡消费</strong></u>。现将有关服刑人员亲友存款事项告知如下：
+            </p>
+            
+            <ol>
+                <li>所有服刑人员款项收支纳入个人银行账户管理。款项收支全
+                部通过银行代收、代付，监管人员不接触现金。</li>
+                <li>除看守所押送服刑人员入监外，任何时间、任何监狱部门或
+                人员不接收服刑人员现金和邮政汇款。</li>
+                <li>服刑人员亲友可通过商业银行（如：兴业银行、农业银行、
+                建设银行、工商银行、邮政储蓄银行等，包括信用社柜台以银行电
+                汇方式或网上银行方式汇入监狱为服刑人员开立的个人银行账户。</li>
+            </ol>
+            
+            <div class="row">
+                <div class="col-sm-7"></div>
+                <div class="col-sm-5">
+
+                    <h4>收 款 人:<u><strong>福建省仓山监狱第二食堂</strong></u></h4>
+                    <h4>收款卡号:<u><strong>@ViewData["bankAccNo"]</strong></u></h4>
+                    <h4>开户银行:<u><strong>中国银行福建省福州台江支行</strong></u></h4>
+                    <h4>摘要附言:<u><strong>@ViewData["fareaName"]-@ViewData["fName"]</strong></u></h4>
+
+                </div>
+            </div>
+    
+
+</div>
+        <div class="col-md-2"></div>
+    </div>
+</body>
+</html>

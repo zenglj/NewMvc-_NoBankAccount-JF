@@ -1,0 +1,254 @@
+﻿using System; 
+using System.Text;
+using System.Data.SqlClient;
+using System.Collections.Generic; 
+using System.Data;
+using SelfhelpOrderMgr.Model; 
+using Dapper;
+namespace SelfhelpOrderMgr.DAL  
+{
+	 	//T_Stock
+		public partial class T_StockDAL
+	{			
+		
+		/// <summary>
+		/// 增加一条数据
+		/// </summary>
+		public void Add(SelfhelpOrderMgr.Model.T_Stock model)
+		{
+			StringBuilder strSql=new StringBuilder();
+			strSql.Append("insert into T_Stock(");			
+            strSql.Append("StockId,InOutDate,FLAG,StockType,CrtBy,Crtdt,CHECKFLAG,CHECKBY,CheckDt,Remark,invoiceno,stockflag,InOutFlag");
+			strSql.Append(") values (");
+            strSql.Append("@StockId,@InOutDate,@FLAG,@StockType,@CrtBy,@Crtdt,@CHECKFLAG,@CHECKBY,@CheckDt,@Remark,@invoiceno,@stockflag,@InOutFlag");            
+            strSql.Append(") ");            
+            		
+			SqlParameter[] parameters = {
+			            new SqlParameter("@StockId", SqlDbType.VarChar,20) ,            
+                        new SqlParameter("@InOutDate", SqlDbType.DateTime) ,            
+                        new SqlParameter("@FLAG", SqlDbType.Int,4) ,            
+                        new SqlParameter("@StockType", SqlDbType.VarChar,10) ,            
+                        new SqlParameter("@CrtBy", SqlDbType.VarChar,20) ,            
+                        new SqlParameter("@Crtdt", SqlDbType.DateTime) ,            
+                        new SqlParameter("@CHECKFLAG", SqlDbType.Int,4) ,            
+                        new SqlParameter("@CHECKBY", SqlDbType.VarChar,20) ,            
+                        new SqlParameter("@CheckDt", SqlDbType.DateTime) ,            
+                        new SqlParameter("@Remark", SqlDbType.VarChar,250) ,            
+                        new SqlParameter("@invoiceno", SqlDbType.VarChar,20) ,            
+                        new SqlParameter("@stockflag", SqlDbType.Int,4) ,            
+                        new SqlParameter("@InOutFlag", SqlDbType.Int,4)             
+              
+            };
+			            
+            parameters[0].Value = model.StockId;                        
+            parameters[1].Value = model.InOutDate;                        
+            parameters[2].Value = model.FLAG;                        
+            parameters[3].Value = model.StockType;                        
+            parameters[4].Value = model.CrtBy;                        
+            parameters[5].Value = model.Crtdt;                        
+            parameters[6].Value = model.CHECKFLAG;                        
+            parameters[7].Value = model.CHECKBY;                        
+            parameters[8].Value = model.CheckDt;                        
+            parameters[9].Value = model.Remark;                        
+            parameters[10].Value = model.invoiceno;                        
+            parameters[11].Value = model.stockflag;                        
+            parameters[12].Value = model.InOutFlag;                        
+			            SqlHelper.ExecuteSql(strSql.ToString(),parameters);
+            			
+		}
+		
+		
+		/// <summary>
+		/// 更新一条数据
+		/// </summary>
+		public bool Update(SelfhelpOrderMgr.Model.T_Stock model)
+		{
+			StringBuilder strSql=new StringBuilder();
+			strSql.Append("update T_Stock set ");
+			                        
+            strSql.Append(" StockId = @StockId , ");                                    
+            strSql.Append(" InOutDate = @InOutDate , ");                                    
+            strSql.Append(" FLAG = @FLAG , ");                                    
+            strSql.Append(" StockType = @StockType , ");                                    
+            strSql.Append(" CrtBy = @CrtBy , ");                                    
+            strSql.Append(" Crtdt = @Crtdt , ");                                    
+            strSql.Append(" CHECKFLAG = @CHECKFLAG , ");                                    
+            strSql.Append(" CHECKBY = @CHECKBY , ");                                    
+            strSql.Append(" CheckDt = @CheckDt , ");                                    
+            strSql.Append(" Remark = @Remark , ");                                    
+            strSql.Append(" invoiceno = @invoiceno , ");                                    
+            strSql.Append(" stockflag = @stockflag , ");                                    
+            strSql.Append(" InOutFlag = @InOutFlag  ");            			
+			strSql.Append(" where  ");
+						
+SqlParameter[] parameters = {
+			            new SqlParameter("@StockId", SqlDbType.VarChar,20) ,            
+                        new SqlParameter("@InOutDate", SqlDbType.DateTime) ,            
+                        new SqlParameter("@FLAG", SqlDbType.Int,4) ,            
+                        new SqlParameter("@StockType", SqlDbType.VarChar,10) ,            
+                        new SqlParameter("@CrtBy", SqlDbType.VarChar,20) ,            
+                        new SqlParameter("@Crtdt", SqlDbType.DateTime) ,            
+                        new SqlParameter("@CHECKFLAG", SqlDbType.Int,4) ,            
+                        new SqlParameter("@CHECKBY", SqlDbType.VarChar,20) ,            
+                        new SqlParameter("@CheckDt", SqlDbType.DateTime) ,            
+                        new SqlParameter("@Remark", SqlDbType.VarChar,250) ,            
+                        new SqlParameter("@invoiceno", SqlDbType.VarChar,20) ,            
+                        new SqlParameter("@stockflag", SqlDbType.Int,4) ,            
+                        new SqlParameter("@InOutFlag", SqlDbType.Int,4)             
+              
+            };
+						            
+            parameters[0].Value = model.StockId;                        
+            parameters[1].Value = model.InOutDate;                        
+            parameters[2].Value = model.FLAG;                        
+            parameters[3].Value = model.StockType;                        
+            parameters[4].Value = model.CrtBy;                        
+            parameters[5].Value = model.Crtdt;                        
+            parameters[6].Value = model.CHECKFLAG;                        
+            parameters[7].Value = model.CHECKBY;                        
+            parameters[8].Value = model.CheckDt;                        
+            parameters[9].Value = model.Remark;                        
+            parameters[10].Value = model.invoiceno;                        
+            parameters[11].Value = model.stockflag;                        
+            parameters[12].Value = model.InOutFlag;                        
+            int rows=SqlHelper.ExecuteSql(strSql.ToString(),parameters);
+			if (rows > 0)
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
+		
+		
+		/// <summary>
+		/// 删除一条数据
+		/// </summary>
+		public bool Delete()
+		{
+			
+			StringBuilder strSql=new StringBuilder();
+			strSql.Append("delete from T_Stock ");
+			strSql.Append(" where ");
+						SqlParameter[] parameters = {
+			};
+
+
+			int rows=SqlHelper.ExecuteSql(strSql.ToString(),parameters);
+			if (rows > 0)
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
+		
+				
+		
+		/// <summary>
+		/// 得到一个对象实体
+		/// </summary>
+		public SelfhelpOrderMgr.Model.T_Stock GetModel()
+		{
+			
+			StringBuilder strSql=new StringBuilder();
+			strSql.Append("select StockId, InOutDate, FLAG, StockType, CrtBy, Crtdt, CHECKFLAG, CHECKBY, CheckDt, Remark, invoiceno, stockflag, InOutFlag  ");			
+			strSql.Append("  from T_Stock ");
+			strSql.Append(" where ");
+						SqlParameter[] parameters = {
+			};
+
+			
+			SelfhelpOrderMgr.Model.T_Stock model=new SelfhelpOrderMgr.Model.T_Stock();
+			DataSet ds=SqlHelper.Query(strSql.ToString(),parameters);
+			
+			if(ds.Tables[0].Rows.Count>0)
+			{
+																model.StockId= ds.Tables[0].Rows[0]["StockId"].ToString();
+																												if(ds.Tables[0].Rows[0]["InOutDate"].ToString()!="")
+				{
+					model.InOutDate=DateTime.Parse(ds.Tables[0].Rows[0]["InOutDate"].ToString());
+				}
+																																if(ds.Tables[0].Rows[0]["FLAG"].ToString()!="")
+				{
+					model.FLAG=int.Parse(ds.Tables[0].Rows[0]["FLAG"].ToString());
+				}
+																																				model.StockType= ds.Tables[0].Rows[0]["StockType"].ToString();
+																																model.CrtBy= ds.Tables[0].Rows[0]["CrtBy"].ToString();
+																												if(ds.Tables[0].Rows[0]["Crtdt"].ToString()!="")
+				{
+					model.Crtdt=DateTime.Parse(ds.Tables[0].Rows[0]["Crtdt"].ToString());
+				}
+																																if(ds.Tables[0].Rows[0]["CHECKFLAG"].ToString()!="")
+				{
+					model.CHECKFLAG=int.Parse(ds.Tables[0].Rows[0]["CHECKFLAG"].ToString());
+				}
+																																				model.CHECKBY= ds.Tables[0].Rows[0]["CHECKBY"].ToString();
+																												if(ds.Tables[0].Rows[0]["CheckDt"].ToString()!="")
+				{
+					model.CheckDt=DateTime.Parse(ds.Tables[0].Rows[0]["CheckDt"].ToString());
+				}
+																																				model.Remark= ds.Tables[0].Rows[0]["Remark"].ToString();
+																																model.invoiceno= ds.Tables[0].Rows[0]["invoiceno"].ToString();
+																												if(ds.Tables[0].Rows[0]["stockflag"].ToString()!="")
+				{
+					model.stockflag=int.Parse(ds.Tables[0].Rows[0]["stockflag"].ToString());
+				}
+																																if(ds.Tables[0].Rows[0]["InOutFlag"].ToString()!="")
+				{
+					model.InOutFlag=int.Parse(ds.Tables[0].Rows[0]["InOutFlag"].ToString());
+				}
+																														
+				return model;
+			}
+			else
+			{
+				return null;
+			}
+		}
+		
+		
+		/// <summary>
+		/// 获得数据列表
+		/// </summary>
+		public DataSet GetList(string strWhere)
+		{
+			StringBuilder strSql=new StringBuilder();
+			strSql.Append("select StockId, InOutDate, FLAG, StockType, CrtBy, Crtdt, CHECKFLAG, CHECKBY, CheckDt, Remark, invoiceno, stockflag, InOutFlag  ");
+			strSql.Append(" FROM T_Stock ");
+			if(strWhere.Trim()!="")
+			{
+				strSql.Append(" where "+strWhere);
+			}
+			return SqlHelper.Query(strSql.ToString());
+		}
+		
+		/// <summary>
+		/// 获得前几行数据
+		/// </summary>
+		public DataSet GetList(int Top,string strWhere,string filedOrder)
+		{
+			StringBuilder strSql=new StringBuilder();
+			strSql.Append("select ");
+			if(Top>0)
+			{
+				strSql.Append(" top "+Top.ToString());
+			}
+			strSql.Append(" StockId, InOutDate, FLAG, StockType, CrtBy, Crtdt, CHECKFLAG, CHECKBY, CheckDt, Remark, invoiceno, stockflag, InOutFlag  ");
+			strSql.Append(" FROM T_Stock ");
+			if(strWhere.Trim()!="")
+			{
+				strSql.Append(" where "+strWhere);
+			}
+			strSql.Append(" order by " + filedOrder);
+			return SqlHelper.Query(strSql.ToString());
+		}
+
+   
+	}
+}
+

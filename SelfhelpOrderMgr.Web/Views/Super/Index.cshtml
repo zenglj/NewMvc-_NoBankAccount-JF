@@ -1,0 +1,306 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Index</title>
+    @{Html.RenderPartial("~/Views/Shared/_PartialHeadPage.cshtml");}
+    <script src="~/Scripts/diyUpload/js/webuploader.html5only.min.js"></script>
+    <script src="~/Scripts/diyUpload/js/diyUpload.js"></script>
+
+</head>
+<body class="easyui-layout">
+    <div data-options="region:'center',title:'商品管理'" style="padding:5px;">
+        <div style="height:400px;">
+
+            <input type="hidden" id="typeId" value="@ViewData["typeId"]" />
+            <table id="test" class="easyui-datagrid" toolbar="#tb"></table>
+
+        </div>
+
+        @*工具条*@
+        <div id="tb" style="padding:5px;height:auto">
+            <div>
+                <div>
+                    操作控制:
+                    <a href="#" class="easyui-linkbutton" iconcls="icon-add" onclick="AddGoodsContent()">添加</a>
+                    <a href="#" class="easyui-linkbutton" iconcls="icon-edit" onclick="AlterGoodsContent()">编辑</a>
+                    <a href="#" class="easyui-linkbutton" iconcls="icon-no" onclick="SetGoodsContent('N')">下架</a>
+                    <a href="#" class="easyui-linkbutton" iconcls="icon-redo" onclick="SetGoodsContent('Y')">上架</a>
+                    <a href="#" class="easyui-linkbutton" iconcls="icon-save" onclick="ExcelOutSave()">Excel导出</a>
+                    <a href="#" class="easyui-linkbutton" iconcls="icon-edit" onclick="EditGoodAttr()">编辑商品属性</a>
+                    <a href="#" class="easyui-linkbutton" iconcls="icon-no" onclick="DeleteGood()">删除</a>
+                </div>
+                <div>
+
+                    <form method="post" id="ffExcel" enctype="multipart/form-data">
+                        Excel商品信息导入：
+                        <input type="file" id="excelFileName" name="excelFileName" />
+                        <a href="#" class="easyui-linkbutton" iconcls="icon-reload" onclick="ExcelFileInport()">Excel导入</a>
+                        <a href="/Super/MulitImageUpload" target="_blank" class="easyui-linkbutton" iconcls="icon-sum">批量图片上传</a>
+
+                    </form>
+
+                </div>
+
+            </div>
+        </div>
+
+        <div id="editWindows" title="信息编辑栏" data-options="iconCls:'icon-edit'" style="height:350px; width:500px; padding:10px;background:#fafafa;">
+            @*设定调价是否要申请*@
+            @if (ViewData["goodPriceMset"] != null)
+            {
+                <input type="hidden" id="goodPriceMset" value="@Convert.ToString(ViewData["goodPriceMset"])" />
+            }
+            else
+            {
+                <input type="hidden" id="goodPriceMset" value="0" />
+            }
+            <form id="ffGoodEdit" method="post" enctype="multipart/form-data">
+                <input type="hidden" id="dotype" name="Dotype" />
+                <table>
+                    <tr>
+                        <th align="right">编号：</th>
+                        <td><input disabled="disabled" id="GCODE" name="GCode" style="width: 150px;" /></td>
+                        <th align="right">名称：</th>
+                        <td><input id="GNAME" name="GName" style="width: 150px; " /></td>
+                    </tr>
+
+                    <tr>
+                        <th align="right">条形码：</th>
+                        <td><input id="FGTXM" name="GTXM" class="easyui-numberbox" style="width: 150px; " data-options="min:0,precision:0" /></td>
+
+                        <th align="right">类别：</th>
+                        <td>
+                            <input id="FGtype" name="GType" value="请选择类别" style="width: 155px; " />
+                        </td>
+
+                    </tr>
+
+                    <tr>
+                        <th align="right">单位：</th>
+                        <td><input id="FUnit" name="GUnit" style="width: 150px; " /></td>
+                        <th align="right">规格：</th>
+                        <td><input id="FStandard" name="GStandard" style="width: 150px; " /></td>
+
+                    </tr>
+
+                    <tr>
+                        <th align="right">单价：</th>
+                        <td><input id="FPrice" name="GDJ" class="easyui-numberbox" style="width: 150px; " data-options="min:0,precision:2" disabled="disabled" /></td>
+
+                        <th align="right">供应商：</th>
+                        <td>
+                            <select id="FSupplyer" name="GSupplyer" style="width: 155px; " class="easyui-combobox">
+                                <option value="">请选择商家</option>
+                                @if (ViewData["supplyers"] != null)
+                                {
+                                    foreach (SelfhelpOrderMgr.Model.T_Supplyer supplyer in ViewData["supplyers"] as List<SelfhelpOrderMgr.Model.T_Supplyer>)
+                                    {
+                                        <option value="@supplyer.scode">@supplyer.sName</option>
+                                    }
+                                }
+                            </select>
+                        </td>
+
+                    </tr>
+
+                    <tr>
+                        <th align="right">产地：</th>
+                        <td>
+                            <input id="FMadein" name="GMadein" style="width: 150px; " />
+                        </td>
+                        <th align="right">限购数量：
+                            
+                        </th>
+                        <td>
+                            <input id="Xgsl" name="GXgsl" style="width: 150px; " />
+                        </td>
+                        
+                    </tr>
+
+                    <tr>
+                        <th align="right">限额：</th>
+                        <td>
+                            <input id="Ffreeflag" name="GFreeflag" style="width: 150px; " />
+                        </td>
+                        
+                        <th align="right">限购模式：</th>
+                        <td>
+                            <select id="XgMode" name="XgMode" style="width: 155px; " class="easyui-combobox">
+                                <option value="0" selected="selected">按日</option>
+                                <option value="1">按周</option>
+                                <option value="2">按月</option>
+                                <option value="3">按季度</option>
+                                <option value="4">按年</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">图片：</th>
+                        <td>
+                            <input type="file" id="src" name="src" style="width: 150px; " />
+                        </td>
+                        <th align="right">店内码：</th>
+                        <td>
+                            <input id="SPShortCode" name="SPShortCode" style="width: 150px; " />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2"><img id="picSrc" src="" height="100" width="167" /></td>
+                        @*<td colspan="2" align="right"> <a href="#" id="btnSave" class="easyui-linkbutton" data-options="iconCls:'icon-save'" onclick="saveContent()">保存商品信息</a></td>*@
+                        <td colspan="2" align="right"> <a href="#" id="btnSave" class="easyui-linkbutton" data-options="iconCls:'icon-save'" onclick="submitContent()">保存商品信息</a></td>
+                    </tr>
+
+                </table>
+            </form>
+        </div>
+
+        <div id="editGoodAttr" title="商品规模属性编辑栏" data-options="iconCls:'icon-edit'" style="height:350px; width:600px; padding:10px;background:#fafafa;">
+            <form method="post" enctype="multipart/form-data">
+                <div>
+                    <label>编号</label>
+                    <input type="text" disabled="disabled" id="attrGCode" style="width:50px;" />
+                    <label>品名</label>
+                    <input type="text" disabled="disabled" id="attrGName" style="width:120px;" />
+                    <label>条码</label>
+                    <input type="text" disabled="disabled" id="attrGTXM" style="width:100px;" />
+                    <label>店内码</label>
+                    <input type="text" disabled="disabled" id="attrSPShortCode" style="width:60px;" />
+                </div>
+                <div>
+                    <label>类型:</label>
+                    <select id="goodsAttrType" class="easyui-combobox">
+                        <option value="">请选择类型</option>
+                        @if (ViewData["attrs"] != null)
+                        {
+                            foreach (SelfhelpOrderMgr.Model.T_SHO_GoodsAttribute item in ViewData["attrs"] as List<SelfhelpOrderMgr.Model.T_SHO_GoodsAttribute>)
+                            {
+                                <option value="@item.Id">@item.AttributeName</option>
+                            }
+                        }
+                    </select>
+                    <label>规格型号:</label>
+                    <input type="text" id="GoodAttr" />
+                    <input type="hidden" id="GoodAttrId" />
+                    <input type="hidden" id="attrDoType" />
+                    <a id="btnGoodAttrAdd" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-add'" onclick="AddGoodsAtrr()">增加</a>
+                    <a id="btnGoodAttrSave" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-save'" onclick="SaveGoodsAtrr()">保存</a>
+                    <a id="btnGoodAttrDel" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-cancel'" onclick="DelGoodsAtrr()">删除</a>
+                </div>
+                <table id="attrTable" class="easyui-datagrid"></table>
+
+
+            </form>
+        </div>
+
+    </div>
+    <div  data-options="region:'east',title:'查询条件',split:true" style="width:250px;">
+        <div data-options="region:'north',title:'North Title',split:true" style="height:200px;">
+            <form method="post">
+                <table id="crimeSearch">
+                    <tr>
+                        <th align="right">商品名称：</th>
+                        <td align="left">
+                            <input id="FGoodsName" name="FGoodsName" class="easyui-validatebox" style="width:120px;" data-options="required:false,validType:'text'" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">条形码：</th>
+                        <td align="left">
+                            <input id="FGoodsGTXM" name="FGoodsGTXM" class="easyui-validatebox" style="width:120px;" data-options="required:false,validType:'text'" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">店内码：</th>
+                        <td align="left">
+                            <input id="FGoodsShortCode" name="FGoodsShortCode" class="easyui-validatebox" style="width:120px;" data-options="required:false,validType:'text'" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">商品类别：</th>
+                        <td align="left">
+                            <select id="FGoodsType" name="FGoodsType" class="easyui-combobox" style="width:120px;">
+                                <option value="0" selected="selected">请选择类别</option>
+                                @if (ViewData["goodtypes"] != null)
+                                {
+                                    foreach (SelfhelpOrderMgr.Model.T_GoodsType type in ViewData["goodtypes"] as List<SelfhelpOrderMgr.Model.T_GoodsType>)
+                                    {
+                                        <option value="@type.Fcode">@type.Fname</option>
+                                    }
+                                }
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">商品状态：</th>
+                        <td align="left">
+                            <select id="FGoodsStatus" name="FGoodsStatus" class="easyui-combobox" style="width:120px;">
+                                <option value="-2">全部</option>
+                                @if (ViewData["gStatuses"] != null)
+                                {
+                                    foreach (SelfhelpOrderMgr.Model.T_CommonTypeTab gstatus in ViewData["gStatuses"] as List<SelfhelpOrderMgr.Model.T_CommonTypeTab>)
+                                    {
+                                        <option value="@gstatus.FCode">@gstatus.FName</option>
+                                    }
+                                }
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">是否限额：</th>
+                        <td align="left">
+                            <select id="FGoodsIsXianE" name="FGoodsIsXianE" class="easyui-combobox" style="width:120px;">
+                                <option value="2">全部</option>
+                                @if (ViewData["gFreeTypes"] != null)
+                                {
+                                    foreach (SelfhelpOrderMgr.Model.T_CommonTypeTab freetype in ViewData["gFreeTypes"] as List<SelfhelpOrderMgr.Model.T_CommonTypeTab>)
+                                    {
+                                        <option value="@freetype.FCode">@freetype.FName</option>
+                                    }
+                                }
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">供货商家：</th>
+                        <td align="left">
+                            <select id="selSupplyer" name="selSupplyer" class="easyui-combobox" style="width:120px;">
+                                <option value="">选择供货商</option>
+                                @if (ViewData["supplyers"] != null)
+                                {
+                                    foreach (SelfhelpOrderMgr.Model.T_Supplyer sply in ViewData["supplyers"] as List<SelfhelpOrderMgr.Model.T_Supplyer>)
+                                    {
+                                        <option value="@sply.scode">@sply.sName</option>
+                                    }
+                                }
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right"></th>
+                        <td align="right"><a id="btn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-search'" onclick="FilterSearch()">查询</a><a id="A1" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-redo'" onclick="    clearSearch()">清空</a></td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+    </div>
+
+    <script src="~/Scripts/myJs/EditGoods.js"></script>
+    @*<script type="text/javascript">
+        function formatStatus(value, row, index) {
+            if (value=='Y') {
+                return '正常';
+            } else {
+                return '停用';
+            }
+        }
+    </script>*@
+</body>
+
+</html>

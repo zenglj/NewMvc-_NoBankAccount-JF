@@ -1,0 +1,281 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>
+    </ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{C50495E3-C96E-4F6F-B33D-337417D6EA00}</ProjectGuid>
+    <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>SelfhelpOrderMgr.Model</RootNamespace>
+    <AssemblyName>SelfhelpOrderMgr.Model</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <UseIISExpress>false</UseIISExpress>
+    <IISExpressSSLPort />
+    <IISExpressAnonymousAuthentication />
+    <IISExpressWindowsAuthentication />
+    <IISExpressUseClassicPipelineMode />
+    <Use64BitIISExpress />
+    <UseGlobalApplicationHostFile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Web.DynamicData" />
+    <Reference Include="System.Web.Entity" />
+    <Reference Include="System.Web.ApplicationServices" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.EnterpriseServices" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="aa_stock.cs" />
+    <Compile Include="aa_stockDtl.cs" />
+    <Compile Include="AC_SUBYR.cs" />
+    <Compile Include="Area.cs" />
+    <Compile Include="AreaNew.cs" />
+    <Compile Include="A_CCBCount.cs" />
+    <Compile Include="a_OK_List.cs" />
+    <Compile Include="A_tmp_List.cs" />
+    <Compile Include="a_tmp_UserCount.cs" />
+    <Compile Include="DapperModel\BankRcvDateSumModel.cs" />
+    <Compile Include="DapperModel\BaseModel.cs" />
+    <Compile Include="BatchDeposit.cs" />
+    <Compile Include="BatchDepositDTL.cs" />
+    <Compile Include="DapperModel\BaseSumFieldModel.cs" />
+    <Compile Include="DapperModel\EasyUiPageResult.cs" />
+    <Compile Include="DapperModel\PageResult.cs" />
+    <Compile Include="DapperModel\ResultInfo.cs" />
+    <Compile Include="DapperModel\t_BankProve_ext.cs" />
+    <Compile Include="DapperModel\T_Bank_AtmDealList.cs" />
+    <Compile Include="DapperModel\T_Bank_AtmMachine.cs" />
+    <Compile Include="DapperModel\T_Bank_CardPool_Search.cs" />
+    <Compile Include="DapperModel\T_Bank_CardPool.cs" />
+    <Compile Include="DapperModel\T_Bank_CNAPS.cs" />
+    <Compile Include="DapperModel\T_Bank_AtmDealList_Search.cs" />
+    <Compile Include="DapperModel\T_Bank_PaymentDetail.cs" />
+    <Compile Include="DapperModel\T_Bank_PayRecBase.cs" />
+    <Compile Include="DapperModel\T_Bank_Rcv.cs" />
+    <Compile Include="DapperModel\T_Bank_TransDetail.cs" />
+    <Compile Include="DapperModel\T_SysOperationLog.cs" />
+    <Compile Include="DapperModel\T_Trans_BankAccount.cs" />
+    <Compile Include="DapperModel\T_Trans_FeeList.cs" />
+    <Compile Include="DapperModel\T_Bank_Rcv_Search.cs" />
+    <Compile Include="DapperModel\ViewBankUserInfo.cs" />
+    <Compile Include="DapperModel\ViewPaymentRecordExtend.cs" />
+    <Compile Include="DapperModel\T_Vcrd_Search.cs" />
+    <Compile Include="DapperModel\T_Bank_DepositList_Search.cs" />
+    <Compile Include="DapperModel\ViewPaymentRecordExt_Search.cs" />
+    <Compile Include="ExtModel\Comment_Ext.cs" />
+    <Compile Include="ExtModel\PeihuoDanPrintList.cs" />
+    <Compile Include="ExtModel\T_CrimeList_Ext.cs" />
+    <Compile Include="ExtModel\T_Criminal_Ext.cs" />
+    <Compile Include="ExtModel\T_CY_ChinaFestival_Ext.cs" />
+    <Compile Include="ExtModel\T_CZY_Ext.cs" />
+    <Compile Include="ExtModel\T_EdiDetail_Ext.cs" />
+    <Compile Include="ExtModel\T_EdiMainOrder_Ext.cs" />
+    <Compile Include="ExtModel\T_GoodsExt.cs" />
+    <Compile Include="ExtModel\T_ICCardUser_Ext.cs" />
+    <Compile Include="ExtModel\T_Invoice_Ext.cs" />
+    <Compile Include="ExtModel\T_SHO_ManagerSet_Ext.cs" />
+    <Compile Include="ExtModel\T_SHO_OrderDTL_Ext.cs" />
+    <Compile Include="ExtModel\T_TempLeavePrison_Ext.cs" />
+    <Compile Include="ExtModel\T_TreeMeun_Ext.cs" />
+    <Compile Include="ExtModel\T_UserInfoExt.cs" />
+    <Compile Include="ExtModel\T_Vcrd_Ext.cs" />
+    <Compile Include="ExtModel\T_VeryDay_RcvPay.cs" />
+    <Compile Include="ExtModel\t_XFQueryList_Ext.cs" />
+    <Compile Include="ExtModel\xfMingxi.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Shyue.cs" />
+    <Compile Include="tappstatus.cs" />
+    <Compile Include="Tlog.cs" />
+    <Compile Include="tmp_criminal.cs" />
+    <Compile Include="Tuserrole.cs" />
+    <Compile Include="T_AREA.cs" />
+    <Compile Include="t_area_change.cs" />
+    <Compile Include="T_AREA_TMP.cs" />
+    <Compile Include="T_BALANCE.cs" />
+    <Compile Include="t_balanceList.cs" />
+    <Compile Include="T_BankAccount.cs" />
+    <Compile Include="t_bankFeeList.cs" />
+    <Compile Include="t_bankinfo.cs" />
+    <Compile Include="t_BankProve.cs" />
+    <Compile Include="t_bank_dealList.cs" />
+    <Compile Include="DapperModel\T_Bank_DepositList.cs" />
+    <Compile Include="t_bank_PayList.cs" />
+    <Compile Include="DapperModel\T_Bank_PaymentRecord.cs" />
+    <Compile Include="t_bank_RcvList.cs" />
+    <Compile Include="t_bank_regList.cs" />
+    <Compile Include="T_BatchMoneyTrade.cs" />
+    <Compile Include="T_BatchMoneyTrade_DTL.cs" />
+    <Compile Include="T_BatchMoneyTrade_ErrList.cs" />
+    <Compile Include="T_BONUS.cs" />
+    <Compile Include="T_BONUSDTL.cs" />
+    <Compile Include="T_CARD_LIST.cs" />
+    <Compile Include="T_Criminal_ChangeList.cs" />
+    <Compile Include="DapperModel\T_Criminal_OutBankAccount.cs" />
+    <Compile Include="T_CY_ChinaFestival.cs" />
+    <Compile Include="T_CommonTypeTab.cs" />
+    <Compile Include="T_Course.cs" />
+    <Compile Include="T_CRIME.cs" />
+    <Compile Include="T_Criminal.cs" />
+    <Compile Include="T_Criminal_card.cs" />
+    <Compile Include="T_CRIMINAL_LIST.cs" />
+    <Compile Include="T_Criminal_TPList.cs" />
+    <Compile Include="T_CY_TYPE.cs" />
+    <Compile Include="T_CZY.cs" />
+    <Compile Include="T_CzyWeb_area.cs" />
+    <Compile Include="T_Czy_area.cs" />
+    <Compile Include="T_Czy_priv.cs" />
+    <Compile Include="T_DocType.cs" />
+    <Compile Include="T_EdiBankSumList.cs" />
+    <Compile Include="T_EdiDetail.cs" />
+    <Compile Include="T_EdiList.cs" />
+    <Compile Include="T_FAMILY_LIST.cs" />
+    <Compile Include="t_FeeList.cs" />
+    <Compile Include="T_Goods.cs" />
+    <Compile Include="T_GoodsStock.cs" />
+    <Compile Include="T_GOODSSTOCKMAIN.cs" />
+    <Compile Include="T_GoodsType.cs" />
+    <Compile Include="T_Goods_ChangeList.cs" />
+    <Compile Include="T_Goods_combine.cs" />
+    <Compile Include="T_Goods_price.cs" />
+    <Compile Include="T_Goods_subdtl.cs" />
+    <Compile Include="T_ICCARD_LIST.cs" />
+    <Compile Include="T_Importgoods.cs" />
+    <Compile Include="T_ImportList.cs" />
+    <Compile Include="T_Inicard.cs" />
+    <Compile Include="T_Invoice.cs" />
+    <Compile Include="T_InvoiceDTL.cs" />
+    <Compile Include="T_Invoice_old.cs" />
+    <Compile Include="T_Invoice_out.cs" />
+    <Compile Include="T_Invoice_outdtl.cs" />
+    <Compile Include="T_MainInv.cs" />
+    <Compile Include="T_MeetDate.cs" />
+    <Compile Include="T_MEET_AREA.cs" />
+    <Compile Include="T_MEET_TYPE.cs" />
+    <Compile Include="T_Menu.cs" />
+    <Compile Include="T_MONEY.cs" />
+    <Compile Include="T_NotifyFile.cs" />
+    <Compile Include="T_Provide.cs" />
+    <Compile Include="T_ProvideDTL.cs" />
+    <Compile Include="T_Ptype.cs" />
+    <Compile Include="T_RECORD_INFO.cs" />
+    <Compile Include="T_RELATION.cs" />
+    <Compile Include="T_REP_TEMP.cs" />
+    <Compile Include="T_Role.cs" />
+    <Compile Include="T_Role_priv.cs" />
+    <Compile Include="T_Savetype.cs" />
+    <Compile Include="T_SearchBankAccNo.cs" />
+    <Compile Include="T_SEQNO.cs" />
+    <Compile Include="T_SETTINGS.cs" />
+    <Compile Include="T_Sex_Tmp.cs" />
+    <Compile Include="T_SGOODS.cs" />
+    <Compile Include="T_SHO_AreaGoodMaxCount.cs" />
+    <Compile Include="T_SHO_BankReturnList.cs" />
+    <Compile Include="T_SHO_ClientMachine.cs" />
+    <Compile Include="T_SHO_FinancePay.cs" />
+    <Compile Include="T_SHO_GoodsAttribute.cs" />
+    <Compile Include="T_SHO_GoodsForAttr.cs" />
+    <Compile Include="T_SHO_ManagerSet.cs" />
+    <Compile Include="T_SHO_Order.cs" />
+    <Compile Include="T_SHO_OrderDTL.cs" />
+    <Compile Include="T_SHO_SaleDayList.cs" />
+    <Compile Include="T_SHO_SaleType.cs" />
+    <Compile Include="T_Stock.cs" />
+    <Compile Include="T_StockDTL.cs" />
+    <Compile Include="T_SUB_AREA.cs" />
+    <Compile Include="T_Supplyer.cs" />
+    <Compile Include="T_TempAmount_Card.cs" />
+    <Compile Include="T_TempLeavePrison.cs" />
+    <Compile Include="T_TempLilun.cs" />
+    <Compile Include="T_TEST_DB.cs" />
+    <Compile Include="T_TmpRcvPay.cs" />
+    <Compile Include="T_TotalMeet.cs" />
+    <Compile Include="T_TreeArea.cs" />
+    <Compile Include="t_TreeMenu_User.cs" />
+    <Compile Include="t_TreeMeun.cs" />
+    <Compile Include="t_TreeRole.cs" />
+    <Compile Include="t_TreeRole_Menu.cs" />
+    <Compile Include="T_Units.cs" />
+    <Compile Include="T_Vcrd.cs" />
+    <Compile Include="T_Vcrd_error.cs" />
+    <Compile Include="T_Vcrd_old.cs" />
+    <Compile Include="T_XFGSList.cs" />
+    <Compile Include="t_XFInvoiceTmp.cs" />
+    <Compile Include="t_XFQueryList.cs" />
+    <Compile Include="t_XFQueryTmp.cs" />
+    <Compile Include="t_ye.cs" />
+    <Compile Include="WebServModel\CriminalCardEntity.cs" />
+    <Compile Include="WebServModel\CriminalEntity.cs" />
+    <Compile Include="WebServModel\InvoiceEntity.cs" />
+    <Compile Include="WebServModel\ResultEntity.cs" />
+    <Compile Include="WebServModel\VcrdEntity.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Properties\PublishProfiles\selfOrderManager.pubxml" />
+  </ItemGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" Condition="false" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>False</UseIIS>
+          <AutoAssignPort>True</AutoAssignPort>
+          <DevelopmentServerPort>7234</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>http://localhost/SelfhelpOrderMgr.Model</IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>False</UseCustomServer>
+          <CustomServerUrl>
+          </CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

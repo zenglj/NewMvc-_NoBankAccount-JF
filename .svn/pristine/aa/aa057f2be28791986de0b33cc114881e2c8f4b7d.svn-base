@@ -1,0 +1,100 @@
+﻿
+<hr />
+<footer>
+    <nav class="navbar navbar-inverse">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                
+                <div class="row">
+                    <div class="col-sm-1"></div>
+                        <div class="col-sm-2">
+                            <div class="row">
+                                <a class="navbar-brand" href="#" style="color:white">
+                                    查询相关
+                                </a>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-sm-8">
+                                    <ul class="nav navbar-nav" style="font-size:16px;">
+                                        <li>@Html.ActionLink("用户信息", "Index", "UserQuery")</li>
+                                        <li>@Html.ActionLink("商品信息", "GoodsView", "Home")</li>                                        
+                                        <li>@Html.ActionLink("商品列表", "Lists", "Goods")</li>
+                                    </ul>
+                                </div>
+                                <div class="col-sm-4"></div>
+                            </div>
+
+                        </div>
+
+                        <div class="col-sm-3">
+                            <div class="row">
+                                <a class="navbar-brand" href="#" style="color:white">
+                                    自助消费功能
+                                </a>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <ul class="nav navbar-nav" style="font-size:16px;">
+                                        <li>@Html.ActionLink("超市购物", "Index", "Shopping", new { id = 1, SaleMode = "Shopping" }, new { target = "_self" })</li>
+                                        <li>@Html.ActionLink("医院消费", "Index", "Shopping", new { id = 2, SaleMode = "Shopping" }, new { target = "_self" })</li>
+                                        <li>@Html.ActionLink("加餐消费", "Index", "Shopping", new { id = 3, SaleMode = "Shopping" }, new { target = "_self" })</li>
+                                        <li>@Html.ActionLink("书报消费", "Index", "Shopping", new { id = 4, SaleMode = "Shopping" }, new { target = "_self" })</li>
+                                        <li>@Html.ActionLink("被服消费", "Index", "Shopping", new { id = 5, SaleMode = "Shopping" }, new { target = "_self" })</li>
+                                    </ul>
+                                </div>
+                                <div class="col-sm-6"></div>
+                            </div>
+
+                        </div>
+
+                        <div class="col-sm-3">
+                            <div class="row">
+                                <a class="navbar-brand" href="#" style="color:white">
+                                    代购消费功能
+                                </a>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <ul class="nav navbar-nav" style="font-size:16px;">
+                                        <li>@Html.ActionLink("超市购物", "Index", "Sales", new { id = 1, SaleMode = "Sales" }, new { target = "_self" })</li>
+                                        <li>@Html.ActionLink("医院消费", "Index", "Sales", new { id = 2, SaleMode = "Sales" }, new { target = "_self" })</li>
+                                        <li>@Html.ActionLink("加餐消费", "Index", "Sales", new { id = 3, SaleMode = "Sales" }, new { target = "_self" })</li>
+                                        <li>@Html.ActionLink("书报消费", "Index", "Sales", new { id = 4, SaleMode = "Sales" }, new { target = "_self" })</li>
+                                        <li>@Html.ActionLink("被服消费", "Index", "Sales", new { id = 5, SaleMode = "Sales" }, new { target = "_self" })</li>
+                                    </ul>
+                                </div>
+                                <div class="col-sm-6"></div>
+                            </div>
+
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="row">
+                                <a class="navbar-brand" href="#" style="color:white">
+                                    管理操作
+                                </a>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <ul class="nav navbar-nav" style="font-size:16px;">
+                                        <li>@Html.ActionLink("刷卡开启", "Login", "Home")</li>
+                                        <li>@Html.ActionLink("打印小票", "PrintCkeck", "Home", routeValues: null, htmlAttributes: new { id = "registerLink" })</li>                                        
+                                    </ul>
+                                </div>
+                                <div class="col-sm-6"></div>
+                            </div>
+
+                        </div>
+
+                    </div>
+                <div class="text-right">
+                    <p class="navbar-text">&copy; @DateTime.Now.Year - 监狱 自助网购应用程序</p>
+                </div>
+            </div>
+        </div>
+
+    </nav>
+</footer>

@@ -1,0 +1,1062 @@
+ï»¿$(function () {
+    //jquery js å½“æ–‡æœ¬æ¡†è·å¾—ç„¦ç‚¹æ—¶ï¼Œè‡ªåŠ¨é€‰ä¸­é‡Œé¢çš„æ–‡å­—
+    $(function () {
+        $(":text").focus(function () {
+            this.select();
+        });
+    });
+
+    //åŠ è½½å¹¶æ˜¾ç¤ºåŠ³æŠ¥æ˜ç»†åˆ—è¡¨
+    $('#test').datagrid({
+        //title: 'è´¦æˆ·ä½™é¢åˆ—è¡¨',
+        iconCls: 'icon-save',
+        //width: 850,
+        height: 200,
+        queryParams: {
+            fName: '',
+            fCode: '00000',
+            fAreaName: '',
+            action: 'NewSystem'
+        },
+        fitColumns: true,
+        nowrap: true,
+        singleSelect: true,
+        autoRowHeight: false,
+        striped: true,
+        collapsible: true,
+        url: '/Laobao/getLaobaoDetailByBid',
+        sortName: 'seqno',
+        sortOrder: 'asc',
+        remoteSort: false,
+        idField: 'seqno',
+        pageSize: 10,
+        pageList: [10,20,50, 100],
+        onSelect: function (rowIndex, rowData) {
+            var iRowId = rowIndex;
+            //$('#test').datagrid('clearSelections'); //æ¸…é™¤æ‰€æœ‰çš„é€‰æ‹©é¡¹
+            //$('#test').datagrid('selectRow', iRowId);
+            //$('#test').datagrid('checkRow', iRowId);                     
+        },
+        frozenColumns: [[
+        { field: 'ck', checkbox: true },
+        { title: 'ç”¨æˆ·ç¼–å·', field: 'FCRIMECODE', width: 80, sortable: true }
+        ]],
+        columns: [[
+        { field: 'seqno', title: 'seqno', width: 120, hidden: true },
+        { field: 'fcriminal', title: 'å§“å', width: 120 },
+        {
+            field: 'fareaName', title: 'é˜Ÿåˆ«åç§°', width: 220, sortable: true, //rowspan: 2,
+            sorter: function (a, b) {
+                return (a > b ? 1 : -1);
+            }
+        },
+        //{ field: 'FBankAccNo', title: 'é“¶è¡Œå¡å·', width: 150 },
+        //{ field: 'FAmountA', title: 'å­˜æ¬¾è´¦æˆ·', width: 150 },
+        //{ field: 'FAmountB', title: 'æŠ¥é…¬è´¦æˆ·', width: 150 },
+        //{ field: 'FAmountC', title: 'ç•™å­˜é‡‘é¢', width: 150 },
+        { field: 'FAMOUNT', title: 'å®å‘ä½™é¢', width: 150, editor: 'numberbox'},
+        { field: 'AmountC', title: 'ç•™å­˜é‡‘é¢', width: 150 },
+        { field: 'remark', title: 'å¤‡æ³¨', width: 150 }
+        ]],
+        pagination: true,
+        rownumbers: true,
+        toolbar: [{
+            id: 'btnDetailDel',
+            text: 'åˆ é™¤è®°å½•',
+            iconCls: 'icon-cancel',
+            handler: function () {
+                var delRow = $("#test").datagrid('getSelected');
+                var delIdx = $("#test").datagrid('getRowIndex', delRow);
+                DelDetailList(delRow.seqno, delIdx);//åˆ é™¤ä¸€æ¡æ˜ç»†è®°
+            }
+        }]
+    });
+
+    //è·å–DataGrid Tableé¡µæ•°æ®
+    var p = $('#test').datagrid('getPager');
+    $(p).pagination({
+        onBeforeRefresh: function () {
+            alert('before refresh');
+        }
+    });
+
+    //åŠ è½½æ˜¾ç¤ºé˜Ÿåˆ«åˆ—è¡¨
+    //$('#cc').combobox({
+    //    url: '../UI/Commons.ashx?action=GetAreaList',
+    //    valueField: 'FCode',
+    //    textField: 'FName'
+    //});
+
+
+    //åŠ è½½æ˜¾ç¤ºé˜Ÿåˆ«åˆ—è¡¨
+    //$('#mainAreaName').combobox({
+    //    url: '../UI/Commons.ashx?action=GetAreaList',
+    //    valueField: 'FCode',
+    //    textField: 'FName'
+    //});
+
+    $("#winShenHuYuanYing").window('close');
+    $("#winBankReturn").window('close');
+    //åŠ è½½ä¸»å•åˆ—è¡¨
+    loadMainOrderTable();
+
+});
+function resize() {
+    $('#test').datagrid('resize', {
+        width: 700,
+        height: 400
+    });
+}
+
+function getSelected() {
+    var selected = $('#test').datagrid('getSelected');
+    if (selected) {
+        alert(selected.code + ":" + selected.name + ":" + selected.addr + ":" + selected.col4);
+    }
+}
+
+function getSelections() {
+    var ids = [];
+    var rows = $('#test').datagrid('getSelections');
+    for (var i = 0; i < rows.length; i++) {
+        ids.push(rows[i].code);
+    }
+    alert(ids.join(':'));
+}
+function clearSelections() {
+    $('#test').datagrid('clearSelections');
+}
+function selectRow() {
+    $('#test').datagrid('selectRow', 2);
+}
+function selectRecord() {
+    $('#test').datagrid('selectRecord', '002');
+}
+function unselectRow() {
+    $('#test').datagrid('unselectRow', 2);
+}
+function mergeCells() {
+    $('#test').datagrid('mergeCells', {
+        index: 2,
+        field: 'addr',
+        rowspan: 2,
+        colspan: 2
+    });
+}
+//æ¸…ç©ºæŸ¥è¯¢æ¡ä»¶
+function clearSearch() {
+    $("#crimeSearch input").val("");
+}
+//è¿‡æ»¤æŸ¥è¯¢
+function FilterSearch() {
+    $('#mainOrderTable').datagrid('load', {
+        fCrimeName: $("#crimeSearch input[name=fCrimeName]").val(),
+        fCrimeCode: $("#crimeSearch input[name=fCrimeCode]").val(),
+        fRemark: $("#crimeSearch input[name=fRemark]").val(),
+        fAreaName: $('#cc').combobox('getText'),
+        startDate: $("#crimeSearch input[name=startDate]").val(),
+        endDate: $("#crimeSearch input[name=endDate]").val(),
+        action: 'GetSearchMainOrder'
+    });
+}
+
+//åˆ é™¤ä¸€æ¡æ˜ç»†è®°
+function DelDetailList(seqno, idx) {
+    $.post("/Laobao/DelOrderDetail", {  "seqno": seqno, "sbid": $("#sbid").val() }, function (data, status) {
+        if (status == "success") {
+            var words = data.split(".");
+            if (words[0] == "OK") {
+                //æ›´æ–°ä¸»å•æ•°é‡åŠé‡‘é¢
+                var infos = words[1].split("|");
+                UpdateMainOrderMoneyCount(infos[1], infos[2]);
+                $("#test").datagrid('deleteRow', idx);
+                $.messager.alert('æç¤º', "åˆ é™¤æˆåŠŸ");
+                return false;
+            } else {
+                $.messager.alert('æç¤º', data);
+            }
+        } else {
+            alert("é€šä¿¡å¤±è´¥");
+        }
+    });
+}
+
+
+//ç¡®å®šæäº¤ä¸»å•
+function SubmitMainOrder(bid) {
+    $.post("/Laobao/PostMainOrder/"+$("#PowerId").val(), { "sbid": bid }, function (data, status) {
+        if (status == "success") {
+            var words = data.split("|");
+            if (words[0] == "OK") {
+                //æ›´æ–°ç¡®è®¤çŠ¶æ€                                                
+                //UpdateMainOrderStatus("1", "FCheckFlag");
+
+                var mainRow = $('#mainOrderTable').datagrid('getSelected');
+                var idx = $('#mainOrderTable').datagrid('getRowIndex', mainRow);
+                var bouns=$.parseJSON(words[2]);
+                $('#mainOrderTable').datagrid('updateRow', {
+                    index: idx,
+                    row: {
+                        FCheckFlag: bouns.FCheckFlag,
+                        auditflag: bouns.auditflag,
+                        Fdbcheckflag: bouns.Fdbcheckflag,
+                        FLAG: bouns.FLAG
+                    }
+                });
+
+                $('#btnDel').linkbutton('disable');
+                $('#btnSubmit').linkbutton('disable');
+                $.messager.alert('æç¤º', "æäº¤æˆåŠŸ");
+                return false;
+            } else {
+                $.messager.alert('æç¤º', data);
+            }
+        } else {
+            alert("é€šä¿¡å¤±è´¥");
+        }
+    });
+}
+
+
+
+//å®¡æ ¸å·²ç»æäº¤çš„ä¸»å•
+function AuditMain(bid) {
+    var row = $("#mainOrderTable").datagrid("getSelected");
+    if (row == null) {
+        $.messager.alert("è¯·é€‰æ‹©ä¸€æ¡åŠ³æŠ¥ä¸»å•è®°å½•");
+        return false;
+    }
+    if (row.FCheckFlag == 1) {
+        if (row.auditflag == 0) {
+            $.post("/Laobao/AuditMainOrder", { "sbid": row.BID }, function (data, status) {
+                if (status == "success") {
+                    var words = data.split(".");
+                    if (words[0] == "OK") {
+                        //æ›´æ–°ç¡®è®¤çŠ¶æ€                                                
+                        UpdateMainOrderStatus("1","auditflag");
+                        $.messager.alert('æç¤º', words[1]);
+                        return false;
+                    } else {
+                        $.messager.alert('æç¤º', data);
+                    }
+                } else {
+                    alert("é€šä¿¡å¤±è´¥");
+                }
+            });
+        } else {
+            $.messager.alert("è¯¥ä¸»å•å·²ç»å®¡æ ¸ï¼Œæ— éœ€å†å®¡æ ¸");
+            return false;
+        }
+
+    } else {
+        $.messager.alert("è¯¥å®šå•æœªæäº¤ç¡®è®¤ï¼Œä¸èƒ½å®¡æ ¸");
+        return false;
+    }
+    
+}
+
+//å¤æ ¸å·²ç»æäº¤çš„ä¸»å•
+function DbCheckMain(bid) {
+    var row = $("#mainOrderTable").datagrid("getSelected");
+    if (row == null) {
+        $.messager.alert("è¯·é€‰æ‹©ä¸€æ¡åŠ³æŠ¥ä¸»å•è®°å½•");
+        return false;
+    }
+    if (row.auditflag == 1) {
+        if (row.Fdbcheckflag == 0) {
+            $.post("/Laobao/DbCheckMainOrder", { "sbid": row.BID }, function (data, status) {
+                if (status == "success") {
+                    var words = data.split(".");
+                    if (words[0] == "OK") {
+                        //æ›´æ–°ç¡®è®¤çŠ¶æ€                                                
+                        UpdateMainOrderStatus("1","Fdbcheckflag");
+                        $.messager.alert('æç¤º', "æäº¤æˆåŠŸ");
+                        return false;
+                    } else {
+                        $.messager.alert('æç¤º', data);
+                    }
+                } else {
+                    alert("é€šä¿¡å¤±è´¥");
+                }
+            });
+        } else {
+            $.messager.alert("è¯¥ä¸»å•å·²ç»å®¡æ ¸ï¼Œæ— éœ€å†å®¡æ ¸");
+            return false;
+        }
+
+    } else {
+        $.messager.alert("è¯¥å®šå•æœªæäº¤ç¡®è®¤ï¼Œä¸èƒ½å®¡æ ¸");
+        return false;
+    }
+
+}
+
+//è´¢åŠ¡å…¥è´¦åˆ°VCRDçš„ä¸»å•
+function InDbMain(bid) {
+    var row = $("#mainOrderTable").datagrid("getSelected");
+    if (row == null) {
+        $.messager.alert("æç¤º", "è¯·é€‰æ‹©ä¸€æ¡åŠ³æŠ¥ä¸»å•è®°å½•");
+        return false;
+    }
+    if (row.Fdbcheckflag == 1) {
+        if (row.FLAG == 0) {
+            $.messager.progress({
+                title: 'å¯¼å…¥æ•°å¯èƒ½éœ€è¦å‡ åˆ†é’Ÿï¼Œè¯·è€å¿ƒç­‰å¾…',
+                msg: 'æ•°æ®æ­£åœ¨å¯¼å…¥ä¸­...'
+            });
+            $.post("/Laobao/InDbMainOrder", { "sbid": row.BID }, function (data, status) {
+                if (status == "success") {
+                    $.messager.progress('close');
+                    var words = data.split("|");
+                    if (words[0] == "OK") {
+                        //æ›´æ–°ç¡®è®¤çŠ¶æ€                                                
+                        UpdateMainOrderStatus("1","FLAG");
+                        $.messager.alert('æç¤º', words[1]);
+                        return false;
+                    } else {
+                        $.messager.alert('æç¤º', data);
+                    }
+                } else {
+                    $.messager.progress('close');
+                    alert("é€šä¿¡å¤±è´¥");
+                }
+            });
+        } else {
+            $.messager.alert("æç¤º", "è¯¥ä¸»å•å·²ç»å®¡æ ¸ï¼Œæ— éœ€å†å®¡æ ¸");
+            return false;
+        }
+
+    } else {
+        $.messager.alert("æç¤º", "è¯·é€‰æ‹©ä¸€æ¡åŠ³æŠ¥ä¸»å•è®°å½•");
+        return false;
+    }
+
+}
+
+//è†ç”°ç‰ˆè´¢åŠ¡å…¥è´¦ï¼Œæ ¹æ®é“¶è¡Œè¿”å›ç»“æœ
+function BankReturnMain() {
+    //åˆ¤æ–­ä¸»å•åˆ¤æ–­
+    var row = $("#mainOrderTable").datagrid("getSelected");
+    if (row == null) {
+        $.messager.alert("æç¤º","è¯·é€‰æ‹©ä¸€æ¡åŠ³æŠ¥ä¸»å•è®°å½•");
+        return false;
+    }
+    if(row.FLAG==0)
+    {
+        $("#BankResultExcelBid").val(row.BID);
+        $("#winBankReturn").window('open');
+    } else {
+        $.messager.alert("æç¤º", "è¯¥ä¸»å•å·²ç»å¯¼å…¥è¿‡åˆ°ä¸èƒ½é‡å¤å¯¼å…¥");
+        return false;
+    }
+    
+
+    //æ˜¾ç¤ºå¯¼å…¥æ¡†
+
+}
+
+//è†ç”°ç‰ˆ,å¯¼å…¥é“¶è¡Œç»“æœæ–‡ä»¶,å†™å…¥åˆ°æ•°æ®åº“
+function ImportBankExcelResult() {
+    //é¦–å…ˆåˆ¤æ–­Excelæ–‡ä»¶æ˜¯å¦ä¸ºç©º
+    //å…¶æ¬¡åˆ¤æ–­ä¸»å•åˆ¤æ–­
+    //ä¸Šä¼ åˆ°åå°å»æ‰§è¡Œ
+    if ($("#BankResultExcelBid").val() == "")
+    {
+        $.messager.alert('æç¤º', "ä¸»å•å·ä¸èƒ½ä¸ºç©º!");
+        return false;
+    }
+    if ($("#BankResultFileName").val() == "") {
+        $.messager.alert('æç¤º', "è¯·é€‰æ‹©ä¸€ä¸ªExcelæ–‡ä»¶!");
+        return false;
+    } else {
+        $('#ffBankExcel').form({
+            url: "/Laobao/PuTianExcelInport",
+            onSubmit: function () {
+                // do some check    
+                // return false to prevent submit;    
+            },
+            success: function (data) {
+                $.messager.progress('close');
+                var words = data.split("|");
+                $("#BankResultExcelBid").val('');
+                if (words[0] == "OK") {
+                    $.messager.alert('æç¤º', words[1]);
+                } else {
+                    $.messager.alert('æç¤º', data);
+                }
+
+            }
+        });
+        $('#ffBankExcel').submit();
+        $.messager.progress({
+            title: 'å¯¼å…¥æ•°å¯èƒ½éœ€è¦å‡ åˆ†é’Ÿï¼Œè¯·è€å¿ƒç­‰å¾…',
+            msg: 'æ•°æ®æ­£åœ¨å¯¼å…¥ä¸­...'
+        });
+    }
+
+    
+}
+//åˆ é™¤ä¸»å•
+function DeleteMainOrder(bid, idx) {
+    $.post("/Laobao/DelMainOrder", {"sbid": bid }, function (data, status) {
+        if (status == "success") {
+            //alert(data);
+            var words = data.split(".");
+            if (words[0] == "OK") {
+                $.messager.alert('æç¤º', "åˆ é™¤æˆåŠŸ");
+                $("#mainOrderTable").datagrid('deleteRow', idx);
+
+            } else {
+                $.messager.alert('æç¤º', "åˆ é™¤å¤±è´¥");
+            }
+        } else {
+            $.messager.alert('æç¤º', "é€šä¿¡å¤±è´¥");
+        }
+    });
+}
+
+
+//è·å–æŒ‡å®šå•çš„æ˜ç»†è®°å½•å¹¶æ˜¾ç¤ºåœ¨Teståˆ—è¡¨ä¸­
+function GetOrderDetailToTable(bid) {
+    $('#test').datagrid('load', {
+        FBid: bid,
+        action: 'GetOrderDetail'
+    });
+}
+
+//è®¾å®šæ˜ç»†æ¡†çš„ç¼–è¾‘çŠ¶æ€
+function SetDetailTextBox(Flag) {
+    //alert(Flag);
+    if (Flag == "1") {
+        $('#iCode').attr("disabled", "disabled");
+        $('#iName').attr("disabled", "disabled");
+        $('#iMoney').attr("disabled", "disabled");
+        $('#btnDetailDel').linkbutton('disable');
+        $('#btnsave').linkbutton('disable');
+        //$('#btndel').linkbutton('disable'); 
+        $('#btnsubmit').linkbutton('disable');
+        $('#btnExcelImport').linkbutton('disable');
+        $('#CreateAreaList').linkbutton('disable');
+        $('#SaveList').linkbutton('disable');
+
+    } else {
+        $('#iCode').removeAttr("disabled");
+        $('#iName').removeAttr("disabled");
+        $('#iMoney').removeAttr("disabled");
+        $('#btnDetailDel').linkbutton('enable');
+        $('#btnsave').linkbutton('enable');
+        //$('#btndel').linkbutton('enable'); 
+        $('#btnsubmit').linkbutton('enable');
+        $('#btnExcelImport').linkbutton('enable');
+        $('#CreateAreaList').linkbutton('enable');
+        $('#SaveList').linkbutton('enable');
+
+    }
+}
+
+//ä¸»å•å®¡æ ¸çš„å·¥å…·æŒ‰é’®çŠ¶æ€
+function SetMainToolBox(row) {
+    //alert(Flag);
+    //ç¡®è®¤ä¹‹åä¸èƒ½åˆ é™¤
+
+    $('#btnSave').linkbutton('disable');
+    if (row.FCheckFlag == "1") {
+        $('#btnDel').linkbutton('disable');
+        $('#btnSubmit').linkbutton('disable');
+        $('#btnBankReturn').linkbutton('enable');
+        
+    } else {
+        $('#btnDel').linkbutton('enable');
+        $('#btnSubmit').linkbutton('enable');
+        $('#btnBankReturn').linkbutton('disable');
+    }
+    //å®¡æ ¸ä¹‹åä¸èƒ½é€€å›ç›‘åŒº,å³å–æ¶ˆæäº¤
+    if (row.auditflag == "1") {
+        $('#btnAudit').linkbutton('disable');
+        $('#btnUndoSubmit').linkbutton('disable');
+    } else {
+        $('#btnAudit').linkbutton('enable');
+        $('#btnUndoSubmit').linkbutton('enable');
+    }
+    //å¤æ ¸ä¹‹åä¸èƒ½é€€å›å®¡æ ¸,å³å–æ¶ˆå®¡æ ¸
+    if (row.Fdbcheckflag == "1") {
+        $('#btnDbCheck').linkbutton('disable');
+        $('#btnUndoAudit').linkbutton('disable');
+    } else {
+        $('#btnDbCheck').linkbutton('enable');
+        $('#btnUndoAudit').linkbutton('enable');
+    }
+    //å…¥è´¦ä¹‹åä¸èƒ½é€€å›å¤æ ¸,å³å–æ¶ˆå¤æ ¸
+    if (row.FLAG == "1") {
+        $('#btnInDb').linkbutton('disable');
+        $('#btnUndoDbCheck').linkbutton('disable');
+        $('#btnBankReturn').linkbutton('disable');
+        
+    } else {
+        $('#btnInDb').linkbutton('enable');
+        $('#btnUndoDbCheck').linkbutton('enable');
+        //$('#btnBankReturn').linkbutton('enable');//è†ç”°é“¶è¡Œè¿”å›éªŒè¯æŒ‰é’®
+    }
+}
+//åŠ è½½ä¸»å•åˆ—è¡¨å‡½æ•°
+function loadMainOrderTable() {
+    $('#mainOrderTable').datagrid({
+        //title: 'è´¦æˆ·ä½™é¢åˆ—è¡¨',
+        iconCls: 'icon-save',
+        //width: 900,
+        height: 150,
+        queryParams: {
+            fName: '',
+            fCode: '00000',
+            fAreaName: '',
+            action: 'LoginIn'
+        },
+        fitColumns: true,
+        nowrap: true,
+        autoRowHeight: false,
+        singleSelect: true,
+        striped: true,
+        collapsible: true,
+        url: '/Laobao/getBonus/'+$("#PowerId").val(),
+        sortName: 'BID',
+        sortOrder: 'asc',
+        remoteSort: false,
+        idField: 'BID',
+        //                pageSize: 50,
+        //                pageList: [50, 100],
+        onSelect: function (rowIndex, rowData) {
+            //var iRowId = rowIndex;
+            //$('#test').datagrid('clearSelections'); //æ¸…é™¤æ‰€æœ‰çš„é€‰æ‹©é¡¹
+            //$('#mainOrderTable').datagrid('selectRow', rowIndex);
+            $("#sbid").val(rowData.BID);
+            $("#sOrderStatus").val(rowData.FCheckFlag);
+            SetDetailTextBox(rowData.FCheckFlag);//è®¾å®šæ˜ç»†æ¡†çš„ç¼–è¾‘çŠ¶æ€                    
+            SetMainToolBox(rowData);//ä¸»å•å®¡æ ¸çš„å·¥å…·æŒ‰é’®çŠ¶æ€
+            GetOrderDetailToTable(rowData.BID);//è·å–æŒ‡å®šå•çš„æ˜ç»†è®°å½•å¹¶æ˜¾ç¤ºåœ¨Teståˆ—è¡¨ä¸­
+            $("#excelFileName").val("");//æ¸…ç©ºæ‰€é€‰æ–‡ä»¶å
+            SetMainOrderTooltip(rowData);//è®¾å®šä¸»å•çš„çŠ¶æ€æç¤ºä¿¡æ¯
+        },
+        frozenColumns: [[//DataGridè¡¨æ ¼æ’åºåˆ—
+            { field: 'ck', checkbox: true },
+            { title: 'åºå·', field: 'BID', width: 100, sortable: true }
+        ]],
+        columns: [[//DataGridè¡¨æ ¼æ•°æ®åˆ—
+        {
+            field: 'udate', title: 'æœˆä»½', width: 100, formatter: function (value, row, index) {
+                if (row.udate != null) {
+                    if (row.udate != "") {
+                        nowyear = getShortTime(value);
+                        var years = nowyear.split('-');
+                    return years[0] + "å¹´" + years[1] + "æœˆ";
+                    } else {
+                        return value;
+                    }
+                } else {
+                    return value;
+                }
+            }
+        },
+        {
+            field: 'ApplyBy', title: 'ç”³è¯·äºº', width: 100, sortable: true, //rowspan: 2,
+            sorter: function (a, b) {
+                return (a > b ? 1 : -1);
+            }
+        },
+        {
+            field: 'FCheckFlag', title: 'ç¡®è®¤', width: 60, formatter: function (value, row, index) {
+                if (row.FCheckFlag == "1") {
+                    return "âˆš";
+                } else {
+                    return value;
+                }
+            }
+        },
+        { field: 'CHECKBY', title: 'ç¡®è®¤äºº', width: 100 },
+        {
+            field: 'auditflag', title: 'å®¡æ ¸', width: 60, formatter: function (value, row, index) {
+                if (row.auditflag == "1") {
+                    return "âˆš";
+                } else {
+                    return value;
+                }
+            }
+        },
+        { field: 'auditby', title: 'å®¡æ ¸äºº', width: 100 },
+        {
+            field: 'Fdbcheckflag', title: 'å¤æ ¸', width: 60, formatter: function (value, row, index) {
+                if (row.Fdbcheckflag == "1") {
+                    return "âˆš";
+                } else {
+                    return value;
+                }
+            }
+        },
+        {
+            field: 'FLAG', title: 'å…¥è´¦', width: 60, formatter: function (value, row, index) {
+                if (row.FLAG == "1") {
+                    return "âˆš";
+                } else {
+                    return value;
+                }
+            }
+        },
+        { field: 'FPostBy', title: 'å…¥è´¦äºº', width: 100, sortable: true },
+        { field: 'FrealAreaName', title: 'å®¡æ‰¹ç»“æœ', width: 100, hidden: true, sortable: true },
+        { field: 'fareaName', title: 'æ‰€å±ç›‘åŒº', width: 150, sortable: true },
+        { field: 'cnt', title: 'äººæ•°', width: 80 },
+        { field: 'fAMOUNT', title: 'æ€»ä½™é¢', width: 100 },
+        { field: 'Crtby', title: 'å‘æ”¾äºº', width: 100 },
+        {
+            field: 'crtdt', title: 'åˆ›å»ºæ—¥æœŸ', width: 100, formatter: function (value, row, index) {
+        if (row.crtdt != null) {
+            if (row.crtdt != "") {
+                return getLocalTime(value);
+            } else {
+                return value;
+            }
+        } else {
+            return value;
+        }
+    }
+
+        },
+        { field: 'Remark', title: 'å¤‡æ³¨', width: 150 }
+        ]]
+    });
+}
+
+//è®¾å®šä¸»å•çš„çŠ¶æ€æç¤ºä¿¡æ¯
+function SetMainOrderTooltip(rowData) {
+    var lczt = "";//æµç¨‹çŠ¶æ€
+    if (rowData.FLAG == "1") {
+        lczt = "å·²å…¥è´¦";
+    } else if (rowData.Fdbcheckflag == "1") {
+        lczt = "å·²å¤æ ¸,ç­‰å¾…è´¢åŠ¡å…¥è´¦ä¸­";
+    } else if (rowData.AuditFlag == "1") {
+        lczt = "å·²å®¡æ ¸,ç­‰å¾…è´¢åŠ¡å¤æ ¸ä¸­";
+    } else if (rowData.FCheckFlag == "1") {
+        lczt = "å·²ç¡®è®¤,ç­‰å¾…ç”Ÿç§‘å®¡æ ¸ä¸­";
+    } else {
+        lczt = "æœªç¡®è®¤æäº¤ï¼Œè¯·å°½å¿«ç¡®è®¤";
+    }
+
+    $('#ddts').tooltip({
+        position: 'right',
+        content: "<span style='color:#fff'>æµç¨‹çŠ¶æ€ï¼š" + lczt + ",åŸå› ï¼š" + rowData.FrealAreaName + "</span>",
+        onShow: function () {
+            $(this).tooltip('tip').css({ backgroundColor: '#666', borderColor: '#666' });
+        }
+    });
+}
+
+//å¢åŠ ä¸»å•
+function AddMain() {
+    $("#mainAreaName").combobox('setValue', "");
+    var dt = new Date();
+    $("#syear").numberspinner('setValue', dt.getFullYear());
+    $("#smonth").numberspinner('setValue', dt.getMonth() + 1);
+    $("#MainDoType").val("Add");
+    $('#btnSave').linkbutton('enable');
+    $('#btnAdd').linkbutton('disable');
+}
+
+//ä¿å­˜ä¸»å•
+function SaveMain() {
+    if ($("#sapplyby").val() == "") {
+        $.messager.alert('æç¤º', 'ç”³è¯·äººä¸èƒ½ä¸ºç©º');
+        return false;
+    }
+    if ($("#MainDoType").val() == "Add") {
+        $("#MainAction").val("AddMainOrder");
+        $("#sAreaName").val($("#mainAreaName").combobox('getText'));
+        $("#sAreaCode").val($("#mainAreaName").combobox('getValue'));
+        $('#ffMainOrder').form({
+            url: "/Laobao/AddMainOrder",
+            onSubmit: function () {
+            },
+            success: function (data) {
+                var words = data.split('|');
+                if (words[0] == "OK") {
+                    var infos = $.parseJSON(words[1]);
+                    $('#sbid').val(infos.BID);
+                    $('#mainOrderTable').datagrid('insertRow', {
+                        index: 0,
+                        row: {
+                            BID: infos.BID,
+                            udate: infos.udate,
+                            ApplyBy: $("#sapplyby").val(),
+                            FCheckFlag: "0",
+                            CHECKBY: "",
+                            auditflag: "",
+                            auditby: "",
+                            Fdbcheckflag: "",
+                            FLAG: "",
+                            FPostBy: "",
+                            fareaName: $("#mainAreaName").datetimebox('getText'),
+                            cnt: "0",
+                            fAMOUNT: "0",
+                            Crtby: infos.Crtby,
+                            crtdt: infos.crtdt,
+                            Reamrk: $("#sremark").val()
+                        }
+                    });
+                    $("#sapplyby").val('');
+                    $("#MainDoType").val('');
+                    $('#btnsave').linkbutton('disable');
+                    $.messager.alert('æç¤º', 'ä¿å­˜æˆåŠŸ');
+                } else {
+                    $('#sbid').val("");
+                    $.messager.alert('æç¤º', data);
+                }
+            }
+        });
+        $('#MainDoType').submit();
+    } else {
+        $.messager.alert('æç¤º', 'è¯·ç‚¹å¢åŠ ï¼Œæ‰å¡«å†™ä¸»å•');
+    }
+    $('#btnSave').linkbutton('disable');
+    $('#btnAdd').linkbutton('enable');
+}
+
+//æäº¤ä¸»å•
+function SubmitMain() {
+    var okRow = $("#mainOrderTable").datagrid('getSelected');
+    if (okRow == null) {
+        $.messager.alert("æç¤º", "è¯·é€‰æ‹©ä¸€æ¡ä¸»å•");
+        return false;
+    }
+    SubmitMainOrder(okRow.BID);//ç¡®è®¤æäº¤ä¸»å•
+}
+
+//å–æ¶ˆæäº¤ç¡®è®¤ï¼Œé€€å›ç›‘åŒº
+function undoSubmitAction(undoAction) {
+    var okRow = $("#mainOrderTable").datagrid('getSelected');
+    if (okRow == null)
+    {
+        $.messager.alert("æç¤º", "è¯·é€‰æ‹©ä¸€æ¡ä¸»å•");
+        return false;
+    }
+    $("#FrealAreaName").val('');
+    $("#undoAction").val(undoAction);
+    $("#winShenHuYuanYing").window('open');
+
+    //SubmitMainOrder(okRow.BID);//ç¡®è®¤æäº¤ä¸»å•
+}
+
+//æäº¤é€€å‡ºæ“ä½œï¼Œåˆ°åå°å»æ‰§è¡Œ
+function undoYuanYingTJ() {
+    var okRow = $("#mainOrderTable").datagrid('getSelected');
+    if (okRow == null) {
+        $.messager.alert("æç¤º", "è¯·é€‰æ‹©ä¸€æ¡ä¸»å•");
+        return false;
+    }
+    var undoAction = $("#undoAction").val();
+    var undoRemark = $("#FrealAreaName").val();
+    $.post("/Laobao/undoYuanYingTJ/" + $("#PowerId").val(), {
+        "Bid": okRow.BID,
+        "undoAction": undoAction,
+        "undoRemark": undoRemark
+    }, function (data, status) {
+        if (status == "success") {
+            var words = data.split("|");
+            if (words[0] == "OK") {
+                //$.messager.alert('æç¤º', "åˆ é™¤æˆåŠŸ");
+                var bonus = $.parseJSON(words[1]);
+                var idx = $('#mainOrderTable').datagrid('getRowIndex', okRow);
+                $('#mainOrderTable').datagrid('updateRow', {
+                    index: idx,
+                    row: {
+                        FCheckFlag: bonus.FCheckFlag,
+                        auditflag: bonus.auditflag,
+                        Fdbcheckflag: bonus.Fdbcheckflag,
+                        FLAG: bonus.FLAG,
+                        FrealAreaName: bonus.FrealAreaName
+                    }
+                });
+                var rowData = $("#mainOrderTable").datagrid('getSelected');
+                SetMainOrderTooltip(rowData);//è®¾å®šä¸»å•çš„çŠ¶æ€æç¤ºä¿¡æ¯
+                $("#undoAction").val('');
+                $("#FrealAreaName").val('');
+                $("#winShenHuYuanYing").window('close');
+            } else {
+                $.messager.alert('æç¤º', words[1]);
+            }
+        } else {
+            $.messager.alert('æç¤º', "é€šä¿¡å¤±è´¥");
+        }
+    });
+}
+
+//åˆ é™¤ä¸»å•
+function DeleteMain() {
+    $.messager.confirm('æç¤º', 'æ‚¨çœŸçš„åˆ é™¤è¯¥ä¸»å•å—?', function (r) {
+        if (r) {
+            var delRow = $("#mainOrderTable").datagrid('getSelected');
+            if (delRow.auditflag == 1) {
+                $.messager.alert('æç¤º', 'ä¸»å•å·²ç»å®¡æ ¸ä¸èƒ½åˆ é™¤!');
+                return false;
+            } else {
+                var idx = $("#mainOrderTable").datagrid('getRowIndex', delRow);
+                DeleteMainOrder(delRow.BID, idx);//åˆ é™¤ä¸»å•
+            }
+        }
+    });
+}
+
+//æ‰“å°ä¸»å•
+function PrintMain() {
+    //$('#btnprint').linkbutton('enable');
+    var row = $("#mainOrderTable").datagrid("getSelected");
+    window.open("/Laobao/PrintReportList?bid=" + row.BID);
+}
+
+//Excelå¯¼å‡ºä¸»å•
+function ExcelMain(id) {
+    var row = $("#mainOrderTable").datagrid("getSelected");
+    $("#action").val("ExcelOut");    
+    $("#FBidExcel").val(row.BID);
+    id = $("#PowerId").val();
+    $('#ffExcel').form({
+        url: "/Laobao/ExcelOut/"+id,
+        onSubmit: function () {
+                        
+        },
+        success: function (data) {
+            var words = data.split("|");
+            if (words[0] == "OK") {
+                window.open("/Upload/" + words[1]);
+            }
+            else {
+                $.messager.alert("æç¤º", data);
+            }
+        }
+    });
+    $('#ffExcel').submit();
+}
+
+//ç‹±å·æ¡†å†…æŒ‰å›è½¦
+function noNumbers() {
+    var code = $("#iCode").val();
+    //var name=$("#iName").val();
+    if ("" == code) {
+        //console.info($("#InCY").val());
+        //$.messager.alert('æç¤º', 'è¯·è¾“å…¥ç›¸åº”çš„ç¼–å·!'); 
+        $("#lblInfo").text('è¯·è¾“å…¥ç›¸åº”çš„ç¼–å·!');
+        $("#iCode").focus();
+    } else {
+        $.post("/Laobao/QueryCrimeCode", {
+            "FCode": code
+        }, function (data, status) {
+            if ("success" != status) {
+                return false;
+            } else {
+                //$.messager.alert('æç¤º', data); 
+                var words = data.split(".");
+                if (words[0] == "OK") {
+                    var flieds = words[1].split("|");
+                    if (flieds[2] == 1) {
+                        //$.messager.alert('æç¤º', "è¯¥çŠ¯äººå·²ç»ç¦»ç›‘ç»“ç®—äº†ï¼Œä¸èƒ½å†å­˜!");
+                        $("#lblInfo").text('è¯¥çŠ¯äººå·²ç»ç¦»ç›‘ç»“ç®—äº†ï¼Œä¸èƒ½å†å­˜!');
+                        $("#iCode").focus();
+                    } else {
+                        if (flieds[3] == 1) {
+                            $("#iName").val(flieds[1]);
+                            $("#iCpct").val(flieds[4]);
+                            $("#lblInfo").text('');
+                            $("#iMoney").focus();
+                        } else {
+                            $.messager.alert('æç¤º', flieds[4]);
+                        }
+                    }
+                } else {
+                    //$.messager.alert('æç¤º', "å¯¹ä¸èµ·,æ‚¨è¾“å…¥çš„ç‹±å·ä¸å­˜åœ¨!");
+                    $("#lblInfo").text('å¯¹ä¸èµ·,æ‚¨è¾“å…¥çš„ç‹±å·ä¸å­˜åœ¨!');
+                    $("#iCode").focus();
+                }
+            }
+        });
+    }
+}
+//é‡‘é¢æ¡†å†…æŒ‰å›è½¦ï¼Œå¯ä»¥ç›´æ¥å‘æ”¾é’±
+function noMoneyEnter() {
+    
+    if ($("#sOrderStatus").val() == "1") {
+        $.messager.alert('æç¤º', 'ä¸»å•å·²ç»ç¡®è®¤,ä¸å¯ä»¥å†ç¼–è¾‘!');
+        return false;
+    }
+    if ($("#iCode").val() == "") {
+        //$.messager.alert('æç¤º', 'è¯·è¾“å…¥ç›¸åº”çš„ç¼–å·!');
+
+        //$("#lblInfo").text('è¯·è¾“å…¥ç›¸åº”çš„ç¼–å·!');
+        $("#iCode").focus();
+        return false;
+    }
+    if (isNaN($("#iMoney").val())) {
+        $("#lblInfo").text('é‡‘é¢å¿…é¡»æ˜¯æ•°å€¼çš„!');
+        $("#iMoney").focus();
+        return false;
+    } else {
+    }
+    if ($("#iName").val() == "") {
+        //$.messager.alert('æç¤º', 'è¯·è¾“å…¥ç›¸åº”çš„å§“å!');
+        $("#lblInfo").text('è¯·è¾“å…¥ç›¸åº”çš„å§“å!');
+        $("#iName").focus();
+        return false;
+    }
+    if ($("#iMoney").val() == "") {
+        //$.messager.alert('æç¤º', 'è¯·è¾“å…¥ç›¸åº”çš„é‡‘é¢!');
+        $("#lblInfo").text('è¯·è¾“å…¥ç›¸åº”çš„é‡‘é¢!');
+        $("#iMoney").focus();
+        return false;
+    }
+    if ($("#iCpct").val() == "") {
+        //$.messager.alert('æç¤º', 'å¤„é‡ä¿¡æ¯ä¸æ­£ç¡®!');
+        $("#lblInfo").text('å¤„é‡ä¿¡æ¯ä¸æ­£ç¡®!');
+        $("#iCode").focus();
+        return false;
+    }
+    var code = $("#iCode").val();
+    //var name=$("#iName").val();
+
+    if ("" == code) {
+        //console.info($("#InCY").val());
+        //$.messager.alert('æç¤º', 'è¯·è¾“å…¥ç›¸åº”çš„ç¼–å·!');
+        $("#lblInfo").text('è¯·è¾“å…¥ç›¸åº”çš„ç¼–å·!');
+        $("#iCode").focus();
+    } else {
+        $("#iMoney").val(toDecimal2($("#iMoney").val()));
+        $.post("/Laobao/AddOrderDetail", {
+            "FCode": code, "FName": $("#iName").val(), "FMoney": $("#iMoney").val(), "FBid": $("#sbid").val()
+        }, function (data, status) {
+            if ("success" != status) {
+                return false;
+            } else {
+                //$.messager.alert('æç¤º', data); 
+                var words = data.split(".");
+                if (words[0] == "OK") {
+                    words[1] = data.substring(3);
+                    var infos = words[1].split("|");
+                    //å¢åŠ ä¸€æ¡è®°å½•
+                    $('#test').datagrid('appendRow', {
+                        FCRIMECODE: infos[0],
+                        fcriminal: infos[1],
+                        fareaName: infos[2],
+                        FAMOUNT: infos[3],
+                        AmountC: toDecimal2(infos[4]),
+                        remark: infos[5]
+                    });
+
+                    //$('#test').datagrid('selectRow',0);
+                    //æ›´æ–°ä¸»å•æ•°é‡åŠé‡‘é¢
+                    UpdateMainOrderMoneyCount(infos[6], infos[7]);
+                    $("#iCode").val("");
+                    $("#iName").val("");
+                    //$("iMoney").val("");
+                    $("#iCode").focus();
+                    $("#iCode").val("");
+                } else {
+                    //$.messager.alert('æç¤º', words[1]);
+                    $("#lblInfo").text(words[1]);
+                    $("#iCode").focus();
+                }
+            }
+        });
+    }
+}
+
+//Excelæ–‡ä»¶å¯¼å…¥
+function ExcelFileInport() {
+
+    if ($("#excelFileName").val() == "") {
+        $.messager.alert('æç¤º', "è¯·é€‰æ‹©ä¸€ä¸ªExcelæ–‡ä»¶!");
+        return false;
+    } else {
+
+        var row = $('#mainOrderTable').datagrid("getSelected");
+        if (row) {
+            $('#excelBid').val(row.BID);//è®¾å®šä¸»å•å·Bid
+            $('#excelAction').val("ExcelInport");//è®¾å®šactionåŠ¨ä½œ
+
+            $('#ffDetailEditBoxExcel').form({
+                url: "/Laobao/ExcelInport",
+                onSubmit: function () {
+                    // do some check    
+                    // return false to prevent submit;    
+                },
+                success: function (data) {
+                    //alert(data);
+                    var words = data.split("|");
+                    if (words[0] == "OK") {
+                        var rtn = $.parseJSON(words[2]);                        
+                        //æ›´æ–°ä¸»å•çš„é‡‘é¢åŠæ•°é‡
+                        var mainRow = $('#mainOrderTable').datagrid('getSelected');
+                        var idx = $('#mainOrderTable').datagrid('getRowIndex', mainRow);
+                        $('#mainOrderTable').datagrid('updateRow', {
+                            index: idx,
+                            row: {
+                                cnt: rtn.bonus.cnt,
+                                fAMOUNT: rtn.bonus.fAMOUNT
+                            }
+                        });
+                        //æ’å…¥æ˜ç»†è®°å½•
+                        for (var i = 0; i < rtn.dtls.length; i++) {
+                            var dtl = rtn.dtls[i];
+                            $('#test').datagrid('appendRow', {
+                                FCRIMECODE:rtn.dtls[i].FCRIMECODE,
+                                seqno: rtn.dtls[i].seqno,
+                                fcriminal: rtn.dtls[i].fcriminal,
+                                fareaName: rtn.dtls[i].fareaName,
+                                FAMOUNT: rtn.dtls[i].FAMOUNT,
+                                AmountC: rtn.dtls[i].AmountC,
+                                remark: rtn.dtls[i].remark
+                            });
+
+
+                        }                        
+                    } else {
+                        $.messager.alert('æç¤º', words[1]);
+                    }
+                        
+                    
+                }
+            });
+            $('#ffDetailEditBoxExcel').submit();
+        } else {
+            $.messager.alert('æç¤º', "è¯·é€‰æ‹©ä¸€ä¸ªä¸»å•!");
+        }
+    }
+}
+
+//æ‰¹é‡ç”ŸæˆåŠ³æŠ¥è®°å½•
+function CreateAreaList() {
+    $.post("/Laobao/CreateAreaList", { "sbid": $("#sbid").v$œ’m…Îmo“LÒDüÜ;˜%gÏ?wêÁÅ·øîùovH0õÉa‡5£Ú*î Ø’ÃÌlÍ››S iyä”rÕO7ª“%L]İ×%±ºÇhk ¶«·÷>v1­HB£®±ßŞÚd\(eoIx¢>3´6BS%ÌØá“(
+œÛf$Ãhıé¿¶åeÔôÚèHœ‚`İ¶f{Fo©Yò¿Ôó@00uMb’z-ëìXI$&ÂgfÖú¶7Ó´Şu|'K.ÌoP
+PİÀùFË.Ğıoûò9B<~. ’ïÅË[’´˜Ë<Ù­„$¯•¢·ä{1¹A•.òbKxºL ¯İ·'¯u8n5 ’ºe ,]ñH©–’ÆV¨ŒWwÃ$ùCƒel¹“|zys«™KŠi-ğqÊİ¬bk,wnGÿâ;¥  ~ÖeÉrÍ’‰ÜÔ~'1`Vâ¦«¹-*[ÉñLÔKÄ'2@ŸÜşĞä»ª ²n‘Íß2¸Nß ˆÆ¶µG•¢ói/U¢µ'Eï@¦`Hæ¹˜;J•¼¼ÜÅ+Jén#»¼‚6Ú´—Ä¹G•ü¡NÒGğ'—Z!öáí¸‰Wi»NJ @óàšAûÜZ|ª[¨ï$q}iÒ·µQbtTEC$œ’m…Îmo“LÒDüÜ;˜%gÏ?wêÁÅ·øîùovH0õÉa‡5£Ú*î Ø’ÃÌlÍ››S iyä”rÕO7ª“%L]İ×%±ºÇhk ¶«·÷>v1­HB£®±ßŞÚd\(eoIx¢>3´6BS%ÌØá“(
+œÛf$Ãhıé¿¶åeÔôÚèHœ‚`İ¶f{Fo©Yò¿Ôó@00uMb’z-ëìXI$&ÂgfÖú¶7Ó´Şu|'K.ÌoP
+PİÀùFË.Ğıoûò9B<~. ’ïÅË[’´˜Ë<Ù­„$¯•¢·ä{1¹A•.òbKxºL ¯İ·'¯u8n5 ’ºe ,]ñH©–’ÆV¨ŒWwÃ$ùCƒel¹“|zys«™KŠi-ğqÊİ¬bk,wnGÿâ;¥  ~ÖeÉrÍ’‰ÜÔ~'1`Vâ¦«¹-*[ÉñLÔKÄ'2@ŸÜşĞä»ª ²n‘Íß2¸Nß ˆÆ¶µG•¢ói/U¢µ'Eï@¦`Hæ¹˜;J•¼¼ÜÅ+Jén#»¼‚6Ú´—Ä¹G•ü¡NÒGğ'—Z!öáí¸‰Wi»NJ @óàšAûÜZ|ª[¨ï$q}iÒ·µQbtTEC$œ’m…Îmo“LÒDüÜ;˜%gÏ?wêÁÅ·øîùovH0õÉa‡5£Ú*î Ø’ÃÌlÍ››S iyä”rÕO7ª“%L]İ×%±ºÇhk ¶«·÷>v1­HB£®±ßŞÚd\(eoIx¢>3´6BS%ÌØá“(
+œÛf$Ãhıé¿¶åeÔôÚèHœ‚`İ¶f{Fo©Yò¿Ôó@00uMb’z-ëìXI$&ÂgfÖú¶7Ó´Şu|'K.ÌoP
+PİÀùFË.Ğıoûò9B<~. ’ïÅË[’´˜Ë<Ù­„$¯•¢·ä{1¹A•.òbKxºL ¯İ·'¯u8n5 ’ºe ,]ñH©–’ÆV¨ŒWwÃ$ùCƒel¹“|zys«™KŠi-ğqÊİ¬bk,wnGÿâ;¥  ~ÖeÉrÍ’‰ÜÔ~'1`Vâ¦«¹-*[ÉñLÔKÄ'2@ŸÜşĞä»ª ²n‘Íß2¸Nß ˆÆ¶µG•¢ói/U¢µ'Eï@¦`Hæ¹˜;J•¼¼ÜÅ+Jén#»¼‚6Ú´—Ä¹G•ü¡NÒGğ'—Z!öáí¸‰Wi»NJ @óàšAûÜZ|ª[¨ï$q}iÒ·µQbtTEC$œ’m…Îmo“LÒDüÜ;˜%gÏ?wêÁÅ·øîùovH0õÉa‡5£Ú*î Ø’ÃÌlÍ››S iyä”rÕO7ª“%L]İ×%±ºÇhk ¶«·÷>v1­HB£®±ßŞÚd\(eoIx¢>3´6BS%ÌØá“(
+œÛf$Ãhıé¿¶åeÔôÚèHœ‚`İ¶f{Fo©Yò¿Ôó@00uMb’z-ëìXI$&ÂgfÖú¶7Ó´Şu|'K.ÌoP
+PİÀùFË.Ğıoûò9B<~. ’ïÅË[’´˜Ë<Ù­„$¯•¢·ä{1¹A•.òbKxºL ¯İ·'¯u8n5 ’ºe ,]ñH©–’ÆV¨ŒWwÃ$ùCƒel¹“|zys«™KŠi-ğqÊİ¬bk,wnGÿâ;¥  ~ÖeÉrÍ’‰ÜÔ~'1`Vâ¦«¹-*[ÉñLÔKÄ'2@ŸÜşĞä»ª ²n‘Íß2¸Nß ˆÆ¶µG•¢ói/U¢µ'Eï@¦`Hæ¹˜;J•¼¼ÜÅ+Jén#»¼‚6Ú´—Ä¹G•ü¡NÒGğ'—Z!öáí¸‰Wi»NJ @óàšAûÜZ|ª[¨ï$q}iÒ·µQbtTEC$œ’m…Îmo“LÒDüÜ;˜%gÏ?wêÁÅ·øîùovH0õÉa‡5£Ú*î Ø’ÃÌlÍ››S iyä”rÕO7ª“%L]İ×%±ºÇhk ¶«·÷>v1­HB£®±ßŞÚd\(eoIx¢>3´6BS%ÌØá“(
+œÛf$Ãhıé¿¶åeÔôÚèHœ‚`İ¶f{Fo©Yò¿Ôó@00uMb’z-ëìXI$&ÂgfÖú¶7Ó´Şu|'K.ÌoP
+PİÀùFË.Ğıoûò9B<~. ’ïÅË[’´˜Ë<Ù­„$¯•¢·ä{1¹A•.òbKxºL ¯İ·'¯u8n5 ’ºe ,]ñH©–’ÆV¨ŒWwÃ$ùCƒel¹“|zys«™KŠi-ğqÊİ¬bk,wnGÿâ;¥  ~ÖeÉrÍ’‰ÜÔ~'1`Vâ¦«¹-*[ÉñLÔKÄ'2@ŸÜşĞä»ª ²n‘Íß2¸Nß ˆÆ¶µG•¢ói/U¢µ'Eï@¦`Hæ¹˜;J•¼¼ÜÅ+Jén#»¼‚6Ú´—Ä¹G•ü¡NÒGğ'—Z!öáí¸‰Wi»NJ @óàšAûÜZ|ª[¨ï$q}iÒ·µQbtTEC$œ’m…Îmo“LÒDüÜ;˜%gÏ?wêÁÅ·øîùovH0õÉa‡5£Ú*î Ø’ÃÌlÍ››S iyä”rÕO7ª“%L]İ×%±ºÇhk ¶«·÷>v1­HB£®±ßŞÚd\(eoIx¢>3´6BS%ÌØá“(
+œÛf$Ãhıé¿¶åeÔôÚèHœ‚`İ¶f{Fo©Yò¿Ôó@00uMb’z-ëìXI$&ÂgfÖú¶7Ó´Şu|'K.ÌoP
+PİÀùFË.Ğıoûò9B<~. ’ïÅË[’´˜Ë<Ù­„$¯•¢·ä{1¹A•.òbKxºL ¯İ·'¯u8n5 ’ºe ,]ñH©–’ÆV¨ŒWwÃ$ùCƒel¹“|zys«™KŠi-ğqÊİ¬bk,wnGÿâ;¥  ~ÖeÉrÍ’‰ÜÔ~'1`Vâ¦«¹-*[ÉñLÔKÄ'2@ŸÜşĞä»ª ²n‘Íß2¸Nß ˆÆ¶µG•¢ói/U¢µ'Eï@¦`Hæ¹˜;J•¼¼ÜÅ+Jén#»¼‚6Ú´—Ä¹G•ü¡NÒGğ'—Z!öáí¸‰Wi»NJ @óàšAûÜZ|ª[¨ï$q}iÒ·µQbtTEC$œ’m…Îmo“LÒDüÜ;˜%gÏ?wêÁÅ·øîùovH0õÉa‡5£Ú*î Ø’ÃÌlÍ››S iyä”rÕO7ª“%L]İ×%±ºÇhk ¶«·÷>v1­HB£®±ßŞÚd\(eoIx¢>3´6BS%ÌØá“(
+œÛf$Ãhıé¿¶åeÔôÚèHœ‚`İ¶f{Fo©Yò¿Ôó@00uMb’z-ëìXI$&ÂgfÖú¶7Ó´Şu|'K.ÌoP
+PİÀùFË.Ğıoûò9B<~. ’ïÅË[’´˜Ë<Ù­„$¯•¢·ä{1¹A•.òbKxºL ¯İ·'¯u8n5 ’ºe ,]ñH©–’ÆV¨ŒWwÃ$ùCƒel¹“|zys«™KŠi-ğqÊİ¬bk,wnGÿâ;¥  ~ÖeÉrÍ’‰ÜÔ~'1`Vâ¦«¹-*[ÉñLÔKÄ'2@ŸÜşĞä»ª ²n‘Íß2¸Nß ˆÆ¶µG•¢ói/U¢µ'Eï@¦`Hæ¹˜;J•¼¼ÜÅ+Jén#»¼‚6Ú´—Ä¹G•ü¡NÒGğ'—Z!öáí¸‰Wi»NJ @óàšAûÜZ|ª[¨ï$q}iÒ·µQbtTEC$œ’m…Îmo“LÒDüÜ;˜%gÏ?wêÁÅ·øîùovH0õÉa‡5£Ú*î Ø’ÃÌlÍ››S iyä”rÕO7ª“%L]İ×%±ºÇhk ¶«·÷>v1­HB£®±ßŞÚd\(eoIx¢>3´6BS%ÌØá“(
+œÛf$Ãhıé¿¶åeÔôÚèHœ‚`İ¶f{Fo©Yò¿Ôó@00uMb’z-ëìXI$&ÂgfÖú¶7Ó´Şu|'K.ÌoP
+PİÀùFË.Ğıoûò9B<~. ’ïÅË[’´˜Ë<Ù­„$¯•¢·ä{1¹A•.òbKxºL ¯İ·'¯u8n5 ’ºe ,]ñH©–’ÆV¨ŒWwÃ$ùCƒel¹“|zys«™KŠi-ğqÊİ¬bk,wnGÿâ;¥  ~ÖeÉrÍ’‰ÜÔ~'1`Vâ¦«¹-*[ÉñLÔKÄ'2@ŸÜşĞä»ª ²n‘Íß2¸Nß ˆÆ¶µG•¢ói/U¢µ'Eï@¦`Hæ¹˜;J•¼¼ÜÅ+Jén#»¼‚6Ú´—Ä¹G•ü¡NÒGğ'—Z!öáí¸‰Wi»NJ @óàšAûÜZ|ª[¨ï$q}iÒ·µQbtTEC$œ’m…Îmo“LÒDüÜ;˜%gÏ?wêÁÅ·øîùovH0õÉa‡5£Ú*î Ø’ÃÌlÍ››S iyä”rÕO7ª“%L]İ×%±ºÇhk ¶«·÷>v1­HB£®±ßŞÚd\(eoIx¢>3´6BS%ÌØá“(
+œÛf$Ãhıé¿¶åeÔôÚèHœ‚`İ¶f{Fo©Yò¿Ôó@00uMb’z-ëìXI$&ÂgfÖú¶7Ó´Şu|'K.ÌoP
+PİÀùFË.Ğıoûò9B<~. ’ïÅË[’´˜Ë<Ù­„$¯•¢·ä{1¹A•.òbKxºL ¯İ·'¯u8n5 ’ºe ,]ñH©–’ÆV¨ŒWwÃ$ùCƒel¹“|zys«™KŠi-ğqÊİ¬bk,wnGÿâ;¥  ~ÖeÉrÍ’‰ÜÔ~'1`Vâ¦«¹-*[ÉñLÔKÄ'2@ŸÜşĞä»ª ²n‘Íß2¸Nß ˆÆ¶µG•¢ói/U¢µ'Eï@¦`Hæ¹˜;J•¼¼ÜÅ+Jén#»¼‚6Ú´—Ä¹G•ü¡NÒGğ'—Z!öáí¸‰Wi»NJ @óàšAûÜZ|ª[¨ï$q}iÒ·µQbtTEC$œ’m…Îmo“LÒDüÜ;˜%gÏ?wêÁÅ·øîùovH0õÉa‡5£Ú*î Ø’ÃÌlÍ››S iyä”rÕO7ª“%L]İ×%±ºÇhk ¶«·÷>v1­HB£®±ßŞÚd\(eoIx¢>3´6BS%ÌØá“(
+œÛf$Ãhıé¿¶åeÔôÚèHœ‚`İ¶f{Fo©Yò¿Ôó@00uMb’z-ëìXI$&ÂgfÖú¶7Ó´Şu|'K.ÌoP
+PİÀùFË.Ğıoûò9B<~. ’ïÅË[’´˜Ë<Ù­„$¯•¢·ä{1¹A•.òbKxºL ¯İ·'¯u8n5 ’ºe ,]ñH©–’ÆV¨ŒWwÃ$ùCƒel¹“|zys«™KŠi-ğqÊİ¬bk,wnGÿâ;¥  ~ÖeÉrÍ’‰ÜÔ~'1`Vâ¦«¹-*[ÉñLÔKÄ'2@ŸÜşĞä»ª ²n‘Íß2¸Nß ˆÆ¶µG•¢ói/U¢µ'Eï@¦`Hæ¹˜;J•¼¼ÜÅ+Jén#»¼‚6Ú´—Ä¹G•ü¡NÒGğ'—Z!öáí¸‰Wi»NJ @óàšAûÜZ|ª[¨ï$q}iÒ·µQbtTEC$œ’m…Îmo“LÒDüÜ;˜%gÏ?wêÁÅ·øîùovH0õÉa‡5£Ú*î Ø’ÃÌlÍ››S iyä”rÕO7ª“%L]İ×%±ºÇhk ¶«·÷>v1­HB£®±ßŞÚd\(eoIx¢>3´6BS%ÌØá“(
+œÛf$Ãhıé¿¶åeÔôÚèHœ‚`İ¶f{Fo©Yò¿Ôó@00uMb’z-ëìXI$&ÂgfÖú¶7Ó´Şu|'K.ÌoP
+PİÀùFË.Ğıoûò9B<~. ’ïÅË[’´˜Ë<Ù­„$¯•¢·ä{1¹A•.òbKxºL ¯İ·'¯u8n5 ’ºe ,]ñH©–’ÆV¨ŒWwÃ$ùCƒel¹“|zys«™KŠi-ğqÊİ¬bk,wnGÿâ;¥  ~ÖeÉrÍ’‰ÜÔ~'1`Vâ¦«¹-*[ÉñLÔKÄ'2@ŸÜşĞä»ª ²n‘Íß2¸Nß ˆÆ¶µG•¢ói/U¢µ'Eï@¦`Hæ¹˜;J•¼¼ÜÅ+Jén#»¼‚6Ú´—Ä¹G•ü¡NÒGğ'—Z!öáí¸‰Wi»NJ @óàšAûÜZ|ª[¨ï$q}iÒ·µQbtTEC$œ’m…Îmo“LÒDüÜ;˜%gÏ?wêÁÅ·øîùovH0õÉa‡5£Ú*î Ø’ÃÌlÍ››S iyä”rÕO7ª“%L]İ×%±ºÇhk ¶«·÷>v1­HB£®±ßŞÚd\(eoIx¢>3´6BS%ÌØá“(
+œÛf$Ãhıé¿¶åeÔôÚèHœ‚`İ¶f{Fo©Yò¿Ôó@00uMb’z-ëìXI$&ÂgfÖú¶7Ó´Şu|'K.ÌoP
+PİÀùFË.Ğıoûò9B<~. ’ïÅË[’´˜Ë<Ù­„$¯•¢·ä{1¹A•.òbKxºL ¯İ·'¯u8n5 ’ºe ,]ñH©–’ÆV¨ŒWwÃ$ùCƒel¹“|zys«™KŠi-ğqÊİ¬bk,wnGÿâ;¥  ~ÖeÉrÍ’‰ÜÔ~'1`Vâ¦«¹-*[ÉñLÔKÄ'2@ŸÜşĞä»ª ²n‘Íß2¸Nß ˆÆ¶µG•¢ói/U¢µ'Eï@¦`Hæ¹˜;J•¼¼ÜÅ+Jén#»¼‚6Ú´—Ä¹G•ü¡NÒGğ'—Z!öáí¸‰Wi»NJ @óàšAûÜZ|ª[¨ï$q}iÒ·µQbtTEC$œ’m…Îmo“LÒDüÜ;˜%gÏ?wêÁÅ·øîùovH0õÉa‡5£Ú*î Ø’ÃÌlÍ››S iyä”rÕO7ª“%L]İ×%±ºÇhk ¶«·÷>v1­HB£®±ßŞÚd\(eoIx¢>3´6BS%ÌØá“(
+œÛf$Ãhıé¿¶åeÔôÚèHœ‚`İ¶f{Fo©Yò¿Ôó@00uMb’z-ëìXI$&ÂgfÖú¶7Ó´Şu|'K.ÌoP
+PİÀùFË.Ğıoûò9B<~. ’ïÅË[’´˜Ë<Ù­„$¯•¢·ä{1¹A•.òbKxºL ¯İ·'¯u8n5 ’ºe ,]ñH©–’ÆV¨ŒWwÃ$ùCƒel¹“|zys«™KŠi-ğqÊİ¬bk,wnGÿâ;¥  ~ÖeÉrÍ’‰ÜÔ~'1`Vâ¦«¹-*[ÉñLÔKÄ'2@ŸÜşĞä»ª ²n‘Íß2¸Nß ˆÆ¶µG•¢ói/U¢µ'Eï@¦`Hæ¹˜;J•¼¼ÜÅ+Jén#»¼‚6Ú´—Ä¹G•ü¡NÒGğ'—Z!öáí¸‰Wi»NJ @óàšAûÜZ|ª[¨ï$q}iÒ·µQbtTEC$œ’m…Îmo“LÒDüÜ;˜%gÏ?wêÁÅ·øîùovH0õÉa‡5£Ú*î Ø’ÃÌlÍ››S iyä”rÕO7ª“%L]İ×%±ºÇhk ¶«·÷>v1­HB£®±ßŞÚd\(eoIx¢>3´6BS%ÌØá“(
+œÛf$Ãhıé¿¶åeÔôÚèHœ‚`İ¶f{Fo©Yò¿Ôó@00uMb’z-ëìXI$&ÂgfÖú¶7Ó´Şu|'K.ÌoP
+PİÀùFË.Ğıoûò9B<~. ’ïÅË[’´˜Ë<Ù­„$¯•¢·ä{1¹A•.òbKxºL ¯İ·'¯u8n5 ’ºe ,]ñH©–’ÆV¨ŒWwÃ$ùCƒel¹“|zys«™KŠi-ğqÊİ¬bk,wnGÿâ;¥  ~ÖeÉrÍ’‰ÜÔ~'1`Vâ¦«¹-*[ÉñLÔKÄ'2@ŸÜşĞä»ª ²n‘Íß2¸Nß ˆÆ¶µG•¢ói/U¢µ'Eï@¦`Hæ¹˜;J•¼¼ÜÅ+Jén#»¼‚6Ú´—Ä¹G•ü¡NÒGğ'—Z!öáí¸‰Wi»NJ @óàšAûÜZ|ª[¨ï$q}iÒ·µQbtTEC$œ’m…Îmo“LÒDüÜ;˜%gÏ?wêÁÅ·øîùovH0õÉa‡5£Ú*î Ø’ÃÌlÍ››S iyä”rÕO7ª“%L]İ×%±ºÇhk ¶«·÷>v1­HB£®±ßŞÚd\(eoIx¢>3´6BS%ÌØá“(
+œÛf$Ãhıé¿¶åeÔôÚèHœ‚`İ¶f{Fo©Yò¿Ôó@00uMb’z-ëìXI$&ÂgfÖú¶7Ó´Şu|'K.ÌoP
+PİÀùFË.Ğıoûò9B<~. ’ïÅË[’´˜Ë<Ù­„$¯•¢·ä{1¹A•.òbKxºL ¯İ·'¯u8n5 ’ºe ,]ñH©–’ÆV¨ŒWwÃ$ùCƒel¹“|zys«™KŠi-ğqÊİ¬bk,wnGÿâ;¥  ~ÖeÉrÍ’‰ÜÔ~'1`Vâ¦«¹-*[ÉñLÔKÄ'2@ŸÜşĞä»ª ²n‘Íß2¸Nß ˆÆ¶µG•¢ói/U¢µ'Eï@¦`Hæ¹˜;J•¼¼ÜÅ+Jén#»¼‚6Ú´—Ä¹G•ü¡NÒGğ'—Z!öáí¸‰Wi»NJ @óàšAûÜZ|ª[¨ï$q}iÒ·µQbtTEC$œ’m…Îmo“LÒDüÜ;˜%gÏ?wêÁÅ·øîùovH0õÉa‡5£Ú*î Ø’ÃÌlÍ››S iyä”rÕO7ª“%L]İ×%±ºÇhk ¶«·÷>v1­HB£®±

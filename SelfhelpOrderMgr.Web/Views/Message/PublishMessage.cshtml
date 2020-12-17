@@ -1,0 +1,101 @@
+﻿
+@*@{
+    ViewBag.Title = "PublishMessage";
+    Layout = "~/Views/Shared/Default/_Layout_Top.cshtml";
+}*@
+
+@{
+    Layout = null;
+}
+
+
+<link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+<link href="~/Content/bootstrap-select.min.css" rel="stylesheet" />
+<link href="~/Content/bootstrap-datetimepicker.min.css" rel="stylesheet" />
+<link href="~/Content/bootstrap-table.min.css" rel="stylesheet" />
+<link href="~/Content/MyCss/searchArea.css" rel="stylesheet" />
+
+
+
+@*<h3>----用户权限管理----</h3>
+    <hr />*@
+
+<div class="row">
+    <div class="col-sm-11">
+        <table id="tb"></table>
+    </div>
+    <div id="toolbar">
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModalExcel" onclick="btnAddRole()"><i class="fa fa-plus"></i> 新增（Add）</button>
+        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#myModalExcel"><i class="fa fa-plus"></i> 编辑（Edit）</button>
+        <button type="button" class="btn btn-danger" onclick="btnDelRole()"><i class="fa fa-minus-circle"></i> 删除（Del）</button>
+
+
+    </div>
+</div>
+
+
+
+<!-- Modal -->
+<div class="modal fade" id="myModalExcel" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">通知文件发布</h4>
+            </div>
+            <div class="modal-body">
+                <form id="ExcelForm" method="post" enctype="multipart/form-data" action="/Message/SaveNotifyFile">
+                    <div class="form-group">
+                        <input type="hidden" id="ID" name="ID" value="" />
+                        <label for="FTitle">标题</label>
+                        <input type="text" class="form-control" id="FTitle" name="FTitle" placeholder="请输入标题">
+                    </div>
+                    <div class="form-group">
+                        <label for="FAuthor">发布员</label>
+                        <input type="text" class="form-control" id="FAuthor" name="FAuthor" placeholder="发布员姓名">
+                    </div>
+                    <div class="form-group">
+                        <label for="FAbstract">摘要</label>
+                        <textarea rows="3" class="form-control" id="FAbstract" name="FAbstract" placeholder="请输入本通知的摘要信息"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="LinkWebFile">文件</label>
+                        <input type="file" class="form-control" id="LinkWebFile" name="LinkWebFile">
+                    </div>
+                    <div class="form-group">
+                        <label for="Remark">备注</label>
+                        <input type="text" class="form-control" id="Remark" name="Remark" placeholder="请输入本通知的备注信息">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                        <button type="submit" class="btn btn-primary">确认发布</button>
+                    </div>
+                    <input type="hidden" id="output1" value="1111111111111" />
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@*<script src="~/Scripts/jquery-easyui-1.4.2/jquery.easyui.min.js"></script>*@
+@*<script src="~/Scripts/BootStrap_TreeGrid.js"></script>*@
+
+<script src="~/Scripts/jquery-1.11.3.min.js"></script>
+<script src="~/Scripts/EasyUI/jquery.easyui.min.js"></script>
+<script src="~/Scripts/EasyUI/locale/easyui-lang-zh_CN.js"></script>
+<script src="~/Scripts/bootstrap.min.js"></script>
+<script src="~/Scripts/bootstrap-select.min.js"></script>
+<script src="~/Scripts/select-defaults-zh_CN.min.js"></script>
+<script src="~/Scripts/bootstrap-datetimepicker.min.js"></script>
+<script src="~/Scripts/bootstrap-datetimepicker.zh-CN.js"></script>
+<script src="~/Scripts/bootstrap-table.min.js"></script>
+<script src="~/Scripts/bootstrap-table-toolbar.js"></script>
+<script src="~/Scripts/bootstrap-table-export.js"></script>
+<script src="~/Scripts/bootstrap-table-filter-control.js"></script>
+<script src="~/Scripts/myJs/commonJs.js"></script>
+<script src="~/Scripts/jquery-confirm.js"></script>
+<script src="~/Scripts/jquery.form.js"></script>
+<script src="~/Scripts/myJs/OI_MsgRelease.js"></script>
+
+

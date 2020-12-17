@@ -1,0 +1,54 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    @{Html.RenderPartial("~/Views/Shared/_PartialHeadPage.cshtml");}
+    
+    <title>Index</title>
+</head>
+<body class="easyui-layout">
+    <div data-options="region:'north',title:'过虑条件',split:true" style="height:150px;">
+        <input type="hidden" id="action" value="NewSystem"/>
+        <form method="post">
+            <table id="crimeSearch">
+                <tr>
+                    <th align="right">编号：</th>
+                    <td align="left">
+                        <input id="fCrimeCode" name="fCrimeCode" class="easyui-validatebox" style="width:305px;" data-options="required:true,validType:'text'" />
+                    </td>
+                </tr>
+                <tr>
+                    <th align="right">姓名：</th>
+                    <td align="left">
+                        <input id="fCrimeName" name="fCrimeName" class="easyui-validatebox" style="width:305px;" data-options="required:true,validType:'text'" />
+                    </td>
+                </tr>
+                <tr>
+                    <th align="right">日期：</th>
+                    <td align="left">
+
+                        <input class="easyui-datetimebox" id="fStartDate" name="fStartDate"
+                               data-options="required:true,showSeconds:false" value="3/4/2010 0:0" style="width:150px">至<input class="easyui-datetimebox" id="fEndDate" name="fEndDate"
+       data-options="required:true,showSeconds:false" value="3/4/2010 23:59" style="width:150px">
+                    </td>
+                </tr>
+                <tr>
+                    <th align="right"></th>
+                    <td align="right"><a id="btn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-search'" onclick="FilterSearch()">查询</a><a id="A1" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-redo'" onclick="clearSearch()">清空</a></td>
+                </tr>
+            </table>
+        </form>
+    </div>
+    <div data-options="region:'center'" style="padding:5px;background:#eee;">
+        <table id="test"></table>
+    </div>
+    <script src="~/Scripts/myJs/commonJs.js"></script>
+    <script src="~/Scripts/myJs/courtPrintList.js"></script>
+</body>
+</html>

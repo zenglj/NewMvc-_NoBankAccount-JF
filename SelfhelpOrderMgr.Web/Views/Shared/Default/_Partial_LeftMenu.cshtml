@@ -1,0 +1,35 @@
+﻿<div class="list-group" >
+    <a href="#" class="list-group-item active">
+        业务应用导航
+    </a>
+
+    @if (ViewData["treeMeuns"] != null)
+    {
+        foreach (SelfhelpOrderMgr.Model.t_TreeMeun menu in ViewData["treeMeuns"] as List<SelfhelpOrderMgr.Model.t_TreeMeun>)
+        {
+            if (menu.Level == 1)
+            {
+                <a class="list-group-item" id="Menu_@menu.URL" data-toggle="collapse" href="#@menu.id" aria-expanded="false" aria-controls="@menu.id">@menu.Text</a>
+                <div class="collapse" id="@menu.id">
+                    <div class="list-group">
+                        @foreach (SelfhelpOrderMgr.Model.t_TreeMeun subMenu in ViewData["treeMeuns"] as List<SelfhelpOrderMgr.Model.t_TreeMeun>)
+                        {
+                            if (subMenu.Level == 2 && subMenu.FId == menu.id)
+                            {
+                                char e = (char)47;
+                                var url = subMenu.URL.Substring(1).Split(e);
+                                <a href="#" class="list-group-item list-group-item-success" onclick="loadSystemSet('@url[0]','@url[1]')">--》@subMenu.Text</a>
+                            }
+    
+                        }
+
+                    </div>
+                </div>
+            }
+        
+        }
+    }
+   
+</div>
+
+<script src="~/Scripts/myJs/NewLayout/Main_LoadInfo.js"></script>

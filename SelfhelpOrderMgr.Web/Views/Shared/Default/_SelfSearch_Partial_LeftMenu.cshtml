@@ -1,0 +1,30 @@
+﻿<div class="list-group">
+    <a href="#" class="list-group-item active">
+        业务应用导航
+    </a>
+
+    <a class="list-group-item" id="Menu_SystemSet" data-toggle="collapse" href="#collapseExample" aria-expanded="false" aria-controls="collapseExample">基本信息查询</a>
+    <div id="collapseExample">
+        <div class="list-group">
+            <a href="#" class="list-group-item list-group-item-success" onclick="showDiv('baseInfo')">--》基本信息</a>
+            <a href="#" class="list-group-item list-group-item-success" onclick="showDiv('notifyInfo')">--》通知公告</a>
+        </div>
+    </div>
+
+
+    <a class="list-group-item" data-toggle="collapse" href="#collapseExample2" aria-expanded="false" aria-controls="collapseExample2">奖惩考核管理</a>
+    <div id="collapseExample2">
+        <div class="list-group">
+            <a href="#" class="list-group-item list-group-item-success" onclick="showDiv('khjfInfo')">--》月考核积分</a>
+            <a href="#" class="list-group-item list-group-item-success" onclick="showDiv('jfInfo')">--》奖惩情况</a>
+        </div>
+    </div>
+    @*<a class="list-group-item" data-toggle="collapse" href="#collapseExample3" aria-expanded="false" aria-controls="collapseExample3">消费情况</a>
+    <div id="collapseExample3">
+        <div class="list-group">
+            <a href="#" class="list-group-item list-group-item-success" onclick="showDiv('customeInfo')">--》工资消费情况</a>
+            <a href="#" class="list-group-item list-group-item-success" onclick="showDiv('goodsPrice')">--》超市实时报价</a>
+        </div>
+    </div>*@
+</div>
+<script src="~/Scripts/MyJs/Main_LoadInfo.js"></script>

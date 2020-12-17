@@ -1,0 +1,61 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>BankDataReset</title>
+    @{Html.RenderPartial("~/Views/Shared/_PartialHeadPage.cshtml");}
+
+</head>
+<body class="easyui-layout">
+    <div data-options="region:'north',title:'过虑条件',split:true" style="height:120px;">
+        <form id="ff" method="post">
+            <table id="crimeSearch">
+                <tr>
+                    
+                    <th align="right">日期：</th>
+                    <td align="left">
+                        <input type="hidden" id="MainSeqno" />
+                        <input type="hidden" id="UploadDate" />
+                        <input class="easyui-datetimebox" id="startDate" name="startDate"
+                               data-options="required:true,showSeconds:false" value="3/4/2010 0:0" style="width:150px">至<input class="easyui-datetimebox" id="endDate" name="endDate"
+                                                                                                                               data-options="required:true,showSeconds:false" value="3/4/2010 23:59" style="width:150px">
+
+                    </td>
+                </tr>
+                <tr>
+                    <th align="right">类型：</th>
+                    <td align="left">
+                        <input type="checkbox" name="rcvFlag" id="chkDS" />代收　<input type="checkbox" name="payFlag" id="chkDF" />代付
+
+                    </td>
+                </tr>
+                <tr>
+                    <th align="right"></th>
+                    <td align="right"><a id="btn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-search'" onclick="FilterSearch('GetList')">查询</a><a id="A1" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-redo'" onclick="clearSearch()">清空</a></td>
+                </tr>
+            </table>
+        </form>
+    </div>
+    <div data-options="region:'center'" style="padding:5px;background:#eee;">
+        <table id="test"></table>
+    </div>
+
+    @*<script src="~/Scripts/jquery-1.11.3.min.js"></script>
+    <script src="~/Scripts/EasyUI/jquery.easyui.min.js"></script>
+    <script src="~/Scripts/EasyUI/easyloader.js"></script>*@
+    <script src="~/Scripts/myJs/BankDataReset.js"></script>
+
+
+</body>
+
+
+</html>
+
+
+

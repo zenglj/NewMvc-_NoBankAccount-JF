@@ -1,0 +1,29 @@
+﻿@{
+    ViewBag.Title = "NoAtShoppingTime";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+
+<div class="page-header text-center">
+    <h1>未在指定时间内购物的通知 </h1>
+</div>
+
+<div class="row">
+    <div class="col-sm-1"></div>
+    <div class="col-sm-10">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h4>各监区、分监区、直属队：</h4>
+            </div>
+            <div class="panel-body">
+                <p>　　为配合监/所管理部门及银行联网的规定需要，请在规定的时间:{ @ViewData["saleTimeArea"] }内进行过购物，其它时间段暂停购物。</p>
+                <p>请大家给予支持配合，谢谢。</p>
+            </div>
+            <div class="panel-footer text-right">
+                <h4>物资供应站/服务部</h4>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-1"></div>
+</div>

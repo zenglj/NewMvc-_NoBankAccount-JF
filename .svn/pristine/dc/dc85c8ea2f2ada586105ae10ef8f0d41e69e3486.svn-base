@@ -1,0 +1,132 @@
+﻿<div>
+    <h1 style="text-align: center">相关优质商品推荐</h1>
+    <h3 style="text-align: center; "><small>这些商品是监狱或省局规定的目录产品，所有商品都是来自正规渠道,并与市场价格进行比对过的</small></h3>
+
+</div>
+<hr />
+@*<ul id="myTab" class="nav nav-tabs">
+        <li class="active">
+            <a href="#home" data-toggle="tab">
+                W3Cschool Home
+            </a>
+        </li>
+        <li><a href="#ios" data-toggle="tab">iOS</a></li>
+        <li class="dropdown">
+            <a href="#" id="myTabDrop1" class="dropdown-toggle"
+               data-toggle="dropdown">
+                Java <b class="caret"></b>
+            </a>
+            <ul class="dropdown-menu" role="menu" aria-labelledby="myTabDrop1">
+                <li><a href="#jmeter" tabindex="-1" data-toggle="tab">jmeter</a></li>
+                <li><a href="#ejb" tabindex="-1" data-toggle="tab">ejb</a></li>
+            </ul>
+        </li>
+    </ul>*@
+<div>
+    <ul id="myTab" class="nav nav-tabs">
+
+        @if (ViewData["types"] != null)
+        {
+            int i = 1;
+            foreach (SelfhelpOrderMgr.Model.T_GoodsType type in ViewData["types"] as List<SelfhelpOrderMgr.Model.T_GoodsType>)
+            {
+                if (i == 1)
+                {
+                    <li class="active"><a href="#@type.Fcode" data-toggle="tab">@type.Fname</a></li>
+
+                }
+                else
+                {
+                    <li><a href="#@type.Fcode" data-toggle="tab">@type.Fname</a></li>
+                }
+                i++;
+            }
+        }
+    </ul>
+</div>
+
+
+
+<div id="myTabContent" class="tab-content">
+
+    @if (ViewData["types"] != null)
+    {
+        foreach (SelfhelpOrderMgr.Model.T_GoodsType type in ViewData["types"] as List<SelfhelpOrderMgr.Model.T_GoodsType>)
+        {
+            <div class="tab-pane fade in active" id="@type.Fcode">
+                <div class="row">
+                    @if (ViewData["goods"] != null)
+                    {
+                        foreach (SelfhelpOrderMgr.Model.T_Goods good in ViewData["goods"] as List<SelfhelpOrderMgr.Model.T_Goods>)
+                        {
+                            if (@good.GTYPE == @type.Fcode)
+                            {
+                                <div class="col-md-2">
+                                    <div class="thumbnail">
+                                        @if (string.IsNullOrEmpty(good.src))
+                                        {
+                                        <img class="lazy" src="@good.data" width="300" height="150" data-src="" alt="gulpjs">
+                                        }
+                                        else
+                                        {
+                                        <img class="lazy" src="@good.src" width="300" height="150" data-src="" alt="gulpjs">
+                                        }
+                                        <div class="">
+                                            <h3 style="height:70px; text-align:center">
+                                                @*<a href="#" title="" target="_blank" onclick="_hmt.push(['_trackEvent', 'tile', 'click', 'gulp'])">@good.GDJ 元<br><small>@good.GNAME</small></a>*@
+                                                @if (good.GNAME.Length >= 8)
+                                                {
+                                                    <span><small>简码</small>:@good.SPShortCode<br><small>@good.GNAME.Substring(0, 8)</small></span>
+                                                }
+                                                else
+                                                {
+                                                    <span><small>简码</small>:@good.SPShortCode<br><small>@good.GNAME</small></span>
+                                                }
+                                            </h3>
+                                            @*<h4 style="text-align:center">
+                                                    <button class="btn btn-primary" type="button">
+                                                        库存
+                                                        @if (good.Balance < 100)
+                                                        {
+                                                            <span class="badge">@good.Balance</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="badge">@Convert.ToInt32(good.Balance)</span>
+                                                        }
+
+                                                    </button>
+                                                </h4>
+                                                <p style="text-align:center;">
+                                                    限购数量：@good.Xgsl
+                                                </p>*@
+                                            <p style="text-align:center;">
+                                                条码：@good.GTXM
+                                            </p>
+                                            <h3 style="text-align:center">
+                                                @*<a href="#" title="" target="_blank" onclick="_hmt.push(['_trackEvent', 'tile', 'click', 'gulp'])">@good.GDJ 元<br><small>@good.GNAME</small></a>*@
+                                                <small style="color: #FF4400; ">¥</small><span style="color: #FF4400; ">@good.GDJ 元</span>
+                                            </h3>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        }
+                    }
+                </div>
+            </div>
+            
+        }
+    }
+
+</div>
+
+
+<script src="~/Scripts/lazyload/jquery.lazyload.min.js"></script>
+<script src="~/Scripts/lazyload/jquery.scrollstop.min.js"></script>
+<script src="~/Scripts/myJs/goodsView.js"></script>
+
+
+
+
+

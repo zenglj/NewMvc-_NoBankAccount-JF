@@ -1,0 +1,831 @@
+﻿using System.Data;
+using System.IO;
+using System.Text;
+using System.Web;
+using NPOI.HSSF.UserModel;
+using NPOI.SS.UserModel;
+using NPOI.SS.Util;
+using System;
+
+/// <summary>
+/// 使用NPOI操作Excel，无需Office COM组件
+/// Created By 囧月 http://lwme.cnblogs.com
+/// 部分代码取自http://msdn.microsoft.com/zh-tw/ee818993.aspx
+/// NPOI是POI的.NET移植版本，目前稳定版本中仅支持对xls文件（Excel 97-2003）文件格式的读写
+/// NPOI官方网站http://npoi.codeplex.com/
+/// </summary>
+public class ExcelRender
+{
+    /// <summary>
+    /// 根据Excel列类型获取列的值
+    /// </summary>
+    /// <param name="cell">Excel列</param>
+    /// <returns></returns>
+    private static string GetCellValue(ICell cell)
+    {
+        if (cell == null)
+            return string.Empty;
+        switch (cell.CellType)
+        {
+            case CellType.BLANK:
+                return string.Empty;
+            case CellType.BOOLEAN:
+                return cell.BooleanCellValue.ToString();
+            case CellType.ERROR:
+                return cell.ErrorCellValue.ToString();
+            case CellType.NUMERIC:
+            case CellType.Unknown:
+            default:
+                return cell.ToString();//This is a trick to get the correct value of the cell. NumericCellValue will return a numeric value no matter the cell value is a date or a number
+            case CellType.STRING:
+                return cell.StringCellValue;
+            case CellType.FORMULA:
+                try
+                {
+                    HSSFFormulaEvaluator e = new HSSFFormulaEvaluator(cell.Sheet.Workbook);
+                    e.EvaluateInCell(cell);
+                    return cell.ToString();
+                }
+                catch
+                {
+                    return cell.NumericCellValue.ToString();
+                } 
+        }
+    }
+
+    /// <summary>
+    /// 自动设置Excel列宽
+    /// </summary>
+    /// <param name="sheet">Excel表</param>
+    private static void AutoSizeColumns(ISheet sheet)
+    {
+        if (sheet.PhysicalNumberOfRows > 0)
+        {
+            IRow headerRow = sheet.GetRow(0);
+
+            for (int i = 0, l = headerRow.LastCellNum; i < l; i++)
+            {
+                sheet.AutoSizeColumn(i);
+            }
+        }
+    }
+
+    /// <summary>
+    /// 保存Excel文档流到文件
+    /// </summary>
+    /// <param name="ms">Excel文档流</param>
+    /// <param name="fileName">文件名</param>
+    private static void SaveToFile(MemoryStream ms, string fileName)
+    {
+        using (FileStream fs = new FileStream(fileName, FileMode.Create, FileAccess.Write))
+        {
+            byte[] data = ms.ToArray();
+
+            fs.Write(data, 0, data.Length);
+            fs.Flush();
+
+            data = null;
+        }
+    }
+
+    /// <summary>
+    /// 输出文件到浏览器
+    /// </summary>
+    /// <param name="ms">Excel文档流</param>
+    /// <param name="context">HTTP上下文</param>
+    /// <param name="fileName">文件名</param>
+    private static void RenderToBrowser(MemoryStream ms, HttpContext context, string fileName)
+    {
+        if (context.Request.Browser.Browser == "IE")
+            fileName = HttpUtility.UrlEncode(fileName);
+        context.Response.AddHeader("Content-Disposition", "attachment;fileName=" + fileName);
+        context.Response.BinaryWrite(ms.ToArray());
+    }
+
+    /// <summary>
+    /// DataReader转换成Excel文档流
+    /// </summary>
+    /// <param name="reader"></param>
+    /// <returns></returns>
+    public static MemoryStream RenderToExcel(IDataReader reader)
+    {
+        MemoryStream ms = new MemoryStream();
+
+        using (reader)
+        {
+            using (IWorkbook workbook = new HSSFWorkbook())
+            {
+                using (ISheet sheet = workbook.CreateSheet())
+                {
+                    IRow headerRow = sheet.CreateRow(0);
+                    int cellCount = reader.FieldCount;
+
+                    ICellStyle headStyle = workbook.CreateCellStyle();
+                    StyleHeadRow(workbook, headStyle);
+
+                    ICellStyle infoStyle = workbook.CreateCellStyle();
+                    StyleInfoRow(workbook, infoStyle);
+
+                    // handling header.
+                    for (int i = 0; i < cellCount; i++)
+                    {
+                        headerRow.CreateCell(i).SetCellValue(reader.GetName(i));
+                        headerRow.GetCell(i).CellStyle = headStyle;
+                    }
+
+                    // handling value.
+                    int rowIndex = 1;
+                    while (reader.Read())
+                    {
+                        IRow dataRow = sheet.CreateRow(rowIndex);
+
+                        for (int i = 0; i < cellCount; i++)
+                        {
+                            dataRow.CreateCell(i).SetCellValue(reader[i].ToString());
+                            dataRow.GetCell(i).CellStyle = infoStyle;
+                        }
+
+                        rowIndex++;
+                    }
+
+                    AutoSizeColumns(sheet);
+
+                    workbook.Write(ms);
+                    ms.Flush();
+                    ms.Position = 0;
+                }
+            }
+        }
+        return ms;
+    }
+
+    //Excel数据行样式
+    private static void StyleInfoRow(IWorkbook workbook, ICellStyle infoStyle)
+    {
+        infoStyle.Alignment = HorizontalAlignment.CENTER;
+        infoStyle.VerticalAlignment = VerticalAlignment.CENTER;
+        IFont infoFont = workbook.CreateFont();
+        infoFont.FontHeightInPoints = 10;
+        //infoFont.Boldweight = 700;
+        infoStyle.SetFont(infoFont);
+
+        infoStyle.BorderBottom = CellBorderType.THIN; //下边框
+        infoStyle.BorderLeft = CellBorderType.THIN;//左边框
+        infoStyle.BorderTop = CellBorderType.THIN;//上边框
+        infoStyle.BorderRight = CellBorderType.THIN;//右边框
+    }
+
+    //Excel列头行样式
+    private static void StyleHeadRow(IWorkbook workbook, ICellStyle headStyle)
+    {
+        headStyle.Alignment = HorizontalAlignment.CENTER;
+        headStyle.VerticalAlignment = VerticalAlignment.CENTER;
+        IFont font = workbook.CreateFont();
+        font.FontHeightInPoints = 12;
+        font.Boldweight = 700;
+        headStyle.SetFont(font);
+
+        headStyle.BorderBottom = CellBorderType.THIN; //下边框
+        headStyle.BorderLeft = CellBorderType.THIN;//左边框
+        headStyle.BorderTop = CellBorderType.THIN;//上边框
+        headStyle.BorderRight = CellBorderType.THIN;//右边框
+    }
+
+    //Excel标题行样式
+    private static void StyleTitleRow(IWorkbook workbook, ICellStyle titleStyle)
+    {
+        titleStyle.Alignment = HorizontalAlignment.CENTER;
+        titleStyle.VerticalAlignment = VerticalAlignment.CENTER;
+        IFont titleFont = workbook.CreateFont();
+        titleFont.FontHeightInPoints = 20;
+        titleFont.Boldweight = 700;
+        titleFont.FontName = "黑体";
+        titleStyle.SetFont(titleFont);
+    }
+
+    /// <summary>
+    /// DataReader转换成Excel文档流，并保存到文件
+    /// </summary>
+    /// <param name="reader"></param>
+    /// <param name="fileName">保存的路径</param>
+    public static void RenderToExcel(IDataReader reader, string fileName)
+    {
+        using (MemoryStream ms = RenderToExcel(reader))
+        {
+            SaveToFile(ms, fileName);
+        }
+    }
+
+
+    /// <summary>
+    /// DataReader转换成Excel文档流，并输出到客户端
+    /// </summary>
+    /// <param name="reader"></param>
+    /// <param name="context">HTTP上下文</param>
+    /// <param name="fileName">输出的文件名</param>
+    public static void RenderToExcel(IDataReader reader, HttpContext context, string fileName)
+    {
+        using (MemoryStream ms = RenderToExcel(reader))
+        {
+            RenderToBrowser(ms, context, fileName);
+        }
+    }
+
+    /// <summary>
+    /// DataTable转换成Excel文档流
+    /// </summary>
+    /// <param name="table"></param>
+    /// <returns></returns>
+    public static MemoryStream RenderToExcel(DataTable table)
+    {
+        MemoryStream ms = new MemoryStream();
+
+        using (table)
+        {
+            using (IWorkbook workbook = new HSSFWorkbook())
+            {
+                using (ISheet sheet = workbook.CreateSheet())
+                {
+                    int rowIndex = 0;//设定初始行
+                    //生成Excel明细数据函数
+                    CreateExcelDetail(table, workbook, sheet, rowIndex);
+
+                    workbook.Write(ms);
+                    ms.Flush();
+                    ms.Position = 0;
+                }
+            }
+        }
+        return ms;
+    }
+
+    public static MemoryStream RenderSumToExcel(DataTable table, string titleName)
+    {
+        MemoryStream ms = new MemoryStream();
+
+        using (table)
+        {
+            using (IWorkbook workbook = new HSSFWorkbook())
+            {
+                using (ISheet sheet = workbook.CreateSheet())
+                {
+                    //生成Excel 表格标题名称首行
+                    CreateExcelTitle(table, titleName, workbook, sheet);
+                    
+                    int rowIndex=1;//设定初始行
+
+                    //生成Excel明细数据函数
+                    CreateExcelDetail(table, workbook, sheet, rowIndex);
+                    
+                    workbook.Write(ms);
+                    ms.Flush();
+                    ms.Position = 0;
+                }
+            }
+        }
+        return ms;
+    }
+
+    //生成Excel 表格标题名称首行
+    private static void CreateExcelTitle(DataTable table, string titleName, IWorkbook workbook, ISheet sheet)
+    {
+        ICellStyle titleStyle = workbook.CreateCellStyle();
+        StyleTitleRow(workbook, titleStyle);
+
+        //表格的主标题名称行
+        IRow titleRow = sheet.CreateRow(0);
+        titleRow.HeightInPoints = 35;//行高
+        titleRow.CreateCell(0).SetCellValue(titleName);
+        titleRow.GetCell(0).CellStyle = titleStyle;
+
+        SetCellRangeAddress(sheet, 0, 0, 0, table.Columns.Count - 1);//合并单元格
+    }
+
+    //生成Excel表主体数据行
+    private static void CreateExcelDetail(DataTable table, IWorkbook workbook, ISheet sheet, int rowIndex)
+    {
+        //列头标题行样式
+        ICellStyle headStyle = workbook.CreateCellStyle();
+        StyleHeadRow(workbook, headStyle);
+        //Excel明细行样试
+        ICellStyle infoStyle = workbook.CreateCellStyle();
+        StyleInfoRow(workbook, infoStyle);
+
+        // 列头标题行.
+        IRow headerRow = sheet.CreateRow(rowIndex);
+        foreach (DataColumn column in table.Columns)
+        {
+            headerRow.CreateCell(column.Ordinal).SetCellValue(column.Caption);//If Caption not set, returns the ColumnName value
+            headerRow.GetCell(column.Ordinal).CellStyle = headStyle;
+            
+            sheet.SetColumnWidth(column.Ordinal, 20 * 256);
+        }
+
+        // handling value.
+        rowIndex ++;
+        foreach (DataRow row in table.Rows)
+        {
+            IRow dataRow = sheet.CreateRow(rowIndex);
+
+            foreach (DataColumn column in table.Columns)
+            {
+                dataRow.CreateCell(column.Ordinal).SetCellValue(row[column].ToString());
+                dataRow.GetCell(column.Ordinal).CellStyle = infoStyle;
+            }
+            rowIndex++;
+        }
+
+        AutoSizeColumns(sheet);
+        sheet.PrintSetup.Scale = 100;
+        sheet.PrintSetup.PaperSize = 9;//A4纸张打印
+    }
+
+    //按DataTable指定列进行汇总合计，并增加汇总行
+    private static int CreateExcelFieldSum(DataTable table, IWorkbook workbook,  int sumFieldNo, ISheet sheet, int rowIndex)
+    {
+        rowIndex++;
+        decimal sumMoney = 0;
+        foreach (DataRow row in table.Rows)
+        {
+            sumMoney = sumMoney + Convert.ToDecimal(row[sumFieldNo].ToString());
+            rowIndex++;
+        }
+
+        //列头标题行样式
+        ICellStyle headStyle = workbook.CreateCellStyle();
+        StyleHeadRow(workbook, headStyle);
+        
+        IRow footerRow = sheet.CreateRow(rowIndex);
+        for (int i = 0; i < table.Columns.Count; i++)
+        {
+            if (sumFieldNo == i)
+            {
+                footerRow.CreateCell(i).SetCellValue(sumMoney.ToString());
+            }
+            else if (sumFieldNo - 1 == i)
+            {
+                footerRow.CreateCell(i).SetCellValue("合计:");
+            }
+            else
+            {
+                footerRow.CreateCell(i).SetCellValue("");
+            }
+            footerRow.GetCell(i).CellStyle=headStyle;
+        }
+        return rowIndex;
+    }
+
+
+    /// <summary>
+    /// 返回Excel数据
+    /// </summary>
+    /// <param name="table">DataTabe数据表</param>
+    /// <param name="titleName">文件首行标题名</param>
+    /// <param name="sumFieldNo">汇总列号，从0开始</param>
+    /// <returns></returns>
+    public static MemoryStream RenderSumToExcel(DataTable table,string titleName,int sumFieldNo)
+    {
+        MemoryStream ms = new MemoryStream();
+
+        using (table)
+        {
+            using (IWorkbook workbook = new HSSFWorkbook())
+            {
+                using (ISheet sheet = workbook.CreateSheet())
+                {
+
+                    //生成Excel 表格标题名称首行
+                    CreateExcelTitle(table, titleName, workbook, sheet);
+
+                    int rowIndex = 1;//设定初始行
+
+                    //生成Excel明细数据函数
+                    CreateExcelDetail(table, workbook, sheet, rowIndex);
+
+                    //指定列汇总
+                    rowIndex = CreateExcelFieldSum(table, workbook, sumFieldNo, sheet, rowIndex);
+
+
+                    workbook.Write(ms);
+                    ms.Flush();
+                    ms.Position = 0;
+                }
+            }
+        }
+        return ms;
+    }
+
+    //分组统计方式导出Excel
+    public static MemoryStream RenderSumToExcel(DataTable table, string titleName, int sumFieldNo,int groupField)
+    {
+        MemoryStream ms = new MemoryStream();
+
+        using (table)
+        {
+            using (IWorkbook workbook = new HSSFWorkbook())
+            {
+                using (ISheet sheet = workbook.CreateSheet())
+                {
+                    //生成Excel 表格标题名称首行
+                    CreateExcelTitle(table, titleName, workbook, sheet);
+
+                    //列头标题行样式
+                    ICellStyle headStyle = workbook.CreateCellStyle();
+                    StyleHeadRow(workbook, headStyle);
+                    //Excel明细行样试
+                    ICellStyle infoStyle = workbook.CreateCellStyle();
+                    StyleInfoRow(workbook, infoStyle);
+
+
+                    int rowIndex = 1;//设定初始行
+
+                    IRow headerRow = sheet.CreateRow(1);
+
+                    // handling header.
+                    foreach (DataColumn column in table.Columns)
+                    {
+                        headerRow.CreateCell(column.Ordinal).SetCellValue(column.Caption);//If Caption not set, returns the ColumnName value
+                        headerRow.GetCell(column.Ordinal).CellStyle = headStyle;
+                    }
+
+                    // handling value.
+                    rowIndex ++;
+                    decimal sumMoney = 0;
+                    decimal groupMoney = 0;
+                    string groupName = "";
+                    foreach (DataRow row in table.Rows)
+                    {
+                        #region 分组统计
+                        if (groupName != row[groupField].ToString())
+                        {
+                            InsertGroupRow(table, sumFieldNo, groupField, sheet, ref rowIndex, ref groupMoney, ref groupName, row[groupField].ToString());
+                        }
+                        #endregion
+
+                        IRow dataRow = sheet.CreateRow(rowIndex);
+                        foreach (DataColumn column in table.Columns)
+                        {
+                            dataRow.CreateCell(column.Ordinal).SetCellValue(row[column].ToString());
+                            dataRow.GetCell(column.Ordinal).CellStyle = infoStyle;
+                        }
+                        sumMoney = sumMoney + Convert.ToDecimal(row[sumFieldNo].ToString());
+                        groupMoney = groupMoney + Convert.ToDecimal(row[sumFieldNo].ToString());
+                        rowIndex++;
+                        
+                    }
+                    InsertGroupRow(table, sumFieldNo, groupField, sheet, ref rowIndex, ref groupMoney, ref groupName, "未尾行");
+
+                    IRow footerRow = sheet.CreateRow(rowIndex);
+                    
+                    for (int i = 0; i < table.Columns.Count; i++)
+                    {
+                        if (sumFieldNo == i)
+                        {
+                            footerRow.CreateCell(i).SetCellValue(sumMoney.ToString());
+                        }
+                        else if (sumFieldNo - 1 == i)
+                        {
+                            footerRow.CreateCell(i).SetCellValue("合计:");
+                        }
+                        else
+                        {
+                            footerRow.CreateCell(i).SetCellValue("");
+                        }
+
+                    }
+                    AutoSizeColumns(sheet);
+                    sheet.PrintSetup.Scale = 100;
+                    sheet.PrintSetup.PaperSize = 9;//A4纸张打印
+
+                    workbook.Write(ms);
+                    ms.Flush();
+                    ms.Position = 0;
+                }
+            }
+        }
+        return ms;
+    }
+
+    private static void InsertGroupRow(DataTable table, int sumFieldNo, int groupField, ISheet sheet, ref int rowIndex, ref decimal groupMoney, ref string groupName, string newGroupName)
+    {
+        IRow groupRow = sheet.CreateRow(rowIndex);
+        for (int i = 0; i < table.Columns.Count; i++)
+        {
+            if (sumFieldNo == i)
+            {
+                groupRow.CreateCell(i).SetCellValue(groupMoney.ToString());
+            }
+            else if (sumFieldNo - 1 == i)
+            {
+                groupRow.CreateCell(i).SetCellValue("小计:");
+            }
+            else
+            {
+                groupRow.CreateCell(i).SetCellValue("");
+            }
+        }
+        groupName = newGroupName;
+        groupMoney = 0;
+        rowIndex++;
+    }
+    /// <summary>
+    /// DataTable转换成Excel文档流，并保存到文件
+    /// </summary>
+    /// <param name="table"></param>
+    /// <param name="fileName">保存的路径</param>
+    public static void RenderToExcel(DataTable table, string fileName)
+    {
+        using (MemoryStream ms = RenderToExcel(table))
+        {
+            SaveToFile(ms, fileName);
+        }
+    }
+
+    public static void RenderToExcel(DataTable table, string titleName, int sumFieldNo,string fileName)
+    {
+        using (MemoryStream ms = RenderSumToExcel(table,titleName,sumFieldNo))
+        {
+            SaveToFile(ms, fileName);
+        }
+    }
+    public static void RenderToExcel(DataTable table, string titleName,  string fileName)
+    {
+        using (MemoryStream ms = RenderSumToExcel(table, titleName))
+        {
+            SaveToFile(ms, fileName);
+        }
+    }
+    /// <summary>
+    /// Excel导出，支持标题、未尾汇总、按指列分组汇总
+    /// </summary>
+    /// <param name="table">数据表DataTable</param>
+    /// <param name="titleName">表头标题</param>
+    /// <param name="sumFieldNo">汇总字段</param>
+    /// <param name="fileName">保存的文件名</param>
+    /// <param name="groupField">分组汇总的字段</param>
+    public static void RenderToExcel(DataTable table, string titleName, int sumFieldNo, string fileName,int groupField)
+    {
+        using (MemoryStream ms = RenderSumToExcel(table, titleName, sumFieldNo,groupField))
+        {
+            SaveToFile(ms, fileName);
+        }
+    }
+
+    /// <summary>
+    /// DataTable转换成Excel文档流，并输出到客户端
+    /// </summary>
+    /// <param name="table"></param>
+    /// <param name="response"></param>
+    /// <param name="fileName">输出的文件名</param>
+    public static void RenderToExcel(DataTable table, HttpContext context, string fileName)
+    {
+        using (MemoryStream ms = RenderToExcel(table))
+        {
+            RenderToBrowser(ms, context, fileName);
+        }
+    }
+
+    /// <summary>
+    /// Excel文档流是否有数据
+    /// </summary>
+    /// <param name="excelFileStream">Excel文档流</param>
+    /// <returns></returns>
+    public static bool HasData(Stream excelFileStream)
+    {
+        return HasData(excelFileStream, 0);
+    }
+
+    /// <summary>
+    /// Excel文档流是否有数据
+    /// </summary>
+    /// <param name="excelFileStream">Excel文档流</param>
+    /// <param name="sheetIndex">表索引号，如第一个表为0</param>
+    /// <returns></returns>
+    public static bool HasData(Stream excelFileStream, int sheetIndex)
+    {
+        using (excelFileStream)
+        {
+            using (IWorkbook workbook = new HSSFWorkbook(excelFileStream))
+            {
+                if (workbook.NumberOfSheets > 0)
+                {
+                    if (sheetIndex < workbook.NumberOfSheets)
+                    {
+                        using (ISheet sheet = workbook.GetSheetAt(sheetIndex))
+                        {
+                            return sheet.PhysicalNumberOfRows > 0;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    /// <summary>
+    /// Excel文档流转换成DataTable
+    /// 第一行必须为标题行
+    /// </summary>
+    /// <param name="excelFileStream">Excel文档流</param>
+    /// <param name="sheetName">表名称</param>
+    /// <returns></returns>
+    public static DataTable RenderFromExcel(Stream excelFileStream, string sheetName)
+    {
+        return RenderFromExcel(excelFileStream, sheetName, 0);
+    }
+
+    /// <summary>
+    /// Excel文档流转换成DataTable
+    /// </summary>
+    /// <param name="excelFileStream">Excel文档流</param>
+    /// <param name="sheetName">表名称</param>
+    /// <param name="headerRowIndex">标题行索引号，如第一行为0</param>
+    /// <returns></returns>
+    public static DataTable RenderFromExcel(Stream excelFileStream, string sheetName, int headerRowIndex)
+    {
+        DataTable table = null;
+
+        using (excelFileStream)
+        {
+            using (IWorkbook workbook = new HSSFWorkbook(excelFileStream))
+            {
+                using (ISheet sheet = workbook.GetSheet(sheetName))
+                {
+                    table = RenderFromExcel(sheet, headerRowIndex);
+                }
+            }
+        }
+        return table;
+    }
+
+    /// <summary>
+    /// Excel文档流转换成DataTable
+    /// 默认转换Excel的第一个表
+    /// 第一行必须为标题行
+    /// </summary>
+    /// <param name="excelFileStream">Excel文档流</param>
+    /// <returns></returns>
+    public static DataTable RenderFromExcel(Stream excelFileStream)
+    {
+        return RenderFromExcel(excelFileStream, 0, 0);
+    }
+
+    /// <summary>
+    /// Excel文档流转换成DataTable
+    /// 第一行必须为标题行
+    /// </summary>
+    /// <param name="excelFileStream">Excel文档流</param>
+    /// <param name="sheetIndex">表索引号，如第一个表为0</param>
+    /// <returns></returns>
+    public static DataTable RenderFromExcel(Stream excelFileStream, int sheetIndex)
+    {
+        return RenderFromExcel(excelFileStream, sheetIndex, 0);
+    }
+
+    /// <summary>
+    /// Excel文档流转换成DataTable
+    /// </summary>
+    /// <param name="excelFileStream">Excel文档流</param>
+    /// <param name="sheetIndex">表索引号，如第一个表为0</param>
+    /// <param name="headerRowIndex">标题行索引号，如第一行为0</param>
+    /// <returns></returns>
+    public static DataTable RenderFromExcel(Stream excelFileStream, int sheetIndex, int headerRowIndex)
+    {
+        DataTable table = null;
+
+        using (excelFileStream)
+        {
+            using (IWorkbook workbook = new HSSFWorkbook(excelFileStream))
+            {
+                using (ISheet sheet = workbook.GetSheetAt(sheetIndex))
+                {
+                    table = RenderFromExcel(sheet, headerRowIndex);
+                }
+            }
+        }
+        return table;
+    }
+
+    /// <summary>
+    /// Excel表格转换成DataTable
+    /// </summary>
+    /// <param name="sheet">表格</param>
+    /// <param name="headerRowIndex">标题行索引号，如第一行为0</param>
+    /// <returns></returns>
+    private static DataTable RenderFromExcel(ISheet sheet, int headerRowIndex)
+    {
+        DataTable table = new DataTable();
+
+        IRow headerRow = sheet.GetRow(headerRowIndex);
+        int cellCount = headerRow.LastCellNum;//LastCellNum = PhysicalNumberOfCells
+        int rowCount = sheet.LastRowNum;//LastRowNum = PhysicalNumberOfRows - 1
+
+        //handling header.
+        for (int i = headerRow.FirstCellNum; i < cellCount; i++)
+        {
+            DataColumn column = new DataColumn(headerRow.GetCell(i).StringCellValue);
+            table.Columns.Add(column);
+        }
+
+        for (int i = (sheet.FirstRowNum + 1); i <= rowCount; i++)
+        {
+            IRow row = sheet.GetRow(i);
+            DataRow dataRow = table.NewRow();
+
+            if (row != null)
+            {
+                for (int j = row.FirstCellNum; j < cellCount; j++)
+                {
+                    if (row.GetCell(j) != null)
+                        dataRow[j] = GetCellValue(row.GetCell(j));
+                }
+            }
+
+            table.Rows.Add(dataRow);
+        }
+
+        return table;
+    }
+
+    /// <summary>
+    /// Excel文档导入到数据库
+    /// 默认取Excel的第一个表
+    /// 第一行必须为标题行
+    /// </summary>
+    /// <param name="excelFileStream">Excel文档流</param>
+    /// <param name="insertSql">插入语句</param>
+    /// <param name="dbAction">更新到数据库的方法</param>
+    /// <returns></returns>
+    public static int RenderToDb(Stream excelFileStream, string insertSql, DBAction dbAction)
+    {
+        return RenderToDb(excelFileStream, insertSql, dbAction, 0, 0);
+    }
+
+    public delegate int DBAction(string sql, params IDataParameter[] parameters);
+
+    /// <summary>
+    /// Excel文档导入到数据库
+    /// </summary>
+    /// <param name="excelFileStream">Excel文档流</param>
+    /// <param name="insertSql">插入语句</param>
+    /// <param name="dbAction">更新到数据库的方法</param>
+    /// <param name="sheetIndex">表索引号，如第一个表为0</param>
+    /// <param name="headerRowIndex">标题行索引号，如第一行为0</param>
+    /// <returns></returns>
+    public static int RenderToDb(Stream excelFileStream, string insertSql, DBAction dbAction, int sheetIndex, int headerRowIndex)
+    {
+        int rowAffected = 0;
+        using (excelFileStream)
+        {
+            using (IWorkbook workbook = new HSSFWorkbook(excelFileStream))
+            {
+                using (ISheet sheet = workbook.GetSheetAt(sheetIndex))
+                {
+                    StringBuilder builder = new StringBuilder();
+
+                    IRow headerRow = sheet.GetRow(headerRowIndex);
+                    int cellCount = headerRow.LastCellNum;//LastCellNum = PhysicalNumberOfCells
+                    int rowCount = sheet.LastRowNum;//LastRowNum = PhysicalNumberOfRows - 1
+
+                    for (int i = (sheet.FirstRowNum + 1); i <= rowCount; i++)
+                    {
+                        IRow row = sheet.GetRow(i);
+                        if (row != null)
+                        {
+                            builder.Append(insertSql);
+                            builder.Append(" values (");
+                            for (int j = row.FirstCellNum; j < cellCount; j++)
+                            {
+                                builder.AppendFormat("'{0}',", GetCellValue(row.GetCell(j)).Replace("'", "''"));
+                            }
+                            builder.Length = builder.Length - 1;
+                            builder.Append(");");
+                        }
+
+                        if ((i % 50 == 0 || i == rowCount) && builder.Length > 0)
+                        {
+                            //每50条记录一次批量插入到数据库
+                            rowAffected += dbAction(builder.ToString());
+                            builder.Length = 0;
+                        }
+                    }
+                }
+            }
+        }
+        return rowAffected;
+    }
+
+    /// <summary>
+    /// 合并单元格
+    /// </summary>
+    /// <param name="sheet">要合并单元格所在的sheet</param>
+    /// <param name="rowstart">开始行的索引</param>
+    /// <param name="rowend">结束行的索引</param>
+    /// <param name="colstart">开始列的索引</param>
+    /// <param name="colend">结束列的索引</param>
+    public static void SetCellRangeAddress(ISheet sheet, int rowstart, int rowend, int colstart, int colend)
+    {
+        CellRangeAddress cellRangeAddress = new CellRangeAddress(rowstart, rowend, colstart, colend);
+        sheet.AddMergedRegion(cellRangeAddress);
+    }
+}

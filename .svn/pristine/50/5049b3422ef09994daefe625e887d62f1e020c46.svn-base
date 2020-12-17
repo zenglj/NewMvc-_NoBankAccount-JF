@@ -1,0 +1,75 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    @{Html.RenderPartial("~/Views/Shared/_PartialHeadPage.cshtml");}
+    <script src="~/Scripts/myJs/commonJs.js"></script>
+    <script src="~/Scripts/myJs/AmountQuery.js"></script>
+    <title>AmountQuery</title>
+</head>
+<body class="easyui-layout">
+    <div data-options="region:'north',title:'过虑条件',split:true" style="height:165px;">
+        <form method="post">
+            <table id="crimeSearch">
+                <tr>
+                    <th align="right">编号：</th>
+                    <td align="left">
+                        <input id="fCrimeCode" name="fCrimeCode" class="easyui-validatebox" style="width:305px;" data-options="required:true,validType:'text'" />
+                    </td>
+                </tr>
+                <tr>
+                    <th align="right">姓名：</th>
+                    <td align="left">
+                        <input id="fCrimeName" name="fCrimeName" class="easyui-validatebox" style="width:305px;" data-options="required:true,validType:'text'" />
+                    </td>
+                </tr>
+                <tr>
+                    <th align="right">队别：</th>
+                    <td align="left">
+
+
+                        <!--<select id="cc" name="fAreaName" style="width:305px;">
+                            <option value="000">请选择队别</option>
+
+                        </select>  -->
+                        @*<input id="cc" name="fAreaName" value="请选择队别" style="width:305px;" />*@
+                        <select id="cc" name="fAreaName" class="easyui-combobox">
+                            <option value="000">--请选择监区--</option>
+                            @foreach (var userArea in ViewData["userAreas"] as Dictionary<string, string>)
+                            {
+                                <option value="@userArea.Value">@userArea.Key</option>
+                            }
+                        </select>
+                    </td>
+                </tr>
+
+                <tr>
+                    <th align="right">统计区间：</th>
+                    <td align="left">
+                        <input id="StartDate" name="StartDate" class="easyui-datetimebox"
+                               data-options="required:true,showSeconds:false" value="3/4/2010 00:00" style="width:150px">至
+                        <input id="EndDate" name="EndDate" class="easyui-datetimebox"
+                               data-options="required:true,showSeconds:false" value="3/4/2010 23:59" style="width:150px">
+
+                    </td>
+                </tr>
+
+                <tr>
+                    <th align="right"></th>
+                    <td align="right"><a id="btn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-search'" onclick="FilterSearch()">查询</a><a id="A1" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-redo'" onclick="clearSearch()">清空</a></td>
+                </tr>
+            </table>
+        </form>
+    </div>
+    <div data-options="region:'center'" style="padding:5px;background:#eee;">
+        <table id="test"></table>
+    </div>
+
+</body>
+</html>

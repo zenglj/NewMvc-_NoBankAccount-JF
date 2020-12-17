@@ -1,0 +1,108 @@
+﻿<div class="navbar navbar-default navbar-fixed-top">
+    <div class="bg_topDiv">
+        @*<img src="~/Content/images/SelfOrderManager1.jpg" />*@
+        <div class="row">
+            <div class="col-sm-10"></div>
+            <div class="col-sm-2">
+                <div>
+                    <div style="height:40px;"></div>
+                    <div>
+                        <a  class="btn btn-link" href="/Message/Index"><span class="glyphicon glyphicon-envelope colorWhite" aria-hidden="true"> 通知消息(New)</span></a>
+                    </div>
+                </div>                
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="navbar-header">
+            @*<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>*@
+            @Html.ActionLink("易购在线，欢迎您", "Index", "Home", null, new { @class = "navbar-brand" })
+        </div>
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav" style="font-size:16px;">
+                <li>@Html.ActionLink("账户查询", "Index", "UserQuery")</li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">商品浏览 <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li>@Html.ActionLink("图文浏览", "GoodsView", "Home")</li>
+                        <li>@Html.ActionLink("列表显示", "Lists", "Goods")</li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">自助下单 <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        @if (ViewData["saleTypes"] != null)
+                        {
+                            foreach (SelfhelpOrderMgr.Model.T_SHO_SaleType saletype in ViewData["saleTypes"] as List<SelfhelpOrderMgr.Model.T_SHO_SaleType>)
+                            {
+                                if (saletype.ID > 1)
+                                {
+                                    <li>@Html.ActionLink(saletype.PType, "PrintCkeck", "Home", new { id = saletype.ID, SaleMode = "Shopping" }, new { target = "_self" })</li>
+                                }
+                                else
+                                {
+                                    <li>@Html.ActionLink(saletype.PType, "Index", "Shopping", new { id = saletype.ID }, new { target = "_self" })</li>
+                                }
+                            }
+                        }
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">代购销售 <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        @if (ViewData["saleTypes"] != null)
+                        {
+                            foreach (SelfhelpOrderMgr.Model.T_SHO_SaleType saletype in ViewData["saleTypes"] as List<SelfhelpOrderMgr.Model.T_SHO_SaleType>)
+                            {
+                                if (saletype.ID > 1)
+                                {
+                                    <li>@Html.ActionLink(saletype.PType, "PrintCkeck", "Home", new { id = saletype.ID, SaleMode = "Sales" }, new { target = "_self" })</li>
+                                }
+                                else
+                                {
+                                    <li>@Html.ActionLink(saletype.PType, "Index", "Sales", new { id = saletype.ID }, new { target = "_self" })</li>
+                                }
+                            }
+                        }
+                    </ul>
+                </li>
+                @*<li>@Html.ActionLink("商品列表", "Lists", "Goods")</li>*@
+                @*<li>@Html.ActionLink("自助扣款", "Login", "SelfPayment")</li>*@
+                <li>@Html.ActionLink("通知公告", "Index", "Message")</li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">其他应用 <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        @if (ViewData["areaFlag"] != null)
+                        {
+                            string areaflag = ViewData["areaFlag"] as string;
+                            if (areaflag == "1")
+                            {
+                                <li>@Html.ActionLink("队别调整", "areaLogin", "ComApp", new { id = 99, SaleMode = "Sales" }, new { target = "_self" })</li>
+                            }
+                        }
+                        <li>@Html.ActionLink("自助扣款", "Login", "SelfPayment",new { id = 101, SaleMode = "Sales" }, new { target = "_self" })</li>
+                        <li>@Html.ActionLink("资金冻结", "Login", "SelfDongJie", new { id = 102, SaleMode = "Sales" }, new { target = "_self" })</li>
+                        @if (ViewData["cyFlag"] != null)
+                        {
+                            string cyflag = ViewData["cyFlag"] as string;
+                            if (cyflag == "1")
+                            {
+                                <li>@Html.ActionLink("处遇变更", "ChuyiChange", "ComApp", new { id = 99, SaleMode = "Sales" }, new { target = "_self" })</li>
+                            }
+                        }
+                        <li>@Html.ActionLink("出监账户维护", "PayeeLogin", "SelfDongJie", new { id = 102, SaleMode = "Sales" }, new { target = "_self" })</li>
+
+                    </ul>
+                </li>
+
+            </ul>
+            @Html.Partial("_LoginPartial")
+        </div>
+    </div>
+    <div id="site-navbar" style="position: absolute; top: -4px; left: -3px; border: 0; z-index: 2000;padding:0;margin:0;"><a href="/" title="返回首页" style="background:none;"><img src="/Content/images/return-back.png" style="padding:0;margin:0;border:0; -webkit-box-shadow: none;-moz-box-shadow: none;box-shadow: none;"></a></div>
+</div>
+

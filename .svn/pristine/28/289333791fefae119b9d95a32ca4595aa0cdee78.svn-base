@@ -1,0 +1,67 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>PrintCardAmountList</title>
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Content/site.min.css" rel="stylesheet" />
+</head>
+<body>
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-10">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    @if (ViewData["cards"] != null)
+                    {
+                        var cards = ViewData["cards"] as List<SelfhelpOrderMgr.Model.T_TempAmount_Card>;
+                        <h3 style="text-align:center">账户余额表<small>@cards[0].fareaName</small></h3>
+                    }
+                </div>
+                <div class="panel-body">
+                    <table class="table table-striped table-condensed">
+                        <thead>
+                            <tr><th>用户编号</th><th>人员姓名</th>@*<th>用户所在队别</th>*@<th>银行卡号</th><th>汇款</th><th>报酬</th><th>留存</th><th>总余额</th></tr>
+                        </thead>
+                        <tbody>
+                            @if (ViewData["cards"] != null)
+                            {
+                                decimal sumMoney = 0;
+                                foreach (SelfhelpOrderMgr.Model.T_TempAmount_Card card in ViewData["cards"] as List<SelfhelpOrderMgr.Model.T_TempAmount_Card>)
+                                {
+                                    <tr>
+                                        <td>@card.fcrimecode</td>
+                                        <td>@card.fname</td>
+                                        @*<td>@card.fareaName</td>*@
+                                        <td>@card.BankAccNo</td>
+                                        <td>@card.amounta</td>
+                                        <td>@card.amountb</td>
+                                        <td>@card.amountc</td>
+                                        <td>@card.fmoney</td>
+                                    </tr>
+                                    sumMoney = sumMoney + card.fmoney;
+                                }
+                                <tr class="text-right">
+                                    <td colspan="8">合计：@sumMoney</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <div class="panel-footer">
+                    @@监狱
+                </div>
+            </div>
+            
+        </div>
+        <div class="col-md-1"></div>
+        
+    </div>
+</body>
+</html>

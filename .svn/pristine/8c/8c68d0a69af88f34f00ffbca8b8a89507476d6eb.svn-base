@@ -1,0 +1,118 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>customerDateMgr</title>
+
+    @{Html.RenderPartial("~/Views/Shared/_PartialHeadPage.cshtml");}
+    <link href="~/Scripts/simple-calendar/tcal.css" rel="stylesheet" />
+</head>
+<body>
+    <div> 
+        <h2>特殊消费时段设定</h2>
+        <hr/>
+        <table>
+            <tr>
+                <th>特殊消费时段</th>
+                <td>
+                    <select class="easyui-combobox" id="XFDateRect" style="width:150px;">
+                        @if(ViewData["xfDateRect"]!=null)
+                        {
+                            SelfhelpOrderMgr.Model.T_SHO_ManagerSet rect = ViewData["xfDateRect"] as SelfhelpOrderMgr.Model.T_SHO_ManagerSet;
+                            if(rect.MgrValue=="1")
+                            {
+                                <option value="1" selected="selected">启用</option>
+                                <option value="0">关闭</option>
+                            }
+                            else
+                            {
+                                <option value="1" >启用</option>
+                                <option value="0" selected="selected">关闭</option>
+                            }
+                        }
+                        
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <th>开始时间</th>
+                <td>
+                @if (ViewData["xfDateStart"] != null)
+                {
+                    string start = ViewData["xfDateStart"] as string;
+                    <input class="tcal" id="XFDateStart" value="@start" style="width:150px">
+                                    <input type="hidden" id="tmpStartDate" value="@start" />
+                }
+
+                </td>
+            </tr>
+            <tr>
+                <th>结束时间</th>
+                <td>
+                    <input type="hidden" id="tmpEndDate" value="" />
+                    @if (ViewData["xfDateEnd"] != null)
+                    {
+                        string end = ViewData["xfDateEnd"] as string;
+                        <input class="tcal" id="XFDateEnd" value="@end" style="width:150px">
+                        <input type="hidden" id="tmpEndDate" value="@end" />
+                    }
+                </td>
+            </tr>
+            <tr>
+                <th>消费倍数</th>
+                <td>
+                                        @if (ViewData["xfBeiShu"] != null)
+                    {
+                        SelfhelpOrderMgr.Model.T_SHO_ManagerSet beishu = ViewData["xfBeiShu"] as SelfhelpOrderMgr.Model.T_SHO_ManagerSet;
+                        <input type="text" class="easyui-numberbox"  data-options="min:0,precision:2" id="XFBeiShu"
+                             value=@beishu.MgrValue style="width:150px">
+    
+                    }
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <a id="btn" href="#" onclick="SaveInfo()" class="easyui-linkbutton" data-options="iconCls:'icon-save'">保存</a> 
+                </td>
+            </tr>
+        </table>
+    </div>
+    <script src="~/Scripts/simple-calendar/tcal.js"></script>
+
+    <script type="text/javascript">
+
+        
+        function SaveInfo() {
+
+            $.post("/Super/SaveXFDateRect", {
+                "XFDateRect": $("#XFDateRect").combobox('getValue'),
+                "XFDateStart": $("#XFDateStart").val(),
+                "XFDateEnd": $("#XFDateEnd").val(),
+                "XFBeiShu": $('#XFBeiShu').numberbox('getValue')
+
+            }, function (data, status) {
+                if ("success" != status) {
+                    return false;
+                } else {
+                    $.messager.alert('提示', data);
+                }
+            });
+        }
+
+        //$(function () {
+        //    alert($("#tmpEndDate").val());
+        //    alert($("#tmpStartDate").val());
+        //    $('#XFDateEnd').datetimebox('setValue', '6/1/2012 12:30:56');
+        //    $('#XFDateStart').datetimebox('setValue', '6/1/2016 12:30:56');
+        //});
+    </script>
+
+</body>
+
+</html>

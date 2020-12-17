@@ -1,0 +1,106 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>假日管理</title>
+    @{Html.RenderPartial("~/Views/Shared/_PartialHeadPage.cshtml");}
+</head>
+<body class="easyui-layout">
+    <div data-options="region:'center',title:'查询条件'" style="padding:5px;">
+        <div style="height:300px;">
+            <input type="hidden" id="typeName" />
+            <table id="test" class="easyui-datagrid" toolbar="#tb"></table>
+
+        </div>
+
+        <div id="tb" style="padding:5px;height:auto">
+            <div>
+                <a href="#" class="easyui-linkbutton" iconcls="icon-add" onclick="AddTypeGoods()">添加</a>
+                <a href="#" class="easyui-linkbutton" iconcls="icon-save" onclick="BatchSaveDg()">保存</a>
+                <a href="#" class="easyui-linkbutton" iconcls="icon-no" onclick="DeleteDeleleChinaFestivalById()">删除</a>
+            </div>
+        </div>
+
+        <div id="editWindows" title="信息编辑栏" data-options="iconCls:'icon-edit'" style="height:550px; width:500px; padding:10px;background:#fafafa;">
+            <form method="post">
+                <input type="hidden" id="dotype" />
+
+            </form>
+        </div>
+
+    </div>
+    <div data-options="region:'east',title:'查询条件',split:true" style="width:300px;">
+        @*<div data-options="region:'north',title:'North Title',split:true" style="height:200px;">
+                <form method="post">
+                    <table id="crimeSearch">
+                        <tr>
+                            <th align="right">商品名称：</th>
+                            <td align="left">
+                                <input id="FGoodsName" name="FGoodsName" class="easyui-validatebox" style="width:190px;" data-options="required:true,validType:'text'" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <th align="right">条形码：</th>
+                            <td align="left">
+                                <input id="FGoodsGTXM" name="FGoodsGTXM" class="easyui-validatebox" style="width:190px;" data-options="required:true,validType:'text'" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <th align="right">商品类别：</th>
+                            <td align="left">
+                                <select id="FGoodsType" name="FGoodsType" class="easyui-combobox" style="width:190px;">
+                                    <option value="0" selected="selected">请选择类别</option>
+                                    @if (ViewData["goodtypes"] != null)
+                                    {
+                                        foreach (SelfhelpOrderMgr.Model.T_GoodsType type in ViewData["goodtypes"] as List<SelfhelpOrderMgr.Model.T_GoodsType>)
+                                        {
+                                            <option value="@type.Fcode">@type.Fname</option>
+                                        }
+                                    }
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th align="right">队别：</th>
+                            <td align="left">
+                                <select id="FAreaInfo" name="FAreaInfo" class="easyui-combobox" style="width:190px;">
+                                    <option value="0" selected="selected">请选择队别</option>
+                                    @if (ViewData["areas"] != null)
+                                    {
+                                        foreach (SelfhelpOrderMgr.Model.T_AREA selectArea in ViewData["areas"] as List<SelfhelpOrderMgr.Model.T_AREA>)
+                                        {
+                                            <option value="@selectArea.FCode">@selectArea.FName</option>
+                                        }
+                                    }
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th align="right"></th>
+                            <td align="right">
+                                <a id="btnSearch" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-search'" onclick="FilterSearch()">查询</a>
+                                <a id="btnClear" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-redo'" onclick="clearSearch()">清空</a>
+                            </td>
+                        </tr>
+                    </table>
+                </form>
+            </div>*@
+    </div>
+
+    <script src="~/Scripts/myJs/JiariMgr.js"></script>
+    @*<script type="text/javascript">
+            function formatStatus(value, row, index) {
+                if (value=='Y') {
+                    return '正常';
+                } else {
+                    return '停用';
+                }
+            }
+        </script>*@
+</body>
+</html>

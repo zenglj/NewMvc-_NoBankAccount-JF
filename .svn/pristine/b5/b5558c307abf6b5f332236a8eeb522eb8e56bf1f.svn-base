@@ -1,0 +1,41 @@
+﻿using SelfhelpOrderMgr.Model;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using Dapper;
+using System.Data;
+
+namespace SelfhelpOrderMgr.DAL
+{
+    public partial class T_TempAmount_CardDAL
+    {
+        public DataSet GetSearchCardAmount(string strFCrimeCode,string strFCrimeName,string strAreaName)
+        {
+            string sql = "";
+            //删除临时表记录
+            sql = "delete from t_tempAmount_Card";
+            SqlHelper.ExecuteSql(sql);
+            //插入新记录
+            sql = "insert into t_tempAmount_Card select a.fcrimecode,b.fname,c.fname fareaName,a.bankaccno,a.amounta,a.amountb,a.amountc,(a.amounta+a.amountb+a.amountc) fmoney from t_criminal_card a,t_criminal b,t_area c where a.fcrimecode=b.fcode and b.fAreaCode=c.fcode and isnull(b.fflag,0)=0";
+            if ("" != strFCrimeCode)
+            {
+                sql = sql + " and a.fcrimecode='" + strFCrimeCode + "'";
+            }
+            else if ("" != strFCrimeName)
+            {
+                sql = sql + " and b.fname like '%" + strFCrimeName + "%'";
+            }
+            else if ("" != strAreaName && "000" != strAreaName)
+            {
+                sql = sql + " and c.fcode='" + strAreaName + "'";
+            }
+            SqlHelper.ExecuteSql(sql);
+
+            //查询结果
+            sql = "select a.fcrimecode,a.fname,a.fareaName,a.bankaccno,a.amounta,a.amountb,a.amountc,a.fmoney from t_tempAmount_Card a";
+            return SqlHelper.Query(sql);
+            
+        }
+    }
+}

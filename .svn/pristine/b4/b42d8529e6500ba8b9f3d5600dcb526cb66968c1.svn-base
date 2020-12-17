@@ -1,0 +1,155 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
+using System.Linq;
+using System.Text;
+using System.Web;
+
+namespace SelfhelpOrderMgr.DAL
+{
+    public partial class T_Criminal_cardDAL
+    {
+        /// <summary>
+        /// 得到一个对象实体
+        /// </summary>
+        public SelfhelpOrderMgr.Model.T_Criminal_card GetModel(string fcrimecode)
+        {
+
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("select seqno, fcrimecode, cardcodea, AmountA, UnPaidAmtA, cardflaga, cardcodeb, AmountB, cardflagb, UnPaidAmtB, flimitflag, flimitamt, BankAccNo, RegFlag, UseFlag, BankAmount, AmountC, bankdate, BankRegFlag, tmpbankAmount, curbankamount, unregflag  ");
+            strSql.Append("  from T_Criminal_card ");
+            strSql.Append(" where FCrimeCode=@FCrimeCode");
+            SqlParameter[] parameters = {
+					new SqlParameter("@FCrimeCode", SqlDbType.VarChar,20)
+			};
+            parameters[0].Value = fcrimecode;
+
+
+            SelfhelpOrderMgr.Model.T_Criminal_card model = new SelfhelpOrderMgr.Model.T_Criminal_card();
+            DataSet ds = SqlHelper.Query(strSql.ToString(), parameters);
+
+            if (ds.Tables[0].Rows.Count > 0)
+            {
+                if (ds.Tables[0].Rows[0]["seqno"].ToString() != "")
+                {
+                    model.seqno = int.Parse(ds.Tables[0].Rows[0]["seqno"].ToString());
+                }
+                model.fcrimecode = ds.Tables[0].Rows[0]["fcrimecode"].ToString();
+                model.cardcodea = ds.Tables[0].Rows[0]["cardcodea"].ToString();
+                if (ds.Tables[0].Rows[0]["AmountA"].ToString() != "")
+                {
+                    model.AmountA = decimal.Parse(ds.Tables[0].Rows[0]["AmountA"].ToString());
+                }
+                if (ds.Tables[0].Rows[0]["UnPaidAmtA"].ToString() != "")
+                {
+                    model.UnPaidAmtA = decimal.Parse(ds.Tables[0].Rows[0]["UnPaidAmtA"].ToString());
+                }
+                if (ds.Tables[0].Rows[0]["cardflaga"].ToString() != "")
+                {
+                    model.cardflaga = int.Parse(ds.Tables[0].Rows[0]["cardflaga"].ToString());
+                }
+                model.cardcodeb = ds.Tables[0].Rows[0]["cardcodeb"].ToString();
+                if (ds.Tables[0].Rows[0]["AmountB"].ToString() != "")
+                {
+                    model.AmountB = decimal.Parse(ds.Tables[0].Rows[0]["AmountB"].ToString());
+                }
+                if (ds.Tables[0].Rows[0]["cardflagb"].ToString() != "")
+                {
+                    model.cardflagb = int.Parse(ds.Tables[0].Rows[0]["cardflagb"].ToString());
+                }
+                if (ds.Tables[0].Rows[0]["UnPaidAmtB"].ToString() != "")
+                {
+                    model.UnPaidAmtB = decimal.Parse(ds.Tables[0].Rows[0]["UnPaidAmtB"].ToString());
+                }
+                if (ds.Tables[0].Rows[0]["flimitflag"].ToString() != "")
+                {
+                    model.flimitflag = int.Parse(ds.Tables[0].Rows[0]["flimitflag"].ToString());
+                }
+                if (ds.Tables[0].Rows[0]["flimitamt"].ToString() != "")
+                {
+                    model.flimitamt = decimal.Parse(ds.Tables[0].Rows[0]["flimitamt"].ToString());
+                }
+                model.BankAccNo = ds.Tables[0].Rows[0]["BankAccNo"].ToString();
+                if (ds.Tables[0].Rows[0]["RegFlag"].ToString() != "")
+                {
+                    model.RegFlag = int.Parse(ds.Tables[0].Rows[0]["RegFlag"].ToString());
+                }
+                if (ds.Tables[0].Rows[0]["UseFlag"].ToString() != "")
+                {
+                    model.UseFlag = int.Parse(ds.Tables[0].Rows[0]["UseFlag"].ToString());
+                }
+                if (ds.Tables[0].Rows[0]["BankAmount"].ToString() != "")
+                {
+                    model.BankAmount = decimal.Parse(ds.Tables[0].Rows[0]["BankAmount"].ToString());
+                }
+                if (ds.Tables[0].Rows[0]["AmountC"].ToString() != "")
+                {
+                    model.AmountC = decimal.Parse(ds.Tables[0].Rows[0]["AmountC"].ToString());
+                }
+                if (ds.Tables[0].Rows[0]["bankdate"].ToString() != "")
+                {
+                    model.bankdate = DateTime.Parse(ds.Tables[0].Rows[0]["bankdate"].ToString());
+                }
+                if (ds.Tables[0].Rows[0]["BankRegFlag"].ToString() != "")
+                {
+                    model.BankRegFlag = int.Parse(ds.Tables[0].Rows[0]["BankRegFlag"].ToString());
+                }
+                if (ds.Tables[0].Rows[0]["tmpbankAmount"].ToString() != "")
+                {
+                    model.tmpbankAmount = decimal.Parse(ds.Tables[0].Rows[0]["tmpbankAmount"].ToString());
+                }
+                if (ds.Tables[0].Rows[0]["curbankamount"].ToString() != "")
+                {
+                    model.curbankamount = decimal.Parse(ds.Tables[0].Rows[0]["curbankamount"].ToString());
+                }
+                if (ds.Tables[0].Rows[0]["unregflag"].ToString() != "")
+                {
+                    model.unregflag = int.Parse(ds.Tables[0].Rows[0]["unregflag"].ToString());
+                }
+
+                return model;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+
+        /// <summary>
+        /// 更新一条数据
+        /// </summary>
+        public bool UpdateBankInfo(string fcode,string bankCard,int regflag)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("update T_Criminal_card set ");
+
+            strSql.Append(" BankAccNo = @BankAccNo , ");
+            strSql.Append(" RegFlag = @RegFlag  ");            
+            strSql.Append(" where fcrimecode = @fcrimecode ");
+
+            SqlParameter[] parameters = {
+                        new SqlParameter("@fcrimecode", SqlDbType.VarChar,20) ,            
+                        new SqlParameter("@BankAccNo", SqlDbType.VarChar,20) ,            
+                        new SqlParameter("@RegFlag", SqlDbType.Int,4)             
+              
+            };
+
+            parameters[0].Value = fcode;
+            parameters[1].Value = bankCard;
+            parameters[2].Value = regflag;
+
+            int rows = SqlHelper.ExecuteSql(strSql.ToString(), parameters);
+            if (rows > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+		
+    }
+}

@@ -1,0 +1,211 @@
+﻿using System; 
+using System.Text;
+using System.Collections.Generic; 
+using System.Data;
+namespace SelfhelpOrderMgr.Model{
+	 	//T_Criminal_card
+		public class T_Criminal_card
+	{
+   		     
+      	/// <summary>
+		/// seqno
+        /// </summary>		
+		private int _seqno;
+        public int seqno
+        {
+            get{ return _seqno; }
+            set{ _seqno = value; }
+        }        
+		/// <summary>
+		/// fcrimecode
+        /// </summary>		
+		private string _fcrimecode;
+        public string fcrimecode
+        {
+            get{ return _fcrimecode; }
+            set{ _fcrimecode = value; }
+        }        
+		/// <summary>
+		/// cardcodea
+        /// </summary>		
+		private string _cardcodea;
+        public string cardcodea
+        {
+            get{ return _cardcodea; }
+            set{ _cardcodea = value; }
+        }        
+		/// <summary>
+		/// AmountA
+        /// </summary>		
+		private decimal _amounta;
+        public decimal AmountA
+        {
+            get{ return _amounta; }
+            set{ _amounta = value; }
+        }        
+		/// <summary>
+		/// UnPaidAmtA
+        /// </summary>		
+		private decimal _unpaidamta;
+        public decimal UnPaidAmtA
+        {
+            get{ return _unpaidamta; }
+            set{ _unpaidamta = value; }
+        }        
+		/// <summary>
+		/// cardflaga
+        /// </summary>		
+		private int _cardflaga;
+        public int cardflaga
+        {
+            get{ return _cardflaga; }
+            set{ _cardflaga = value; }
+        }        
+		/// <summary>
+		/// cardcodeb
+        /// </summary>		
+		private string _cardcodeb;
+        public string cardcodeb
+        {
+            get{ return _cardcodeb; }
+            set{ _cardcodeb = value; }
+        }        
+		/// <summary>
+		/// AmountB
+        /// </summary>		
+		private decimal _amountb;
+        public decimal AmountB
+        {
+            get{ return _amountb; }
+            set{ _amountb = value; }
+        }        
+		/// <summary>
+		/// cardflagb
+        /// </summary>		
+		private int _cardflagb;
+        public int cardflagb
+        {
+            get{ return _cardflagb; }
+            set{ _cardflagb = value; }
+        }        
+		/// <summary>
+		/// UnPaidAmtB
+        /// </summary>		
+		private decimal _unpaidamtb;
+        public decimal UnPaidAmtB
+        {
+            get{ return _unpaidamtb; }
+            set{ _unpaidamtb = value; }
+        }        
+		/// <summary>
+		/// flimitflag
+        /// </summary>		
+		private int _flimitflag;
+        public int flimitflag
+        {
+            get{ return _flimitflag; }
+            set{ _flimitflag = value; }
+        }        
+		/// <summary>
+		/// flimitamt
+        /// </summary>		
+		private decimal _flimitamt;
+        public decimal flimitamt
+        {
+            get{ return _flimitamt; }
+            set{ _flimitamt = value; }
+        }        
+		/// <summary>
+		/// BankAccNo
+        /// </summary>		
+		private string _bankaccno;
+        public string BankAccNo
+        {
+            get{ return _bankaccno; }
+            set{ _bankaccno = value; }
+        }        
+		/// <summary>
+		/// RegFlag
+        /// </summary>		
+		private int _regflag;
+        public int RegFlag
+        {
+            get{ return _regflag; }
+            set{ _regflag = value; }
+        }        
+		/// <summary>
+		/// UseFlag
+        /// </summary>		
+		private int _useflag;
+        public int UseFlag
+        {
+            get{ return _useflag; }
+            set{ _useflag = value; }
+        }        
+		/// <summary>
+		/// BankAmount
+        /// </summary>		
+		private decimal _bankamount;
+        public decimal BankAmount
+        {
+            get{ return _bankamount; }
+            set{ _bankamount = value; }
+        }        
+		/// <summary>
+		/// AmountC
+        /// </summary>		
+		private decimal _amountc;
+        public decimal AmountC
+        {
+            get{ return _amountc; }
+            set{ _amountc = value; }
+        }        
+		/// <summary>
+		/// bankdate
+        /// </summary>		
+		private DateTime _bankdate;
+        public DateTime bankdate
+        {
+            get{ return _bankdate; }
+            set{ _bankdate = value; }
+        }        
+		/// <summary>
+		/// BankRegFlag
+        /// </summary>		
+		private int _bankregflag;
+        public int BankRegFlag
+        {
+            get{ return _bankregflag; }
+            set{ _bankregflag = value; }
+        }        
+		/// <summary>
+		/// tmpbankAmount
+        /// </summary>		
+		private decimal _tmpbankamount;
+        public decimal tmpbankAmount
+        {
+            get{ return _tmpbankamount; }
+            set{ _tmpbankamount = value; }
+        }        
+		/// <summary>
+		/// curbankamount
+        /// </summary>		
+		private decimal _curbankamount;
+        public decimal curbankamount
+        {
+            get{ return _curbankamount; }
+            set{ _curbankamount = value; }
+        }        
+		/// <summary>
+		/// unregflag
+        /// </summary>		
+		private int _unregflag;
+        public int unregflag
+        {
+            get{ return _unregflag; }
+            set{ _unregflag = value; }
+        }        
+		   
+	}
+}
+

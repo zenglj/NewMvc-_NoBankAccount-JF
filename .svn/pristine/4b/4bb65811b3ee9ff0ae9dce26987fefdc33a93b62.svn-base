@@ -1,0 +1,837 @@
+﻿using NPOI.HSSF.UserModel;
+using SelfhelpOrderMgr.BLL;
+using SelfhelpOrderMgr.Common;
+using SelfhelpOrderMgr.Model;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Web;
+using System.Web.Mvc;
+using System.Web.Script.Serialization;
+
+namespace SelfhelpOrderMgr.Web.Controllers
+{
+    public class CriminalController : BaseController
+    {
+        //
+        // GET: /Criminal/
+        JavaScriptSerializer jss = new JavaScriptSerializer();
+        public ActionResult Index()
+        {
+            List<T_AREA> areas = new T_AREABLL().GetModelList("FCode in( select fareaCode from t_czy_area where fflag=2 and fcode='" + Session["loginUserCode"].ToString() + "')");
+            ViewData["areas"] = areas;
+
+            List<T_CY_TYPE> cys = new T_CY_TYPEBLL().GetModelList("");
+            ViewData["cys"] = cys;
+
+            List<T_CRIME> crimes = new T_CRIMEBLL().GetModelList("");
+            ViewData["crimes"] = crimes;
+
+            DataTable dt = new CommTableInfoBLL().GetDataTable("select distinct CrtBy from t_Vcrd Order by CrtBy");
+            List<string> crtbys = new List<string>();
+            if (dt.Rows.Count > 0)
+            {
+                foreach (DataRow row in dt.Rows)
+                {
+                    crtbys.Add(row[0].ToString());
+                }
+            }
+            ViewData["crtbys"] = crtbys;
+
+            dt = new CommTableInfoBLL().GetDataTable("select distinct Dtype from t_Vcrd where damount<>0 Order by Dtype");
+            List<string> cashtypes = new List<string>();//存款类型
+            if (dt.Rows.Count > 0)
+            {
+                foreach (DataRow row in dt.Rows)
+                {
+                    cashtypes.Add(row[0].ToString());
+                }
+            }
+            ViewData["cashtypes"] = cashtypes;
+
+            dt = new CommTableInfoBLL().GetDataTable("select distinct Dtype from t_Vcrd where camount<>0 Order by Dtype");
+            List<string> paytypes = new List<string>();//存款类型
+            if (dt.Rows.Count > 0)
+            {
+                foreach (DataRow row in dt.Rows)
+                {
+                    paytypes.Add(row[0].ToString());
+                }
+            }
+            ViewData["paytypes"] = paytypes;
+            return View();
+        }
+
+        public ActionResult GetSearchUsers()
+        {
+
+            string strWhere = SetRequestSearchWhere(Session["loginUserCode"].ToString());
+
+            //分页信息
+            string action = Request["action"];
+            string strPage = Request["page"];
+            string strRow = Request["rows"];
+            int page = 1;
+            int row = 10;
+            decimal listRows = 0;
+            string sss = "";
+            if (string.IsNullOrEmpty(strPage) == false)
+            {
+                page = Convert.ToInt32(strPage);
+            }
+
+            if (string.IsNullOrEmpty(strRow) == false)
+            {
+                row = Convert.ToInt32(strRow);
+            }
+
+            listRows = new T_CriminalBLL().GetCriminalsCount(strWhere.ToString());
+
+            List<T_Criminal> criminals = new T_CriminalBLL().GetPageCriminalExtInfo(page, row, strWhere, "FCode");
+
+            sss = "{\"total\":" + listRows.ToString() + ",\"rows\":" + jss.Serialize(criminals) + "}";
+            return Content(sss);
+        }
+
+        //将Request参数传入GetSearchWhere函数，并生成查询条件
+        private string SetRequestSearchWhere(string LoginCode)
+        {
+            string startTime = Request["startTime"];
+            string endTime = Request["endTime"];
+            string areaName = Request["areaName"];
+            string FName = Request["FName"];
+            string FCode = Request["FCode"];
+            string cyName = Request["cyName"];
+            string CrtBy = Request["CrtBy"];
+            string CriminalFlag = Request["CriminalFlag"];//是否在押
+            string CashTypes = Request["CashTypes"];//存款类型
+            string PayTypes = Request["PayTypes"];//取款类型
+            string AccTypes = Request["AccTypes"];//账户类型
+            string BankFlags = Request["BankFlags"];//银行状态类型
+
+            string strWhere = GetSearchWhere(LoginCode, ref startTime, ref endTime, areaName, FName, FCode, CrtBy, CriminalFlag, CashTypes, PayTypes, AccTypes, BankFlags, cyName);
+            return strWhere;
+        }
+
+        //生成Vcrd查询条件
+        private static string GetSearchWhere(string LoginCode, ref string startTime, ref string endTime, string areaName, string FName, string FCode, string CrtBy, string CriminalFlag, string CashTypes, string PayTypes, string AccTypes, string BankFlags, string cyName)
+        {
+            string strWhere =" FAreaCode in (  select fareaCode from t_czy_area where fflag=2 and fcode='" + LoginCode + "')";
+
+            if (string.IsNullOrEmpty(startTime) == false)
+            {
+                DateTime sdt = Convert.ToDateTime(startTime);
+                startTime = sdt.Year.ToString() + "-" + sdt.Month.ToString() + "-" + sdt.Day.ToString() + " 00:00:00";
+            }
+            if (string.IsNullOrEmpty(endTime) == false)
+            {
+                DateTime edt = Convert.ToDateTime(endTime);
+                endTime = edt.Year.ToString() + "-" + edt.Month.ToString() + "-" + edt.Day.ToString() + " 23:59:00";
+            }
+
+            if (string.IsNullOrEmpty(startTime) == false)
+            {
+                strWhere = strWhere + " and  FOuDate>='" + startTime + "'";
+            }
+            if (string.IsNullOrEmpty(startTime) == false)
+            {
+                strWhere = strWhere + " and  FOuDate<'" + endTime + "'";
+            }
+
+            if (string.IsNullOrEmpty(areaName) == false)
+            {
+                if (areaName != "请选择队别")
+                {
+                    //strWhere = strWhere + " and FAreaName='" + areaName + "'";
+                    strWhere = strWhere + @" and fAreacode in (select fcode from t_area where fcode='"+ areaName +@"' or fid in(
+                        select id from t_area where fcode='" + areaName + "')) ";
+                }
+            }
+            if (string.IsNullOrEmpty(FName) == false)
+            {
+                strWhere = strWhere + " and FName like '%" + FName + "%'";
+            }
+            if (string.IsNullOrEmpty(FCode) == false)
+            {
+                strWhere = strWhere + " and FCode='" + FCode + "'";
+            }
+            if (string.IsNullOrEmpty(CrtBy) == false)
+            {
+                strWhere = strWhere + " and FCZY='" + CrtBy + "'";
+            }
+
+            if (string.IsNullOrEmpty(AccTypes) == false)
+            {
+                if (AccTypes == "0")
+                {
+                    strWhere = strWhere + " and CardCode='' ";
+                }
+                else
+                {
+                    strWhere = strWhere + " and CardCode<>''";
+                }                
+            }
+
+            if (string.IsNullOrEmpty(BankFlags) == false)
+            {
+                if (BankFlags == "0")
+                {
+                    strWhere = strWhere + " and BankCardNo='' ";
+                }
+                else
+                {
+                    strWhere = strWhere + " and BankCardNo<>''";
+                }
+            }
+            
+            if (string.IsNullOrEmpty(CriminalFlag) == false)
+            {
+                strWhere = strWhere + " and isnull(FFlag,0) in ( " + CriminalFlag + ")";
+            }
+            if (string.IsNullOrEmpty(cyName) == false)
+            {
+                strWhere = strWhere + " and FCYCode ='" + cyName + "'";
+            }
+            return strWhere;
+        }
+
+
+        public ActionResult SaveCriminal()
+        {
+            string txtFCode = Request["txtFCode"];
+            string txtFName = Request["txtFName"];
+            string txtFSex = Request["txtFSex"];
+            string txtFAreaCode = Request["txtFAreaCode"];
+            string txtFCyCode = Request["txtFCyCode"];
+            string txtFAddr = Request["txtFAddr"];
+            string txtFIdenNo = Request["txtFIdenNo"];
+            string txtFCrimeCode = Request["txtFCrimeCode"];
+            string txtFTerm = Request["txtFTerm"];
+            string txtFInDate = Request["txtFInDate"];
+            string txtFOuDate = Request["txtFOuDate"];
+            string txtFlimitFlag = Request["txtFlimitFlag"];
+            string txtFlimitAmt = Request["txtFlimitAmt"];
+            string txtFDesc = Request["txtFDesc"];
+            string doType = Request["doType"];
+
+            //验证编号是否存在
+            if(string.IsNullOrEmpty(txtFCode))
+            {
+                return Content("Err|用户编号不能为空");
+            }
+            if (string.IsNullOrEmpty(txtFName))
+            {
+                return Content("Err|用户姓名不能为空");
+            }
+            if (string.IsNullOrEmpty(txtFAreaCode))
+            {
+                return Content("Err|请选择一个所在队别");
+            }
+            if (string.IsNullOrEmpty(txtFCyCode))
+            {
+                return Content("Err|请选择一个所处遇级别");
+            }
+            T_Criminal criminal = new T_CriminalBLL().GetModel(txtFCode);
+            if(criminal!=null)
+            {
+                if (criminal.fflag == 1)
+                {
+                    return Content("Err|该犯人已经离监了，不能再编辑");
+                }
+                if (string.IsNullOrEmpty(doType)==false)
+                {
+                    if (doType == "add")
+                    {
+                        return Content("Err|该编号已经存在，不能输入重复的编号");
+                    }                    
+                }
+            }
+            T_Criminal oldCriminal = criminal;//保存更改前的记录
+
+            criminal = new T_Criminal();
+            criminal.FCode = txtFCode;
+            criminal.FName = txtFName;
+            criminal.FSex = txtFSex;
+            criminal.FAreaCode = txtFAreaCode;
+            criminal.FCYCode = txtFCyCode;
+            criminal.FAddr = txtFAddr;
+            criminal.FIdenNo = txtFIdenNo;
+            criminal.FCrimeCode = txtFCrimeCode;
+            criminal.FTerm = txtFTerm;
+            criminal.FDesc = txtFDesc;
+            criminal.FInDate= Convert.ToDateTime("1900-01-01");
+            criminal.FOuDate = Convert.ToDateTime("1900-01-01");
+            if (string.IsNullOrEmpty(txtFInDate) == false)
+            {
+                criminal.FInDate =Convert.ToDateTime( txtFInDate);
+            }
+            if (string.IsNullOrEmpty(txtFOuDate) == false)
+            {
+                criminal.FOuDate = Convert.ToDateTime(txtFOuDate);
+            }
+            criminal.flimitflag = 0;
+            criminal.flimitamt = 0;
+            if (string.IsNullOrEmpty(txtFlimitFlag) == false)
+            {
+                if (txtFlimitFlag=="on")
+                {
+                    criminal.flimitflag = 1;
+                }
+            }
+            if (string.IsNullOrEmpty(txtFlimitAmt) == false)
+            {
+                criminal.flimitamt = Convert.ToDecimal(txtFlimitAmt);
+            }
+            criminal.Frealareacode = "";
+            criminal.FSubArea = "";
+            criminal.FAddr_tmp = "";
+            criminal.FAge = null;
+            criminal.FStatus = null;
+            criminal.FStatus2 = null;
+
+            string strLoginName = new T_CZYBLL().GetModel(Session["loginUserCode"].ToString()).FName;
+            criminal.FCZY = strLoginName;
+            if(doType=="add")
+            {
+                new T_CriminalBLL().Add(criminal,"");
+                return Content("OK|"+jss.Serialize(criminal));
+            }
+            else
+            {
+                new T_CriminalBLL().Update(criminal,"");
+
+                Log4NetHelper.logger.Info("保存更新犯人信息,操作员：" + Session["loginUserName"].ToString() + ",更新前：ID=" + oldCriminal.FCode + ",用户名为：" + oldCriminal.FName + ",处遇为：" + oldCriminal.FCYCode + ",队别名为：" + oldCriminal.FAreaCode + ",身份证号为：" + oldCriminal.FIdenNo + ",冻结标志为：" + oldCriminal.flimitflag + ",冻结金额为：" + oldCriminal.flimitamt + "");
+                Log4NetHelper.logger.Info("保存更新犯人信息,操作员：" + Session["loginUserName"].ToString() + ",更新后：ID=" + criminal.FCode + ",用户名为：" + criminal.FName + ",处遇为：" + criminal.FCYCode + ",队别名为：" + criminal.FAreaCode + ",身份证号为：" + criminal.FIdenNo + ",冻结标志为：" + criminal.flimitflag + ",冻结金额为：" + criminal.flimitamt + "");
+
+
+                return Content("OK|更新保存成功");
+            }
+        }
+
+        public ActionResult DelCriminal()
+        {
+            string txtFCode = Request["txtFCode"];
+            if (string.IsNullOrEmpty(txtFCode))
+            {
+                return Content("Err|用户编号不能为空");
+            }
+            T_Criminal criminal = new T_CriminalBLL().GetModel(txtFCode);
+            if (criminal != null)
+            {
+                if (criminal.fflag == 1)
+                {
+                    return Content("Err|该犯人已经离监了，不能再编辑");
+                }
+                T_Criminal_card card = new T_Criminal_cardBLL().GetModel(txtFCode);
+                if (card != null)
+                {
+                    return Content("Err|该犯人已经IC卡开户了，不能删除");
+                }
+                if (new T_CriminalBLL().Delete(txtFCode))
+                {
+                    Log4NetHelper.logger.Info("删除犯人信息,操作员：" + Session["loginUserName"].ToString() + ",ID=" + criminal.FCode + ",用户名为：" + criminal.FName + ",处遇为：" + criminal.FCYCode + ",队别名为：" + criminal.FAreaCode + "");
+
+                    return Content("OK|删除成功");
+                }
+                else
+                {
+                    return Content("Err|删除失败");
+                }
+            }
+            else
+            {
+                return Content("Err|用户编号不存在");
+            }
+        }
+        public ActionResult RecCriminal()
+        {
+            string txtFCode = Request["txtFCode"];
+            if (string.IsNullOrEmpty(txtFCode))
+            {
+                return Content("Err|用户编号不能为空");
+            }
+            T_Criminal criminal = new T_CriminalBLL().GetModel(txtFCode);
+            if (criminal != null)
+            {
+                if (criminal.fflag != 1)
+                {
+                    return Content("Err|该犯人是在押状态，不需恢复");
+                }
+                criminal.fflag = 0;
+                if (new T_CriminalBLL().Update(criminal))
+                {
+                    Log4NetHelper.logger.Info("恢复离监人员为在押,操作员：" + Session["loginUserName"].ToString() + ",ID=" + criminal.FCode + ",用户名为：" + criminal.FName + "");
+                    return Content("OK|恢复成功，请刷新记录列表");
+                }
+                else
+                {
+                    return Content("Err|恢复失败");
+                }
+            }
+            else
+            {
+                return Content("Err|用户编号不存在");
+            }
+        }
+        //打印罪犯汇总总表
+        public ActionResult PrintCriminalSumOrder(int id = 1)
+        {
+            string strWhere = SetRequestSearchWhere(Session["loginUserCode"].ToString());
+
+            StringBuilder strSql;
+            string title;
+            string result;
+            SetSumOrderWhereSql(0, id, strWhere, out strSql, out title, out result);
+
+            if (result != "")//Err|对不起,您传入错误的参数了
+            {
+                return Content(result);
+            }
+
+            ViewData["id"] = id;
+            ViewData["title"] = title;
+            List<T_Vcrd> vcrds = new T_VcrdBLL().CustomerQuery(strSql.ToString());
+
+            string startTime = Request["startTime"];
+            string endTime = Request["endTime"];
+
+
+
+            //上期结存金额
+
+            T_Vcrd shangqiJinE = new T_Vcrd();
+            if (string.IsNullOrEmpty(startTime) == false)
+            {
+                shangqiJinE = new T_VcrdBLL().CustomerQuery("Select '上期结存' DType,sum(DAmount-CAmount) DAmount from t_vcrd where flag=0 and crtdate<'" + startTime + "'")[0];
+            }
+            else
+            {
+                shangqiJinE.DType = "上期结存";
+                shangqiJinE.DAmount = 0;
+            }
+
+
+            ViewData["vcrds"] = vcrds;
+            ViewData["shangqiJinE"] = shangqiJinE;
+
+            ViewData["startTime"] = startTime;
+            ViewData["endTime"] = endTime;
+
+            return View();
+        }
+
+        //Excel导出罪犯汇总总表
+        public ActionResult ExcelCriminalSumOrder(int id = 1)
+        {
+            string strLoginName = new T_CZYBLL().GetModel(Session["loginUserCode"].ToString()).FName;
+
+            string strWhere = SetRequestSearchWhere(Session["loginUserCode"].ToString());
+            StringBuilder strSql;
+            string title;
+            string result;
+            SetSumOrderWhereSql(1, id, strWhere, out strSql, out title, out result);
+
+            if (result != "")//Err|对不起,您传入错误的参数了
+            {
+                return Content(result);
+            }
+            //ViewData["id"] = id;
+            //ViewData["title"] = title;
+            //List<T_Vcrd> vcrds = new T_VcrdBLL().CustomerQuery(strSql.ToString());
+            //ViewData["vcrds"] = vcrds;
+
+            DataTable dt = new CommTableInfoBLL().GetDataTable(strSql.ToString());
+            string strFileName = new CommonClass().GB2312ToUTF8(strLoginName + "_Criminalinfo.xls");
+            strFileName = Server.MapPath("~/Upload/" + strFileName); ;
+            //ExcelRender.RenderToExcel(dt, context, strFileName);
+            ExcelRender.RenderToExcel(dt, strFileName);
+            return Content("OK|" + strLoginName + "_Criminalinfo.xls");
+
+
+            //return View();
+        }
+
+        //获取银行卡信息
+        public ActionResult GetUserBankInfo(int id=1)
+        {
+            string txtFCode = Request["FCode"];
+
+            if (string.IsNullOrEmpty(txtFCode))
+            {
+                return Content("Err|犯人编号不能为空");
+            }
+            T_Criminal_card card = new T_Criminal_cardBLL().GetModel(txtFCode);
+            if(card==null)
+            {
+                return Content("Err|没有相关信息");
+            }
+            else
+            {
+                string sss = jss.Serialize(card);
+                return Content("OK|" + sss);
+            }
+        }
+
+        //保存银行卡信息
+        public ActionResult BankCardSave(int id = 1)
+        {
+            string txtFCode = Request["FUserCode"];
+            string txtFName = Request["FUserName"];
+            string txtFCardNo = Request["FBankCardNo"];
+            int regflag = 1;
+            if(string.IsNullOrEmpty(txtFCardNo))
+            {
+                txtFCardNo = "";
+                regflag = 0;
+            }
+            T_Criminal_card card = new T_Criminal_cardBLL().GetModel(txtFCode);
+            if (new T_Criminal_cardBLL().UpdateBankInfo(txtFCode, txtFCardNo, regflag))
+            {
+                Log4NetHelper.logger.Info("保存更新犯人银行卡号,操作员：" + Session["loginUserName"].ToString() + ",ID=" + card.fcrimecode + ",原银行卡号为：" + card.BankAccNo + ",更新后银行卡号为：" + txtFCardNo + "");
+
+                return Content("OK|保存成功");
+            }
+            else
+            {
+                return Content("Err|操作失败");
+            }
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="intFlag">查询SQL类型，0是报表，1是Excel 把字段转成中文件名</param>
+        /// <param name="id"></param>
+        /// <param name="strWhere"></param>
+        /// <param name="strSql"></param>
+        /// <param name="title"></param>
+        /// <param name="result"></param>
+        private static void SetSumOrderWhereSql(int intFlag, int id, string strWhere, out StringBuilder strSql, out string title, out string result)
+        {
+
+            strSql = new StringBuilder();
+            title = "";
+            result = "";
+            switch (id)
+            {
+                case 1://按个罪犯个人汇总表
+                    {
+                        if (intFlag == 0)
+                        {
+                            strSql.Append("select fcode,FName,FIdenNo,FDesc,FAreaName,CyName ,CardCode ,BankCardNo  ");
+
+                        }
+                        else
+                        {
+                            strSql.Append("select fcode 编号,FName 姓名,FIdenNo 身份证号,FDesc 描述,FAreaName 队别,CyName 处遇级别,CardCode IC卡号,BankCardNo 银行卡   ");
+                        }
+                        strSql.Append(@" from  (select a.*,b.FName FAreaName,c.FName CyName,d.FName CrimeName,isnull(f.CardCodea,'') CardCode,isnull(f.BankAccNo,'') BankCardNo
+                            from t_criminal a left outer join t_area b on a.fareacode=b.fcode 
+                            left outer join t_cy_type c on a.fcycode=c.fcode 
+                            left outer join T_CRIME d on a.FCrimeCode=d.FCode 
+                            left outer join T_Criminal_Card f on a.FCode=f.FCrimeCode) d ");
+                        strSql.Append(" Where " + strWhere);
+                        strSql.Append(" Order by fcode ;");
+                        title = "罪犯个人信息表";
+                    } break;                
+                default:
+                    {
+                        result = "Err|对不起,您传入错误的参数了";
+                        //return Content("Err|对不起,您传入错误的参数了");
+                    }
+                    break;
+
+            }
+        }
+
+
+        public ActionResult ExcelInport()//Excel表格导入
+        {
+            string strLoginName = new T_CZYBLL().GetModel(Session["loginUserCode"].ToString()).FName;
+
+            if (Request.Files.Count > 0)
+            {
+                //string strFBid = Request["excelBid"];
+                HttpPostedFileBase f = Request.Files[0];
+                string fname = f.FileName;
+                /* startIndex */
+                int index = fname.LastIndexOf("\\") + 1;
+                /* length */
+                int len = fname.Length - index;
+                fname = fname.Substring(index, len);
+                /* save to server */
+                string savePath = Server.MapPath("~/Upload/" + fname);
+                f.SaveAs(savePath);
+                //context.Response.Write("Success!");
+                DateTime sdt;
+                DateTime edt;
+                TimeSpan tspan;
+                using (FileStream stream = new FileStream(savePath, FileMode.Open, FileAccess.Read))
+                {
+                    sdt = DateTime.Now;
+                    HSSFWorkbook workbook = new HSSFWorkbook(stream);
+                    //HSSFSheet sheet = workbook.GetSheetAt(0);
+                    NPOI.SS.UserModel.ISheet sheet = workbook.GetSheetAt(0);
+                    //NPOI.SS.UserModel.Sheet
+                    int rows = sheet.LastRowNum;
+                    int ErrNums = 0;
+                    if (rows < 2)
+                    {
+                        return Content("Err|Excel表为空表,无数据!");
+                    }
+                    else
+                    {
+                        #region 定义DataTable
+                        DataTable dtUserAdd = new DataTable();
+                        dtUserAdd.Columns.Add(new DataColumn("FCode", typeof(string)));
+                        dtUserAdd.Columns.Add(new DataColumn("FName", typeof(string)));
+                        dtUserAdd.Columns.Add(new DataColumn("FSex", typeof(string)));
+                        dtUserAdd.Columns.Add(new DataColumn("FAreaName", typeof(string)));
+                        dtUserAdd.Columns.Add(new DataColumn("FCyName", typeof(string)));
+                        dtUserAdd.Columns.Add(new DataColumn("FIdenNo", typeof(string)));
+                        dtUserAdd.Columns.Add(new DataColumn("Remark", typeof(string)));
+                        DataRow drTemp = null;
+                        #endregion
+
+                        for (int i = 1; i <= rows; i++)
+                        {
+                            NPOI.SS.UserModel.IRow row = sheet.GetRow(i);
+                            //int iType = row.GetCell(0).CellType;//文本是1，数字是0
+                            NPOI.SS.UserModel.CellType iType = 0;
+                            try
+                            {
+                                iType = row.GetCell(0).CellType;
+                            }
+                            catch
+                            {
+                                break;
+                            }
+                            string FCode = "";
+                            if (iType == 0)
+                            {
+                                FCode = Convert.ToString(row.GetCell(0).NumericCellValue);//数字型 excel列名【名称不能变,否则就会出错】
+                            }
+                            else
+                            {
+                                FCode = row.GetCell(0).StringCellValue;//文本型 excel列名【名称不能变,否则就会出错】
+                            }
+                            string FName = row.GetCell(1).StringCellValue;//编号 列名 以下类似
+                            string FSex = "男";  //队别
+                            try
+                            {
+                                FSex = Convert.ToString(row.GetCell(2).StringCellValue);
+                            }
+                            catch { }
+
+                            string FAreaName = "";  //队别
+                            try
+                            {
+                                FAreaName = Convert.ToString(row.GetCell(3).StringCellValue);
+                            }
+                            catch { }
+                            string FCyName = "";  //处遇
+                            try
+                            {
+                                FCyName = Convert.ToString(row.GetCell(4).StringCellValue);
+                            }
+                            catch { }
+                            string FIdenNo = "";  //身份证号码
+                            try
+                            {
+                                FIdenNo = Convert.ToString(row.GetCell(5).StringCellValue);
+                            }
+                            catch { }
+
+                            string FRemark = "";  //开始日期
+                            try
+                            {
+                                FRemark = Convert.ToString(row.GetCell(6).StringCellValue);
+                            }
+                            catch { }
+
+
+                            
+
+                            #region Excel行写入到DataTabel中
+                            try
+                            {//如果金额有
+                                if (FCode != "")
+                                {
+                                    drTemp = dtUserAdd.NewRow();
+                                    drTemp["FCode"] = FCode;
+                                    drTemp["FName"] = FName;
+                                    drTemp["FSex"] = FSex;
+                                    drTemp["FAreaName"] = FAreaName;
+                                    drTemp["FCyName"] = FCyName;
+                                    drTemp["FIdenNo"] = FIdenNo;
+                                    drTemp["Remark"] = FRemark;
+                                    dtUserAdd.Rows.Add(drTemp);
+
+                                    Log4NetHelper.logger.Info("Excel导入,操作员：" + Session["loginUserName"].ToString() + ",修改一个用户信息，ID=" + FCode + ",用户名为：" + FName + ",处遇为：" + FCyName + ",队别名为：" + FAreaName + "");
+
+                                }
+
+                            }
+                            catch
+                            { }
+                            #endregion
+                        }
+
+
+                        #region 写入到数据库中
+                        //将DataTabe dtUserAdd 写入到数据库中
+                        StringBuilder strSql = new StringBuilder();
+                        strSql.Append(@" Drop Table T_Criminal_MyTmp;");
+                        strSql.Append(@"CREATE TABLE [dbo].[T_Criminal_MyTmp](
+	                            [FCode] [varchar](20) COLLATE Chinese_PRC_CI_AS NOT NULL,
+	                            [FName] [varchar](50) COLLATE Chinese_PRC_CI_AS NOT NULL,
+	                            [FSex] [varchar](50) COLLATE Chinese_PRC_CI_AS NULL,
+	                            [FAreaName] [varchar](50) COLLATE Chinese_PRC_CI_AS NULL,
+	                            [FCyName] [varchar](50) COLLATE Chinese_PRC_CI_AS NULL,
+	                            [FIdenNo] [varchar](50) COLLATE Chinese_PRC_CI_AS NULL,
+	                            [Remark] [varchar](100) COLLATE Chinese_PRC_CI_AS NULL,
+                             CONSTRAINT [PK_T_Criminal_MyTmp] PRIMARY KEY CLUSTERED 
+                            (
+	                            [FCode] ASC
+                            )WITH (IGNORE_DUP_KEY = OFF) ON [PRIMARY]
+                            ) ON [PRIMARY];");
+                        new CommTableInfoBLL().ExecSql(strSql.ToString());
+                        if (new CommTableInfoBLL().AddDataTableToDB(dtUserAdd, "dbo.[T_Criminal_MyTmp]"))
+                        {
+                            tspan = DateTime.Now - sdt;
+                            return Content( new T_CriminalBLL().PLExcelImport(strLoginName) +"。用时:"+tspan.TotalSeconds.ToString());
+                            
+                        }
+                        else
+                        {
+                            return Content("Err|写入Excel文件时失败");
+                        }
+                        #endregion
+
+                        
+                    }
+                }
+            }
+            return Content("Err|导入失败，服务器没有接收到Excel文件");
+        }
+
+        public ActionResult ExcelSearch()//Excel批量查询名单
+        {
+            string strLoginName = new T_CZYBLL().GetModel(Session["loginUserCode"].ToString()).FName;
+
+            if (Request.Files.Count > 0)
+            {
+                //string strFBid = Request["excelBid"];
+                HttpPostedFileBase f = Request.Files[0];
+                string fname = f.FileName;
+                /* startIndex */
+                int index = fname.LastIndexOf("\\") + 1;
+                /* length */
+                int len = fname.Length - index;
+                fname = fname.Substring(index, len);
+                /* save to server */
+                string savePath = Server.MapPath("~/Upload/" + fname);
+                f.SaveAs(savePath);
+                //context.Response.Write("Success!");
+                DateTime sdt;
+                DateTime edt;
+                TimeSpan tspan;
+                using (FileStream stream = new FileStream(savePath, FileMode.Open, FileAccess.Read))
+                {
+                    sdt = DateTime.Now;
+                    HSSFWorkbook workbook = new HSSFWorkbook(stream);
+                    //HSSFSheet sheet = workbook.GetSheetAt(0);
+                    NPOI.SS.UserModel.ISheet sheet = workbook.GetSheetAt(0);
+                    //NPOI.SS.UserModel.Sheet
+                    int rows = sheet.LastRowNum;
+                    int ErrNums = 0;
+                    if (rows < 2)
+                    {
+                        return Content("Err|Excel表为空表,无数据!");
+                    }
+                    else
+                    {
+                        #region 定义DataTable
+                        DataTable dtUserAdd = new DataTable();
+                        dtUserAdd.Columns.Add(new DataColumn("FCode", typeof(string)));
+                        DataRow drTemp = null;
+                        #endregion
+
+                        string strFCodes = "";
+                        for (int i = 1; i <= rows; i++)
+                        {
+                            NPOI.SS.UserModel.IRow row = sheet.GetRow(i);
+                            //int iType = row.GetCell(0).CellType;//文本是1，数字是0
+                            NPOI.SS.UserModel.CellType iType = 0;
+                            try
+                            {
+                                iType = row.GetCell(0).CellType;
+                            }
+                            catch
+                            {
+                                break;
+                            }
+                            string FCode = "";
+                            if (iType == 0)
+                            {
+                                FCode = Convert.ToString(row.GetCell(0).NumericCellValue);//数字型 excel列名【名称不能变,否则就会出错】
+                            }
+                            else
+                            {
+                                FCode = row.GetCell(0).StringCellValue;//文本型 excel列名【名称不能变,否则就会出错】
+                            }
+
+                            
+
+                            #region Excel行写入到DataTabel中
+                            try
+                            {//如果金额有
+                                if (FCode != "")
+                                {
+                                    if(strFCodes=="")
+                                    {
+                                        strFCodes = "'" + FCode + "'";
+                                    }
+                                    else
+                                    {
+                                        strFCodes = strFCodes + ",'" + FCode + "'";
+                                    }
+
+                                }
+
+                            }
+                            catch
+                            { }
+                            #endregion
+                        }
+
+                        string strWhere = " FCode in("+ strFCodes +")";
+                        StringBuilder strSql;
+                        string title;
+                        string result;
+                        SetSumOrderWhereSql(1, 1, strWhere, out strSql, out title, out result);
+
+                        if (result != "")//Err|对不起,您传入错误的参数了
+                        {
+                            return Content(result);
+                        }
+                        DataTable dt = new CommTableInfoBLL().GetDataTable(strSql.ToString());
+                        string strFileName = new CommonClass().GB2312ToUTF8(strLoginName + "_Criminalinfo.xls");
+                        strFileName = Server.MapPath("~/Upload/" + strFileName); ;
+                        //ExcelRender.RenderToExcel(dt, context, strFileName);
+                        ExcelRender.RenderToExcel(dt, strFileName);
+                        return Content("OK|" + strLoginName + "_Criminalinfo.xls");
+
+
+                    }
+                }
+            }
+            return Content("Err|导入失败，服务器没有接收到Excel文件");
+        }
+
+	}
+}

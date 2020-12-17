@@ -1,0 +1,105 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>银行代收代付清单</title>
+    @{Html.RenderPartial("~/Views/Shared/_PartialHeadPage.cshtml");}
+
+</head>
+<body class="easyui-layout">
+    <div data-options="region:'west',title:'交易清单',split:true" style="width:850px;">
+        @*@{Html.RenderPartial("~/Views/Shared/_PartialXiaopiaoControl.cshtml");}*@
+        <table id="test" data-options="toolbar:'#tb'"></table>
+
+        <div id="tb">
+            <div>
+                @*FCheckFlag是“确认”,auditflag是“审核”,FdbcheckFlag是“复核”,Flag是“财务入账”*@
+
+                <a href="javascript:void(0)" id="mb" class="easyui-menubutton"
+                   data-options="menu:'#mm',iconCls:'icon-print'">打印报表</a>
+                <div id="mm" style="width:150px;">
+                    <div data-options="iconCls:'icon-man'" onclick="printMenuBtn(1)">打印清单</div>
+                                        
+                </div> <label>|</label>
+
+                <a href="javascript:void(0)" id="mprint" class="easyui-menubutton"
+                   data-options="menu:'#mp',iconCls:'icon-redo'">Excel导出数据</a>
+                <div id="mp" style="width:150px;">
+                    <div data-options="iconCls:'icon-man'" onclick="OutExcelSumOrder(1)">导出Excel</div>
+                                        
+                </div>
+
+
+
+
+
+            </div>
+        </div>
+
+
+
+        <div id="template"></div>
+        <input type="hidden" id="bankTypeId" name="bankTypeId" value="@ViewData["id"]"></div>
+
+    <div data-options="region:'center',title:'查询条件'" style="padding:5px;">
+        <div data-options="region:'north',title:'North Title',split:true" style="height:200px;">
+            <form method="post">
+                <table id="crimeSearch">
+                    <tr>
+                        <th align="right">编号：</th>
+                        <td align="left">
+                            <input class="easyui-numberbox" id="FCode" name="FCode"
+                                   data-options="min:0,precision:0" style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">姓名：</th>
+                        <td align="left">
+                            <input id="FName" name="FName" class="easyui-textbox" style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">开始时间：</th>
+                        <td align="left">
+                            <input class="easyui-datetimebox" id="StartDate" name="StartDate"
+                                   data-options="required:true,showSeconds:false" value="3/4/2010 00:00" style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">结束时间：</th>
+                        <td align="left">
+                            <input class="easyui-datetimebox" id="EndDate" name="EndDate"
+                                   data-options="required:true,showSeconds:false" value="3/4/2010 23:59" style="width:190px">
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th align="right">结果状态：</th>
+                        <td align="left">
+                            <select id="FBankFlags" name="FBankFlags" class="easyui-combobox" data-options=" multiple:true" style="width:190px;">
+                                <option value="1">成功</option>
+                                <option value="0">未处理</option>
+                                <option value="-1">失败</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right"></th>
+                        <td align="right"><a id="btn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-search'" onclick="btnSearch()">查询</a><a id="A1" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-redo'" onclick="btnClear()">清空</a></td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+    </div>
+
+
+    <script src="~/Scripts/myJs/LodopFuncs.js"></script>
+
+    <script src="~/Scripts/myJs/BankRcvPay.js"></script>
+</body>
+</html>

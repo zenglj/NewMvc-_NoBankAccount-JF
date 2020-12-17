@@ -1,0 +1,502 @@
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using SelfhelpOrderMgr.BLL;
+using SelfhelpOrderMgr.Model;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+using System.Web.Script.Serialization;
+
+namespace SelfhelpOrderMgr.Web.Controllers
+{
+    public class BaseInfoMgrController : BaseController
+    {
+        //
+        // GET: /BaseInfoMgr/
+        JavaScriptSerializer jss = new JavaScriptSerializer();
+        public ActionResult Index()
+        {
+            return View();
+        }
+
+        //监区管理
+        public ActionResult AreaMgr()
+        {
+            //商品类别
+            List<T_GoodsType> goodtypes = new T_GoodsTypeBLL().GetModelList("");
+            ViewData["goodtypes"] = goodtypes;
+
+            //消费类型
+            List<T_SHO_SaleType> saleTypes = new T_SHO_SaleTypeBLL().GetModelList("FifoFlag=-1");
+            ViewData["saleTypes"] = saleTypes;
+
+            return View();
+        }
+        public ActionResult GetAreaMgr()
+        {
+            //商品类别
+            //商品类别
+            List<T_AREA> areas = new T_AREABLL().GetModelList("");
+            //ViewData["goodtypes"] = goodtypes;
+            JavaScriptSerializer jss = new JavaScriptSerializer();
+
+            return Content(jss.Serialize(areas));
+        }
+
+        public ActionResult DeleleArea()//删除队别
+        {
+            string strRes = "Err|删除失败";
+            string strFcode = Request["FCode"];
+            if (new T_AREABLL().Delete(strFcode))
+            {
+                strRes = "OK|删除成功";
+            }
+            return Content(strRes);
+        }
+
+        public ActionResult SaveAreaList()//保存队别列表
+        {
+            //Request.("UTF-8");
+            //取编辑数据 这里获取到的是json字符串
+
+            string deleted = Request["deleted"];
+
+            string inserted = Request["inserted"];
+
+            string updated = Request["updated"];
+
+
+            if (inserted != null)
+            {
+                //把json字符串转换成对象
+                // List<T_SHO_AreaGoodMaxCount> listDeleted = JSON.parseArray(deleted, T_SHO_AreaGoodMaxCount);
+                //TODO 下面就可以根据转换后的对象进行相应的操作了
+
+                JavaScriptSerializer jss = new JavaScriptSerializer();
+                //List<T_SHO_AreaGoodMaxCount> listDeleted=jss.Deserialize<T_SHO_AreaGoodMaxCount>(inserted);
+                JArray ja = (JArray)JsonConvert.DeserializeObject(inserted);
+                if (ja.Count > 0)
+                {
+                    List<T_AREA> models = SetAreaInfo(ja);
+
+                    return Content("OK|" + jss.Serialize(models));
+                }
+            }
+
+            if (updated != null)
+            {
+                //把json字符串转换成对象
+                // List<T_SHO_AreaGoodMaxCount> listDeleted = JSON.parseArray(deleted, T_SHO_AreaGoodMaxCount);
+                //TODO 下面就可以根据转换后的对象进行相应的操作了
+
+                JavaScriptSerializer jss = new JavaScriptSerializer();
+                //List<T_SHO_AreaGoodMaxCount> listDeleted=jss.Deserialize<T_SHO_AreaGoodMaxCount>(inserted);
+                JArray ja = (JArray)JsonConvert.DeserializeObject(updated);
+                if (ja.Count > 0)
+                {
+                    List<T_AREA> models = SetAreaInfo(ja);
+                    return Content("OK保存成功！");
+                }
+            }
+
+
+            return Content("");
+        }
+
+        private static List<T_AREA> SetAreaInfo(JArray ja)
+        {
+            T_AREA model = new T_AREA();
+            foreach (JObject o in ja)
+            {
+                model = new T_AREA();
+                model.FCode = o["FCode"].ToString();
+                model.FName = o["FName"].ToString();
+                model.ID = o["ID"].ToString();
+                if (string.IsNullOrEmpty(o["FID"].ToString()))
+                {
+                    model.FID = null;
+                }
+                else
+                {
+                    model.FID = o["FID"].ToString();
+                }
+                
+                model.URL = o["URL"].ToString();
+
+                T_AREA m = new T_AREABLL().GetModel(model.FCode);
+                if (m != null)
+                {
+                    bool b = new T_AREABLL().Update(model);
+                }
+                else
+                {
+                    new T_AREABLL().Add(model);
+                }
+            }
+            List<T_AREA> models = new T_AREABLL().GetModelList("");
+            return models;
+        }
+
+
+        //供应商管理
+        public ActionResult SupplyerMgr()
+        {
+            return View();
+        }
+
+        //获取供应商信息
+        public ActionResult GetSupplyerMgr()
+        {
+            List<T_Supplyer> supplyers = new T_SupplyerBLL().GetModelList("");
+            //ViewData["goodtypes"] = goodtypes;
+            JavaScriptSerializer jss = new JavaScriptSerializer();
+
+            return Content(jss.Serialize(supplyers));
+        }
+
+        public ActionResult DeleleSupplyer()//删除供应商
+        {
+            string strRes = "Err|删除失败";
+            string strFcode = Request["FCode"];
+            if (new T_SupplyerBLL().Delete(strFcode))
+            {
+                strRes = "OK|删除成功";
+            }
+            return Content(strRes);
+        }
+
+
+        public ActionResult SaveSupplyerList()//保存队别列表
+        {
+            //Request.("UTF-8");
+            //取编辑数据 这里获取到的是json字符串
+
+            string deleted = Request["deleted"];
+
+            string inserted = Request["inserted"];
+
+            string updated = Request["updated"];
+
+
+            if (inserted != null)
+            {
+                //把json字符串转换成对象
+                // List<T_SHO_AreaGoodMaxCount> listDeleted = JSON.parseArray(deleted, T_SHO_AreaGoodMaxCount);
+                //TODO 下面就可以根据转换后的对象进行相应的操作了
+
+                JavaScriptSerializer jss = new JavaScriptSerializer();
+                //List<T_SHO_AreaGoodMaxCount> listDeleted=jss.Deserialize<T_SHO_AreaGoodMaxCount>(inserted);
+                JArray ja = (JArray)JsonConvert.DeserializeObject(inserted);
+                if (ja.Count > 0)
+                {
+                    List<T_Supplyer> models = SetSupplyerInfo(ja);
+
+                    return Content("OK|" + jss.Serialize(models));
+                }
+            }
+
+            if (updated != null)
+            {
+                //把json字符串转换成对象
+                // List<T_SHO_AreaGoodMaxCount> listDeleted = JSON.parseArray(deleted, T_SHO_AreaGoodMaxCount);
+                //TODO 下面就可以根据转换后的对象进行相应的操作了
+
+                JavaScriptSerializer jss = new JavaScriptSerializer();
+                //List<T_SHO_AreaGoodMaxCount> listDeleted=jss.Deserialize<T_SHO_AreaGoodMaxCount>(inserted);
+                JArray ja = (JArray)JsonConvert.DeserializeObject(updated);
+                if (ja.Count > 0)
+                {
+                    List<T_Supplyer> models = SetSupplyerInfo(ja);
+                    return Content("OK保存成功！");
+                }
+            }
+
+
+            return Content("");
+        }
+
+        private static List<T_Supplyer> SetSupplyerInfo(JArray ja)
+        {
+            T_Supplyer model = new T_Supplyer();
+            foreach (JObject o in ja)
+            {
+                model = new T_Supplyer();
+                model.scode = o["scode"].ToString();
+                model.sName = o["sName"].ToString();
+                model.sAddress = o["sAddress"].ToString();
+                model.sTel = o["sTel"].ToString();
+                model.sFax = o["sFax"].ToString();
+                model.sAtten = o["sAtten"].ToString();
+                model.sAccountNo = o["sAccountNo"].ToString();
+                model.sBank = o["sBank"].ToString();
+
+                T_Supplyer m = new T_SupplyerBLL().GetModel(model.scode);
+                if (m != null)
+                {
+                    bool b = new T_SupplyerBLL().Update(model);
+                }
+                else
+                {
+                    new T_SupplyerBLL().Add(model);
+                }
+            }
+            List<T_Supplyer> models = new T_SupplyerBLL().GetModelList("");
+            return models;
+        }
+
+        //====================系统参数管理=========================
+        //系统参数管理
+        public ActionResult ManagerSetMgr()
+        {
+            return View();
+        }
+
+        //获取系统参数信息
+        public ActionResult GetManagerSetMgr()
+        {
+            List<T_SHO_ManagerSet> supplyers = new T_SHO_ManagerSetBLL().GetModelList("");
+            //ViewData["goodtypes"] = goodtypes;
+            JavaScriptSerializer jss = new JavaScriptSerializer();
+
+            foreach (T_SHO_ManagerSet supplyer in supplyers)
+            {
+                supplyer.StrDateTime = supplyer.StartTime.ToString();
+            }
+
+            return Content(jss.Serialize(supplyers));
+        }
+
+        public ActionResult DeleleManagerSet()//删除供应商
+        {
+            string strRes = "Err|删除失败";
+            string strFcode = Request["KeyName"];
+            if (new T_SupplyerBLL().Delete(strFcode))
+            {
+                strRes = "OK|删除成功";
+            }
+            return Content(strRes);
+        }
+
+
+        public ActionResult SaveManagerSetList()//保存队别列表
+        {
+            //Request.("UTF-8");
+            //取编辑数据 这里获取到的是json字符串
+
+            string deleted = Request["deleted"];
+
+            string inserted = Request["inserted"];
+
+            string updated = Request["updated"];
+
+
+            if (inserted != null)
+            {
+                //把json字符串转换成对象
+                // List<T_SHO_AreaGoodMaxCount> listDeleted = JSON.parseArray(deleted, T_SHO_AreaGoodMaxCount);
+                //TODO 下面就可以根据转换后的对象进行相应的操作了
+
+                JavaScriptSerializer jss = new JavaScriptSerializer();
+                //List<T_SHO_AreaGoodMaxCount> listDeleted=jss.Deserialize<T_SHO_AreaGoodMaxCount>(inserted);
+                JArray ja = (JArray)JsonConvert.DeserializeObject(inserted);
+                if (ja.Count > 0)
+                {
+                    List<T_SHO_ManagerSet> models = SetManagerSetInfo(ja);
+
+                    return Content("OK|" + jss.Serialize(models));
+                }
+            }
+
+            if (updated != null)
+            {
+                //把json字符串转换成对象
+                // List<T_SHO_AreaGoodMaxCount> listDeleted = JSON.parseArray(deleted, T_SHO_AreaGoodMaxCount);
+                //TODO 下面就可以根据转换后的对象进行相应的操作了
+
+                JavaScriptSerializer jss = new JavaScriptSerializer();
+                //List<T_SHO_AreaGoodMaxCount> listDeleted=jss.Deserialize<T_SHO_AreaGoodMaxCount>(inserted);
+                JArray ja = (JArray)JsonConvert.DeserializeObject(updated);
+                if (ja.Count > 0)
+                {
+                    List<T_SHO_ManagerSet> models = SetManagerSetInfo(ja);
+                    return Content("OK保存成功！");
+                }
+            }
+
+
+            return Content("");
+        }
+
+        private static List<T_SHO_ManagerSet> SetManagerSetInfo(JArray ja)
+        {
+            T_SHO_ManagerSet model = new T_SHO_ManagerSet();
+            foreach (JObject o in ja)
+            {
+                model = new T_SHO_ManagerSet();
+                model.KeyName = o["KeyName"].ToString();
+                model.KeyMode = Convert.ToInt32( o["KeyMode"].ToString());
+                model.MgrName = o["MgrName"].ToString();
+                model.MgrValue = o["MgrValue"].ToString();
+                if (!string.IsNullOrEmpty(o["StrDateTime"].ToString()))
+                {
+                    model.StartTime = Convert.ToDateTime(o["StrDateTime"].ToString());
+                }
+                else
+                {
+                    model.StartTime = DateTime.Today;
+                }
+                model.Remark = o["Remark"].ToString();
+                
+
+                T_SHO_ManagerSet m = new T_SHO_ManagerSetBLL().GetModel(model.KeyName);
+                if (m != null)
+                {
+                    bool b = new T_SHO_ManagerSetBLL().Update(model);
+                }
+                else
+                {
+                    new T_SHO_ManagerSetBLL().Add(model);
+                }
+            }
+            List<T_SHO_ManagerSet> models = new T_SHO_ManagerSetBLL().GetModelList("");
+            return models;
+        }
+
+        //=================存取款类型==========================
+        //存取款类型管理
+        public ActionResult SaveTypeMgr()
+        {
+            return View();
+        }
+
+        //获取存取款类型
+        public ActionResult GetSaveTypeMgr()
+        {
+            List<T_Savetype> supplyers = new T_SavetypeBLL().GetModelList("");
+            //ViewData["goodtypes"] = goodtypes;
+            JavaScriptSerializer jss = new JavaScriptSerializer();
+
+            
+
+            return Content(jss.Serialize(supplyers));
+        }
+
+        public ActionResult DeleleSaveType()//删除存取款类型
+        {
+            string strRes = "Err|删除失败";
+            string strFcode = Request["fcode"];
+            string typeflag = Request["typeflag"];
+            int fcode, flag;
+            try
+            {
+                fcode=Convert.ToInt32( strFcode);
+                flag= Convert.ToInt32( typeflag);
+            }
+            catch
+            {
+                return Content("Err|您传入的参数不正确");
+            }
+            if (new T_SavetypeBLL().Delete(fcode, flag))
+            {
+                strRes = "OK|删除成功";
+            }
+            return Content(strRes);
+        }
+
+
+        public ActionResult SaveSubSaveTypeList()//保存队别列表
+        {
+            //Request.("UTF-8");
+            //取编辑数据 这里获取到的是json字符串
+
+            string deleted = Request["deleted"];
+
+            string inserted = Request["inserted"];
+
+            string updated = Request["updated"];
+
+
+            if (inserted != null)
+            {
+                //把json字符串转换成对象
+                // List<T_SHO_AreaGoodMaxCount> listDeleted = JSON.parseArray(deleted, T_SHO_AreaGoodMaxCount);
+                //TODO 下面就可以根据转换后的对象进行相应的操作了
+
+                JavaScriptSerializer jss = new JavaScriptSerializer();
+                //List<T_SHO_AreaGoodMaxCount> listDeleted=jss.Deserialize<T_SHO_AreaGoodMaxCount>(inserted);
+                JArray ja = (JArray)JsonConvert.DeserializeObject(inserted);
+                if (ja.Count > 0)
+                {
+                    List<T_Savetype> models = SetSaveTypeInfo(ja);
+
+                    return Content("OK|" + jss.Serialize(models));
+                }
+            }
+
+            if (updated != null)
+            {
+                //把json字符串转换成对象
+                // List<T_SHO_AreaGoodMaxCount> listDeleted = JSON.parseArray(deleted, T_SHO_AreaGoodMaxCount);
+                //TODO 下面就可以根据转换后的对象进行相应的操作了
+
+                JavaScriptSerializer jss = new JavaScriptSerializer();
+                //List<T_SHO_AreaGoodMaxCount> listDeleted=jss.Deserialize<T_SHO_AreaGoodMaxCount>(inserted);
+                JArray ja = (JArray)JsonConvert.DeserializeObject(updated);
+                if (ja.Count > 0)
+                {
+                    List<T_Savetype> models = SetSaveTypeInfo(ja);
+                    return Content("OK保存成功！");
+                }
+            }
+
+
+            return Content("");
+        }
+
+        private static List<T_Savetype> SetSaveTypeInfo(JArray ja)
+        {
+            T_Savetype model = new T_Savetype();
+            foreach (JObject o in ja)
+            {
+                model = new T_Savetype();
+                model.fcode =Convert.ToInt32( o["fcode"].ToString());
+                model.fname = o["fname"].ToString();
+                model.typeflag =Convert.ToInt32( o["typeflag"].ToString());
+
+                if (string.IsNullOrEmpty(o["PLXE_Flag"].ToString()))
+                {
+                    model.PLXE_Flag = 0;
+                }
+                else
+                {
+                    model.PLXE_Flag = Convert.ToInt32(o["PLXE_Flag"].ToString());
+                }
+
+                if (string.IsNullOrEmpty(o["ZZKK_Flag"].ToString()))
+                {
+                    model.ZZKK_Flag = 0;
+                }
+                else
+                {
+                    model.ZZKK_Flag = Convert.ToInt32(o["ZZKK_Flag"].ToString());
+                }
+
+
+                T_Savetype m = new T_SavetypeBLL().GetModel(model.fcode,model.typeflag);
+                if (m != null)
+                {
+                    bool b = new T_SavetypeBLL().Update(model);
+                }
+                else
+                {
+                    new T_SavetypeBLL().Add(model);
+                }
+            }
+            List<T_Savetype> models = new T_SavetypeBLL().GetModelList("");
+            return models;
+        }
+
+	}
+}

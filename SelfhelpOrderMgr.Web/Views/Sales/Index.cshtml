@@ -1,0 +1,315 @@
+﻿@{
+    ViewBag.Title = "代购销售";
+}
+
+
+
+
+    @{Html.RenderPartial("~/Views/Shared/_PartialXiaopiaoControl.cshtml");}
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="//cdn.bootcss.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="//cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+<div id="Head_Top">
+
+    <h1></h1>
+    <h1 id="topInfo" style="text-align:center"><small>欢迎您进入</small>@ViewData["ptype"]<small>代购程序，这里可以进行方便快速的下单！</small></h1>
+    <object id=MWRFATL style="WIDTH: 0px; HEIGHT: 0px"
+            codebase=eyeFZ.cab#version =1,0,0,1
+            classid=CLSID:CD851DCA-5D3C-4DA9-A0F7-DE018FDC0A7F></object> @*加载数明华读卡器控件*@
+            <div class="form-inline">
+                <div style=" width: 800px; text-align:right;">
+                    <input type="hidden" id="saleTypeId" value="@ViewData["saleTypeId"]" />
+                    <input type="hidden" id="orderFcrimeCode" />
+                    <input type="hidden" id="orderFcrimeName" />
+                    <input type="hidden" id="orderCyName" />
+                    <input type="hidden" id="orderFareaName" />
+                    @if (ViewData["loginMode"].ToString() == "1")
+                    {
+                        <input type="hidden" id="loginModeFlag" value="1" />
+                        <div class="form-group" id="divUserName">
+                            <div class="input-group">
+                                <div class="input-group-addon">用户号</div>
+                                <input class="form-control" type="number" id="UserCode" name="UserCode" onkeydown="if(event.keyCode==13) $('#UserPwd').focus();" placeholder="请输入编号" style="width:150px;">
+                                @*<input class="form-control" type="number" id="UserCode" name="UserCode" onkeydown="noKeyNumbers(event);" placeholder="请输入编号" style="width:150px;">*@
+
+                            </div>
+                        </div>
+
+                        <div class="form-group" id="divUserPwd">
+                            <div class="input-group">
+                                <div class="input-group-addon">密码</div>
+                                <input class="form-control" type="password" id="UserPwd" name="UserPwd" onkeydown="if (event.keyCode == 13) btnAddOrder('3504013494');" placeholder="请输入密码" style="width:150px;">
+                                @*<input class="form-control" type="password" id="UserPwd" name="UserPwd"
+                                    placeholder="请输入密码" style="width:150px;">*@
+
+                            </div>
+                        </div>
+
+                    }
+                    else
+                    {
+                        <input type="hidden" id="loginModeFlag" value="0" />
+                        <a class="btn btn-primary" href="#" role="button" onclick="btnAddOrder('3504013494')">读卡IC卡</a>
+                    }
+
+                    <div class="form-group">
+                        <label class="sr-only" for="exampleInputAmount">Amount (in dollars)</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" disabled="disabled" style="width:100px" id="orderNumber" placeholder="订单号">
+                        </div>
+                    </div>
+                    @*<a class="btn btn-default" href="#" role="button" onclick="btnMyOrder()">我的订单</a>*@
+                    <span id="orderMoney" class="label label-warning" style=" width:200px;font-size:larger">0.00</span>
+                    <!-- 按钮触发模态框 -->
+                    @*<a class="btn btn-warning" href="#" role="button" onclick="PayCheckSubmit('3506019745')">结算确认</a>*@
+
+                    @*<button class="btn btn-warning" onclick="DisplayPayModel('sale')">
+                            <span class="glyphicon glyphicon-shopping-cart" aria-hidden="true" >去结算</span>
+                        </button>*@
+                    <a href="#" class="btn btn-warning" role="button" onclick="DisplayPayModel('sale')"><span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span>去结算</a>
+                </div>
+                <div style="text-align:right; " id="criminalCyInfo">
+                    你好，张三疯 <span class="label label-default">普管</span>,本月消费限额：<span class="label label-default" id="xiaofeiYuE">200.00</span>,账户可用余额：<span class="label label-default" id="okUseAllMoney">600.00</span>,本月已经消费：<span class="label label-warning" id="curMonthXFE">0.00</span>
+                </div>
+            </div>
+            @if (ViewData["id"] != null)
+            {
+                int SaleTypeId = Convert.ToInt32(ViewData["id"]);
+                <input type="hidden" id="SaleTypeId" value="@SaleTypeId" />
+            }
+            else
+            {
+                <input type="hidden" id="SaleTypeId" value="1" />
+            }
+
+            <div class="form-inline">
+                <div class="form-group">
+                    <label class="sr-only" for="inputGtxm">Amount (in dollars)</label>
+                    <div class="input-group">
+                        <div class="input-group-addon">简码</div>
+                        <input type="text" class="form-control" id="inputGtxm" onkeydown="if(event.keyCode==13) gtxmEnter();" placeholder="条码">
+
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="input-group">
+                        <div class="input-group-addon">品名</div>
+                        <input type="text" class="form-control" id="inputGname" placeholder="品名">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="sr-only" for="exampleInputAmount">Amount (in dollars)</label>
+                    <div class="input-group">
+                        @if (ViewData["id"] != null)
+                        {
+                            if (1 == Convert.ToInt32(ViewData["id"]))
+                            {
+                                <div class="input-group-addon">数量</div>
+                            }
+                            else
+                            {
+                                <div class="input-group-addon">金额</div>
+                            }
+                        }
+                        else
+                        {
+                            <div class="input-group-addon">数量</div>
+                        }
+                        
+                        <input type="text" class="form-control" style="width:80px" id="inputGcount" onkeydown="if (event.keyCode == 13) gcountEnter();" placeholder="数量">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="input-group">
+                        <div class="input-group-btn">
+                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">规格 <span class="caret"></span></button>
+                            <ul class="dropdown-menu" id="goodAttribute">
+                                <li><a href="#" onclick="setAttr('Action')">Action</a></li>
+                                <li><a href="#">Another action</a></li>
+                                <li><a href="#">Something else here</a></li>
+                                <li><a href="#">Separated link</a></li>
+                            </ul>
+                        </div><!-- /btn-group -->
+                        <input type="hidden" id="goodAttrFlag" />@*是否有规格属性*@
+                        <input type="text" disabled="disabled" id="goodRemark" class="form-control" aria-label="...">
+                    </div><!-- /input-group -->
+
+                </div>
+
+                <input type="hidden" id="inputXgsl" />@*限购数量*@
+                <input type="hidden" id="strGoodFreeFlag">
+                <div style="display:none">
+                    @*隐藏的字段信息*@
+                    <label id="goodStockNumber"></label>
+                    <label id="inputPrice"></label>
+                </div>
+                <div class="form-group">
+                    <a class="btn btn-primary" href="#" role="button" onclick="gcountEnter()">确认</a>
+                </div>
+                <div class="alert alert-danger" role="alert" id="lblInfo">...</div>
+
+            </div>
+
+    <div class="row">
+        @if (ViewData["softNumerKeyBoard"].ToString() == "1")
+        {
+            <div class="col-sm-9">
+                <div>
+                    <table class="table table-striped">
+                        <thead>
+                            <tr><th>简码</th><th>品名</th><th>条码</th><th>单价</th><th>数量</th><th>金额</th><th>不限额标志</th><th>操作</th></tr>
+                        </thead>
+                        <tbody id="tbodyOrderList"></tbody>
+
+                    </table>
+                </div>
+
+            </div>
+        }
+        else
+        {
+            <div class="col-sm-12">
+                <div>
+                    <table class="table table-striped">
+                        <thead>
+                            <tr><th>简码</th><th>品名</th><th>条码</th><th>单价</th><th>数量</th><th>金额</th><th>不限额标志</th><th>操作</th></tr>
+                        </thead>
+                        <tbody id="tbodyOrderList"></tbody>
+
+                    </table>
+                </div>
+            </div>
+         }
+
+                    
+                @if (ViewData["softNumerKeyBoard"].ToString() == "1")
+                {
+                    <div class="col-sm-3" id="div_SaleInputKeyBoard">
+                        @{Html.RenderPartial("~/Views/Shopping/_PartialNumberKeyBoard.cshtml");}
+                    </div>
+                    }
+                    
+                            
+                </div>
+            </div>
+
+
+
+
+    <!-- 订单结算显示框（Modal） -->
+                    <div class="modal fade" id="myOrderInfo" tabindex="-1" role="dialog"
+                         aria-labelledby="myModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content" style=" width:300px;">
+                                <div class="modal-header">
+                                    <button type="button" class="close"
+                                            data-dismiss="modal" aria-hidden="true">
+                                        &times;
+                                    </button>
+                                    <h4 class="modal-title" id="myModalLabel">
+                                        结算信息
+                                    </h4>
+                                </div>
+                                <div class="modal-body" id="orderPayInfo">
+
+                                </div>
+                                <div class="modal-footer">
+
+                                </div>
+                            </div><!-- /.modal-content -->
+                        </div>
+                    </div>
+    <!-- /.modal -->
+
+    <!-- 询问是否有未提交的订单处理（Modal） -->
+                    <div class="modal fade" id="askOrderHandle" tabindex="-1" role="dialog"
+                         aria-labelledby="myModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close"
+                                            data-dismiss="modal" aria-hidden="true">
+                                        &times;
+                                    </button>
+                                    <h4 class="modal-title" id="myModalLabel">
+                                        未提交订单处理
+                                    </h4>
+                                </div>
+                                <div class="modal-body">
+                                    <input type="hidden" id="currUserCardNo" />
+                                    <input type="hidden" id="currOrderInfo" />
+                                    <input type="hidden" id="currSaleSort" />
+                                    你有一个完成的订单是否要继续原先的交易？>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-default"
+                                            data-dismiss="modal" onclick="CancelCurrOrderInfo()">
+                                        取消
+                                    </button>
+                                    <button type="button" class="btn btn-primary" onclick="ContinueOrderInfo()">
+                                        确定
+                                    </button>
+                                </div>
+                            </div><!-- /.modal-content -->
+                        </div><!-- /.modal -->
+                    </div>
+
+    <!-- 信息提示（Modal） -->
+                    <div class="modal fade" id="myPromptBox" tabindex="-1" role="dialog"
+                         aria-labelledby="myModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close"
+                                            data-dismiss="modal" aria-hidden="true">
+                                        &times;
+                                    </button>
+                                    <h4 class="modal-title">
+                                        信息提示
+                                    </h4>
+                                </div>
+                                <div class="modal-body" id="myPromptBoxInfo">
+                                    提示信息
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-default"
+                                            data-dismiss="modal">
+                                        确定
+                                    </button>
+
+                                </div>
+                            </div><!-- /.modal-content -->
+                        </div><!-- /.modal -->
+                    </div>
+
+                    @if (ViewData["mset"] != null)
+    {
+        SelfhelpOrderMgr.Model.T_SHO_ManagerSet mset = ViewData["mset"] as SelfhelpOrderMgr.Model.T_SHO_ManagerSet;
+                        <input type="hidden" id="xiaoPiaoPageWidth" name="xiaoPiaoPageWidth" value="@mset.KeyMode" />
+                        <input type="hidden" id="xiaoPiaoFontSize" name="xiaoPiaoFontSize" value="@mset.MgrValue" />
+    }
+    @*小票模板*@
+                    @{Html.RenderPartial("~/Views/Shared/_PartialXiaopiaoTemplateBody.cshtml");}
+
+                    @*填写号房信息*@
+
+                    @{Html.RenderPartial("~/Views/Shopping/_Partial_InputRoomNo.cshtml");}
+
+
+
+
+
+
+                    <script src="~/Scripts/myJs/minghuaICcardCommon.js"></script>
+                    <script src="~/Scripts/myJs/commonJs.js"></script>
+                    <script src="~/Scripts/myJs/opertorXiaopiaoFunc.js"></script>
+                    <script src="~/Scripts/myJs/MyNumerKeyBoard.js"></script>
+                    <script src="~/Scripts/myJs/orderCommon.js"></script>
+                    <script src="~/Scripts/myJs/orderSales.js"></script>
+                    <script src="~/Scripts/myJs/LodopFuncs.js"></script>
+
+

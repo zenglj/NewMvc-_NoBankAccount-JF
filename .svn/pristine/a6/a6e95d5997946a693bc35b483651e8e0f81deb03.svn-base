@@ -1,0 +1,11 @@
+INFO  2017-02-13 11:42:59,190 45253ms Log4NetHelper          LoginCheck         - 后台系统登录,操作员：admin,登录时间=2017-02-13 11:42:59,登录IP为：::1
+INFO  2017-02-13 15:11:40,241 43954ms Log4NetHelper          PrintCkeckSignIn   - 小票打印用户名方式登录,操作员：admin,登录时间=2017-02-13 15:11:40,登录IP为：::1
+INFO  2017-02-13 20:38:43,605 1010662ms Log4NetHelper          LoginCheck         - 后台系统登录,操作员：admin,登录时间=2017-02-13 20:38:43,登录IP为：::1
+INFO  2017-02-13 20:54:14,999 19264ms Log4NetHelper          LoginCheck         - 后台系统登录,操作员：admin,登录时间=2017-02-13 20:54:14,登录IP为：::1
+INFO  2017-02-13 20:59:06,666 310931ms Log4NetHelper          LoginCheck         - 后台系统登录,操作员：admin,登录时间=2017-02-13 20:59:06,登录IP为：::1
+INFO  2017-02-13 21:00:39,063 13967ms Log4NetHelper          LoginCheck         - 后台系统登录,操作员：admin,登录时间=2017-02-13 21:00:39,登录IP为：::1
+INFO  2017-02-13 21:13:12,902 767805ms Log4NetHelper          LoginCheck         - 后台系统登录,操作员：admin,登录时间=2017-02-13 21:13:12,登录IP为：::1
+INFO  2017-02-13 21:55:10,771 17243ms Log4NetHelper          LoginCheck         - 后台系统登录,操作员：admin,登录时间=2017-02-13 21:55:10,登录IP为：::1
+INFO  2017-02-13 23:34:28,894 838429ms Log4NetHelper          UserSignInCheck    - 消费登录开启,操作员：admin,登录时间=2017-02-13 23:34:28,登录IP为：::1,登录结果：OK|开启集中消费模式成功
+INFO  2017-02-13 23:34:41,894 851429ms Log4NetHelper          PrintCkeckSignIn   - 小票打印用户名方式登录,操作员：admin,登录时间=2017-02-13 23:34:41,登录IP为：::1
+INFO  2017-02-13 23:51:15,963 1845498ms Log4NetHelper          LoginCheck         - 后台系统登录,操作员：admin,登录时间=2017-02-13 23:51:15,登录IP为：::1

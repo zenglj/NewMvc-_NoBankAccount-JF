@@ -1,0 +1,182 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>PrintOutPrisonReport</title>
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+</head>
+<body>
+    <div> 
+        <div class="row">
+            <div class="col-md-2"></div>
+            <div class="col-md-8">
+
+
+                
+                <h2 class="text-center">结算凭证</h2>
+                @if (ViewData["prove"] != null)
+                {
+                    string strPayMode = "未知模式";
+                    SelfhelpOrderMgr.Model.t_BankProve prove = ViewData["prove"] as SelfhelpOrderMgr.Model.t_BankProve;
+
+                    <p>
+                                    　　兹 <strong><u> @prove.fname (@prove.fareaName)</u></strong>,于<strong>
+                                        <u> @prove.crtDate </u>
+                                    </strong>
+                                    已经办理出狱手续。
+                                    开户档案号:<strong>
+                                        <u> @prove.fcode </u>,二代身份证号码是：<u><strong>　 @prove.FIdenNo　 </strong></u>
+                                    </strong>,结算方式:<strong>
+                                        @if (prove.PayMode == 0)
+                                        {
+                                            strPayMode = "(网点/现金)取款";
+                                        }
+                                        else if(prove.PayMode == 1)
+                                        {
+                                            strPayMode = "ATM取款";
+                                        }else if(prove.PayMode == 2)
+                                        {
+                                            strPayMode = "转账支付";
+                                        }
+                                        <u> @strPayMode </u>
+                                    </strong>已办理消费卡销户手续，请凭此单由经办人领取罪犯银行卡。
+                                </p>
+                    <table>
+                            <tr style="height:20px;">
+                                <td style="width:600px;"></td>
+                                <td style="width:300px;">日期：@prove.crtDate.ToShortDateString()</td>
+                                <td style="width:200px;">(第一联 供应站)</td>
+                            </tr>
+                        </table>
+                <br />
+                    <div class="row">
+                        <div class="col-sm-9 text-right" style="width:600px;" >经办人：</div>
+                    </div>
+                    
+                }
+                <br />
+                <hr />
+                <div>
+                @if (ViewData["prove"] != null)
+                {
+                    string strPayMode = "未知方式";
+                    SelfhelpOrderMgr.Model.t_BankProve prove = ViewData["prove"] as SelfhelpOrderMgr.Model.t_BankProve;
+
+
+                    <div>
+                        <h2 class="text-center">消费一卡通结算凭证</h2>
+                        
+                        <table >
+                            <tr style="height:20px;">
+                                <td style="width:600px;">单位:@prove.UnitName </td><td style="width:300px;">日期：@prove.crtDate.ToShortDateString()</td><td style="width:200px;">(第二联 持卡人)</td>
+                            </tr>
+                        </table>
+                        <table class="table table-bordered">
+                            <tr>
+                                <td>狱政编号:</td>
+                                <th>@prove.fcode</th>
+                                <td>学员姓名:</td>
+                                <th colspan="2">@prove.fname</th>
+                                <td rowspan="4" style="width:100px; line-height:100px;">相片</td>
+                            </tr>
+                            <tr>
+                                <td>结算模式:</td>
+                                @if (prove.PayMode == 0)
+                                {
+                                    strPayMode = "(网点/现金)取款";
+                                }else if (prove.PayMode == 1)
+                                {
+                                    strPayMode = "狱内ATM机取款";
+                                }else if (prove.PayMode == 2)
+                                {
+                                    strPayMode = "转账支付";
+                                }
+                                <th colspan="4">@strPayMode</th>
+
+                            </tr>
+                            <tr>
+                                <td>银行卡号:</td>
+                                <th colspan="4">@prove.BankCode</th>
+
+                            </tr>
+                            <tr>
+                                <td>身份证号:</td>
+                                <th colspan="4">@prove.FIdenNo</th>
+
+                            </tr>
+                            <tr>
+                                <td>结算余额:</td>
+                                <th colspan="5"> <span id="jsMoney1"></span>(@prove.CardMoney )</th>
+
+                            </tr>
+                            <tr>
+                                <th colspan="6"><p>注:本卡已冻结，请在一个月内携带释放证、银行卡、密码单及本凭证到 <u><strong>‘福建省中国银行网点’</strong></u> 办理销户手续。</p></th>
+                            </tr>
+                        </table>
+
+                        
+
+                    </div>
+                    <hr />
+                    <div>
+                        <h2 class="text-center">消费一卡通结算凭证</h2>
+                        
+                        <table>
+                            <tr style="height:20px;">
+                                <td style="width:600px;">单位:@prove.fareaName</td>
+                                <td style="width:300px;">日期：@prove.crtDate.ToShortDateString()</td>
+                                <td style="width:200px;">(第三联 监区)</td>
+                            </tr>
+                        </table>
+                        <table class="table table-bordered">
+                            <tr>
+                                <td>狱政编号:</td>
+                                <th>@prove.fcode</th>
+                                <td>服刑人员姓名:</td>
+                                <th colspan="2">@prove.fname</th>
+                            </tr>
+                            <tr>
+                                <td>银行卡号:</td>
+                                <th colspan="4">@prove.BankCode</th>
+
+                            </tr>
+                            <tr>
+                                <td>结算余额:</td>
+                                <th colspan="4"><span id="jsMoney2"></span>(@prove.CardMoney )<input type="hidden" id="jsMoney" value="@prove.CardMoney" /></th>
+
+                            </tr>
+                            <tr>
+                                <th colspan="5">备注:该服刑人员一卡通已结算清，银行卡已领走并收回IC卡</th>
+                            </tr>
+                        </table>
+                        <table >
+                            <tr><td style="width:500px;">罪犯：</td><td>经办人：</td></tr>
+                        </table>
+                
+                    
+                </div>
+                }
+            </div>
+            <div class="col-md-2"></div>
+        </div> 
+    </div>
+    </div>
+    <script src="~/Scripts/jquery-1.11.3.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <script src="~/Scripts/myJs/commonJs.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            var jsmoney = $("#jsMoney").val();
+            $("#jsMoney1").html("人民币:" + DX(jsmoney) + "");
+            $("#jsMoney2").html("人民币:" + DX(jsmoney) + "");
+
+        });
+    </script>
+</body>
+</html>

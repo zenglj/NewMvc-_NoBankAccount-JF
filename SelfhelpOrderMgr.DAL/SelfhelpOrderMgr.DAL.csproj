@@ -1,0 +1,281 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>
+    </ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{9F86D12A-992E-463D-B629-372BDA5CDC61}</ProjectGuid>
+    <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>SelfhelpOrderMgr.DAL</RootNamespace>
+    <AssemblyName>SelfhelpOrderMgr.DAL</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <UseIISExpress>true</UseIISExpress>
+    <IISExpressSSLPort />
+    <IISExpressAnonymousAuthentication />
+    <IISExpressWindowsAuthentication />
+    <IISExpressUseClassicPipelineMode />
+    <Use64BitIISExpress />
+    <UseGlobalApplicationHostFile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Dapper, Version=1.50.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Dapper.1.50.0\lib\net45\Dapper.dll</HintPath>
+    </Reference>
+    <Reference Include="Dapper.Contrib">
+      <HintPath>..\packages\Dapper.Contrib.1.50.0\lib\net45\Dapper.Contrib.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net40\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data.Linq" />
+    <Reference Include="System.Web.DynamicData" />
+    <Reference Include="System.Web.Entity" />
+    <Reference Include="System.Web.ApplicationServices" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.EnterpriseServices" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AC_SUBYRDAL.cs" />
+    <Compile Include="DapperDAL\BaseDapperDAL.cs" />
+    <Compile Include="DapperDAL\SettleDao.cs" />
+    <Compile Include="DapperDAL\T_Bank_CNAPSDAL.cs" />
+    <Compile Include="DapperDAL\T_Criminal_OutBankAccountDAL.cs" />
+    <Compile Include="DapperHelper.cs" />
+    <Compile Include="CommTableInfoDAL.cs" />
+    <Compile Include="ExtDAL\BaseInfoMgrDAL.cs" />
+    <Compile Include="ExtDAL\DateSet.cs" />
+    <Compile Include="ExtDAL\T_AREADAL_Ext.cs" />
+    <Compile Include="ExtDAL\t_bank_PayListDAL_Ext.cs" />
+    <Compile Include="ExtDAL\t_bank_RcvListDAL_Ext.cs" />
+    <Compile Include="ExtDAL\T_BatchMoneyTradeDAL_Ext.cs" />
+    <Compile Include="ExtDAL\T_BONUSDAL_Ext.cs" />
+    <Compile Include="ExtDAL\T_Criminal_ChangeListDAL_Ext.cs" />
+    <Compile Include="ExtDAL\T_EdiBankSumListDAL_Ext.cs" />
+    <Compile Include="ExtDAL\T_EdiDetailDAL_Ext.cs" />
+    <Compile Include="ExtDAL\T_EdiListDAL_Ext.cs" />
+    <Compile Include="ExtDAL\T_ICCARD_LIST_Ext.cs" />
+    <Compile Include="ExtDAL\T_CriminalDAL_Ext.cs" />
+    <Compile Include="ExtDAL\T_Criminal_cardDAL_Ext.cs" />
+    <Compile Include="ExtDAL\T_Czy_areaDAL_Ext.cs" />
+    <Compile Include="ExtDAL\T_GoodsDAL_EXT.cs" />
+    <Compile Include="ExtDAL\T_GoodsTypeDAL_EXT.cs" />
+    <Compile Include="ExtDAL\T_InvoiceDAL_Ext.cs" />
+    <Compile Include="ExtDAL\T_InvoiceDTLDAL_Ext.cs" />
+    <Compile Include="ExtDAL\T_Invoice_outDAL_Ext.cs" />
+    <Compile Include="ExtDAL\T_NotifyFileDAL_Ext.cs" />
+    <Compile Include="ExtDAL\T_ProvideDAL_Ext.cs" />
+    <Compile Include="ExtDAL\T_SEQNODAL_Ext.cs" />
+    <Compile Include="ExtDAL\T_SHO_AreaGoodMaxCountDAL_Ext.cs" />
+    <Compile Include="ExtDAL\T_SHO_BankReturnListDAL_Ext.cs" />
+    <Compile Include="ExtDAL\T_SHO_FinancePayDAL_Ext.cs" />
+    <Compile Include="ExtDAL\T_SHO_OrderDAL_EXT.cs" />
+    <Compile Include="ExtDAL\T_SHO_OrderDTLDAL_Ext.cs" />
+    <Compile Include="ExtDAL\T_SHO_SaleDayListDAL_Ext.cs" />
+    <Compile Include="ExtDAL\T_StockDAL_Ext.cs" />
+    <Compile Include="ExtDAL\T_TempAmount_CardDAL_Ext.cs" />
+    <Compile Include="ExtDAL\T_TempLeavePrisonDAL_Ext.cs" />
+    <Compile Include="ExtDAL\T_TmpRcvPayDAL_Ext.cs" />
+    <Compile Include="ExtDAL\t_TreeMeunDAL_Ext.cs" />
+    <Compile Include="ExtDAL\t_TreeRole_MenuDAL_Ext.cs" />
+    <Compile Include="ExtDAL\T_VcrdDAL_Ext.cs" />
+    <Compile Include="ExtDAL\t_XFQueryListDAL_Ext.cs" />
+    <Compile Include="FilterExtend.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SqlBuilder.cs" />
+    <Compile Include="SqlHelper.cs" />
+    <Compile Include="T_AREA.DAL.cs" />
+    <Compile Include="t_area_change.DAL.cs" />
+    <Compile Include="T_AREA_TMP.DAL.cs" />
+    <Compile Include="T_BALANCE.DAL.cs" />
+    <Compile Include="t_balanceList.DAL.cs" />
+    <Compile Include="T_BankAccount.DAL.cs" />
+    <Compile Include="t_bankFeeList.DAL.cs" />
+    <Compile Include="t_bankinfo.DAL.cs" />
+    <Compile Include="t_BankProve.DAL.cs" />
+    <Compile Include="t_bank_dealList.DAL.cs" />
+    <Compile Include="DapperDAL\T_Bank_DepositListDAL.cs" />
+    <Compile Include="t_bank_PayList.DAL.cs" />
+    <Compile Include="DapperDAL\T_Bank_PaymentRecordDAL.cs" />
+    <Compile Include="t_bank_RcvList.DAL.cs" />
+    <Compile Include="t_bank_regList.DAL.cs" />
+    <Compile Include="T_BatchMoneyTradeDAL.cs" />
+    <Compile Include="T_BatchMoneyTrade_DTLDAL.cs" />
+    <Compile Include="T_BatchMoneyTrade_ErrListDAL.cs" />
+    <Compile Include="T_BONUS.DAL.cs" />
+    <Compile Include="T_BONUSDTL.DAL.cs" />
+    <Compile Include="T_CARD_LIST.DAL.cs" />
+    <Compile Include="T_Criminal_ChangeListDAL.cs" />
+    <Compile Include="T_CY_ChinaFestivalDAL.cs" />
+    <Compile Include="T_CommonTypeTab.DAL.cs" />
+    <Compile Include="T_Course.DAL.cs" />
+    <Compile Include="T_CRIME.DAL.cs" />
+    <Compile Include="T_Criminal.DAL.cs" />
+    <Compile Include="T_Criminal_card.DAL.cs" />
+    <Compile Include="T_CRIMINAL_LIST.DAL.cs" />
+    <Compile Include="T_Criminal_TPListDAL.cs" />
+    <Compile Include="T_CY_TYPE.DAL.cs" />
+    <Compile Include="T_CZYDAL.cs" />
+    <Compile Include="T_CzyWeb_area.DAL.cs" />
+    <Compile Include="T_Czy_area.DAL.cs" />
+    <Compile Include="T_Czy_priv.DAL.cs" />
+    <Compile Include="T_DocType.DAL.cs" />
+    <Compile Include="T_EdiDetail.DAL.cs" />
+    <Compile Include="T_EdiList.DAL.cs" />
+    <Compile Include="T_FAMILY_LIST.DAL.cs" />
+    <Compile Include="t_FeeList.DAL.cs" />
+    <Compile Include="T_Goods.DAL.cs" />
+    <Compile Include="T_GoodsStock.DAL.cs" />
+    <Compile Include="T_GOODSSTOCKMAIN.DAL.cs" />
+    <Compile Include="T_GoodsType.DAL.cs" />
+    <Compile Include="T_Goods_ChangeListDAL.cs" />
+    <Compile Include="ExtDAL\T_Goods_ChangeListDAL_Ext.cs" />
+    <Compile Include="T_Goods_combine.DAL.cs" />
+    <Compile Include="T_Goods_price.DAL.cs" />
+    <Compile Include="T_Goods_subdtl.DAL.cs" />
+    <Compile Include="T_ICCARD_LIST.DAL.cs" />
+    <Compile Include="T_Importgoods.DAL.cs" />
+    <Compile Include="T_ImportList.DAL.cs" />
+    <Compile Include="T_Inicard.DAL.cs" />
+    <Compile Include="T_Invoice.DAL.cs" />
+    <Compile Include="T_InvoiceDTL.DAL.cs" />
+    <Compile Include="T_Invoice_old.DAL.cs" />
+    <Compile Include="T_Invoice_out.DAL.cs" />
+    <Compile Include="T_Invoice_outdtl.DAL.cs" />
+    <Compile Include="T_MainInv.DAL.cs" />
+    <Compile Include="T_MeetDate.DAL.cs" />
+    <Compile Include="T_MEET_AREA.DAL.cs" />
+    <Compile Include="T_MEET_TYPE.DAL.cs" />
+    <Compile Include="T_Menu.DAL.cs" />
+    <Compile Include="T_MONEY.DAL.cs" />
+    <Compile Include="T_NotifyFile.cs" />
+    <Compile Include="T_ProvideDAL.cs" />
+    <Compile Include="T_ProvideDTLDAL.cs" />
+    <Compile Include="T_Ptype.DAL.cs" />
+    <Compile Include="T_RECORD_INFO.DAL.cs" />
+    <Compile Include="T_RELATION.DAL.cs" />
+    <Compile Include="T_REP_TEMP.DAL.cs" />
+    <Compile Include="T_Role.DAL.cs" />
+    <Compile Include="T_Role_priv.DAL.cs" />
+    <Compile Include="T_Savetype.DAL.cs" />
+    <Compile Include="T_SearchBankAccNo.DAL.cs" />
+    <Compile Include="T_SEQNO.DAL.cs" />
+    <Compile Include="T_SETTINGS.DAL.cs" />
+    <Compile Include="T_Sex_Tmp.DAL.cs" />
+    <Compile Include="T_SGOODS.DAL.cs" />
+    <Compile Include="T_SHO_AreaGoodMaxCountDAL.cs" />
+    <Compile Include="T_SHO_BankReturnListDAL.cs" />
+    <Compile Include="T_SHO_ClientMachine.DAL.cs" />
+    <Compile Include="T_SHO_FinancePayDAL.cs" />
+    <Compile Include="T_SHO_GoodsAttribute.DAL.cs" />
+    <Compile Include="T_SHO_GoodsForAttr.DAL.cs" />
+    <Compile Include="T_SHO_ManagerSet.DAL.cs" />
+    <Compile Include="T_SHO_Order.DAL.cs" />
+    <Compile Include="T_SHO_OrderDTL.DAL.cs" />
+    <Compile Include="T_SHO_SaleDayListDAL.cs" />
+    <Compile Include="T_SHO_SaleType.DAL.cs" />
+    <Compile Include="T_Stock.DAL.cs" />
+    <Compile Include="T_StockDTL.DAL.cs" />
+    <Compile Include="T_SUB_AREA.DAL.cs" />
+    <Compile Include="T_Supplyer.DAL.cs" />
+    <Compile Include="T_TempAmount_Card.DAL.cs" />
+    <Compile Include="T_TempLeavePrison.DAL.cs" />
+    <Compile Include="T_TempLilun.DAL.cs" />
+    <Compile Include="T_TEST_DB.DAL.cs" />
+    <Compile Include="T_TmpRcvPay.DAL.cs" />
+    <Compile Include="T_TotalMeet.DAL.cs" />
+    <Compile Include="T_TreeArea.DAL.cs" />
+    <Compile Include="t_TreeMenu_User.DAL.cs" />
+    <Compile Include="t_TreeMeun.DAL.cs" />
+    <Compile Include="t_TreeRole.DAL.cs" />
+    <Compile Include="t_TreeRole_Menu.DAL.cs" />
+    <Compile Include="T_Vcrd.DAL.cs" />
+    <Compile Include="T_Vcrd_error.DAL.cs" />
+    <Compile Include="T_Vcrd_old.DAL.cs" />
+    <Compile Include="t_XFInvoiceTmp.DAL.cs" />
+    <Compile Include="t_XFQueryList.DAL.cs" />
+    <Compile Include="t_XFQueryTmp.DAL.cs" />
+    <Compile Include="t_ye.DAL.cs" />
+    <Compile Include="WebServDAL\JXHospitalDAL.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SelfhelpOrderMgr.Common\SelfhelpOrderMgr.Common.csproj">
+      <Project>{bb3714bd-1096-40fc-a045-e92bed1985ee}</Project>
+      <Name>SelfhelpOrderMgr.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SelfhelpOrderMgr.Model\SelfhelpOrderMgr.Model.csproj">
+      <Project>{c50495e3-c96e-4f6f-b33d-337417d6ea00}</Project>
+      <Name>SelfhelpOrderMgr.Model</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="packages.config" />
+  </ItemGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" Condition="false" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>True</UseIIS>
+          <AutoAssignPort>True</AutoAssignPort>
+          <DevelopmentServerPort>7260</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>http://localhost:7260/</IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>False</UseCustomServer>
+          <CustomServerUrl>
+          </CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

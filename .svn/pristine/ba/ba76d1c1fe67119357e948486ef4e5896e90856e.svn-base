@@ -1,0 +1,158 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>PrintXiaofeiDan</title>
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Content/PrintReportCss.css" rel="stylesheet" />
+    <style type="text/css" >/*打印分页*/
+        .pPage {
+            page-break-after: always;
+        }
+    </style>
+</head>
+<body>
+    <div> 
+
+        <div class="row">
+            <div class="col-sm-2"></div>
+            <div class="col-sm-8">
+                
+                @if (ViewData["printType"].ToString()=="0")
+                {
+                    @*打印消费清单*@
+                <div>
+                    @if (ViewData["rtnInvs"] != null)
+{
+    foreach (SelfhelpOrderMgr.Web.Controllers.PrintInvoices item in ViewData["rtnInvs"] as List<SelfhelpOrderMgr.Web.Controllers.PrintInvoices>)
+    {
+
+        <div class="panel panel-default pPage">
+            <div class="panel-heading">
+                <div class="text-center">
+                    <h4>狱内购物消费单</h4>
+                </div>
+                <table class="table table-condensed contentFontSize">
+                    <tr>
+                        <td>消费单号: @item.invoice.InvoiceNo</td>
+                        <td></td>
+                        <td>日期: @item.invoice.OrderDate</td>
+                    </tr>
+                    <tr>
+                        <td>编号: @item.invoice.FCrimeCode</td>
+                        <td>姓名: @item.invoice.FCriminal</td>
+                        <td>队别: @item.invoice.FAreaName</td>
+                    </tr>
+                </table>
+            </div>
+            <div class="panel-body contentFontSize" >
+                <table class="table  table-striped table-condensed contentFontSize" >
+                    <thead>
+                        <tr>
+                            <th>货号:</th>
+                            <th>品名:</th>
+                            <th>规格:</th>
+                            <th>单价:</th>
+                            <th>数量:</th>
+                            <th>金额:</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (SelfhelpOrderMgr.Model.T_InvoiceDTL dtl in item.details)
+                        {
+
+                            <tr>
+                                <td>@dtl.SPShortCode</td>
+                                <td>@dtl.GNAME</td>
+                                <td>@dtl.Remark</td>
+                                <td>@dtl.GDJ</td>
+                                <td>@dtl.QTY</td>
+                                <td>@dtl.AMOUNT</td>
+                            </tr>
+                        }
+                        <tr><td colspan="4"></td><th>金额计</th><td>@item.invoice.Amount</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="panel-footer text-right contentFontSize" >狱内自助购物平台提供打印</div>
+        </div>
+
+    }
+
+}
+                    
+                </div>
+                }
+                else
+                {
+                    @*打印签字确认单*@
+                <div>
+                                            
+                        <div class="text-center">
+                            <h3>狱内自助购物消费签字确定单</h3>
+                        </div>                                    
+                    <table class="table table-striped table-condensed contentFontSize" >
+                        <thead>
+                            <tr>
+                                <th>序号</th>
+                                <th>编号</th>
+                                <th>姓名</th>
+                                <th>队别</th>
+                                <th>日期</th>
+                                <th>消费类型</th>
+                                <th>消费金额</th>
+                                <th>用户签名</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (ViewData["rtnInvs"] != null)
+                            {
+                                decimal sumMoney = 0;
+                                int i = 1;
+                                foreach (SelfhelpOrderMgr.Web.Controllers.PrintInvoices item in ViewData["rtnInvs"] as List<SelfhelpOrderMgr.Web.Controllers.PrintInvoices>)
+                                {
+
+                                    <tr>
+                                        <td>@i</td>
+                                        <td>@item.invoice.FCrimeCode</td>
+                                        <td>@item.invoice.FCriminal</td>
+                                        <td>@item.invoice.FAreaName</td>
+                                        <td>@item.invoice.OrderDate</td>
+                                        <td>@item.invoice.PType</td>
+                                        <td>@item.invoice.Amount</td>
+                                        <td></td>
+                                    </tr>
+                                    sumMoney = sumMoney + item.invoice.Amount;
+                                    i++;
+                                }
+                                <tr>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td>合计:</td>
+                                    <td>@sumMoney</td>
+                                    <td></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                }
+
+                
+            </div>
+            <div class="col-sm-2"></div>
+        </div>
+    </div>
+    <script src="~/Scripts/jquery-1.11.3.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+</body>
+</html>

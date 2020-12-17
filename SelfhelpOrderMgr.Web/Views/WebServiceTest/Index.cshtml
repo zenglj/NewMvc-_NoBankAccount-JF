@@ -1,0 +1,59 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<h2>Index</h2>
+
+
+<div>
+    <input type="text" id="actionId" value="" />
+    <input type="button" value="文本方法测试" onclick="doStringTest()" />
+    
+</div>
+
+<div>
+    <input type="text" id="actionObjId" value="" />
+    <input type="button" value="对象方法测试" onclick="doObjectTest()" />
+
+</div>
+
+<div>
+    <input type="button" id="mybtn2" value="单击事件" />
+
+</div>
+<script type="text/javascript">
+    $(function () {
+        $("#mybtn2").click(function(){
+            alert("单击事件");
+        });
+    });
+
+    function doStringTest() {
+        $.post("/WebServiceTest/WsPostString", {
+            "Action": $("#actionId").val()        
+        }, function (data, status) {
+            if ("success" != status) {
+                return false;
+            }
+            else {
+                alert(data);
+            }
+        });
+    }
+
+    function doObjectTest() {
+        $.post("/WebServiceTest/WsPostObject", {
+            "Action": $("#actionObjId").val()
+        }, function (data, status) {
+            if ("success" != status) {
+                return false;
+            }
+            else {
+                alert(data);
+            }
+        });
+    }
+</script>

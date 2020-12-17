@@ -1,0 +1,53 @@
+﻿
+.bg
+  {
+    /*background:center center no-repeat;*/
+    background-image:url(/Content/images/bg_selfSearch.jpg);
+	padding:10px 0 0 0;
+	margin-bottom:0;
+    height:900px;
+  }
+.divHg{
+    padding:30px 20px 0 0;
+    height:100px;
+  }
+.btnWidth{
+    width:250px;
+}
+.divVisable{
+    padding:120px 0 10px 10px;
+}
+.divNoShow{
+    display:none;
+}
+.bg_topDiv
+  {
+    background-image:url(/Content/images/SelfOrderManager1.jpg);
+	padding:0 0 0 0;
+	margin-bottom:0;
+    height:70px;
+  }
+
+.h3_timeDiv
+  {
+	padding:65px 0 0 0;
+	margin-bottom:0;
+  }
+
+.colorWhite{
+    color:white;
+}
+
+.colorBlue{
+    color:blue;
+}
+
+.colorJingYong{
+    color:#808080;
+}
+
+.divBg{
+    color:AppWorkspace;
+    padding:1px;
+}
+.bs-glyphicons-list{padding-left:0;list-style:none}

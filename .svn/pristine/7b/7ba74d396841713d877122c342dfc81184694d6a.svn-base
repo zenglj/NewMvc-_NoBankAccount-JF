@@ -1,0 +1,16 @@
+﻿using SelfhelpOrderMgr.DAL;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+
+namespace SelfhelpOrderMgr.BLL
+{
+    public partial class T_SHO_OrderDTLBLL
+    {
+        public int AddDetailAndUpdateMain(SelfhelpOrderMgr.Model.T_SHO_OrderDTL model, string strFreeFlag)
+        {
+            return new T_SHO_OrderDTLDAL().AddDetailAndUpdateMain( model,  strFreeFlag);
+        }
+    }
+}

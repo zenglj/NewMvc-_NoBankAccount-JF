@@ -1,0 +1,141 @@
+﻿@{
+    ViewBag.Title = "信息查询";
+}
+
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <title>Bootstrap 101 Template</title>
+
+    <!-- Bootstrap -->
+    <link href="~/Content/buttons.css" rel="stylesheet" />
+    <link href="~/Content/messenger.css" rel="stylesheet" />
+    <link href="~/Content/messenger-theme-future.css" rel="stylesheet" />
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="~/Content/font-awesome.min.css" rel="stylesheet" />
+    <link href="~/Content/Site.css" rel="stylesheet" />
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="//cdn.bootcss.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="//cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+<body>
+    <h1>欢迎光临，请刷卡开始查询！<button type="button" class="btn btn-default">修改密码</button></h1>
+    <object id=MWRFATL style="WIDTH: 0px; HEIGHT: 0px"
+            codebase=eyeFZ.cab#version =1,0,0,1
+            classid=CLSID:CD851DCA-5D3C-4DA9-A0F7-DE018FDC0A7F></object>@*加载数明华读卡器控件*@
+    <div class="form-inline" style=" text-align:right;">
+        <input type="hidden" id="orderFcrimeCode" />
+        <input type="hidden" id="orderFcrimeName" />
+        <input type="hidden" id="orderCyName" />
+        <input type="hidden" id="orderFareaName" />       
+        @if (ViewData["loginMode"].ToString() == "1")
+        {
+            <div class="form-group">
+                <div class="input-group">
+                    <div class="input-group-addon">用户号</div>
+                    <input class="form-control" type="number" id="userCode" name="userCode" placeholder="用户号" onkeydown="if(event.keyCode==13) $('#UserPwd').focus();" style="width:150px;">
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="input-group">
+                    <div class="input-group-addon">密码</div>
+                    <input class="form-control" type="password" id="UserPwd" name="UserPwd" placeholder="密码" onkeydown="if (event.keyCode == 13) $('#btnSearch').focus();" style="width:150px;">
+                </div>
+            </div>        
+            <button type="button" class="btn btn-primary" id="btnSearch" onclick="UserLoginCheck()">查询</button>  
+ 
+        }
+        else
+        {        
+             <a class="btn btn-large btn-primary " href="#" role="button" onclick="btnQueryUserInfo('3504013494')">读卡IC卡</a>
+
+        }
+        
+    </div>
+    <h3 id="userNameInfo">你好, 某某某<span class="label label-primary">普管(500)</span>,您的账户信息如下：</h3>
+    <div class="alert alert-danger" role="alert" id="lblInfo">银行账号：</div>
+    <div class="row">
+        <div class="col-md-3">
+            <table class="table">
+                <thead>
+                    <tr><th>名称</th><th>金额</th></tr>
+                </thead>
+                <tbody >
+                    <tr ><td>存款余额</td><td id="amountA">0.00</td></tr>
+                    <tr ><td>报酬金额</td><td id="amountB">0.00</td></tr>
+                    <tr ><td>留存金额(不可用)</td><td id="amountC">0.00</td></tr>
+                    <tr><td>系统冻结金额</td><td id="djMoney">0.00</td></tr>
+                    <tr><td>本月已经消费</td><td><span class="label label-danger" id="curMonthXFE">0.00</span></td></tr>
+                    <tr ><td>本月消费限额</td><td ><span class="label label-warning" id="xiaofeiYuE">0.00</span></td></tr>
+                    <tr class="danger"><td>账户可用总余额</td><td id="okUseAllMoney">0.00</td></tr>
+                </tbody>
+            </table>
+
+        </div>
+        <div class="col-md-9"><h3>近三个月存/取款记录 <span class="label label-default">New</span></h3>
+            <div>
+                <table class="table table-striped">
+                    <thead>
+                        <tr><th>日期</th><th>存款类型</th><th>金额</th><th>备注</th></tr>
+                    </thead>
+                    <tbody id="tbodyOrderList">
+                        <tr><td>2015-11-25</td><td>亲属存款</td><td>1.00</td><td>银行转入</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- 信息提示（Modal） -->
+    <div class="modal fade" id="myPromptBox" tabindex="-1" role="dialog"
+         aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close"
+                            data-dismiss="modal" aria-hidden="true">
+                        &times;
+                    </button>
+                    <h4 class="modal-title" >
+                        信息提示
+                    </h4>
+                </div>
+                <div class="modal-body" id="myPromptBoxInfo">
+                    提示信息
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default"
+                            data-dismiss="modal">
+                        确定
+                    </button>
+
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal -->
+    </div>
+
+
+        <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+        <script src="~/Scripts/jquery-1.11.3.min.js"></script>
+        <!-- Include all compiled plugins (below), or include individual files as needed -->
+        <script src="js/bootstrap.min.js"></script>
+        <script src="~/Scripts/messenger.min.js"></script>
+        <script src="~/Scripts/myJs/minghuaICcardCommon.js"></script>
+        <script src="~/Scripts/myJs/commonJs.js"></script>
+    <script src="~/Scripts/myJs/userInfoQuery.js"></script>
+        <script type="text/javascript">
+
+        </script>
+    
+
+</body>
+</html>

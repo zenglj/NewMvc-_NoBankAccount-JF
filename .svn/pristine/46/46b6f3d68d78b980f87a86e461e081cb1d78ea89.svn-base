@@ -1,0 +1,537 @@
+﻿using SelfhelpOrderMgr.BLL;
+using SelfhelpOrderMgr.Model;
+using SelfhelpOrderMgr.Model.ExtModel;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+using System.Web.Script.Serialization;
+
+namespace SelfhelpOrderMgr.Web.Controllers
+{
+    public class PowerController : BaseController
+    {
+        #region 用户管理操作
+        // GET: /Power/  //用户管理
+        public ActionResult Index()
+        {
+            #region 加载队别信处
+            List<T_AREA> areas = (List<T_AREA>)new T_AREABLL().GetModelList("");
+            Dictionary<string, string> userAreas = new Dictionary<string, string>();
+            foreach (T_AREA area in areas)
+            {
+                userAreas.Add(area.FName, area.FCode);
+            }
+            ViewData["userAreas"] = userAreas;
+            #endregion
+
+            #region 加载角色信息
+            List<t_TreeRole> roles = (List<t_TreeRole>)new t_TreeRoleBLL().GetModelList("");
+            Dictionary<string, string> userRoles = new Dictionary<string, string>();
+            foreach (t_TreeRole role in roles)
+            {
+                userRoles.Add(role.RoleName, role.RoleID.ToString());
+            }
+            ViewData["userRoles"] = userRoles;
+            #endregion
+
+            //加载操作员用户信息
+            List<T_CZY> czys = (List<T_CZY>)new T_CZYBLL().GetModelList("");
+            ViewData["czys"] = czys;
+
+            //加载监区信息
+
+            return View();
+        }
+
+        public ActionResult GetUserList()
+        {
+            //加载操作员用户信息
+            List<T_CZY> czys = (List<T_CZY>)new T_CZYBLL().GetModelList("");
+            //ViewData["czys"] = czys;
+            JavaScriptSerializer jss = new JavaScriptSerializer();
+            return Content(jss.Serialize(czys));
+
+        }
+
+        //返回Tree方式的监区信息
+        public ActionResult GetTreeArea()
+        {
+            List<T_AREA> fids = (List<T_AREA>)new T_AREABLL().GetModelList("FId is null and Id=0");
+            List<Comment> lists = new List<Comment>();
+            if (null != fids)
+            {
+                foreach (T_AREA fid in fids)
+                {
+                    Comment list = new Comment() { id = Convert.ToInt32(fid.ID), text = fid.FName, iconCls = "icon-ok", state = "open" };
+                    DiguiGetTreeArea(fid, ref list);
+                    lists.Add(list);
+                }
+
+            }
+            JavaScriptSerializer jss = new JavaScriptSerializer();
+            string ddd = jss.Serialize(lists);
+            return Content(ddd);
+
+        }
+
+        //保存操作员用户
+        public ActionResult SaveTree()
+        {
+            string selectTree = Request["selectTree"].ToString();
+            string strUserCode = Request["UserCode"].ToString();
+            string strUserName = Request["UserName"].ToString();
+            string strUserPwd = Request["UserPwd"].ToString();
+            string strUserArea = Request["UserArea"].ToString();
+            string strUserRole = Request["UserRole"].ToString();
+            string FManagerCard = Request["FManagerCard"].ToString();
+            int fprivate = Request["selectRadio"] == null ? 0 : Convert.ToInt32(Request["selectRadio"]);
+            string FUserChinaName = Request["FUserChinaName"] == null ? "" : Request["FUserChinaName"];
+
+            if (selectTree == "")
+            {
+                return Content("Error.请至少选择一个管理监区");
+            }
+            char ee = (char)124;
+            string[] TreeNodes = selectTree.Split(ee);
+            string selectAreas = "";
+            foreach(string node in TreeNodes)
+            {
+                if (selectAreas == "")
+                {
+                    selectAreas = "'" + node + "'";
+                }
+                else
+                {
+                    selectAreas = selectAreas+",'" + node + "'";
+                }
+            }
+            //string selectAreas=selectTree.Replace((char)124,(char)44);
+            //string NodesSql = "'仓山监狱'";
+
+            List<T_AREA> areas = (List<T_AREA>)new T_AREABLL().GetAreaByNodeNames(TreeNodes);
+            List<string> userAreas = new List<string>();
+            if (areas != null)
+            {
+                foreach (T_AREA area in areas)
+                {
+                    userAreas.Add(area.FName);
+                }
+            }
+
+            //首先是保存用户信息,如T_czy
+            //1、判断记录是否存在
+            string strRoleName = "";
+            List<t_TreeRole> roles = new t_TreeRoleBLL().GetModelList("RoleId="+strUserRole +"");
+            if (roles.Count > 0)
+            {
+                strRoleName = roles[0].RoleID.ToString();
+            }
+            T_CZY czy = new T_CZYBLL().GetModel(strUserCode);
+            T_CZY op = new T_CZY();
+            if (czy != null)
+            {
+                op = czy;
+            }
+            else
+            {
+                op = new T_CZY();
+            }
+
+            T_AREA tarea = new T_AREABLL().GetModel(strUserArea);
+            if(tarea!=null)
+            {
+                strUserArea = tarea.FName;
+            }
+
+            op.FCode = strUserCode;
+            op.FName = strUserName;
+            op.FPwd = strUserPwd;
+            op.FUserArea = strUserArea;
+            t_TreeRole trl = new t_TreeRole();
+            trl.RoleID = strUserRole == "" ? 0 : Convert.ToInt32(strUserRole);
+            trl.RoleName = strRoleName;
+            //op.FRole = trl;
+            op.FRole = strUserRole;
+            op.FFlag = 0;
+            op.FPRIVATE = fprivate;
+            op.FUserChinaName = FUserChinaName;
+            op.ver = "";
+            op.rolecode = "";
+            op.FManagerCard = FManagerCard;
+            
+            string strRes = "";
+            if (czy != null)
+            {
+                new T_CZYBLL().Update(op);
+                strRes = "Update";
+            }
+            else
+            {
+                new T_CZYBLL().Add(op);
+                strRes = "Insert";
+            }
+
+            //接下来是保存用户权限区域,
+            //先删除所有该用户监区的权限
+
+            int res = new T_Czy_areaBLL().DeleteByFCode(strUserCode);
+            //再插入所有该功能,权限都为0
+            res = new T_Czy_areaBLL().BatchInsert(strUserCode);
+
+            //第三修改该用户所拥有该功能,权限设为1
+            res = new T_Czy_areaBLL().UpdateByNodesAndUserCode(strUserCode, 1, userAreas.ToArray());
+
+            //最后修改该用户所拥有该功能,权限设为2
+            res = new T_Czy_areaBLL().UpdateByNodesAndUserCode(strUserCode, 2, TreeNodes);
+            if (res > 0)
+            {
+                strRes = "OK." + strRes;
+            }
+            else
+            {
+                strRes = "Error." + strRes;
+            }
+            //Log4NetHelper.logger.Info("操作员：" + Session["loginUserName"].ToString() + ",修改一个用户信息，ID=" + strUserCode + ",用户名为：" + strUserName + ",结果为：" + strRes);
+
+            return Content(strRes);
+
+        }
+
+        //删除操作员用户
+        public ActionResult DelTreeUser()
+        {
+            string UserID = Request["FUserID"];
+            string UserName = Request["FUserName"];
+            T_CZY czy = new T_CZYBLL().GetModel(UserID);
+            string res = "删除失败";
+            if (czy != null)
+            {
+                if (czy.FName == UserName)
+                {
+                    int rs = new T_Czy_areaBLL().DeleteByFCode(UserID);
+                    bool bl = new T_CZYBLL().Delete(UserID);
+                    if (bl ==true)
+                    {
+                        res = "删除成功";
+                        //Log4NetHelper.logger.Info("操作员：" + Session["loginUserName"].ToString() + ",删除了一个用户，ID=" + UserID + ",用户名为：" + UserName);
+                    }
+                }
+            }
+            return Content(res);
+        }
+
+        //通过递归方式 把目录树生成队别树,并反回EasyUI的Tree
+        private Comment DiguiGetTreeArea(T_AREA m1, ref Comment list)
+        {
+            List<T_AREA> tms1 = (List<T_AREA>)new T_AREABLL().GetModelList("FID =" + m1.ID.ToString());
+            if (tms1 != null)
+            {
+                List<Comment> cren = new List<Comment>();
+                foreach (T_AREA subarea in tms1)
+                {
+                    Comment Subcren = new Comment();
+
+                    Subcren.id = Convert.ToInt32(subarea.ID);
+                    Subcren.text = subarea.FName;
+                    Subcren.iconCls = "icon-ok";
+                    //Subcren.children = Subcren;
+                    Subcren.state = "open";
+
+                    List<attr> Latrr = new List<attr>();
+                    Latrr.Add(new attr() { url = subarea.URL });
+                    Subcren.attributes = Latrr;
+
+                    DiguiGetTreeArea(subarea, ref Subcren);
+                    cren.Add(Subcren);
+                }
+                list.children = cren;
+
+            }
+            return list;
+        }
+        public ActionResult GetAreaPower()
+        {
+            string strUserID = Request["FUserID"].ToString();
+            //sql = "select seqno from t_Czy_area where fcode='" + strUserID + "' and fflag=2 order by seqno";
+            //var data = MyDb.GetDS(sql, dbname);
+            List<T_Czy_area> areas = (List<T_Czy_area>)new T_Czy_areaBLL().GetAreaByFCodeAndFlag(strUserID, 2);
+            string selRole = "";
+            if (areas.Count > 0)
+            {
+                foreach (T_Czy_area area in areas)
+                {
+                    if ("" == selRole)
+                    {
+                        selRole = area.seqno.ToString();
+                    }
+                    else
+                    {
+                        selRole = selRole + "|" + area.seqno.ToString();
+                    }
+                }
+            }
+            //返回角色权限            
+            return Content(selRole);
+        }
+
+        #endregion
+
+        public ActionResult ChangePassword()
+        {
+            return View();
+        }
+
+        //修改密码
+        public ActionResult SavePassword()
+        {
+            string result = "";
+            string userName = new T_CZYBLL().GetModel(Session["loginUserCode"].ToString()).FName;
+
+            string oldPwd = Request["oldPassword"];
+            string newPwd = Request["newPassword"];
+            string chkPwd = Request["checkPassword"];
+            if (string.IsNullOrEmpty(oldPwd) == true)
+            {
+                result = "原密码不会为空，请重输";
+                return Content(result);
+            }
+            if (string.IsNullOrEmpty(newPwd) == true)
+            {
+                result = "新密码不能为空";
+                return Content(result);
+            }
+            if (newPwd != chkPwd)
+            {
+                result = "两次新密码不一致";
+                return Content(result);
+            }
+            List<T_CZY> czys = new T_CZYBLL().GetModelList("FName='"+  userName +"'");
+            if (czys.Count > 0)
+            {
+                T_CZY czy = czys[0];
+                if (czy.FPwd == oldPwd)
+                {
+                    czy.FPwd = newPwd;
+                    new T_CZYBLL().Update(czy);
+                    result = "保存成功";
+                }
+                else
+                {
+                    result = "用户信息或是密码不正确";
+                }
+            }
+            return Content(result);
+        }
+        #region 角色管理
+        //角色管理
+        public ActionResult RoleMgr()
+        {
+            return View();
+        }
+        public ActionResult GetAllTree()
+        {
+            //string LoginUserName = Request.Cookies["person_Users"]["sysLoginName"].ToString();
+            string LoginUserCode = "102";
+            //string LoginUserCode = Request.Cookies["person_Users"]["sysLoginCode"].ToString();
+            List<t_TreeMeun> menus = new t_TreeMeunBLL().GetModelList("id=0");
+            t_TreeMeun m1 = menus[0];
+            if (m1.id.ToString() != null)
+            {
+                T_CZY czy = new T_CZYBLL().GetModel(LoginUserCode);
+                List<Comment> list = GetTreeMenuList(m1, czy.FRole.ToString());//把目录树生成菜单树,并反回EasyUI的Tree
+                JavaScriptSerializer jss = new JavaScriptSerializer();
+                string ddd = jss.Serialize(list);
+                Response.Write(ddd);
+            }
+            else
+            {
+                return Content("信息不存在");
+            }
+            return Content("");
+        }
+        public ActionResult GetRoleList()
+        {
+            List<t_TreeRole> roles;
+            roles = (List<t_TreeRole>)new t_TreeRoleBLL().GetModelList("");
+            JavaScriptSerializer jss = new JavaScriptSerializer();
+            if (roles.Count <= 0)
+            {
+                roles.Add(new t_TreeRole());
+            }
+            return Content(jss.Serialize(roles));
+        }
+        public ActionResult GetRolePower()
+        {
+            //SqlDataBase MyDb = new SqlDataBase();
+            string strRoleID = Request["RoleID"].ToString();
+            List<t_TreeRole_Menu> rolemenus = (List<t_TreeRole_Menu>)new t_TreeRole_MenuBLL().GetModelList("RoleID=" + strRoleID +" and Flag=2");
+            string selRole = "";
+            if (rolemenus != null)
+            {
+                if (rolemenus.Count > 0)
+                {
+                    foreach (t_TreeRole_Menu rolemenu in rolemenus)
+                    {
+                        if ("" == selRole)
+                        {
+                            selRole = rolemenu.TreeId.ToString();
+                        }
+                        else
+                        {
+                            selRole = selRole + "|" + rolemenu.TreeId.ToString();
+                        }
+                    }
+                }
+            }
+            //返回角色权限
+
+            return Content(selRole);
+        }
+        //保存角色的功能权限
+        public ActionResult SaveRoleTree()
+        {
+            //string LoginUserCode = "102";
+            //增加或是修改角色信息
+            string strRoleID = Request["RoleID"].ToString();
+            string strRoleName = Request["RoleName"].ToString();
+            //int levelid = Request["LevelId"] == null ? 0 : Convert.ToInt32(Request["LevelId"]);
+
+            //首先判断下角色是否存在,如果存在就修改它,如果不存在就增加它
+            string sql = "select * from t_TreeRole where RoleID='" + strRoleID + "'";
+            List<t_TreeRole> trs = new t_TreeRoleBLL().GetModelList("RoleId=" + strRoleID);
+            t_TreeRole tr = trs[0];
+            string doType = "Insert";
+            if (tr != null)
+            {
+                doType = "Update";
+                tr.RoleName = strRoleName;
+                //tr.LevelId = levelid;
+                new t_TreeRoleBLL().Update(tr);
+            }
+            else
+            {
+                tr = new t_TreeRole();
+                tr.RoleName = strRoleName;
+                tr.RoleID = Convert.ToInt32(strRoleID);
+                //tr.LevelId = levelid;
+                new t_TreeRoleBLL().Add(tr);
+            }
+
+            //保存权限Tree
+            string selectTree = Request["selectTree"].ToString();
+            char ee = (char)124;
+            string[] TreeNodes = selectTree.Split(ee);
+            string NodesSql = "'首页'";
+            string OwnerNodesSql = "";
+            for (int i = 0; i < TreeNodes.Length; i++)
+            {
+                NodesSql = NodesSql + ",'" + TreeNodes[i] + "'";
+                if ("" == OwnerNodesSql)
+                {
+                    OwnerNodesSql = "'" + TreeNodes[i] + "'";
+                }
+                else
+                {
+                    OwnerNodesSql = OwnerNodesSql + ",'" + TreeNodes[i] + "'";
+                }
+            }
+            List<t_TreeMeun> menus = (List<t_TreeMeun>)new t_TreeMeunBLL().GetModelList("text in(" + NodesSql + ") or id in(select fid from t_TreeMeun where text in(" + NodesSql + "))");
+            NodesSql = "";
+            foreach (t_TreeMeun menu in menus)
+            {
+                if ("" == NodesSql)
+                {
+                    NodesSql = "'" + menu.Text.ToString() + "'";
+                }
+                else
+                {
+                    NodesSql = NodesSql + ",'" + menu.Text.ToString() + "'";
+                }
+            }
+            //先删除所有该角色的权限
+            int res = new t_TreeRole_MenuBLL().DeleteByRoleId(Convert.ToInt32(strRoleID));
+            //再插入所有该功能,权限都为0
+            res = new t_TreeRole_MenuBLL().InsertRoleMenu(Convert.ToInt32(strRoleID));
+            //第三修改该角所拥有该功能,权限设为1
+            res = new t_TreeRole_MenuBLL().UpdateByRoleMenu(1, strRoleID, NodesSql);
+            //最后修改该角所拥有该功能,权限设为2
+            res = new t_TreeRole_MenuBLL().UpdateByRoleMenu(2, strRoleID, OwnerNodesSql);
+            return Content("OK." + doType);
+        }
+        //删除角色
+        public ActionResult DelRoleTree()
+        {
+            string strRoleID = Request["RoleID"];
+            string strRoleName = Request["RoleName"];
+
+            string result = "删除失败";
+            List<t_TreeRole> trs = new t_TreeRoleBLL().GetModelList("RoleId="+strRoleID);
+            t_TreeRole tr = trs[0];
+            if (tr != null)
+            {
+                if (tr.RoleName == strRoleName)
+                {
+                    new t_TreeRole_MenuBLL().DeleteByRoleId(Convert.ToInt32(strRoleID));
+                    bool res = new t_TreeRoleBLL().Delete(Convert.ToInt32(strRoleID));
+                    if (res ==true)
+                    {
+                        result = "删除成功";
+                    }
+                }
+            }
+
+
+
+            return Content(result);
+        }
+        // 把目录树生成菜单树,并反回EasyUI的Tree
+        private List<Comment> GetTreeMenuList(t_TreeMeun m1, string RoleId)
+        {
+            List<Comment> list = new List<Comment>();
+            //try
+            //{
+            t_TreeMeun[] tms1 = new t_TreeMeunBLL().GetTableByFId(m1.id, RoleId).ToArray();
+
+            List<Comment> cren = new List<Comment>();
+            for (int i = 0; i < tms1.Count(); i++)
+            {
+                List<Comment> Subcren = new List<Comment>();
+                try
+                {
+                    t_TreeMeun[] tms2 = new t_TreeMeunBLL().GetTableByFId(tms1[i].id, RoleId).ToArray();
+
+                    for (int j = 0; j < tms2.Count(); j++)
+                    {
+                        if (null != tms2[j].Text)
+                        {
+                            List<attr> Latrr = new List<attr>();
+                            Latrr.Add(new attr() { url = tms2[j].URL });
+                            Subcren.Add(new Comment() { id = tms2[j].id, attributes = Latrr, text = tms2[j].Text });
+                        }
+                        else
+                        {
+                            Subcren.Add(new Comment() { id = tms2[j].id, text = tms2[j].Text });
+                        }
+                    }
+                    cren.Add(new Comment() { id = tms1[i].id, text = tms1[i].Text, iconCls = "icon-ok", children = Subcren, state = "open" });
+                }
+                catch { }
+            }
+            list.Add(new Comment() { id = m1.id, text = m1.Text, iconCls = "icon-ok", children = cren, state = "open" });
+            //}
+            //catch { }
+            return list;
+        }
+
+        //public ActionResult GetLevel()
+        //{
+        //    List<T_OutCommonsInfo> coms = (List<T_OutCommonsInfo>)new T_OutCommonsInfoBLL().GetTableByTypeName("审批流程");
+        //    JavaScriptSerializer jss = new JavaScriptSerializer();
+        //    return Content(jss.Serialize(coms));
+        //}
+
+        #endregion
+	}
+}

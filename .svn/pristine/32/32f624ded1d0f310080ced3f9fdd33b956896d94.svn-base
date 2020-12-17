@@ -1,0 +1,35 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Text;
+using System.Web;
+
+namespace SelfhelpOrderMgr.DAL
+{
+    public partial class T_InvoiceDTLDAL
+    {
+        /// <summary>
+        /// 获得数据列表
+        /// </summary>
+        public DataSet GetList(string strWhere,int printSumOption)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append(@"select 0 [seqno],[INVOICENO],[GCODE],[GNAME],null [OrderDate]
+      ,null [PayDATE],[Flag],[GDJ],sum([QTY]) QTY,sum([AMOUNT]) AMOUNT
+      ,0 [Servamount],[GTXM],[FCrimecode],0 [GORGDJ]
+      ,[GORGAMT],[StockSeqno],[Typeflag]
+      ,[Cardtype], 0 [AmountA],0 [AmountB],[Fifoflag]
+      ,0 [Backqty],[FreeFlag],[Remark],[SPShortCode]");
+            strSql.Append(" FROM T_InvoiceDTL ");
+            if (strWhere.Trim() != "")
+            {
+                strSql.Append(" where " + strWhere);
+            }
+            strSql.Append(@" group by [INVOICENO],[SPShortCode],[GCODE],[GNAME],[Flag],[GDJ]      
+      ,[GTXM],[FCrimecode],[GORGAMT],[StockSeqno],[Typeflag]
+      ,[Cardtype],[Fifoflag],[FreeFlag],[Remark]");
+            return SqlHelper.Query(strSql.ToString());
+        }
+    }
+}

@@ -1,0 +1,42 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+
+namespace SelfhelpOrderMgr.Model
+{
+    public partial class T_Criminal
+    {
+        public decimal AmountAmoney { get; set; }//存款账户上金额
+        public decimal AmountBmoney { get; set; }//劳酬账户上金额
+        public decimal AmountCmoney { get; set; }//留存账户上金额
+        public decimal Xiaofeimoney { get; set; }//本月已经消费金额
+        public decimal NoXiaofeimoney { get; set; }//当前可消费金额
+        public decimal CanUseMoneyA { get; set; }//A账户能用金额
+        public decimal CanUseMoneyB { get; set; }//B账户能用金额            
+        public decimal MonthStandard { get; set; }//月消费金额标准
+        public decimal dongjieMoney { get; set; }//账户冻结金额
+
+        public decimal AmountA { get; set; }//A账户原金额
+        public decimal AmountB { get; set; }//B账户原金额
+        public decimal AmountC { get; set; }//C账户原金额
+
+
+        //限额方法：
+        //1是存款账户限额;
+        //2是报酬账户限额;
+        //3是总额限额;
+        //4是存款和报酬两个分别限;
+        public int XianEMethod { get; set; }
+        public string CyName { get; set; }//犯人的处遇中方名称
+
+        public string CardCode { get; set; }//IC卡号
+        public decimal OkUseAllMoney { get; set; }//账户可用总金额
+        public string FAreaName { get; set; }
+        public string BankCardNo { get; set; }//银行卡号
+
+        public string FCardStatus { get; set; }//IC卡状态
+
+        public string CrimeName { get; set; }//犯罪名称（罪名）
+    }
+}

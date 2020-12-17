@@ -1,0 +1,400 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>打印消费商品汇总单</title>
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Content/PrintReportCss.css" rel="stylesheet" />
+</head>
+<body>
+    <div>
+        <div class="page-header text-center">
+            @if (ViewData["roomNoFlag"] != null)
+            {
+                string roomNoFlag = ViewData["roomNoFlag"] as string;
+                switch (roomNoFlag)
+                {
+                    case "1":
+                        {
+                            <h1>商品配货表 <small>按房号进行统计清单</small></h1>
+                        }break;
+                        case "3":
+                        {
+                            <h1>商品销售 <small>按商品大类汇总单</small></h1>
+                        }break;
+                        case "4":
+                        {
+                            <h1>商品销售 <small>按商品价格统计</small></h1>
+                        }break;
+                        case "5":
+                        {
+                            <h1>商品销售 <small>消费明细清单</small></h1>
+                        }break;
+                    default:
+                        {
+                            <h1>商品配货表 <small>按队别进行统计清单</small></h1>
+                        }
+                        break;
+                }
+                <div>统计区间: @ViewData["startTime"].ToString() 至 @ViewData["endTime"].ToString()</div>
+                
+            }
+
+        </div>
+        <div class="row">
+            <div class="col-sm-1"></div>
+            <div class="col-sm-10">
+                <table class="table table-condensed table-striped contentFontSize" >
+                    <thead>
+                        @if (ViewData["roomNoFlag"] != null)
+                        {
+                            string roomNoFlag = ViewData["roomNoFlag"] as string;
+                            switch (roomNoFlag)
+                            {
+                                case "1":
+                                    {
+                                        <tr>
+                                            <th>队别</th>
+                                            <th>房号</th>
+                                            <th>简码</th>
+                                            <th>品名</th>
+                                            <th>规格</th>
+                                            <th>数量</th>
+                                            <th>金额</th>
+                                        </tr>
+                                    } break;
+                                case "3":
+                                    {
+                                        <tr>
+                                            <th>类别号</th>
+                                            <th>类别名</th>
+                                            <th>销售数量</th>
+                                            <th>销售金额</th>
+                                            <th>退货数量</th>
+                                            <th>退货金额</th>
+                                            <th>总金额</th>
+                                        </tr>
+                                    } break;
+                                case "4":
+                                    {
+                                        <tr>
+                                            <th>条码</th>
+                                            <th>店内码</th>
+                                            <th>品名/规格</th>                                                                                    
+                                            <th>单价</th>
+                                            <th>销售量</th>
+                                            <th>销售额</th>
+                                            <th>退货量</th>
+                                            <th>退货额</th>
+                                            <th>实售量</th>
+                                            <th>实售额</th>
+                                            <th>回款状态</th>
+                                        </tr>
+                                    } break;
+                                case "5":
+                                    {
+                                        <tr>
+                                            <th>流水号</th>
+                                            <th>编号</th>
+                                            <th>姓名</th>
+                                            <th>货名</th>
+                                            <th>条码</th>
+                                            <th>店内码</th>
+                                            <th>回款日期</th>
+                                            <th>回款状态</th>
+                                            <th>单价</th>
+                                            <th>数量</th>
+                                            <th>金额</th>
+                                        </tr>
+
+                                    } break;
+                                default:
+                                    {
+                                        <tr>
+                                            <th>队别</th>
+                                            <th>简码</th>
+                                            <th>品名</th>
+                                            <th>规格</th>
+
+                                            <th>数量</th>
+                                            <th>金额</th>
+                                        </tr>
+                                    }break;
+                            }
+                            
+                        }
+
+                    </thead>
+                    <tbody>
+                        @if (ViewData["roomNoFlag"] != null)
+                        {
+                            string roomNoFlag = ViewData["roomNoFlag"] as string;
+                            switch (roomNoFlag)
+                            {
+                                case "1":
+                                    { 
+                                    if (ViewData["phds"] != null)
+                                {
+                                    decimal sumMoney = 0;
+                                    decimal groupMoney = 0;
+                                    string roomName = "";
+                                    string groupName = "";
+                                    int i = 0;
+                                    foreach (SelfhelpOrderMgr.Model.PeihuoDanPrintList phd in ViewData["phds"] as List<SelfhelpOrderMgr.Model.PeihuoDanPrintList>)
+                                    {
+                                        i++;
+                                        roomName = phd.RoomNo;
+                                        if (groupName != roomName && i != 1)
+                                        {
+
+                                            <tr class="success">
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td>小计</td>
+                                                <th>@groupMoney</th>
+                                            </tr>
+                                            groupMoney = 0;
+                                        }
+                                        groupName = phd.RoomNo;
+                                        sumMoney = sumMoney + phd.FMoney;
+                                        groupMoney = groupMoney + phd.FMoney;
+                                        <tr>
+                                            <td>@phd.FAreaName</td>
+                                            <td>@phd.RoomNo</td>
+                                            <td>@phd.SPShortCode</td>
+                                            <td>@phd.GName</td>
+                                            <td>@phd.Remark</td>
+
+                                            <td>@phd.FCount</td>
+                                            <th>@phd.FMoney</th>
+                                        </tr>
+
+                                    }
+                                    <tr class="success">
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+
+                                        <td></td>
+                                        <td></td>
+                                        <td>小计</td>
+                                        <th>@groupMoney</th>
+                                    </tr>
+                                    <tr class="danger">
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+
+                                        <td></td>
+                                        <td>合计</td>
+                                        <th>@sumMoney</th>
+                                    </tr>
+                                    
+                                }
+                                    } break;
+                               case "3":
+                                    {
+                                        if (ViewData["phds"] != null)
+                                {
+                                    decimal sumMoney = 0;
+                                    decimal subMoney = 0;
+                                    decimal saleMoney = 0;
+                                    decimal saleCount = 0; 
+                                    decimal thCount = 0;
+                                    decimal thMoney = 0;
+                                    foreach (SelfhelpOrderMgr.Model.PeihuoDanPrintList phd in ViewData["phds"] as List<SelfhelpOrderMgr.Model.PeihuoDanPrintList>)
+                                    {
+                                        sumMoney = sumMoney + (phd.FMoney+phd.thMoney);
+                                        subMoney = phd.FMoney + phd.thMoney;
+                                        saleMoney = saleMoney + phd.FMoney;
+                                        saleCount = saleCount + phd.FCount;
+                                        thCount = thCount + phd.thCount;
+                                        thMoney = thMoney + phd.thMoney;
+                                        <tr>
+                                            <td>@phd.SPShortCode</td>
+                                            <td>@phd.GName</td>
+                                            <td>@phd.FCount</td>
+                                            <td>@phd.FMoney</td>
+
+                                            <td>@phd.thCount</td>
+                                            <th>@phd.thMoney</th>
+                                            <th>@subMoney</th>
+                                        </tr>
+
+                                    }
+                                    <tr class="danger">
+                                        <td></td>
+                                        <td>合计</td>
+                                        <td>@saleCount</td>
+                                        <td>@saleMoney</td>
+                                        <td>@thCount</td>
+                                        <td>@thMoney</td>
+                                        <th>@sumMoney</th>
+                                    </tr>
+
+                                    <tr>
+
+                                        <td colspan="6"><label></label> </td>
+                                        <td colspan="2"><label>制表人：</label></td>
+
+                                    </tr>
+                                }
+                                        
+                                    }break;
+                                case "4":
+                                    { 
+                                    if (ViewData["phds"] != null)
+                                {
+                                    decimal sumMoney = 0;
+                                    foreach (SelfhelpOrderMgr.Model.PeihuoDanPrintList phd in ViewData["phds"] as List<SelfhelpOrderMgr.Model.PeihuoDanPrintList>)
+                                    {
+                                        sumMoney = sumMoney + phd.FMoney;
+                                        <tr>
+                                            <td>@phd.GTXM</td>
+                                            <td>@phd.SPShortCode</td>
+                                            <td>@phd.GName</td>                                        
+                                            <th>@phd.Gdj</th>                                            
+                                            <td>@phd.xfCount</td>
+                                            <td>@phd.xfMoney</td>
+                                            <td>@phd.thCount</td>
+                                            <td>@phd.thMoney</td>                                            
+                                            <th>@phd.FCount</th>
+                                            <th>@phd.FMoney</th>
+                                            <td>@phd.BankFlag</td>
+                                        </tr>
+
+                                    }
+                                    <tr class="danger">
+                                        <td></td>
+                                        <td></td>                                        
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td>合计</td>
+                                        <th>@sumMoney</th>
+                                    </tr>
+                                    @*<tr>
+                                        <td colspan="3"><label>中队经办（签字）：</label> </td>
+                                        <td colspan="4"><label>发货人（签字）：</label> </td>
+                                        <td colspan="4"><label> 供货商（签字）：</label></td>
+
+                                    </tr>*@
+                                    <tr>
+                                        <td colspan="3"><label>供应站（签字）：</label> </td>
+                                        <td colspan="4"><label></label> </td>
+                                        <td colspan="4"><label>制表人：</label></td>
+
+                                    </tr>
+                                }
+                                    }
+                                    break;
+                                case "5":
+                                    {
+                                    if (ViewData["phds"] != null)
+                                {
+                                    decimal sumMoney = 0;
+                                    foreach (SelfhelpOrderMgr.Model.PeihuoDanPrintList phd in ViewData["phds"] as List<SelfhelpOrderMgr.Model.PeihuoDanPrintList>)
+                                    {
+                                        sumMoney = sumMoney + phd.FMoney;
+                                        <tr>
+                                            <td>@phd.InvoiceNo</td>
+                                            <td>@phd.FCrimeCode</td>
+                                            <td>@phd.FCriminal</td>
+                                            <td>@phd.GName</td>
+                                            <td>@phd.GTXM</td>
+                                            <td>@phd.SPShortCode</td>
+                                            <td>@phd.SendDate.ToShortDateString()</td>
+                                            <td>@phd.BankFlag</td>
+                                            <th>@phd.Gdj</th>
+                                            <th>@phd.FCount</th>
+                                            <th>@phd.FMoney</th>
+                                        </tr>
+
+                                    }
+                                    <tr class="danger">
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td>合计</td>
+                                        <th>@sumMoney</th>
+                                    </tr>
+                                }
+                                    } break;
+                                default:
+                                    { 
+                                        if (ViewData["phds"] != null)
+                                {
+                                    decimal sumMoney = 0;
+                                    foreach (SelfhelpOrderMgr.Model.PeihuoDanPrintList phd in ViewData["phds"] as List<SelfhelpOrderMgr.Model.PeihuoDanPrintList>)
+                                    {
+                                        sumMoney = sumMoney + phd.FMoney;
+                                        <tr>
+                                            <td>@phd.FAreaName</td>
+                                            <td>@phd.SPShortCode</td>
+                                            <td>@phd.GName</td>
+                                            <td>@phd.Remark</td>
+
+                                            <td>@phd.FCount</td>
+                                            <th>@phd.FMoney</th>
+                                        </tr>
+
+                                    }
+                                    <tr class="danger">
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+
+                                        <td></td>
+                                        <td>合计</td>
+                                        <th>@sumMoney</th>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2"><label>中队经办（签字）：</label> </td>
+                                        <td colspan="2"><label>发货人（签字）：</label> </td>
+                                        <td colspan="2"><label> 供货商（签字）：</label></td>
+
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2"><label>供应站（签字）：</label> </td>
+                                        <td colspan="2"><label></label> </td>
+                                        <td colspan="2"><label>制表人：</label></td>
+
+                                    </tr>
+                                }
+                                    }break;
+                            }
+                            
+                            
+
+                        }
+
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-sm-1"></div>
+
+        </div>
+    </div>
+    <script src="~/Scripts/jquery-1.11.3.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+</body>
+</html>

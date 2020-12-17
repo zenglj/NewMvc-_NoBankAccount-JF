@@ -1,0 +1,97 @@
+﻿//制保留2位小数，如：2，会在2后面补上00.即2.00
+function toDecimal2(x) {
+    var f = parseFloat(x);
+    if (isNaN(f)) {
+        return false;
+    }
+    var f = Math.round(x * 100) / 100;
+    var s = f.toString();
+    var rs = s.indexOf('.');
+    if (rs < 0) {
+        rs = s.length;
+        s += '.';
+    }
+    while (s.length <= rs + 2) {
+        s += '0';
+    }
+    return s;
+}
+
+//js把时间戳转为普通格式的方法。
+function getLocalTime(nS) {
+    var snS = nS.substr(6);
+    snS = snS.substr(0, snS.length - 2);
+    return new Date(parseInt(snS)).toLocaleString().substr(0, 17)
+}
+
+function getShortTime(nS) {
+    var snS = nS.substr(6);
+    snS = snS.substr(0, snS.length - 2);
+    var shortDt = new Date(parseInt(snS));
+    return shortDt.getFullYear() + "-" + (parseInt(shortDt.getMonth())+1) + "-" + shortDt.getDate()
+}
+
+
+
+function getTime(/** timestamp=0 **/) {
+    var ts = arguments[0] || 0;
+    var t, y, m, d, h, i, s;
+    t = ts ? new Date(ts * 1000) : new Date();
+    y = t.getFullYear();
+    m = t.getMonth() + 1;
+    d = t.getDate();
+    h = t.getHours();
+    i = t.getMinutes();
+    s = t.getSeconds();
+    // 可根据需要在这里定义时间格式  
+    return y + '-' + (m < 10 ? '0' + m : m) + '-' + (d < 10 ? '0' + d : d) + ' ' + (h < 10 ? '0' + h : h) + ':' + (i < 10 ? '0' + i : i) + ':' + (s < 10 ? '0' + s : s);
+}
+
+//判断字符串是否为数字
+function checkRate(input) {
+    var re = /^[0-9]+.?[0-9]*$/;   //判断字符串是否为数字     //判断正整数 /^[1-9]+[0-9]*]*$/  
+    var nubmer = document.getElementById(input).value;
+
+    if (!re.test(nubmer)) {
+        alert("请输入数字");
+        document.getElementById(input).value = "";
+        return false;
+    }
+}
+
+//判断是否整数
+function isIntNumber(input) {
+    if (parseInt(input) == input) {
+        return true;
+    } else {
+        return false;
+    }
+    
+}
+
+//数字转成大写
+function DX(n) {
+
+    if (!/^(0|[1-9]\d*)(\.\d+)?$/.test(n))
+
+        return "数据非法";
+
+    var unit = "千百拾亿千百拾万千百拾元角分", str = "";
+
+    n += "00";
+
+    var p = n.indexOf('.');
+
+    if (p >= 0)
+
+        n = n.substring(0, p) + n.substr(p + 1, 2);
+
+    unit = unit.substr(unit.length - n.length);
+
+    for (var i = 0; i < n.length; i++)
+
+        str += '零壹贰叁肆伍陆柒捌玖'.charAt(n.charAt(i)) + unit.charAt(i);
+
+    return str.replace(/零(千|百|拾|角)/g, "零").replace(/(零)+/g, "零").replace(/零(万|亿|元)/g, "$1").replace(/(亿)万|壹(拾)/g, "$1$2").replace(/^元零?|零分/g, "").replace(/元$/g, "元整");
+
+}

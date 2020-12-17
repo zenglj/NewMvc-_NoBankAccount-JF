@@ -1,0 +1,50 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>GetLicenseCode</title>
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+
+</head>
+<body>
+    <div> 
+        <table class="table">
+            <tr><th>执行验证码</th><td><input type="password" id="CheckCode" /></td></tr>
+            <tr><th>注册码</th><td><input id="RegCode" /></td></tr>            
+            <tr><th>有效期</th><td><input id="RegDays" />天</td></tr>
+            <tr><th>授权码</th><td><input id="LicenseCode" style="width:400px;" /></td></tr>
+            <tr><th>授权码</th><td><input type="button" value="获取授权码" onclick="getLicenseCode()" /></td></tr>
+            <tr><th>下载</th><td><a href="~/Upload/JvdLicenseCode.rar">授权文件</a></td></tr>
+        </table>
+    </div>
+    <script src="~/Scripts/jquery-1.11.3.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <script type="text/javascript">
+        function getLicenseCode() {
+            $.post('/RegMgr/GetLicense', { "CheckCode": $("#CheckCode").val(), "RegCode": $("#RegCode").val(), "RegDays": $("#RegDays").val() },
+                function (data, status) {
+                    if ('success' != status) {
+                        return false;
+                    } else {
+                        if (data != null) {
+                            var ss = data.split("&");
+                            if (ss[0] == "OK") {
+                                $("#LicenseCode").val(ss[1]);
+                            } else {
+                                alert(data);
+                            }
+
+                        }
+                    }
+                }
+              );
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,137 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>IndexExcelDR</title>
+    @{Html.RenderPartial("~/Views/Shared/_PartialHeadPage.cshtml");}
+</head>
+
+
+<body>
+
+    <div id="win" class="easyui-window" title="批量导入" style="width:900px;height:600px"
+         data-options="iconCls:'icon-save',modal:true,maximizable:false,minimizable:false">
+        <div>
+            <div id="cc" class="easyui-layout" style="height:550px;">
+                <div data-options="region:'north',split:true" style="height:150px;">
+                    
+                    
+                    <form id="ff" method="post" enctype="multipart/form-data">
+                        <input type="hidden" id="saveTypeId" name="saveTypeId" value="@Convert.ToString( ViewData["saveTypeId"])" />@*存取款类标志*@
+                        <label for="name">Excel文件:</label>
+                        <input id="excelFileName" name="excelFileName" type="file" style="width:300px">
+                        <label for="name">类型:</label>
+                        <select id="selSaveType" name="selSaveType" class="easyui-combobox">
+                            <option value="">请选择类型</option>
+                            @if (ViewData["saveTypes"] != null)
+                            {
+                                foreach (SelfhelpOrderMgr.Model.T_Savetype item in ViewData["saveTypes"] as List<SelfhelpOrderMgr.Model.T_Savetype>)
+                                {
+                                    <option id="@item.fcode" value="@item.fcode" data-fushuflag="@item.FuShuFlag">@item.fname</option>
+                                }
+                            }
+                        </select>
+                        <input type="hidden" id="selSaveName" name="selSaveName">
+                        <a id="btnStartDataCheck" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-redo'" onclick="startDaoru('1')">数据检测</a>
+                        
+                        <a id="btn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-ok'" onclick="startDaoru('0')" >开始导入</a>
+                        <div>
+                            <label id="lblCheckResult">校验结果:未校验</label>
+                        </div>
+                    </form>
+                    <table id="tbTrade"></table>
+
+                </div>
+                <div data-options="region:'east',iconCls:'icon-reload',title:'条件查询',split:true" style="width:200px;">
+                    <form id="ffSearch" method="post">
+                        <table>
+                            <tr>
+                                <th>类型</th>
+                                <td>
+                                    <select id="searchType" name="searchType" class="easyui-combobox" style="width:150px">
+                                        <option value="">请选择类型</option>
+                                        @if (ViewData["saveTypes"] != null)
+                                        {
+                                            foreach (SelfhelpOrderMgr.Model.T_Savetype item in ViewData["saveTypes"] as List<SelfhelpOrderMgr.Model.T_Savetype>)
+                                            {
+                                                <option value="@item.fcode">@item.fname</option>
+                                            }
+                                        }
+                                    </select>
+                                   
+                                    <input type="hidden" id="searchTypeName" name="searchTypeName">
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>批号</th>
+                                <td><input type="text" id="searchPCH" name="searchPCH" style="width:150px" /></td>
+                            </tr>
+                            <tr>
+                                <th>起日</th>
+                                <td>
+                                    <input class="easyui-datetimebox" id="searchStartDate" name="searchStartDate"
+                                           data-options="required:true,showSeconds:false" value="3/4/2010 00:00" style="width:150px">
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>止日</th>
+                                <td>
+                                    <input class="easyui-datetimebox" id="searchEndDate" name="searchEndDate"
+                                           data-options="required:true,showSeconds:false" value="3/4/2010 23:59" style="width:150px">
+                                </td>
+                            </tr>
+                        </table>
+                        <a id="btn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-search'" onclick="startSearch()">查询</a>
+
+                    </form>
+                    
+                </div>
+                <div data-options="region:'center',title:'信息结果'" style="padding:5px;background:#eee;">
+                    <div class="easyui-tabs" style="height:320px;">
+                        <div title="成功记录" style="padding:10px;">
+                            <table id="tbSuccessList" class="easyui-datagrid" style="height:250px;">
+                                @*<thead>
+                                    <tr>
+                                        <th data-options="field:'Bid'">批号</th>
+                                        <th data-options="field:'FCrimeCode'">编号</th>
+                                        <th data-options="field:'FCriminal'">姓名</th>
+                                        <th data-options="field:'FAmount'">金额</th>
+                                        <th data-options="field:'Remark'">备注</th>
+                                    </tr>
+                                </thead>*@
+                            </table>
+                        </div>
+                        <div title="失败记录" style="padding:10px;">
+                            <table id="tbErrList" class="easyui-datagrid" style="height:250px;">
+                                @*<thead>
+                                    <tr>
+                                        <th data-options="field:'Bid'">批号</th>
+                                        <th data-options="field:'FCrimeCode'">编号</th>
+                                        <th data-options="field:'FCriminal'">姓名</th>
+                                        <th data-options="field:'FAmount'">金额</th>
+                                        <th data-options="field:'Remark'">失败原因</th>
+                                    </tr>
+                                </thead>*@
+                            </table>
+                        </div>
+                    </div>
+                    <div>
+                        <input type="hidden" id="strFBid" />
+                        <a id="btn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-save'" onclick="outportSucList()">成功记录导出</a>
+                        <a id="btn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-redo'" onclick="outportErrList()">错误记录导出</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>  
+
+    <script src="~/Scripts/myJs/IndexExcelDR.js"></script>
+</body>
+
+</html>

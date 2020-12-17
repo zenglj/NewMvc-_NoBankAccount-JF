@@ -1,0 +1,258 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>人员管理</title>
+    @{Html.RenderPartial("~/Views/Shared/_PartialHeadPage.cshtml");}
+    <link href="~/Scripts/simple-calendar/tcal.css" rel="stylesheet" />
+
+</head>
+<body class="easyui-layout">
+    <div data-options="region:'center',title:'商品价格调整'" style="padding:5px;">
+        @*@{Html.RenderPartial("~/Views/Shared/_PartialXiaopiaoControl.cshtml");}*@
+        <table id="test" data-options="toolbar:'#tb'"></table>
+
+        <div id="tb">
+            <div>
+                @if (ViewData["id"] != null)
+                {
+
+                }
+                <a id="btnAdd" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-add',plain:true" onclick="AddChangeRequest()">创建申请</a><label>|</label>
+                @if (ViewData["id"] != null)
+                {
+                    var id = Convert.ToInt32(ViewData["id"].ToString());
+                    if (id == 2)
+                    {
+                        <label>----审核意见:</label> <select id="selSHYJ" class="easyui-combobox" name="selSHYJ" style="width:100px;"><option value="">请选择</option><option value="9">同意</option><option value="10">拒绝</option></select>
+                        <label>具体意见备注：</label> <input id="txtRemark" class="easyui-textbox" type="text" style="width:300px">
+                        <a id="btnSave" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-ok',plain:true" onclick="btnSubmitAduit()">审核提交</a><label>|</label>
+
+                    }
+
+                }
+
+                ----<a href="javascript:void(0)" id="mprint" class="easyui-menubutton"
+                       data-options="menu:'#mp',iconCls:'icon-redo'">Excel操作</a>
+                <div id="mp" style="width:150px;">
+                    <div data-options="iconCls:'icon-man'" onclick="OutExcelSumOrder(1)">Excel列表导出</div>
+                </div>
+            </div>
+        </div>
+
+
+        <div id="template"></div>
+    </div>
+
+    <div data-options="region:'east',title:'查询条件',split:true" style="width:300px;">
+        <div data-options="region:'north',title:'North Title',split:true" style="height:200px;">
+            <form id="mainSearch" method="post">
+                <table id="crimeSearch">
+                    <tr>
+                        <th align="right">简码/条码：</th>
+                        <td align="left">
+                            <input class="easyui-numberbox" id="GCode" name="GCode"
+                                   data-options="min:0,precision:0" style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">品名：</th>
+                        <td align="left">
+                            <input id="GName" name="GName" class="easyui-textbox" style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">变更类型：</th>
+                        <td align="left">
+                            <select id="schChangeType" name="schChangeType" class="easyui-combobox" style="width:190px;">
+                                <option value="" selected="selected">请选择</option>
+                                <option value="1">价格</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">申请起日：</th>
+                        <td align="left">
+                            <input class="easyui-datetimebox" id="StartDate" name="StartDate"
+                                   data-options="required:false,showSeconds:false" value="3/4/2010 00:00" style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">　　止日：</th>
+                        <td align="left">
+                            <input class="easyui-datetimebox" id="EndDate" name="EndDate"
+                                   data-options="required:false,showSeconds:false" value="3/4/2010 23:59" style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">类别：</th>
+                        <td align="left">
+                            <select id="GType" name="GType" class="easyui-combobox" style="width:190px;">
+                                <option value="" selected="selected">请选择类别</option>
+                                @if (ViewData["gtypes"] != null)
+                                {
+                                    foreach (SelfhelpOrderMgr.Model.T_GoodsType gt in ViewData["gtypes"] as List<SelfhelpOrderMgr.Model.T_GoodsType>)
+                                    {
+                                        <option value="@gt.Fcode">@gt.Fname</option>
+                                    }
+                                }
+                            </select>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th align="right">操作员：</th>
+                        <td align="left">
+                            <select id="FCrtBy" name="FCrtBy" class="easyui-combobox" style="width:190px;">
+                                <option value="" selected="selected">请选择</option>
+                                @if (ViewData["crtbys"] != null)
+                                {
+                                    foreach (string crtby in ViewData["crtbys"] as List<string>)
+                                    {
+                                        <option value="@crtby">@crtby</option>
+                                    }
+                                }
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">供应商：</th>
+                        <td align="left">
+                            <select id="GSupplyer" name="GSupplyer" class="easyui-combobox" style="width:190px;">
+                                <option value="" selected="selected">请选择</option>
+                                @if (ViewData["supplyers"] != null)
+                                {
+                                    foreach (SelfhelpOrderMgr.Model.T_Supplyer spy in ViewData["supplyers"] as List<SelfhelpOrderMgr.Model.T_Supplyer>)
+                                    {
+                                        <option value="@spy.scode">@spy.sName</option>
+                                    }
+                                }
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">审核状态：</th>
+                        <td align="left">
+                            <select id="schAuditFlag" name="schAuditFlag" class="easyui-combobox" style="width:190px;">
+                                <option value="" selected="selected">全部记录</option>
+                                <option value="0" selected="selected">待审核</option>
+                                <option value="9">已同意</option>
+                                <option value="10">已拒绝</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right"></th>
+                        <td align="right"><a id="btn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-search'" onclick="btnSearch()">查询</a><a id="A1" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-redo'" onclick="btnClear()">清空</a></td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+    </div>
+
+    <div id="win" class="easyui-window" title="增加变更申请---" style="width:1000px;height:400px"
+         data-options="iconCls:'icon-add',modal:true">
+        <div>
+            <div style="width: 60%; float: left;padding:0% 1%">
+                <form id="ffSearch" method="post">
+                    <div>
+                        <label for="addSchGCode">条码/简码:</label>
+                        <input type="text" class="easyui-textbox" id="addSchGCode" name="addSchGCode" style="width:120px;" />
+                        <label for="addSchGName">品名:</label>
+                        <input type="text" class="easyui-textbox" id="addSchGName" name="addSchGName" style="width:120px;" />
+                        <label for="addSchGType">类别:</label>
+                        <select id="addSchGType" class="easyui-combobox" name="addSchGType" style="width:120px;">
+                            <option value="" selected="selected">请选择类别</option>
+                            @if (ViewData["gtypes"] != null)
+                            {
+                                foreach (SelfhelpOrderMgr.Model.T_GoodsType gt in ViewData["gtypes"] as List<SelfhelpOrderMgr.Model.T_GoodsType>)
+                                {
+                                    <option value="@gt.Fcode">@gt.Fname</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div>
+                        <label for="addSchGSupplyer">供应商:</label>
+                        <select id="addSchGSupplyer" class="easyui-combobox" name="addSchGSupplyer" style="width:160px;">
+                            <option value="" selected="selected">请选择商家</option>
+                            @if (ViewData["supplyers"] != null)
+                            {
+                                foreach (SelfhelpOrderMgr.Model.T_Supplyer supplyer in ViewData["supplyers"] as List<SelfhelpOrderMgr.Model.T_Supplyer>)
+                                {
+                                    <option value="@supplyer.scode">@supplyer.sName</option>
+                                }
+                            }
+                        </select>
+                        <label for="addSchActive">状态:</label>
+                        <select id="addSchActive" class="easyui-combobox" name="addSchActive" style="width:160px;">
+                            <option value="Y">正常商品</option>
+                            <option value="N">下架商品</option>
+
+                        </select>
+                        <a id="btn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-search'" onclick="userSearch()">查询</a>
+                    </div>
+                </form>
+            </div>
+            <div style="width: 5%; float: left;">
+                <label style="font-weight:bolder">变更原因填写：</label>
+            </div>
+            <div style="width: 33%; float: left;">
+                <textarea id="changeInfo" rows="3" cols="40"></textarea>
+            </div>
+
+        </div>
+
+
+        <hr />
+
+        <div>
+
+            <div style="width:40%;height:300px;float:left;border:1px solid">
+                <table id="tbUserList" class="easyui-datagrid"></table>
+            </div>
+            <div style="width: 17%; float: left; padding: 1%; text-align: center">
+                <h4>变更类型：</h4>
+                <select id="selChangeType" name="selChangeType" class="easyui-combobox" style="width:100px;"></select>
+
+                <div id="cyChangeDiv" style="display:none">
+                    <h4>新的价格：</h4>
+                    <input type="text" class="easyui-numberbox" data-options="min:0,precision:2" id="newPrice" name="newPrice" style="width:120px;" />
+                </div>
+                
+
+                <div id="optButtonDiv" style="display:none;text-align:center">
+                    <br />
+                    <a id="btnRmvChangeList" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-add'" onclick="addToList()">加入>></a>
+                    <br />
+                    <a id="btnAddChangeList" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-remove'" onclick="removeToList()">移走<<</a>
+
+                    <br /><br />
+                    <a id="btnRmvChangeList" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-save'" onclick="submitToDb()">提交申请</a>
+                </div>
+            </div>
+
+            <div style="width:40%;float:left">
+                <table id="tbChangeList" class="easyui-datagrid"></table>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <script src="~/Scripts/myJs/LodopFuncs.js"></script>
+
+    <script src="~/Scripts/myJs/GoodsPriceChangeMgr.js"></script>
+    <script src="~/Scripts/simple-calendar/tcal.js"></script>
+    <script type="text/javascript">
+
+
+    </script>
+</body>
+</html>

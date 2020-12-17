@@ -1,0 +1,477 @@
+﻿@{
+    ViewBag.Title = "商品信息";
+}
+
+
+    <h1>你好，世界！</h1>
+    @*<div>
+        <div style=" width: 800px; text-align:right;">
+            <a class="btn btn-primary" href="#" role="button" onclick="btnAddOrder('3506019745')">新增订单</a>
+            <input type="text" id="orderNumber" />
+            <a class="btn btn-default" href="#" role="button" onclick="btnMyOrder()">我的订单</a>
+            <span id="orderMoney" class="label label-warning" style=" width:200px;">0.00</span>
+            <a class="btn btn-warning" href="#" role="button" onclick="PayCheckSubmit('3506019745')">结算确认</a>
+        </div>
+        <div style="text-align:right; " id="criminalCyInfo">
+            你好，张三疯 <span class="label label-default">普管</span>,可消费金额：<span class="label label-default" id="xiaofeiYuE">200.00</span>,账户总余额：<span class="label label-default" id="okUseAllMoney">600.00</span>
+        </div>
+    </div>*@
+    
+    <div>
+        <ul id="myTab" class="nav nav-tabs">
+
+        @if (ViewData["types"] != null)
+        {
+                        //int i=1;
+            foreach (SelfhelpOrderMgr.Model.T_GoodsType type in ViewData["types"] as List<SelfhelpOrderMgr.Model.T_GoodsType>)
+            {
+                <li class=""><a href="#@type.Fcode" data-toggle="tab">@type.Fname</a></li>
+            }
+        }
+        </ul>
+    </div>
+    <div id="myTabContent" class="tab-content">
+
+        @if (ViewData["types"] != null)
+        {
+            foreach (SelfhelpOrderMgr.Model.T_GoodsType type in ViewData["types"] as List<SelfhelpOrderMgr.Model.T_GoodsType>)
+            {
+                <div class="tab-pane fade in active" id="@type.Fcode">
+                    <div class="row" >
+                    @if (ViewData["goods"] != null)
+                    {
+                        foreach (SelfhelpOrderMgr.Model.T_Goods good in ViewData["goods"] as List<SelfhelpOrderMgr.Model.T_Goods>)
+                        {
+                            if(@good.GTYPE==@type.Fcode)
+                            { 
+                            <div class="col-md-2">
+                                <div class="thumbnail">
+                                    <img class="lazy" src="@good.src" width="300" height="150" data-src="" alt="gulpjs">
+                                    <div class="">
+                                        <h3 style="height:70px; text-align:center">
+                                            <span>@good.GDJ 元<br><small>@good.GNAME</small></span>                                            
+                                        </h3>
+                                        <h4 style="text-align:center">
+                                            <button class="btn btn-primary" type="button">库存
+                                                @if(good.Balance<100)
+                                                {
+                                                     <span class="badge">@good.Balance</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge">@Convert.ToInt32(good.Balance)</span>
+                                                }
+                                                
+                                            </button></h4>
+                                        <p style="text-align:center;">
+                                            <a class="btn btn-default" href="#" role="button" onclick="btnBuy('@good.GTXM|@good.GDJ|@good.GNAME|@good.Ffreeflag')"><span class="glyphicon glyphicon-shopping-cart" aria-hidden="true">购买商品</span></a>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            }
+                        }
+                    }
+                    </div>
+            </div>
+            }
+        }
+        
+    </div>
+
+
+
+
+
+
+    <!-- 模态框（Modal）数字键盘 -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog"
+         aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content" style="width:265px;">
+                <div class="modal-header">
+                    <button type="button" class="close"
+                            data-dismiss="modal" aria-hidden="true">
+                        &times;
+                    </button>
+
+                </div>
+                <div class="modal-body" style="height:400px;">
+                    <div>
+                        <input id="strGtxm" type="hidden" />
+                        <input id="strPrice" type="hidden" />
+                        <input id="strName" type="hidden" />
+                        <input id="strGoodFreeFlag" type="hidden" value="0"/>
+                        <label style="font-size:large;">数量</label>
+                        <button type="button" class="btn btn-primary" style="font-size:x-large;" onclick="btnNumer('+')">+</button>
+                        <input id="inumber" style="font-size:x-large; width:60px;" />
+                        <button type="button" class="btn btn-primary" style="font-size:x-large; width:40px;" onclick="btnNumer('-')">-</button>
+                    </div>
+                    <div style="align-content:center;text-align:center">
+                        <a href="#" class="button button-glow button-rounded button-raised button-primary button-small" onclick="btnNumer('OK')">确定</a>
+                        <a href="#" class="button button-glow button-rounded button-highlight button-small" onclick="btnNumer('Cancel')">取消</a>
+
+                    </div>
+                    <div class="col-md-12">
+                        <span class="button-wrap">
+                            <button class="button button-circle button-raised button-primary" onclick="btnNumer(1)">
+                                1
+                            </button>
+                        </span>
+                        <span class="button-wrap">
+                            <button class="button button-circle button-raised button-primary" onclick="btnNumer(2)">
+                                2
+                            </button>
+                        </span>
+                        <span class="button-wrap">
+                            <button class="button button-circle button-raised button-primary" onclick="btnNumer(3)">
+                                3
+                            </button>
+                        </span>
+                        <span class="button-wrap">
+                            <button class="button button-circle button-raised button-primary" onclick="btnNumer(4)">
+                                4
+                            </button>
+                        </span>
+                        <span class="button-wrap">
+                            <button class="button button-circle button-raised button-primary" onclick="btnNumer(5)">
+                                5
+                            </button>
+                        </span>
+                        <span class="button-wrap">
+                            <button class="button button-circle button-raised button-primary" onclick="btnNumer(6)">
+                                6
+                            </button>
+                        </span>
+                        <span class="button-wrap">
+                            <button class="button button-circle button-raised button-primary" onclick="btnNumer(7)">
+                                7
+                            </button>
+                        </span>
+                        <span class="button-wrap">
+                            <button class="button button-circle button-raised button-primary" onclick="btnNumer(8)">
+                                8
+                            </button>
+                        </span>
+                        <span class="button-wrap">
+                            <button class="button button-circle button-raised button-primary" onclick="btnNumer(9)">
+                                9
+                            </button>
+                        </span>
+                        <span class="button-wrap">
+                            <button class="button button-circle button-raised button-primary" onclick="btnNumer('')">
+                                清空
+                            </button>
+                        </span>
+                        <span class="button-wrap">
+                            <button class="button button-circle button-raised button-primary" onclick="btnNumer('0')">
+                                0
+                            </button>
+                        </span>
+                        <span class="button-wrap">
+                            <button class="button button-circle button-raised button-primary" onclick="btnNumer(-1)">
+                                删除
+                            </button>
+                        </span>
+                    </div>                   
+                    <div class="modal-footer">
+                        <ul class="list-group">
+                            <li class="list-group-item list-group-item-danger" style=" font-size:14px;">库存数量：<span class="label label-primary" id="goodStockNumber">1.00</span></li>                            
+                        </ul>
+                    </div>
+                </div>
+
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal -->
+
+    </div><!-- /.container -->
+
+
+    <!-- 我的订单明细记录 -->
+    <div class="modal fade" id="myOrderList" tabindex="-1" role="dialog"
+         aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content" >
+                <div class="modal-header">
+                    <button type="button" class="close"
+                            data-dismiss="modal" aria-hidden="true">
+                        &times;
+                    </button>
+
+                </div>
+                <div class="modal-body">
+                    <table class="table table-striped table-condensed">
+                        <thead>
+                            <tr><th></th><th>编号</th><th>品名</th><th>数量</th><th>金额</th><th>操作</th></tr>
+                        </thead>
+                        <tbody id="tbodyOrderList"></tbody>
+                    </table>
+                </div>
+
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal -->
+
+    </div><!-- /.container -->
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="~/Scripts/jquery-1.11.3.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="js/bootstrap.min.js"></script>
+    <script src="~/Scripts/messenger.min.js"></script>
+    <script type="text/javascript">
+
+
+        //弹出式数字键盘，数量处理，商品购买的数量
+        function btnNumer(e,g) {
+            if (e == "") {
+                $("#inumber").val('');
+            } else if (e == "-1") {
+                var ss = $("#inumber").val();
+                $("#inumber").val(ss.substr(0, ss.length - 1));
+            } else if (e == "+") {
+                var ss = $("#inumber").val();
+                var i = parseInt(ss);
+                $("#inumber").val(i + 1);
+            } else if (e == "-") {
+                var ss = $("#inumber").val();
+                var i = parseInt(ss);
+                $("#inumber").val(i - 1);
+            } else if (e == "init") {//初始化加载
+
+            } else if (e == "OK") {//
+                //检测并增加一条购买商品记录
+                CheckAndAddBuyList();
+            } else if (e == "Cancel") {//取消
+                $('#myModal').modal('hide');//隐藏数字框
+
+            } else {
+                $("#inumber").val($("#inumber").val() + e);
+            }
+        }
+
+        $(function () {
+            //$('#myModal').modal({
+            //    keyboard: true
+            //})
+
+            $('#myModal').on('show.bs.modal', function () {
+                $("#inumber").val("1");
+                //$("#orderMoney").html('0.00');
+            })
+        });
+
+        //检测并增加一条购买商品记录
+        function CheckAndAddBuyList() {
+            if (parseFloat($("#inumber").val()) > parseFloat($("#goodStockNumber").html())) {
+                alert("对不起，库存量不足!");
+                return false;
+            }
+            var iorderMoney = $("#orderMoney").html();
+            var inum = $("#inumber").val();
+            var iName = $("#strName").val();
+            var iGtxm = $("#strGtxm").val();
+            var iprice = $("#strPrice").val();
+            var imoney = parseFloat(iprice) * parseFloat(inum);
+            var iallMoney = imoney + parseFloat(iorderMoney);
+            var xiaofeiYue = $("#xiaofeiYuE").html();
+            var okUseAllMoney = $("#okUseAllMoney").html();
+            var nowYue = parseFloat(xiaofeiYue) - imoney;
+            $('#myModal').modal('hide');//隐藏数字框
+            if ($("#strGoodFreeFlag").val() == "1") {
+                if ((parseFloat(okUseAllMoney) - iallMoney) < 0) {
+                    alert("对不起，您的账户总余额不足");
+                    return false;
+                } else {
+                    //提交到后台执行插入购买记录操作
+                    DoInsertBuyDetail(iallMoney, nowYue);
+                }
+            } else {
+                if (nowYue < 0) {//判断金额是否够扣
+                    alert("对不起，您的可消费金额不足");
+                    return false;
+                } else {
+                    //提交到后台执行插入购买记录操作
+                    DoInsertBuyDetail(iallMoney, nowYue);
+                }
+            }
+        }
+
+        //点击购买时按钮
+        function btnBuy(e) {
+            var words = e.split("|");
+            $("#strGtxm").val(words[0]);
+            $("#strPrice").val(words[1]);
+            $("#strName").val(words[2]);
+            $("#strGoodFreeFlag").val(words[3]);
+            $.post("/Goods/GetGoodsStockNumber", { "GTXM": words[0] }, function (data, status) {
+                if ("success" != status) {
+                    return false;
+                } else {
+                    var words = data.split("|")
+                    if (words[0] == "Error") {
+                        alert(data);
+                    } else {
+                        if (parseFloat(words[1]) < 10) {
+                            $("#goodStockNumber").html(toDecimal2(words[1]));
+                        } else {
+                            $("#goodStockNumber").html(words[1]);
+                        }
+                    }
+                }
+            });
+            $("#goodStockNumber").html("2.00");
+            $('#myModal').modal('show');
+        }
+
+        //新增一个订单
+        function btnAddOrder(e) {
+            $.post("/Goods/AddOrder", { "FCrimeCode": e ,"checkFlag":"1"}, function (data, status) {
+                if ("success" != status) {
+                    return false;
+                } else {                    
+                    var words=data.split("|")
+                    if (words[0] == "Error") {
+                        alert(data);
+                    }else if(words[0] =="There")
+                    {
+                        //$.globalMessenger().post("Your request has succeded!");
+                        if (window.confirm('你有一个完成的订单是否要继续原先的交易？')) {
+                            //alert("确定");
+                            SetAndDisplayCriminalInfo(words[1]);//显示抬头栏的账户余额信息
+
+                        } else {
+                            //alert("取消");
+                            $.post("/Goods/AddOrder", { "FCrimeCode": e, "checkFlag": "0" }, function (data, status) {
+                                if ("success" != status) {
+                                    return false;
+                                } else {
+                                    var words=data.split("|")
+                                    if (words[0] == "Error") {
+                                        alert(data);
+                                    } else {
+                                        SetAndDisplayCriminalInfo(words[1]);//显示抬头栏的账户余额信息
+                                    }
+                                }
+                            });
+                        }
+                    }
+                    else {
+                        SetAndDisplayCriminalInfo(words[1]);//显示抬头栏的账户余额信息
+                    }
+                }
+            });
+
+        }
+        //显示抬头栏的账户余额信息
+        function SetAndDisplayCriminalInfo(words) {
+            console.info(words);
+            var rts = $.parseJSON(words);
+            $("#orderNumber").val(rts.orderId);
+            $("#criminalCyInfo").html("您好，" + rts.FName + "<span class='label label-default'>" + rts.cyName + "</span>,可消费金额：<span class='label label-default' id='xiaofeiYuE'>" + rts.NoXiaofeimoney + "</span>,账户总余额：<span class='label label-default' id='okUseAllMoney'>" + rts.OkUseAllMoney + "</span>");
+            $("#orderMoney").html(toDecimal2(rts.orderMoney));
+            $("#tbodyOrderList").empty();
+            if (rts.lists !== null)
+            {
+                var details = rts.lists;
+                if (details.length > 0) {
+                    for (var i = 0; i < details.length; i++) {
+                        var detail = details[i];
+                        option = "<tr><td><input type='checkbox'></td><td>" + detail.GTXM + "</td><td>" + detail.GName + "</td><td>" + detail.GCount + "</td><td>" + detail.GAmount + "</td><td><a class='btn btn-default btn-sm' href='#' role='button' onclick='btnDelDetailById(" + detail.ID + ")'>删除</a></td></tr>";
+
+                        $("#tbodyOrderList").append(option);
+                    }
+                }
+            }
+        }
+
+        //提交到后台执行插入购买记录操作DoInsertBuyDetail(iallMoney, nowYue)
+        function DoInsertBuyDetail(iallMoney, nowYue) {
+            $.post("/Goods/AddOrderDetail", { "OrderId": $("#orderNumber").val(), "GTXM": $("#strGtxm").val(), "GCount": $("#inumber").val() }, function (data, status) {
+                if ("success" != status) {
+                    return false;
+                } else {
+                    var words = data.split("|");
+                    if ("OK" == words[0]) {
+                        $("#orderMoney").html(toDecimal2(iallMoney));
+
+                        if ($("#strGoodFreeFlag").val() != "1") {
+                            $("#xiaofeiYuE").html(toDecimal2(nowYue));
+                        }
+                        var inum = $("#inumber").val();
+                        var iName = $("#strName").val();
+                        var iGtxm = $("#strGtxm").val();
+                        var iprice = $("#strPrice").val();
+                        var imoney = parseFloat(iprice) * parseFloat(inum);
+                        option = "<tr><td><input type='checkbox'></td><td>" + iGtxm + "</td><td>" + iName + "</td><td>" + inum + "</td><td>" + imoney + "</td><td><a class='btn btn-default btn-sm' href='#' role='button' "+"onclick=\'btnDelDetailById(" + words[1] + ")\'"+">删除</a></td></tr>";
+                        $("#tbodyOrderList").append(option);
+                    } else {
+                        alert(data);
+                    }
+                }
+            });
+        }
+
+        //显示我的订单明细记录
+        function btnMyOrder(){
+            $('#myOrderList').modal('show');
+        }
+
+        //删除订单中的一条商品
+        function btnDelDetailById(detailId) {
+            $('#myOrderList').modal('hide');
+            //alert(detailId);
+            var orderId = $("#orderNumber").val();
+            $.post("/Goods/DelOrderDetail", { "OrderId": orderId, "Id": detailId }, function (data, status) {
+                if ("success" != status) {
+                    return false;
+                } else {
+                    var words = data.split("|")
+                    //alert(data);
+                    if (words[0] == "Error") {
+                        //alert(data);
+                    } else {
+                        //删除一条记细记录
+                        SetAndDisplayCriminalInfo(words[1]);//显示抬头栏的账户余额信息
+                        //更新当前余额
+
+                        //$('#myOrderList').modal('show');
+                    }
+                }
+            });
+        }
+
+        function PayCheckSubmit(fcrimecode)
+        {
+            $.post("/Goods/SubmitOrder", { "OrderId": $("#orderNumber").val(), "FCrimeCode": fcrimecode, "crtby": "crtby" }, function (data, status) {
+                if ("success" != status) {
+                    return false;
+                } else {
+                    var words = data.split("|");
+                    if (words[0] == "OK") {
+                        $("#orderNumber").val('');
+                    }
+                    alert(data);
+                }
+            });
+
+        }
+
+        //制保留2位小数，如：2，会在2后面补上00.即2.00
+        function toDecimal2(x) {
+            var f = parseFloat(x);
+            if (isNaN(f)) {
+                return false;
+            }
+            var f = Math.round(x * 100) / 100;
+            var s = f.toString();
+            var rs = s.indexOf('.');
+            if (rs < 0) {
+                rs = s.length;
+                s += '.';
+            }
+            while (s.length <= rs + 2) {
+                s += '0';
+            }
+            return s;
+        }
+    </script>

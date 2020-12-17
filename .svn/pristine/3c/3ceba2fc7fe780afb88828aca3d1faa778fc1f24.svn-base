@@ -1,0 +1,233 @@
+﻿
+@{
+    ViewBag.Title = "系统主页";
+    Layout = "~/Views/Shared/_LayoutMain.cshtml";
+}
+
+
+    <link href="~/Content/messenger.css" rel="stylesheet" />
+    <link href="~/Content/messenger-theme-future.css" rel="stylesheet" />
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="~/Content/font-awesome.min.css" rel="stylesheet" />
+    <link href="~/Content/docs.min.css" rel="stylesheet" />
+    <link href="~/Content/buttons.css" rel="stylesheet" />
+
+
+    @*<div class="row">
+        <div class="col-md-10" role="main">
+            <div>
+                <input type="hidden" id="fullscreen" value="0"/>
+                <h1 id="glyphicons" class="page-header" onclick="btnFullscreen()">FastNavigation 快速导航</h1>
+
+                <button class="button button-3d button-box button-jumbo  button-giant"><span class="glyphicon glyphicon glyphicon glyphicon-home" aria-hidden="true"></span></button>
+                <a href="/UserQuery/Index" class="button button-3d button-primary button-rounded"><span class="glyphicon glyphicon glyphicon glyphicon-search" aria-hidden="true"></span>账户查询</a>
+                <a href="/Goods/Index" class=" button button-3d button-action button-pill"><span class="glyphicon glyphicon glyphicon-th-large" aria-hidden="true"></span>商品目录列表</a>
+                <button class="button button-3d button-action button-circle button-jumbo" >消息</button>
+                <a href="/Shopping/Index" class="button button-3d button-caution"><span class="glyphicon glyphicon glyphicon glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> 自助下单</a>
+                <a href="/Sales/Index" class="button button-3d button-royal"><span class="glyphicon glyphicon glyphicon glyphicon glyphicon-check" aria-hidden="true"></span>代购销售</a>
+            </div>
+        </div>
+        <div class="col-md-2" role="complementary">
+            <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm">
+                <ul class="nav bs-docs-sidenav">
+                    
+                    <li>
+                        
+                    </li>
+                </ul>
+            </nav>
+
+            
+        </div>
+    </div>*@
+
+
+<div class="row">
+    <div class="col-sm-3">
+        <div class="thumbnail">            
+            <img src="~/Content/images/Xbox.jpg" />
+            <div class="caption">
+                <h3 class="text-center">自助下单</h3>
+                <p>图文显示，自主选择，操作简单、快捷，具有良好的用户购物体验...</p>
+                <p class="text-center" ><a href="/Shopping/Index" class="button button-3d button-pill"><span class="glyphicon glyphicon glyphicon glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> 自助下单</a></p>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-3">
+        <div class="thumbnail">
+            <img src="~/Content/images/MMD_TC.jpg" />
+            <div class="caption">
+                <h3 class="text-center">账户查询</h3>
+                <p>可以通过IC卡查询本人的账户余额及最新存款记录等...</p>
+                <p class="text-center"><a href="/UserQuery/Index" class="button button-3d button-pill"><span class="glyphicon glyphicon glyphicon glyphicon glyphicon-search" aria-hidden="true"></span> 账户查询</a></p>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-3">
+        <div class="thumbnail">
+            <img src="~/Content/images/OFC_Outlook.jpg" />
+            <div class="caption">
+                <h3 class="text-center">代购销售</h3>
+                <p>为方便不会使用电脑人员，提供他人代购快速下单功能...</p>
+                <p class="text-center"><a href="/Sales/Index" class="button button-3d button-pill"><span class="glyphicon glyphicon glyphicon glyphicon glyphicon-heart" aria-hidden="true"></span> 代购销售</a></p>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-3">
+        <div class="thumbnail">
+            <img src="~/Content/images/Win10.jpg" />
+            <div class="caption">
+                <h3 class="text-center">商品信息</h3>
+                <p>显示所有上架的商品目录信息，方便大家购买前准备...</p>
+                <p class="text-center"><a href="/Home/GoodsView" class="button button-3d button-pill"><span class="glyphicon glyphicon glyphicon glyphicon glyphicon-list" aria-hidden="true"></span> 商品信息</a></p>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="row text-right">
+
+    <h4 class="">
+        <span class="glyphicon glyphicon glyphicon-off" aria-hidden="true" onclick="colseSystem()">退出系统</span>
+    </h4>
+
+    <div id="colsePwd" style="display:none;">
+        <form class="form-inline">
+            <div class="form-group">
+                <label class="sr-only" for="exampleInputPassword3">Password</label>
+                <input type="password" class="form-control" id="exampleInputPassword3" placeholder="请输入密码" onkeydown="if (event.keyCode == 13) closeMyPc();" style="width:100px;">
+            </div>
+            <button type="button" class="btn btn-danger" title="提示" onclick="closeMyPc()"
+                    data-container="body" data-toggle="popover" data-placement="top"
+                    data-content="关机密码不正确">
+                关机
+            </button>
+        </form>
+    </div>
+</div>
+<!-- 模态框（Modal） -->
+<div class="modal fade" id="myCloseModal" tabindex="-1" role="dialog"
+     aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close"
+                        data-dismiss="modal" aria-hidden="true">
+                    &times;
+                </button>
+                <h4 class="modal-title" id="myModalLabel">
+                    关机提示
+                </h4>
+            </div>
+            <div class="modal-body">
+                您确认要关闭电脑吗？
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default"
+                        data-dismiss="modal">
+                    取消
+                </button>
+                <button type="button" class="btn btn-primary" name="exe" onclick="Run('shutdown -s -t 1')">
+                    确认关闭
+                </button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+
+
+    <script src="~/Scripts/jquery-1.11.3.min.js"></script>
+    <script src="~/Scripts/messenger.min.js"></script>
+
+    <script type="text/javascript">
+        
+        function CloseWebPage() {//关闭网页
+            if (navigator.userAgent.indexOf("MSIE") > 0) {
+                if (navigator.userAgent.indexOf("MSIE 6.0") > 0) {
+                    window.opener = null;
+                    window.close();
+                } else {
+                    window.open('', '_top');
+                    window.top.close();
+                }
+            }
+            else if (navigator.userAgent.indexOf("Firefox") > 0) {
+                window.location.href = 'about:blank ';
+            } else {
+                window.opener = null;
+                window.open('', '_self', '');
+                window.close();
+            }
+        }
+
+        function closePC() {
+            var wscript = new ActiveXObject("WScript.Shell");
+            if (wscript != null) {
+                wscript.SendKeys("{shutdown -s}");
+            }
+            //wshshell = new ActiveXObject("wscript.shell");
+            //wshshell.sendkeys("{Shutdown -s -t}");
+            //wshshell.sendkeys("{u}");
+
+        }
+
+        function addfavorite() {
+            if (window.sidebar && "object" == typeof (window.sidebar) && "function" == typeof (window.sidebar.addPanel)) {
+                window.sidebar.addPanel('互联友吧的网易博客', 'http://www.u8.blog.163.com', '互联友吧的网易博客');
+            }
+            else if (document.all && "object" == typeof (window.external)) {
+                window.external.addFavorite('http://www.u8.blog.163.com', '互联友吧的网易博客');
+            }
+        }
+
+        window.onbeforeunload = function () {//运行Shell命令
+            var n = window.event.screenX - window.screenLeft;
+            var b = n > document.documentElement.scrollWidth - 20;
+            if (b && window.event.clientY < 0 || window.event.altKey) {
+                if (confirm("如果你觉得互联友吧的空间有用.就请收藏本空间下次好再次访问!")) {
+                    addfavorite();
+                }
+            }
+        }
+        function Run(strPath) {
+            exe.value = strPath;
+            try {
+                var objShell = new ActiveXObject("wscript.shell");
+                objShell.Run(strPath);
+                objShell = null;
+            }
+            catch (e) {
+                alert('你的系统中找不到执行文件"' + strPath + '"(或在子文件夹)')
+            }
+        }
+
+        function colseSystem() {
+            $("#colsePwd").show();
+            $("#exampleInputPassword3").focus();
+            //$("#myCloseModal").modal('show');
+            //Run('shutdown -s -t 1');
+        }
+        function closeMyPc() {
+            $.post("/Home/GetExitSystemPwd", { "ID":"" }
+                    , function (data, status) {
+                        if ("success" != status) {
+                            return false;
+                        } else {
+                            var words = data.split("|");
+                            if (words[0] == "OK") {
+                                if ($("#exampleInputPassword3").val() != words[1]) {
+                                    $("[data-toggle='popover']").popover();
+                                    $("[data-toggle='popover']").popover('show');
+                                } else {
+                                    $("[data-toggle='popover']").popover('destroy');
+                                    $("#myCloseModal").modal('show');
+                                }
+                            } else {
+                                $.messager.alert('提示', data);
+                            }
+                        }
+                    });
+            
+        }
+    </script>

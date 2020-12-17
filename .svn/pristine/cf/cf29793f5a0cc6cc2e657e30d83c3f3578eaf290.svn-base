@@ -1,0 +1,98 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>PrintReportList</title>
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Content/site.min.css" rel="stylesheet" />
+    <link href="~/Content/bootstrap-theme.css" rel="stylesheet" />
+    <script src="~/Scripts/jquery-1.11.3.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <link href="~/Content/PrintReportCss.css" rel="stylesheet" />
+    <style type="text/css">
+        /*打印分页*/
+        .pPage {
+            page-break-after: always;
+        }
+    </style>
+</head>
+<body>
+    <div> 
+        <div class="container">
+    <h5>劳报酬报表 <small>成功数据列表</small></h5>
+
+    @if (ViewData["lists"] != null)
+            {
+                List<SelfhelpOrderMgr.Model.T_BONUSDTL> lists = ViewData["lists"] as List<SelfhelpOrderMgr.Model.T_BONUSDTL>;
+                int i = 1;
+                int j = 1;
+                int jcount = lists.Count;
+                int iRow = 1;
+                int pageCount = 85;
+                List<SelfhelpOrderMgr.Model.T_BONUSDTL> tempLists=new List<SelfhelpOrderMgr.Model.T_BONUSDTL>();
+                foreach (SelfhelpOrderMgr.Model.T_BONUSDTL dtl in ViewData["lists"] as List<SelfhelpOrderMgr.Model.T_BONUSDTL>)
+                {
+                    if (i >= 1 || i <= pageCount)
+                    {
+                        tempLists.Add(dtl);
+                        if (tempLists.Count == pageCount || j == jcount)
+                        {
+                            <div class="row pPage">
+                            <div class="col-md-12">
+                                <table class="contentFontSizeMicrSmall" style=" line-height:10px; ">
+                                    <thead>
+                                        <tr>
+                                            <th style="width:120px;">单号</th>
+                                            <th style="width:100px;">编号</th>
+                                            <th style="width:80px;">姓名</th>
+                                            <th style="width:120px;">队别</th>
+                                            <th>金额</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (SelfhelpOrderMgr.Model.T_BONUSDTL item in tempLists)
+                                        {
+                                            <tr><td>@iRow : @item.BID</td><td>@item.FCRIMECODE</td><td>@item.fcriminal</td><td>@item.fareaName</td><td>@item.FAMOUNT</td></tr>
+                                            iRow++;
+                                        }
+
+                                        @if (j == jcount)
+                                        {
+                                            if (ViewData["bonus"] != null)
+                                            {
+                                                SelfhelpOrderMgr.Model.T_BONUS bonus = ViewData["bonus"] as SelfhelpOrderMgr.Model.T_BONUS;
+                                                <tr><th>合计</th><th>人数：</th><td>@bonus.cnt</td><th>金额</th><td>@bonus.fAMOUNT</td></tr>
+                                            }
+                                        }
+                                        <tr><td colspan="5"><hr /></td></tr>
+                                        <tr><td>经办人:</td><td></td><td></td><td>监区领导</td><td></td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                            tempLists = new List<SelfhelpOrderMgr.Model.T_BONUSDTL>();
+                        }
+                    }
+                    i++;
+                    j++;
+                    
+            }
+            @*@if (ViewData["bonus"] != null)
+                {
+                    SelfhelpOrderMgr.Model.T_BONUS bonus = ViewData["bonus"] as SelfhelpOrderMgr.Model.T_BONUS;
+                    <tr><th>合计</th><th>人数：</th><td>@bonus.cnt</td><th>金额</th><td>@bonus.fAMOUNT</td></tr>
+                }*@
+    }
+        </div>
+
+
+
+    </div>
+</body>
+</html>

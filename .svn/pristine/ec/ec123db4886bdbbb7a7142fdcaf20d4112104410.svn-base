@@ -1,0 +1,46 @@
+﻿using SelfhelpOrderMgr.BLL;
+using SelfhelpOrderMgr.Model;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+using System.Web.Script.Serialization;
+
+namespace SelfhelpOrderMgr.Web.Controllers
+{
+    public class GoodsController : BaseMenuController
+    {
+        //
+        // GET: /Goods/
+        public ActionResult Index()
+        {
+            List<T_GoodsType> types = (List<T_GoodsType>)new T_GoodsTypeBLL().GetListOfIEnumerable("");
+            ViewData["types"] = types;
+            List<T_Goods> goods = (List<T_Goods>)new T_GoodsBLL().GetListOfIEnumerable("Active='Y'");
+            ViewData["goods"] = goods;
+            return View();
+        }
+
+        public ActionResult Lists()
+        {
+            List<T_GoodsType> types = (List<T_GoodsType>)new T_GoodsTypeBLL().GetListOfIEnumerable("");
+            ViewData["types"] = types;
+            List<T_Goods> goods = (List<T_Goods>)new T_GoodsBLL().GetListOfIEnumerable("Active='Y'");
+            ViewData["goods"] = goods;
+            return View();
+        }
+
+        public ActionResult GetGoodsInfo()
+        {
+            string PTypeName = Request["PTypeName"];
+            List<T_GoodsType> types = (List<T_GoodsType>)new T_GoodsTypeBLL().GetListOfIEnumerable("FName='" + PTypeName + "'");
+
+            List<T_Goods> goods = (List<T_Goods>)new T_GoodsBLL().GetListOfIEnumerable("Active='Y' and GType='" + types[0].Fcode + "'");
+            //ViewData["goods"] = goods;
+            JavaScriptSerializer jss = new JavaScriptSerializer();
+
+            return Content("OK|成功|"+jss.Serialize(goods));
+        }
+	}
+}

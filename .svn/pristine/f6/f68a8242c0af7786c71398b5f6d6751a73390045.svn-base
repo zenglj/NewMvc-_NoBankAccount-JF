@@ -1,0 +1,30 @@
+﻿
+@{
+    ViewBag.Title = "StopShoppingNotice";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+
+<div class="page-header text-center">
+    <h1>本模块停止购物通知 </h1>
+</div>
+
+<div class="row">
+    <div class="col-sm-1"></div>
+    <div class="col-sm-10">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h4>各监区、分监区、直属队：</h4>
+            </div>
+            <div class="panel-body">
+                <p>　　为保证能及时将商品配送到位，各监区购物必须在指的每月指定的日期完成购，否则将会影响本月货品配送日期。</p>
+                <p>如不能及时订购的话，到时会自动停止购物，本月未购人员，请下个月再订。</p>
+            </div>
+            <div class="panel-footer text-right">
+                <h4>监狱物资供应站</h4>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-1"></div>
+</div>

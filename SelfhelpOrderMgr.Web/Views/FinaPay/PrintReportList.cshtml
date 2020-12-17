@@ -1,0 +1,73 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>PrintReportList</title>
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+</head>
+<body>
+    <div> 
+        @if (ViewData["pay"] != null)
+        {
+            var pay= ViewData["pay"] as SelfhelpOrderMgr.Model.T_SHO_FinancePay;
+            
+            <div class="row">
+              <div class="col-md-3"></div>
+              <div class="col-md-6">
+                  <div class="panel panel-info">
+                      <div class="panel-heading">
+                          <div class="text-center">
+                              <h3>财务付款单 <small>付款日期:@pay.CrtDt.ToShortDateString()</small></h3>
+                          </div>
+                      </div>
+                      <div class="panel-body">
+                          <table class="table table-striped table-bordered">
+                              <tr>
+                                  <th style="width:80px;text-align:right">单 号:</th>
+                                  <td>@pay.Id</td>
+                                  <th style="width: 80px; text-align: right">付款类型:</th>
+                                  <td>@pay.FType</td>
+                              </tr>
+                              <tr>
+                                  <th style="width:80px;text-align:right">金 额:</th>
+                                  <td>@pay.FMoney 元</td>
+                                  <th style="width:80px;text-align:right">付款摘要:</th>
+                                  <td>@pay.FTitle</td>
+                              </tr>
+                              <tr>
+                                  <th style="width:80px;text-align:right">收款人:</th>
+                                  <td>@pay.PosName</td>
+                                  <th style="width:80px;text-align:right">收款账号:</th>
+                                  <td>@pay.BankCard</td>
+                              </tr>
+                              <tr>
+                                  <th style="width:80px;text-align:right">备 注:</th>
+                                  <td colspan="3">@pay.Remark</td>
+                              </tr>
+                          </table>
+                      </div>
+                      <div class="panel-footer">@@监狱--财务科</div>
+                  </div>
+                  
+                  
+              </div>
+              <div class="col-md-3"></div>
+
+            </div>
+            
+        }
+        
+    </div>
+    <script src="~/Scripts/jquery-1.11.3.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <script src="~/Scripts/myJs/commonJs.js"></script>
+</body>
+
+
+</html>

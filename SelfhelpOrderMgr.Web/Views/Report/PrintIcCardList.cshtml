@@ -1,0 +1,89 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>IC卡制卡清单</title>
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Content/buttons.css" rel="stylesheet" />
+    <link href="~/Content/PrintReportCss.css" rel="stylesheet" />
+</head>
+<body>
+    <div>
+        <input type="hidden" id="printId" value="@ViewData["id"]" />
+        <div class="row">
+            <div class="col-sm-1"></div>
+            <div class="col-sm-10">
+                <div class="page-header text-center">
+                    <h3> @ViewData["title"] <small>报表日期: @DateTime.Today.ToShortDateString()</small></h3>
+                    <div class="row">
+                        <div class="col-sm-7 text-left">统计日期: @ViewData["startTime"] ~ @ViewData["endTime"]</div>
+                        <div class="col-sm-5 text-right"></div>
+                    </div>
+                </div>
+
+                <div class="alert alert-info alert-dismissible" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <strong>提示!</strong><span id="tootipInfo"> 数据较大正在加载中,请耐心等候...</span>
+                </div>
+
+                <table class="table table-striped table-condensed">
+                    <thead>
+                        <tr>
+                            <th>序号</th>
+                            <th>IC卡号</th>
+                            <th>狱号</th>
+                            <th>姓名</th>
+                            <th>队别</th>
+                            <th>操作员</th>
+                            <th>日期</th>
+                        </tr>
+                    </thead>
+                    @if (ViewData["list"] != null)
+                    {
+                        int i = 1;
+                        <tbody>
+                            @foreach (SelfhelpOrderMgr.Model.T_ICCARD_LIST card in ViewData["list"] as List<SelfhelpOrderMgr.Model.T_ICCARD_LIST>)
+                            {
+                                <tr>
+                                    <td>@i</td>
+                                    <td>@card.CardCode</td>
+                                    <td>@card.FCrimeCode</td>
+                                    <td>@card.fcriminal</td>
+                                    <td>@card.fareaName</td>
+                                    <td>@card.FRCZY</td>
+                                    <td>@card.FRDate.ToShortDateString()</td>
+                                </tr>
+                                i++;
+                            }
+                            <tr>
+                                <td colspan="2">经办人：</td>
+                                <td colspan="3">监区领导：</td>
+                                <td colspan="2">供应站：</td>
+                            </tr>
+                        </tbody>
+                    }
+                </table>
+
+
+
+            </div>
+            <div class="col-sm-1"></div>
+
+        </div>
+    </div>
+    <script src="~/Scripts/jquery-1.11.3.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <script src="~/Scripts/myJs/commonJs.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            $("#tootipInfo").html('恭喜你,数据加载完成了。对明细记录超过5000条的记录将不再显示，请增加查询条件!');
+        });
+
+    </script>
+</body>
+</html>
