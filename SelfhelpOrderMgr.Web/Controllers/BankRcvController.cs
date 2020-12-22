@@ -1,4 +1,7 @@
-﻿using SelfhelpOrderMgr.BLL;
+﻿using NPOI.HSSF.UserModel;
+using NPOI.SS.UserModel;
+using NPOI.XSSF.UserModel;
+using SelfhelpOrderMgr.BLL;
 using SelfhelpOrderMgr.Model;
 using SelfhelpOrderMgr.Web.CommonHeler;
 using SelfhelpOrderMgr.Web.Filters;
@@ -491,6 +494,201 @@ namespace SelfhelpOrderMgr.Web.Controllers
             return Content("Ok|"+jss.Serialize(rstRec));
         }
 
+
+
+        /// <summary>
+        /// 导入银行报表，查找那条记录没有
+        /// </summary>
+        /// <returns></returns>
+        public ActionResult ExcelInport()//Excel表格导入
+        {
+            string strLoginName = new T_CZYBLL().GetModel(Session["loginUserCode"].ToString()).FName;
+            string strReSaveFlag = Request["reSaveFlag"];
+            int id = 1;
+            T_SHO_ManagerSet mset = new T_SHO_ManagerSetBLL().GetModel("LaoBaoModel");
+            if (mset != null)
+            {
+                id = Convert.ToInt32(mset.MgrValue);
+            }
+            if (Request.Files.Count > 0)
+            {
+                string strFBid = Request["excelBid"];
+
+                HttpPostedFileBase f = Request.Files[0];
+                string fname = f.FileName;
+                /* startIndex */
+                int index = fname.LastIndexOf("\\") + 1;
+                /* length */
+                int len = fname.Length - index;
+                fname = fname.Substring(index, len);
+                /* save to server */
+                string savePath = Server.MapPath("~/Upload/" + fname);
+                f.SaveAs(savePath);
+                //context.Response.Write("Success!");
+                DateTime sdt;
+                //DateTime edt;
+                //TimeSpan tspan;
+                using (FileStream stream = new FileStream(savePath, FileMode.Open, FileAccess.Read))
+                {
+
+
+                    sdt = DateTime.Now;
+                    //XSSFWorkbook workbook = new XSSFWorkbook(stream);
+                    IWorkbook workbook = null;
+                    try
+                    {
+                        workbook = new XSSFWorkbook(stream); // 2007版本  
+                    }
+                    catch
+                    {
+                        workbook = new HSSFWorkbook(stream); // 2003版本  
+                    }
+                    //HSSFSheet sheet = workbook.GetSheetAt(0);
+                    NPOI.SS.UserModel.ISheet sheet = workbook.GetSheetAt(0);
+                    //NPOI.SS.UserModel.Sheet
+                    int rows = sheet.LastRowNum;
+                    //int ErrNums = 0;
+                    if (rows < 1)
+                    {
+                        return Content("Err|Excel表为空表,无数据!");
+                    }
+                    else
+                    {
+
+                        DataTable tbVchnums = new CommTableInfoBLL().GetDataTable("select vchnum from t_bank_transDetail where not vchnum is null group by vchnum");
+
+
+                        #region 定义DataTable
+                        DataTable dtUserAdd = new DataTable();
+                        dtUserAdd.Columns.Add(new DataColumn("TransactionType", typeof(string)));//交易类型
+                        dtUserAdd.Columns.Add(new DataColumn("BusinessType", typeof(string)));//业务类型
+                        dtUserAdd.Columns.Add(new DataColumn("DebitAccountNo", typeof(string)));//付款人账号
+                        dtUserAdd.Columns.Add(new DataColumn("PayersName", typeof(string)));//付款人名称
+                        dtUserAdd.Columns.Add(new DataColumn("PayeesAccountNumber", typeof(string)));//收款人账号
+                        dtUserAdd.Columns.Add(new DataColumn("PayeesName", typeof(string)));//收款人名称
+                        dtUserAdd.Columns.Add(new DataColumn("TransactionDate", typeof(string)));//交易日期
+                        dtUserAdd.Columns.Add(new DataColumn("TransactionTime", typeof(string)));//交易时间
+                        dtUserAdd.Columns.Add(new DataColumn("TradeCurrency", typeof(string)));//交易货币
+
+                        dtUserAdd.Columns.Add(new DataColumn("TradeAmount", typeof(decimal)));//交易金额
+                        dtUserAdd.Columns.Add(new DataColumn("TransactionReferenceNumber", typeof(string)));//交易流水号
+                        dtUserAdd.Columns.Add(new DataColumn("Reference", typeof(string)));//摘要
+                        dtUserAdd.Columns.Add(new DataColumn("Remark", typeof(string)));//交易附言
+
+
+                        DataRow drTemp = null;
+                        #endregion
+
+                        NPOI.SS.UserModel.IRow titleRow = sheet.GetRow(0);
+                        Dictionary<string, int> dis = new Dictionary<string, int>();
+                        for (int s=0; s<titleRow.Cells.Count;s++)
+                        {
+                            if(titleRow.GetCell(s).ToString().StartsWith("交易类型"))
+                            {
+                                dis.Add("TransactionType", s);
+                            }
+                            else if (titleRow.GetCell(s).ToString().StartsWith("业务类型"))
+                            {
+                                dis.Add("BusinessType", s);
+                            }
+                            else if (titleRow.GetCell(s).ToString().StartsWith("付款人账号"))
+                            {
+                                dis.Add("DebitAccountNo", s);
+                            }
+                            else if (titleRow.GetCell(s).ToString().StartsWith("付款人名称"))
+                            {
+                                dis.Add("PayersName", s);
+                            }
+                            else if (titleRow.GetCell(s).ToString().StartsWith("收款人账号"))
+                            {
+                                dis.Add("PayeesAccountNumber", s);
+                            }
+                            else if (titleRow.GetCell(s).ToString().StartsWith("收款人名称"))
+                            {
+                                dis.Add("PayeesName", s);
+                            }
+                            else if (titleRow.GetCell(s).ToString().StartsWith("交易日期"))
+                            {
+                                dis.Add("TransactionDate", s);
+                            }
+
+                            else if (titleRow.GetCell(s).ToString().StartsWith("交易时间"))
+                            {
+                                dis.Add("TransactionTime", s);
+                            }
+                            else if (titleRow.GetCell(s).ToString().StartsWith("交易货币"))
+                            {
+                                dis.Add("TradeCurrency", s);
+                            }
+                            else if (titleRow.GetCell(s).ToString().StartsWith("交易金额"))
+                            {
+                                dis.Add("TradeAmount", s);
+                            }
+                            else if (titleRow.GetCell(s).ToString().StartsWith("交易流水号"))
+                            {
+                                dis.Add("TransactionReferenceNumber", s);
+                            }
+                            else if (titleRow.GetCell(s).ToString().StartsWith("摘要"))
+                            {
+                                dis.Add("Reference", s);
+                            }
+                            else if (titleRow.GetCell(s).ToString().StartsWith("交易附言"))
+                            {
+                                dis.Add("Remark", s);
+                            }
+                            
+                        }
+
+                        #region 标准劳酬Excel格式  ：编号、姓名、金额、备注
+                        for (int i = 1; i < rows; i++)
+                        {
+                            NPOI.SS.UserModel.IRow row = sheet.GetRow(i);
+                            //int iType = row.GetCell(0).CellType;//文本是1，数字是0
+                            //NPOI.SS.UserModel.CellType iType = 0;
+                            if (string.IsNullOrWhiteSpace( row.GetCell(0).StringCellValue))
+                            {
+                                continue;
+                            }
+
+                            drTemp = dtUserAdd.NewRow();
+
+                            foreach (var d in dis)
+                            {
+                                if(d.Key== "TradeAmount")
+                                {
+                                    drTemp[d.Key] = row.GetCell(d.Value).NumericCellValue;
+                                }
+                                else
+                                {
+                                    drTemp[d.Key] = row.GetCell(d.Value).StringCellValue;
+                                }                                
+                            }
+                            DataRow[] testRow=tbVchnums.Select("vchnum='"+ drTemp["TransactionReferenceNumber"] + "'");
+                            if (testRow.Length == 0)
+                            {
+                                dtUserAdd.Rows.Add(drTemp);
+                            }
+                            
+                        }
+                        #endregion
+
+
+                        string title = "筛选后未导入的存款记录报表";
+                        
+                        //string startTime = Request["startTime"];
+                        //string endTime = Request["endTime"];
+                        string strCountTime = string.Format("统计期间:~--~");
+
+                        string strFileName = new CommonClass().GB2312ToUTF8(strLoginName + "_BankDetailList.xls");
+                        strFileName = Server.MapPath("~/Upload/" + strFileName); ;
+
+                        ExcelRender.RenderToExcel(dtUserAdd, title, 9, strFileName,false, strCountTime);
+                        return Content("OK|" + strLoginName + "_BankDetailList.xls");
+                    }
+                }
+            }
+            return Content("Err|导入失败，服务器没有接收到Excel文件");
+        }
 
         #endregion
 
