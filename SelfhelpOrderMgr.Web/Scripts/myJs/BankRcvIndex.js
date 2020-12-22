@@ -372,25 +372,6 @@ function btnExcelSave(id) {
 //月统计报表 期初 期间  期末
 function btnExcelReportSave() {
 
-
-    //var strJson = "";
-    //$("#crimeSearch tr td span input").each(function (index, element) {   //element-当前的元素,也可使用this选择器
-    //    if (typeof $(this).attr("name") != "undefined" && $(this).val().replace(/^\s*|\s*$/g, "") != "" && typeof $(this).val() != "undefined") {
-    //        console.log($(this).attr("name") + ":" + $(this).val());
-    //        if (strJson == "") {
-    //            strJson = "\"" + $(this).attr("name") + "\":\"" + $(this).val() + "\"";
-    //        } else {
-    //            strJson = strJson + "," + "\"" + $(this).attr("name") + "\":\"" + $(this).val() + "\"";
-    //        }
-    //    }
-    //});
-    //strJson = "{" + strJson + "}";
-
-    //$('#test').datagrid('load', {
-    //    strJsonWhere: strJson
-    //});
-
-
     $.post("/BankRcv/ExcelReportDetailList/", { "startTime": $("#SearchCreateDate_Start").datetimebox('getValue'), "endTime": $("#SearchCreateDate_End").datetimebox('getValue') }, function (data, status) {
         if (status != "success") {
             return false;
@@ -402,6 +383,39 @@ function btnExcelReportSave() {
         }
     });
 }
+
+
+function btnExcelBankDtlSch() {
+
+    //$("#lblInfo").html("系统正在导入请稍候......");
+    $.messager.progress({
+        title: '导入数可能需要几分钟，请耐心等待',
+        msg: '数据正在导入中...'
+    });
+
+    $('#frmBankExcel').form({
+        url: '/BankRcv/ExcelInport',
+        onSubmit: function () {
+            // do some check    
+            // return false to prevent submit;    
+        },
+        success: function (data) {
+            $.messager.progress('close');
+            //$("#winSearch").window('close');
+            var words = data.split("|");
+            if (words[0] == "OK") {
+                window.open("/Upload/" + words[1]);
+            } else {
+                alert(data);
+            }
+        }
+    });
+    // submit the form    
+    $('#frmBankExcel').submit();
+
+}
+
+
 
 
 

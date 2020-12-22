@@ -38,7 +38,7 @@ namespace SelfhelpOrderMgr.DAL
             strSql.Append(@"insert into T_Bank_PaymentDetail(
                 MainId, Vcrdseqno, SuccFlag)
                 select @newId as MainId,Vcrdseqno,0 as SuccFlag
-                from T_Bank_PaymentDetail where Id = @id;");
+                from T_Bank_PaymentDetail where mainId = @id;");
             using (IDbConnection conn = new SqlConnection(SqlHelper.getConnstr()))
             {
                 try

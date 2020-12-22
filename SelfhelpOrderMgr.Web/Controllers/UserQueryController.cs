@@ -60,6 +60,14 @@ namespace SelfhelpOrderMgr.Web.Controllers
             string fcrimeCode = cards[0].fcrimecode;
             T_Criminal criminal = new T_CriminalBLL().GetCriminalXE_info(fcrimeCode,1);
             //获取查询到的近三个月的存款记录
+
+            T_SHO_ManagerSet msetHide = new T_SHO_ManagerSetBLL().GetModel("HideBankCardFlag");
+            if(msetHide != null && msetHide.MgrValue == "1")
+            {
+                cards[0].BankAccNo = "*******************";
+                cards[0].SecondaryBankCard = "*******************";
+                criminal.BankCardNo = "******************";
+            }
             
             List<T_Vcrd> vcrds = new T_VcrdBLL().GetModelList(100,"flag=0 and fcrimecode='" + criminal.FCode + "' and crtdate>='"+ DateTime.Now.AddMonths(-3).ToShortDateString() +"'and crtdate<'"+ DateTime.Now.AddDays(1).ToShortDateString() +"'"," CrtDate desc");
             rtnQueryUserInfo userinfo = new rtnQueryUserInfo();

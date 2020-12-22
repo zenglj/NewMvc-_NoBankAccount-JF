@@ -804,18 +804,26 @@ namespace SelfhelpOrderMgr.Web.Controllers
                     } break;
                 case 25:
                     {
+                        
                         if (intFlag == 0)
                         {
+                            strSql.Append("select b.*,a.AmountA,a.AmountB,a.AmountC,a.PayMode from t_balanceList a,(");
                             strSql.Append("select Top 5000 FCrimeCode,FCriminal,Dtype,FAreaName,FAreaCode,convert(varchar(10), CrtDate,120) as CrtDate ,BankFlag,Remark from T_VCrd  ");
                         }
                         else
                         {
+                            strSql.Append("select b.*,a.AmountA,a.AmountB,a.AmountC,a.PayMode from t_balanceList a,(");
                             strSql.Append("select Top 200000 FCrimeCode 编号,FCriminal 姓名,Dtype 类型,FAreaName 队别,FAreaCode 队别号,convert(varchar(10), CrtDate,120) 日期,BankFlag 银行标志,Remark 备注 from T_VCrd  ");
                         }
                         strSql.Append(" Where " + strWhere);
                         strSql.Append(" and typeflag in(5,6) ");
-                        strSql.Append(" group by FCrimeCode,FCriminal,Dtype,FAreaName,FAreaCode,convert(varchar(10), CrtDate,120),BankFlag,Remark ");
-                        strSql.Append(" Order by DType,FAreaCode,convert(varchar(10), CrtDate,120) ;");
+                        strSql.Append(" group by FCrimeCode,FCriminal,Dtype,FAreaName,FAreaCode,convert(varchar(10), CrtDate,120),BankFlag,Remark ) b ");
+                        strSql.Append(" where a.fcrimecode =b.fcrimecode and CONVERT(varchar(10), a.crtdate,120)=b.CrtDate");
+
+                        strSql.Append(" Order by PayMode,FAreaCode,b.Crtdate ;");
+
+
+
                         title = "出监结算统计报表";
                         return;
                     }
