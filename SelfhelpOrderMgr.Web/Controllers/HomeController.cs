@@ -2,6 +2,7 @@
 using SelfhelpOrderMgr.BLL;
 using SelfhelpOrderMgr.Common;
 using SelfhelpOrderMgr.Model;
+using SelfhelpOrderMgr.Web.Filters;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -530,11 +531,12 @@ namespace SelfhelpOrderMgr.Web.Controllers
         }
 
         //取消订单按订单号
-        public ActionResult CancelOrder()
+        [MyLogActionFilterAttribute]
+        public ActionResult CancelOrder(string InvoiceNo, string managerCardNo)
         {
             string rtnInfo = "Err|订单取消失败";
-            string InvoiceNo = Request["InvoiceNo"];
-            string managerCardNo = Request["managerCardNo"];
+            //string InvoiceNo = Request["InvoiceNo"];
+            //string managerCardNo = Request["managerCardNo"];
             if (string.IsNullOrEmpty(managerCardNo)==true)
             {
                 return Content("Err|没有管理卡不能取消订单");
@@ -584,6 +586,15 @@ namespace SelfhelpOrderMgr.Web.Controllers
                     List<T_Vcrd> vcrds = new T_VcrdBLL().GetModelList("OrigId='"+ InvoiceNo +"'");
                     try
                     {
+                        if (vcrds[0].CrtDate < DateTime.Today)
+                        {
+                            T_SHO_ManagerSet mgrSetCancel = new T_SHO_ManagerSetBLL().GetModel("JsVcrdCancelOrderFlag");
+                            if (mgrSetCancel == null || mgrSetCancel.MgrValue=="0")
+                            {
+                                rtnInfo = "Err|对不起，当天就不能取消或撤单";
+                                return Content(rtnInfo);
+                            }
+                        }
                         switch(vcrds[0].BankFlag)
                         {
                             case 0:
@@ -648,11 +659,12 @@ namespace SelfhelpOrderMgr.Web.Controllers
         }
 
         //修改订单，取消下单回到未下单状态 ChangeOrder
-        public ActionResult ChangeOrder()
+        [MyLogActionFilterAttribute]
+        public ActionResult ChangeOrder(string InvoiceNo,string managerCardNo)
         {
             string rtnInfo = "Err|订单退回改修失败";
-            string InvoiceNo = Request["InvoiceNo"];
-            string managerCardNo = Request["managerCardNo"];
+            //string InvoiceNo = Request["InvoiceNo"];
+            //string managerCardNo = Request["managerCardNo"];
             if (string.IsNullOrEmpty(managerCardNo) == true)
             {
                 return Content("Err|没有管理卡不能改单");
@@ -701,6 +713,15 @@ namespace SelfhelpOrderMgr.Web.Controllers
                     List<T_Vcrd> vcrds = new T_VcrdBLL().GetModelList("OrigId='" + InvoiceNo + "'");
                     try
                     {
+                        if (vcrds[0].CrtDate < DateTime.Today)
+                        {
+                            T_SHO_ManagerSet mgrSetCancel = new T_SHO_ManagerSetBLL().GetModel("JsVcrdCancelOrderFlag");
+                            if (mgrSetCancel == null || mgrSetCancel.MgrValue == "0")
+                            {
+                                rtnInfo = "Err|对不起，当天就不能取消或撤单";
+                                return Content(rtnInfo);
+                            }
+                        }
                         switch (vcrds[0].BankFlag)
                         {
                             case 0://需要区分下两种情况

@@ -527,10 +527,10 @@ function btnDelCriminal() {
 function btnRecCriminal() {
     var row = $("#test").datagrid('getSelected');
     if (row == null) {
-        $.messager.alert("提示", "请选择一行要删除的记录");
+        $.messager.alert("提示", "请选择一行要恢复的记录");
         return false;
     }
-    $.messager.confirm('确认', '您确认想要删除记录吗？', function (r) {
+    $.messager.confirm('确认', '您确认想要恢复记录吗？', function (r) {
         if (r) {
             $.post('/Criminal/RecCriminal', { "txtFCode": $("#txtFCode").textbox('getValue') }, function (data, status) {
                 if ("success" != status) {

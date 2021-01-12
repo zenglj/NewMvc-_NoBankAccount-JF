@@ -24,6 +24,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
         // GET: /CashPay/
         JavaScriptSerializer jss = new JavaScriptSerializer();
         private int auditFlag ;
+        
         public ActionResult Index(int id=1)
         {
             
@@ -342,11 +343,20 @@ namespace SelfhelpOrderMgr.Web.Controllers
         }
 
         //删除扣款记录
-        public ActionResult DelDetailList(int id = 1)
+        [MyLogActionFilterAttribute]
+        public ActionResult DelDetailList(string FCode, string seqno, int id = 1)
         {
-            string FCode = Request["FCode"];
-            string seqno = Request["seqno"];
+            //strUserLoginName 用户名称
             string strLoginName = new T_CZYBLL().GetModel(Session["loginUserCode"].ToString()).FName;
+            return DelCashPayDetail(FCode, seqno, strLoginName, id);
+        }
+
+        
+        private ActionResult DelCashPayDetail(string FCode, string seqno, string strLoginName, int id)
+        {
+            //string FCode = Request["FCode"];
+            //string seqno = Request["seqno"];
+            //string strLoginName = new T_CZYBLL().GetModel(Session["loginUserCode"].ToString()).FName;
 
 
             if (string.IsNullOrEmpty(FCode))
@@ -446,13 +456,13 @@ namespace SelfhelpOrderMgr.Web.Controllers
             {
                 List<T_UserInfoExt> users = new T_CriminalBLL().GetUserInfo("FCode='" + FCode + "'");
 
-                Log4NetHelper.logger.Warn("删除存取款记录,操作员：" + Session["loginUserName"].ToString() + ",删除信息 ID=" + vcrd.seqno + ",录入员："+ vcrd.CrtBy +",流水号为：" + vcrd.Vouno + ",记录创建日期:"+ vcrd.CrtDate.ToString() +",类型为：" + vcrd.DType + ",金额:" + (vcrd.DAmount + vcrd.CAmount).ToString() + ",摘要:"+vcrd.Remark);
+                Log4NetHelper.logger.Warn("删除存取款记录,操作员：" + Session["loginUserName"].ToString() + ",删除信息 ID=" + vcrd.seqno + ",录入员：" + vcrd.CrtBy + ",流水号为：" + vcrd.Vouno + ",记录创建日期:" + vcrd.CrtDate.ToString() + ",类型为：" + vcrd.DType + ",金额:" + (vcrd.DAmount + vcrd.CAmount).ToString() + ",摘要:" + vcrd.Remark);
 
-                return Content("OK|删除成功|"+jss.Serialize(users[0]));
+                return Content("OK|删除存/取款成功|" + jss.Serialize(users[0]));
             }
             else
             {
-                return Content("Err|删除失败");
+                return Content("Err|删除存/取款失败");
             }
         }
 

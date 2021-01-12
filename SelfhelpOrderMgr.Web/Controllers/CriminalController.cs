@@ -277,25 +277,46 @@ namespace SelfhelpOrderMgr.Web.Controllers
         }
 
 
-
-
-        public ActionResult SaveCriminal()
+        /// <summary>
+        /// 保存犯人信息
+        /// </summary>
+        /// <param name="txtFCode"></param>
+        /// <param name="txtFName"></param>
+        /// <param name="txtFSex"></param>
+        /// <param name="txtFAreaCode"></param>
+        /// <param name="txtFCyCode"></param>
+        /// <param name="txtFAddr"></param>
+        /// <param name="txtFIdenNo"></param>
+        /// <param name="txtFCrimeCode"></param>
+        /// <param name="txtFTerm"></param>
+        /// <param name="txtFInDate"></param>
+        /// <param name="txtFOuDate"></param>
+        /// <param name="txtFlimitFlag"></param>
+        /// <param name="txtFlimitAmt"></param>
+        /// <param name="txtFDesc"></param>
+        /// <param name="doType"></param>
+        /// <returns></returns>
+        [MyLogActionFilterAttribute]
+        public ActionResult SaveCriminal(string txtFCode, string txtFName, string txtFSex
+            , string txtFAreaCode, string txtFCyCode, string txtFAddr, string txtFIdenNo, string txtFCrimeCode,
+            string txtFTerm, string txtFInDate, string txtFOuDate, string txtFlimitFlag, string txtFlimitAmt,
+            string txtFDesc, string doType)
         {
-            string txtFCode = Request["txtFCode"];
-            string txtFName = Request["txtFName"];
-            string txtFSex = Request["txtFSex"];
-            string txtFAreaCode = Request["txtFAreaCode"];
-            string txtFCyCode = Request["txtFCyCode"];
-            string txtFAddr = Request["txtFAddr"];
-            string txtFIdenNo = Request["txtFIdenNo"];
-            string txtFCrimeCode = Request["txtFCrimeCode"];
-            string txtFTerm = Request["txtFTerm"];
-            string txtFInDate = Request["txtFInDate"];
-            string txtFOuDate = Request["txtFOuDate"];
-            string txtFlimitFlag = Request["txtFlimitFlag"];
-            string txtFlimitAmt = Request["txtFlimitAmt"];
-            string txtFDesc = Request["txtFDesc"];
-            string doType = Request["doType"];
+            //string txtFCode = Request["txtFCode"];
+            //string txtFName = Request["txtFName"];
+            //string txtFSex = Request["txtFSex"];
+            //string txtFAreaCode = Request["txtFAreaCode"];
+            //string txtFCyCode = Request["txtFCyCode"];
+            //string txtFAddr = Request["txtFAddr"];
+            //string txtFIdenNo = Request["txtFIdenNo"];
+            //string txtFCrimeCode = Request["txtFCrimeCode"];
+            //string txtFTerm = Request["txtFTerm"];
+            //string txtFInDate = Request["txtFInDate"];
+            //string txtFOuDate = Request["txtFOuDate"];
+            //string txtFlimitFlag = Request["txtFlimitFlag"];
+            //string txtFlimitAmt = Request["txtFlimitAmt"];
+            //string txtFDesc = Request["txtFDesc"];
+            //string doType = Request["doType"];
 
             //验证编号是否存在
             if (string.IsNullOrEmpty(txtFCode))
@@ -463,9 +484,10 @@ namespace SelfhelpOrderMgr.Web.Controllers
             }
         }
 
-        public ActionResult DelCriminal()
+        [MyLogActionFilterAttribute]
+        public ActionResult DelCriminal(string txtFCode)
         {
-            string txtFCode = Request["txtFCode"];
+            //string txtFCode = Request["txtFCode"];
             if (string.IsNullOrEmpty(txtFCode))
             {
                 return Content("Err|用户编号不能为空");
@@ -499,6 +521,13 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 return Content("Err|用户编号不存在");
             }
         }
+
+
+        /// <summary>
+        /// 恢复在押
+        /// </summary>
+        /// <returns></returns>
+        [MyLogActionFilterAttribute]
         public ActionResult RecCriminal()
         {
             string txtFCode = Request["txtFCode"];
@@ -506,6 +535,13 @@ namespace SelfhelpOrderMgr.Web.Controllers
             {
                 return Content("Err|用户编号不能为空");
             }
+
+            T_CZY czy = new T_CZYBLL().GetModel(Session["loginUserCode"].ToString());
+            if(czy.FPRIVATE==null || czy.FPRIVATE == 0)
+            {
+                return Content("Err|您不是管理员，无权恢复，请与管理部门联系");
+            }
+
             T_Criminal criminal = new T_CriminalBLL().GetModel(txtFCode);
             if (criminal != null)
             {

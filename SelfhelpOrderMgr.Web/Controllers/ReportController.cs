@@ -388,6 +388,21 @@ namespace SelfhelpOrderMgr.Web.Controllers
             //ExcelRender.RenderToExcel(dt, context, strFileName);
             switch (id)
             {
+                case 1://个人余额汇总
+                    {
+                        //string CashTypes = Request["CashTypes"];//存款类型
+                        //string PayTypes = Request["PayTypes"];//取款类型
+                        //if (string.IsNullOrEmpty(CashTypes) == false)
+                        //{
+                        //    title = title + "(" + CashTypes + ")";
+                        //}
+                        //if (string.IsNullOrEmpty(PayTypes) == false)
+                        //{
+                        //    title = title + "(" + CashTypes + ")";
+                        //}
+                        ExcelRender.RenderToExcel(dt, title, 5, strFileName, mul_lan, strCountTime);
+                    }
+                    break;
                 case 22://双行模式（无明细日期）
                     {
                         string CashTypes = Request["CashTypes"];//存款类型
@@ -468,15 +483,15 @@ namespace SelfhelpOrderMgr.Web.Controllers
                     {
                         if(intFlag==0)
                         {
-                            strSql.Append("select FCrimeCode,FCriminal,FAreaName,Sum(Damount) Damount,Sum(Camount) Camount from T_VCrd  ");
+                            strSql.Append("select FCrimeCode,FCriminal,b.FAreaName,Sum(Damount) Damount,Sum(Camount) Camount from T_VCrd a,(Select FCode ,FAreaName=(select fname from t_area where fcode=e.FAreaCode) from T_Criminal e where isnull(FFlag,0)=0) b   ");
 
                         }else
                         {
-                            strSql.Append("select FCrimeCode 编号,FCriminal 姓名,FAreaName 队别,Sum(Damount) 收入,Sum(Camount) 支出 from T_VCrd  ");
+                            strSql.Append("select FCrimeCode 编号,FCriminal 姓名,b.FAreaName 队别,Sum(Damount) 收入,Sum(Camount) 支出,Sum(Damount-Camount) 余额 from T_VCrd a,(Select FCode ,FAreaName=(select fname from t_area where fcode=e.FAreaCode) from T_Criminal e where isnull(FFlag,0)=0) b  ");
                         }
-                        strSql.Append(" Where " + strWhere);
-                        strSql.Append(" group by FCrimeCode,FCriminal,FAreaName ");
-                        strSql.Append(" Order by FAreaName,FCriminal,FCrimeCode ;");
+                        strSql.Append(" Where a.fcrimecode=b.FCode and " + strWhere);
+                        strSql.Append(" group by FCrimeCode,FCriminal,b.FAreaName ");
+                        strSql.Append(" Order by b.FAreaName,FCriminal,FCrimeCode ;");
                         title = "用户个人汇总报表";
                     } break;
                 case 2://按个用户个人清表

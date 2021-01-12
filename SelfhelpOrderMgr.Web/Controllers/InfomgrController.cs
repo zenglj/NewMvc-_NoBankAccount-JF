@@ -698,12 +698,14 @@ namespace SelfhelpOrderMgr.Web.Controllers
         }
 
         /// <summary>
-        /// 恢复在押
+        /// 结算后，恢复在押
         /// </summary>
         /// <param name="FCode"></param>
         /// <param name="FName"></param>
         /// <param name="payMode"></param>
         /// <returns></returns>
+
+        [MyLogActionFilterAttribute]
         public ActionResult ResotreCriminalInPrison(string FCode, string FName, int payMode)
         {
             /*
@@ -1175,10 +1177,12 @@ namespace SelfhelpOrderMgr.Web.Controllers
         //==========================处遇类型管理========================
 
         #region 处遇类型管理
-        public ActionResult DeleleCYType()//删除商品类型
+
+        [MyLogActionFilterAttribute]
+        public ActionResult DeleleCYType(string strId)//删除处遇类型
         {
             string strRes = "Err|删除失败";
-            string strId = Request["FCode"];
+            //string strId = Request["FCode"];
             if (new T_CY_TYPEBLL().Delete(strId))
             {
                 strRes = "OK|删除成功";
@@ -1186,16 +1190,24 @@ namespace SelfhelpOrderMgr.Web.Controllers
             return Content(strRes);
         }
 
-        public ActionResult SaveCYTypeList()//保存消费类型列表
+        /// <summary>
+        /// 保存处遇类型
+        /// </summary>
+        /// <param name="deleted"></param>
+        /// <param name="inserted"></param>
+        /// <param name="updated"></param>
+        /// <returns></returns>
+        [MyLogActionFilterAttribute]
+        public ActionResult SaveCYTypeList(string deleted, string inserted, string updated)//保存处遇类型列表
         {
             //Request.("UTF-8");
             //取编辑数据 这里获取到的是json字符串
 
-            string deleted = Request["deleted"];
+            //string deleted = Request["deleted"];
 
-            string inserted = Request["inserted"];
+            //string inserted = Request["inserted"];
 
-            string updated = Request["updated"];
+            //string updated = Request["updated"];
 
 
             //把json字符串转换成对象

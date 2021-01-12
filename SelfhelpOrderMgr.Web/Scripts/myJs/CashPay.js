@@ -404,7 +404,7 @@ function noMoneyEnter() {
 
 //删除存款明细记录
 function DelDetailList() {
-
+    
     var row = $("#detail").datagrid('getSelected');
     if (row == null) {
         $.messager.alert("提示", "请选择一条要删除的记录");
@@ -414,39 +414,44 @@ function DelDetailList() {
         $.messager.alert("提示", "2该记录已经发送到银行了，不能删除");
         return false;
     } else {
-        $.post("/CashPay/DelDetailList/" + $("#saveTypeId").val(), {
-            "FCode": row.FCrimeCode,
-            "seqno": row.seqno
-        }, function (data, status) {
-            if ("success" != status) {
-                return false;
-            } else {
-                //$.messager.alert('提示', data); 
-                var words = data.split("|");
-                if (words[0] == "OK") {
-                    var index = $('#detail').datagrid('getRowIndex', row);
-                    //var flieds = $.parseJSON(words[1]);
-                    $('#detail').datagrid('deleteRow', index);
+        $.messager.confirm('确认', '您是否真的要删除记录吗?', function (r) {
+            if (r) {
+                $.post("/CashPay/DelDetailList/" + $("#saveTypeId").val(), {
+                    "FCode": row.FCrimeCode,
+                    "seqno": row.seqno
+                }, function (data, status) {
+                    if ("success" != status) {
+                        return false;
+                    } else {
+                        //$.messager.alert('提示', data); 
+                        var words = data.split("|");
+                        if (words[0] == "OK") {
+                            var index = $('#detail').datagrid('getRowIndex', row);
+                            //var flieds = $.parseJSON(words[1]);
+                            $('#detail').datagrid('deleteRow', index);
 
-                    //更新用户表的金额
-                    var userInfo = $.parseJSON(words[2]);
-                    var userRow = $('#test').datagrid('getSelected');
-                    var idx = $('#test').datagrid('getRowIndex', userRow);
-                    $('#test').datagrid('updateRow', {
-                        index: idx,
-                        row: {
-                            AmountA: userInfo.AmountA,
-                            AmountB: userInfo.AmountB,
-                            AmountC: userInfo.AmountC,
-                            AllMoney: userInfo.AllMoney
+                            //更新用户表的金额
+                            var userInfo = $.parseJSON(words[2]);
+                            var userRow = $('#test').datagrid('getSelected');
+                            var idx = $('#test').datagrid('getRowIndex', userRow);
+                            $('#test').datagrid('updateRow', {
+                                index: idx,
+                                row: {
+                                    AmountA: userInfo.AmountA,
+                                    AmountB: userInfo.AmountB,
+                                    AmountC: userInfo.AmountC,
+                                    AllMoney: userInfo.AllMoney
+                                }
+                            });
+                            $.messager.alert("提示", "删除成功");
+                        } else {
+                            $.messager.alert("提示", data);
                         }
-                    });
-                    $.messager.alert("提示", "删除成功");
-                } else {
-                    $.messager.alert("提示", data);
-                }
+                    }
+                });
             }
         });
+        
     }
 }
 
