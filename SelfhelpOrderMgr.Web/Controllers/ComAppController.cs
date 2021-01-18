@@ -310,6 +310,27 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
         public ActionResult btnSubmitChange(int id = 1)
         {
+            string ip = System.Web.HttpContext.Current.Request.UserHostAddress;
+            T_SHO_ManagerSet cyPowerSet = new T_SHO_ManagerSetBLL().GetModel("criminalChangeSetByCyPowerIP");
+            if(cyPowerSet!=null && cyPowerSet.KeyMode == 1)
+            {
+                bool ipAuthFlag = false;
+                string[] ips = cyPowerSet.MgrValue.Split((char)59);//以分号";"进行分割
+                foreach (var item in ips)
+                {
+                    if(item== ip)
+                    {
+                        ipAuthFlag = true;
+                        break;
+                    }
+                }
+                if(ipAuthFlag==false)
+                {
+                    return Content("Err|您的机器没有授权，不能变更处遇");
+                }
+                
+            }
+
             id = 2;//设为是扣款的
             string FCrimeCode = Request["FCrimeCode"];
             string FIcCardCode = Request["FIcCardCode"];

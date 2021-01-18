@@ -346,9 +346,6 @@ function btnSearch() {
     }
     //alert($("#FCashTypes").combobox('getValues'));
 
-
-
-
     var AccTypes = $("#FAccTypes").combobox('getValues');
     var selAccTypes = "";
     for (var i = 0; i < AccTypes.length; i++) {

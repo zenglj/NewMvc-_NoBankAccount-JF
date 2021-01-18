@@ -144,6 +144,15 @@ namespace SelfhelpOrderMgr.Web.Controllers
             //return Content(jss.Serialize(rs));
         }
 
+        /// <summary>
+        /// 手动审核入账
+        /// </summary>
+        /// <param name="fcrimecode"></param>
+        /// <param name="fcrimename"></param>
+        /// <param name="remark"></param>
+        /// <param name="vchnum"></param>
+        /// <param name="checkFlag"></param>
+        /// <returns></returns>
         public ActionResult SetBankArtificialAddNotImportRec(string fcrimecode,string fcrimename,string remark, string vchnum,int checkFlag=1)
         {
             ResultInfo rs = new ResultInfo()
@@ -480,7 +489,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
             rcvRec = new T_Bank_Rcv
             {
-                CardNo = dtlRec.fractncardno,
+                CardNo = dtlRec.toactncardno,
                 CreateDate = Convert.ToDateTime(dtlRec.txndate.Substring(0, 4) + "-" + dtlRec.txndate.Substring(4, 2) + "-" + dtlRec.txndate.Substring(6, 2)),
                 Error = "手动识别",
                 FCrimeCode = "",
