@@ -193,9 +193,16 @@
                         </td>
                     </tr>
                     <tr>
-                        <th align="right"></th>
+                        <th align="right">编号起始：</th>
                         <td align="left">
-                            <input class="easyui-numberbox" id="endFCode" name="endFCode"
+                            <input class="easyui-numberbox" id="FCode_Start" name="FCode_Start"
+                                   data-options="min:0,precision:0" style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">编号结束：</th>
+                        <td align="left">
+                            <input class="easyui-numberbox" id="FCode_End" name="FCode_End"
                                    data-options="min:0,precision:0" style="width:190px">
                         </td>
                     </tr>
@@ -223,35 +230,35 @@
                     <tr>
                         <th align="right">入监起日：</th>
                         <td align="left">
-                            <input class="easyui-datetimebox" id="rjStartDate" name="rjStartDate"
+                            <input class="easyui-datetimebox" id="rjStartDate" name="FInDate_Start"
                                    data-options="required:false,showSeconds:false" value="3/4/2010 00:00" style="width:190px">
                         </td>
                     </tr>
                     <tr>
                         <th align="right">　　止日：</th>
                         <td align="left">
-                            <input class="easyui-datetimebox" id="rjEndDate" name="rjStartDate"
+                            <input class="easyui-datetimebox" id="rjEndDate" name="FInDate_End"
                                    data-options="required:false,showSeconds:false" value="3/4/2010 23:59" style="width:190px">
                         </td>
                     </tr>
                     <tr>
                         <th align="right">刑满起日：</th>
                         <td align="left">
-                            <input class="easyui-datetimebox" id="StartDate" name="StartDate"
+                            <input class="easyui-datetimebox" id="StartDate" name="FOuDate_Start"
                                    data-options="required:false,showSeconds:false" value="3/4/2010 00:00" style="width:190px">
                         </td>
                     </tr>
                     <tr>
                         <th align="right">　　止日：</th>
                         <td align="left">
-                            <input class="easyui-datetimebox" id="EndDate" name="EndDate"
+                            <input class="easyui-datetimebox" id="EndDate" name="FOuDate_End"
                                    data-options="required:false,showSeconds:false" value="3/4/2010 23:59" style="width:190px">
                         </td>
                     </tr>
                     <tr>
                         <th align="right">队别：</th>
                         <td align="left">
-                            <select id="FAreaName" name="FAreaName" class="easyui-combobox" style="width:190px;">
+                            <select id="FAreaName" name="FAreaCode" class="easyui-combobox" style="width:190px;">
                                 <option value="" selected="selected">请选择队别</option>
                                 @if (ViewData["areas"] != null)
                                 {
@@ -267,7 +274,7 @@
                     <tr>
                         <th align="right">操作员：</th>
                         <td align="left">
-                            <select id="FCrtBy" name="FCrtBy" class="easyui-combobox" style="width:190px;">
+                            <select id="FCrtBy" name="FCZY" class="easyui-combobox" style="width:190px;">
                                 <option value="" selected="selected">请选择</option>
                                 @if (ViewData["crtbys"] != null)
                                 {
@@ -282,7 +289,7 @@
                     <tr>
                         <th align="right">在押状态：</th>
                         <td align="left">
-                            <select id="FCriminalFlag" name="FCriminalFlag" class="easyui-combobox" style="width:190px;">
+                            <select id="FCriminalFlag" name="fflag" class="easyui-combobox" style="width:190px;">
                                 <option value="" selected="selected">请选择</option>
                                 <option value="0">在押</option>
                                 <option value="1">离监</option>
@@ -292,7 +299,7 @@
                     <tr>
                         <th align="right">IC卡状态：</th>
                         <td align="left">
-                            <select id="FAccTypes" name="FAccTypes" class="easyui-combobox" style="width:190px;">
+                            <select id="FAccTypes" name="CardOpenFlag" class="easyui-combobox" style="width:190px;">
                                 <option value="" selected="selected">IC卡办理状态</option>
                                 <option value="0">未制卡</option>
                                 <option value="1">已制卡</option>
@@ -302,14 +309,19 @@
                     <tr>
                         <th align="right">银行开户：</th>
                         <td align="left">
-                            <select id="FBankFlags" name="FBankFlags" class="easyui-combobox" style="width:190px;">
+                            <select id="FBankFlags" name="BankOpenFlag" class="easyui-combobox" style="width:190px;">
                                 <option value="" selected="selected">银行开户状态</option>
                                 <option value="0">未开户</option>
                                 <option value="1">已开户</option>
                             </select>
                         </td>
                     </tr>
-
+                    <tr>
+                        <th align="right">银行卡号：</th>
+                        <td align="left">
+                            <input id="SecondaryBankCard" name="SecondaryBankCard" class="easyui-textbox" style="width:190px">
+                        </td>
+                    </tr>
                     <tr>
                         <th align="right"></th>
                         <td align="right"><a id="btn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-search'" onclick="btnSearch()">查询</a><a id="A1" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-redo'" onclick="btnClear()">清空</a></td>
@@ -468,7 +480,7 @@
         </div>
     </div>
     <div id="winOutBankInfo" class="easyui-window" title="离监收款账户" style="width:700px;height:400px"
-             data-options="iconCls:'icon-save',modal:true">
+         data-options="iconCls:'icon-save',modal:true">
         <form id="ffOutBankInfo" autocomplete="off" method="post">
             <table>
                 <tr>
@@ -520,21 +532,21 @@
             </div>
         </form>
 
-        </div>
+    </div>
 
-        <div id="tbByBank">
-                <form id="ffByBankName" method="post">
-                    <div>
-                        <label for="name">网点名称:</label>
-                        <input class="easyui-validatebox" type="text" id="searchBankOpenName" name="BankOpenName" data-options="required:true" />
-                        <a id="btn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-search'" onclick="btnSearchBankOpenName()" >查询</a>
-                    </div>
-
-                </form>
+    <div id="tbByBank">
+        <form id="ffByBankName" method="post">
+            <div>
+                <label for="name">网点名称:</label>
+                <input class="easyui-validatebox" type="text" id="searchBankOpenName" name="BankOpenName" data-options="required:true" />
+                <a id="btn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-search'" onclick="btnSearchBankOpenName()">查询</a>
             </div>
 
-    <script src="~/Scripts/myJs/LodopFuncs.js"></script>
+        </form>
+    </div>
 
+    <script src="~/Scripts/myJs/LodopFuncs.js"></script>
+    <script src="~/Scripts/myJs/commonJs.js"></script>
     <script src="~/Scripts/myJs/CriminalMgr.js"></script>
     <script src="~/Scripts/simple-calendar/tcal.js"></script>
     <script type="text/javascript">

@@ -2,6 +2,7 @@
 using SelfhelpOrderMgr.Model;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Web;
@@ -155,10 +156,7 @@ namespace SelfhelpOrderMgr.DAL
                 //var paraArray = type.GetProperties().Select(p => new SqlParameter("@" + p.Name, p.GetValue(t) ?? DBNull.Value)).ToArray();
                 return SqlMapper.Execute(conn, _update, list) >= 1;//判断更新的数量是否等于1，实际使用可以根据情况返回数组
             }
-
         }
-    
-
 
         public bool Delete<T>(int id) where T:BaseModel
         {
@@ -260,12 +258,32 @@ namespace SelfhelpOrderMgr.DAL
                             stringWhere = SetWhereString(stringWhere, "=", p.Name, p.Name);
                         }
                     }
+                    else if (System.Data.DbType.String == dbtypeInt)
+                    {
+                        param.Add(p.Name, p.GetValue(s) ?? DBNull.Value, dbtypeInt);
+                        if (p.Name.EndsWith("_Start"))
+                        {
+                            stringWhere = SetWhereString(stringWhere, ">=", p.Name.Substring(0, p.Name.Length - 6), p.Name);
+                        }
+                        else if (p.Name.EndsWith("_End"))
+                        {
+                            stringWhere = SetWhereString(stringWhere, "<=", p.Name.Substring(0, p.Name.Length - 4), p.Name);
+                        }
+                        else
+                        {
+                            stringWhere = SetWhereString(stringWhere, "=", p.Name, p.Name);
+                        }
+                    }
                     else
                     {
                         param.Add(p.Name, p.GetValue(s) ?? DBNull.Value, dbtypeInt);
                         if (p.Name.EndsWith("Name"))
                         {
                             stringWhere = SetWhereString(stringWhere, " like ", p.Name, p.Name);
+                        }
+                        else if(p.Name.EndsWith("_In"))
+                        {
+                            stringWhere = SetWhereString(stringWhere, " in ", p.Name.Substring(0, p.Name.Length-3), "( " + p.Name + " )");
                         }
                         else
                         {
@@ -400,66 +418,144 @@ namespace SelfhelpOrderMgr.DAL
             return stringWhere;
         }
 
-        public PageResult<T> GetPageList<T,S>(string orderField, string strJsonWhere, int pageIndex = 1, int pageSize = 10,string OtherQuery="") where T :  BaseModel
+        public PageResult<T> GetPageList<T,S>(string orderField, string strJsonWhere, int pageIndex = 1, int pageSize = 10,string OtherQuery="", string columnInfo = "*") where T :  BaseModel
         {
-            int iStartRow = (pageIndex - 1) * pageSize+1;//起始行
+            int iStartRow = (pageIndex - 1) * pageSize + 1;//起始行
             int iEndRow = pageIndex * pageSize;//结束行
 
             var param = new DynamicParameters();
             //获取查询参数列表
-            Type type=typeof(T);
+            Type type = typeof(T);
             Type stype = typeof(S);
             string stringWhere = "";
+            //获取SQL的查询条件及参数信息
             stringWhere = GetSearchWhereAndParam<S>(strJsonWhere, param, stype, stringWhere);
 
-            
             param.Add("firstData", iStartRow, System.Data.DbType.Int32);
             param.Add("endData", iEndRow, System.Data.DbType.Int32);
-
+            #region 没有封装前的查询脚本
             //查询Sql字符串
+            //string sql = null;
+            //if (string.IsNullOrWhiteSpace(OtherQuery) == false)
+            //{
+            //    if (string.IsNullOrWhiteSpace(stringWhere))
+            //    {
+            //        stringWhere += OtherQuery;
+            //    }
+            //    else
+            //    {
+            //        stringWhere += " and " + OtherQuery;
+            //    }
+            //}
+            //if (string.IsNullOrWhiteSpace(stringWhere))
+            //{
+            //    sql = @"select " + columnInfo + @" from
+            //        (
+            //        select ROW_NUMBER() over(order by " + orderField + ") as rowNumber,* from [" + type.Name
+            //    + @"] ) as t where t.rowNumber>=@firstData and t.rowNumber<=@endData";
+            //}
+            //else
+            //{
+            //    sql = @"select " + columnInfo + @" from
+            //        (
+            //        select ROW_NUMBER() over(order by " + orderField + ") as rowNumber,* from [" + type.Name + @"] where " + stringWhere
+            //    + @" ) as t
+            //        where t.rowNumber>=@firstData and t.rowNumber<=@endData";
+            //}
+            #endregion
+
+            //获取SQL的查询脚本
+            string sql = GetSearchSqlInfo(orderField, OtherQuery, columnInfo, type, ref stringWhere);
             using (SqlConnection conn = new SqlConnection(SqlHelper.getConnstr()))
             {
-                string sql=null;
 
-
-                if (string.IsNullOrWhiteSpace(OtherQuery)==false)
-                {                    
-                    if (string.IsNullOrWhiteSpace(stringWhere))
-                    {
-                        stringWhere += OtherQuery;                        
-                    }
-                    else
-                    {
-                        stringWhere += " and " + OtherQuery;
-                    }
-                }
-                if(string.IsNullOrWhiteSpace(stringWhere)){
-                    sql = @"select * from
-                    (
-                    select ROW_NUMBER() over(order by "+ orderField +") as rowNumber,* from ["+ type.Name 
-                    +@"] ) as t where t.rowNumber>=@firstData and t.rowNumber<=@endData";
-                }else
-                {
-                    sql = @"select * from
-                    (
-                    select ROW_NUMBER() over(order by "+ orderField +") as rowNumber,* from ["+ type.Name +@"] where "+ stringWhere
-                    + @" ) as t
-                    where t.rowNumber>=@firstData and t.rowNumber<=@endData";
-                }
                 PageResult<T> ps = new PageResult<T>();
                 ps.PageIndex = pageIndex;
                 ps.PageSize = pageSize;
-                ps.rows=SqlMapper.Query<T>(conn, sql, param).AsList<T>();
+                ps.rows = SqlMapper.Query<T>(conn, sql, param).AsList<T>();
 
-                string sqlCount="select count(1) from ["+ type.Name +"] ";
+                string sqlCount = "select count(1) from [" + type.Name + "] ";
                 if (!string.IsNullOrWhiteSpace(stringWhere))
                 {
-                    sqlCount="select count(1) from ["+ type.Name +"] where "+ stringWhere;
+                    sqlCount = "select count(1) from [" + type.Name + "] where " + stringWhere;
                 }
                 ps.total = SqlMapper.Query<int>(conn, sqlCount, param).ToList()[0];//总行数
                 return ps;
             }
         }
+
+        //GetSqlWhereParamInfo
+
+
+        public DataTable GetPageDataTable<T, S>(string orderField, string strJsonWhere, int pageIndex = 1, int pageSize = 10, string OtherQuery = "",string columnInfo="*") where T : BaseModel
+        {
+            int iStartRow = (pageIndex - 1) * pageSize + 1;//起始行
+            int iEndRow = pageIndex * pageSize;//结束行
+
+            var param = new DynamicParameters();
+
+            //获取查询参数列表
+            Type type = typeof(T);
+            Type stype = typeof(S);
+            string stringWhere = "";
+            stringWhere = GetSearchWhereAndParam<S>(strJsonWhere, param, stype, stringWhere);
+            param.Add("firstData", iStartRow, System.Data.DbType.Int32);
+            param.Add("endData", iEndRow, System.Data.DbType.Int32);
+            //获取SQL的查询脚本
+            string sql = GetSearchSqlInfo(orderField, OtherQuery, columnInfo, type, ref stringWhere);
+            using (SqlConnection conn = new SqlConnection(SqlHelper.getConnstr()))
+            {
+                DataTable table = new DataTable("MyTable");
+                IDataReader reader = SqlMapper.ExecuteReader(conn, sql, param);
+                table.Load(reader);
+                return table;
+            }
+        }
+
+        /// <summary>
+        /// 获取SQL的查询脚本
+        /// </summary>
+        /// <param name="orderField"></param>
+        /// <param name="OtherQuery"></param>
+        /// <param name="columnInfo"></param>
+        /// <param name="type"></param>
+        /// <param name="stringWhere"></param>
+        /// <returns></returns>
+        private static string GetSearchSqlInfo(string orderField, string OtherQuery, string columnInfo, Type type, ref string stringWhere)
+        {
+            //查询Sql字符串
+            string sql;
+            if (string.IsNullOrWhiteSpace(OtherQuery) == false)
+            {
+                if (string.IsNullOrWhiteSpace(stringWhere))
+                {
+                    stringWhere += OtherQuery;
+                }
+                else
+                {
+                    stringWhere += " and " + OtherQuery;
+                }
+            }
+            if (string.IsNullOrWhiteSpace(stringWhere))
+            {
+                sql = @"select " + columnInfo + @" from
+                    (
+                    select ROW_NUMBER() over(order by " + orderField + ") as rowNumber,* from [" + type.Name
+                + @"] ) as t where t.rowNumber>=@firstData and t.rowNumber<=@endData";
+            }
+            else
+            {
+                sql = @"select " + columnInfo + @" from
+                    (
+                    select ROW_NUMBER() over(order by " + orderField + ") as rowNumber,* from [" + type.Name + @"] where " + stringWhere
+                + @" ) as t
+                    where t.rowNumber>=@firstData and t.rowNumber<=@endData";
+            }
+
+            return sql;
+        }
+
+
         /// <summary>
         /// 获取查询条件的SQL语句及参数
         /// </summary>
@@ -476,7 +572,6 @@ namespace SelfhelpOrderMgr.DAL
                 S s = Newtonsoft.Json.JsonConvert.DeserializeObject<S>(strJsonWhere);
                 var paraList = stype.GetPropertiesInJson(strJsonWhere).Select(p => p)
                     .ToList();
-
 
                 #region Dapper的设定参数
 
@@ -707,7 +802,6 @@ namespace SelfhelpOrderMgr.DAL
             using (SqlConnection conn = new SqlConnection(SqlHelper.getConnstr()))
             {
                 string sql = null;
-
 
                 if (string.IsNullOrWhiteSpace(OtherQuery) == false)
                 {

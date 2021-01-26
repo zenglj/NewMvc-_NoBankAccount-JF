@@ -5,7 +5,7 @@ using System.Data;
 namespace SelfhelpOrderMgr.Model
 {
     //T_Criminal
-    public partial class T_Criminal
+    public partial class T_Criminal:BaseModel
     {
 
         /// <summary>

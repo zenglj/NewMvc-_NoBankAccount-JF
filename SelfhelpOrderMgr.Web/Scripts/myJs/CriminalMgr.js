@@ -158,7 +158,8 @@ function loadDetailTable() {
             { field: 'FDesc', title: '描述', sortable: true, width: 100 },
             { field: 'FCZY', title: '录入员', sortable: true, width: 150 },
             { field: 'CardCode', title: 'IC卡', sortable: true, width: 100 },
-            { field: 'BankCardNo', title: '银行卡', sortable: true, width: 200 },
+            { field: 'BankCardNo', title: '旧烛光卡', sortable: true, width: 200 },
+            { field: 'SecondaryBankCard', title: '新结算银行卡', sortable: true, width: 200 },
             { field: 'TP_YingYangCan_Money', title: '特批金额', sortable: true, width: 200 },
             {
                 field: 'RSB_Flag', title: '入监/所包', width: 120, sortable: true, formatter: function (value, row, index) {
@@ -340,54 +341,34 @@ function GetOutBankInfo(fcode) {
 
 
 function btnSearch() {
-    var rows = $("#test").datagrid('getRows');
-    for (var i = rows.length - 1; i >= 0 ; i--) {
-        $("#test").datagrid('deleteRow', 0);
-    }
-    //alert($("#FCashTypes").combobox('getValues'));
-
-    var AccTypes = $("#FAccTypes").combobox('getValues');
-    var selAccTypes = "";
-    for (var i = 0; i < AccTypes.length; i++) {
-        var AccType = AccTypes[i];
-        if (selAccTypes == "") {
-            selAccTypes = AccType;
-        } else {
-            selAccTypes = selAccTypes + "," + AccType + "";
-        }
-    }
-
-    var BankFlags = $("#FBankFlags").combobox('getValues');
-    var selBankFlags = "";
-    for (var i = 0; i < BankFlags.length; i++) {
-        var BankFlag = BankFlags[i];
-        if (selBankFlags == "") {
-            selBankFlags = BankFlag;
-        } else {
-            selBankFlags = selBankFlags + "," + BankFlag + "";
-        }
-    }
 
 
+
+    //var strJson = "";
+    //$("#searchForm tr td span input").each(function (index, element) {   //element-当前的元素,也可使用this选择器
+    //    if (typeof $(this).attr("name") != "undefined" && $(this).val().replace(/^\s*|\s*$/g, "") != "" && typeof $(this).val() != "undefined") {
+    //        console.log($(this).attr("name") + ":" + $(this).val());
+    //        if (strJson == "") {
+    //            strJson = "\"" + $(this).attr("name") + "\":\"" + $(this).val() + "\"";
+    //        } else {
+    //            strJson = strJson + "," + "\"" + $(this).attr("name") + "\":\"" + $(this).val() + "\"";
+    //        }
+    //    }
+    //});
+    //strJson = "{" + strJson + "}";
+
+    var strJson = GetFormSearchJson('searchForm');
     $('#test').datagrid('load', {
-        FCode: $("#FCode").numberbox('getValue'),
-        endFCode: $("#endFCode").numberbox('getValue'),
-        FName: $("#FName").textbox('getText'),
-        cyName: $("#FCyName").combobox('getValue'),
-        rjStartTime: $("#rjStartDate").datetimebox('getValue'),
-        rjEndTime: $("#rjEndDate").datetimebox('getValue'),
-        startTime: $("#StartDate").datetimebox('getValue'),
-        endTime: $("#EndDate").datetimebox('getValue'),
-        areaName: $("#FAreaName").combobox('getValue'),
-        CrtBy: $("#FCrtBy").combobox('getValue'),
-        CriminalFlag: $("#FCriminalFlag").combobox('getValue'),
-        //CashTypes:selCashTypes,
-        //PayTypes:selPayTypes,
-        AccTypes: selAccTypes,
-        BankFlags: selBankFlags
-
+        strJsonWhere: strJson
     });
 
+    //$.post("/Criminal/GetListSumAmount", { "strJsonWhere": strJson }, function (data, status) {
+    //    if ("success" == status) {
+    //        if (data.Flag == true) {
+    //            $("#schSumMoney").html("查询结果总额:<u>" + data.DataInfo + " 元</u>");
+    //        }
+    //    }
+    //});
 
 }
 
@@ -550,19 +531,15 @@ function btnTP_YingYangCan() {
     $('#winTP_YingYanyCan').window('open');  // open a window    
 }
 
-//打印报表，id 是的不同报表的参数
-function printMenuBtn(id) {
 
-    var strWhere = getSearchCondition();
-    window.open("/Report/PrintCriminalSumOrder/" + id + "?" + strWhere);
-
-}
 
 function OutExcelSumOrder(id) {
     //$.messager.alert("提示",id);
-    var objWhere = getSearchObjCondition();
+    //var objWhere = getSearchObjCondition();
+    var strJson = GetFormSearchJson('searchForm');
+    console.log(strJson);
     //alert("dddddd");
-    $.post("/Criminal/ExcelCriminalSumOrder/" + id, objWhere, function (data, status) {
+    $.post("/Criminal/ExcelCriminalSumOrder/" + id, { "strJsonWhere": strJson}, function (data, status) {
         if (status != "success") {
             return false;
         } else {

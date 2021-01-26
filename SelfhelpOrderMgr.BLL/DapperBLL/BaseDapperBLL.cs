@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using SelfhelpOrderMgr.DAL;
+using System.Data;
+
 namespace SelfhelpOrderMgr.BLL
 {
     public class BaseDapperBLL
@@ -100,10 +102,41 @@ namespace SelfhelpOrderMgr.BLL
         {
             return dapperDal.GetModelFirst<T, S>(strJsonWhere);
         }
+
+        /// <summary>
+        /// 按查询条件获取数据表相应的实体数据
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="S"></typeparam>
+        /// <param name="orderField"></param>
+        /// <param name="strJsonWhere"></param>
+        /// <param name="pageIndex"></param>
+        /// <param name="pageRows"></param>
+        /// <param name="OtherQuery"></param>
+        /// <returns></returns>
         public PageResult<T> GetPageList<T, S>(string orderField, string strJsonWhere, int pageIndex = 1, int pageRows = 10, string OtherQuery = "") where T : BaseModel
         {
             return dapperDal.GetPageList<T,S>(orderField, strJsonWhere, pageIndex, pageRows,OtherQuery);
         }
+
+        /// <summary>
+        /// 按查询条件获取数据表DataTable
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="S"></typeparam>
+        /// <param name="orderField"></param>
+        /// <param name="strJsonWhere"></param>
+        /// <param name="pageIndex"></param>
+        /// <param name="pageSize"></param>
+        /// <param name="OtherQuery"></param>
+        /// <param name="columnInfo"></param>
+        /// <returns></returns>
+        public DataTable GetPageDataTable<T, S>(string orderField, string strJsonWhere, int pageIndex = 1, int pageSize = 10, string OtherQuery = "", string columnInfo = "*") where T : BaseModel
+        {
+            return dapperDal.GetPageDataTable<T, S>(orderField, strJsonWhere, pageIndex, pageSize, OtherQuery, columnInfo);
+
+        }
+
 
         /// <summary>
         /// 获取实体表的记录数

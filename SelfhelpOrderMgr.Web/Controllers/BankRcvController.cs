@@ -20,6 +20,7 @@ using System.Web.Script.Serialization;
 namespace SelfhelpOrderMgr.Web.Controllers
 {
     [CustomActionFilterAttribute]
+
     public class BankRcvController : Controller
     {
 
@@ -32,6 +33,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
             return View();
         }
 
+
         private string GetUserLoginName()
         {
             if (string.IsNullOrWhiteSpace(userLoginName))
@@ -39,6 +41,39 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 userLoginName = new T_CZYBLL().GetModel(Session["loginUserCode"].ToString()).FName;
             }
             return userLoginName;
+        }
+
+        //按姓名查找
+        public JsonResult FindFCrimeCode(string fname)
+        {
+            ResultInfo rs = new ResultInfo() { 
+                Flag=false,
+                ReMsg="未处理",
+                DataInfo=null
+            };
+            if (string.IsNullOrWhiteSpace(fname))
+            {
+                rs.ReMsg = "姓名不能为空";
+                return Json(rs);
+            }
+            List<T_Criminal> ls = new BaseDapperBLL().GetModelList<T_Criminal, T_Criminal>( jss.Serialize(new { FName = fname,fflag=0 }), "FCode asc", 5);
+            if (ls.Count == 1)
+            {
+                rs.Flag = true;
+                rs.ReMsg = "成功";
+                rs.DataInfo = ls[0].FCode;
+            }
+            else if(ls.Count > 1)
+            {
+                rs.Flag = false;
+                rs.ReMsg = "有重名的记录";
+            }
+            else
+            {
+                rs.Flag = false;
+                rs.ReMsg = "没有找到相应的记录";
+            }
+            return Json(rs);
         }
 
         //
@@ -100,7 +135,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
             }
         }
 
-
+        
         [HttpPost]
         public JsonResult GetSearchList(string strJsonWhere, string orderField = " id asc ", int page = 1, int rows = 10)
         {
@@ -543,7 +578,6 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 //TimeSpan tspan;
                 using (FileStream stream = new FileStream(savePath, FileMode.Open, FileAccess.Read))
                 {
-
 
                     sdt = DateTime.Now;
                     //XSSFWorkbook workbook = new XSSFWorkbook(stream);

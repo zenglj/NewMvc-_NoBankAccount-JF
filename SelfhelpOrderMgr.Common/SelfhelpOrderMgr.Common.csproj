@@ -40,6 +40,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="BouncyCastle.Crypto, Version=1.8.9.0, Culture=neutral, PublicKeyToken=0e99375e54769942">
+      <HintPath>..\packages\BouncyCastle.1.8.9\lib\BouncyCastle.Crypto.dll</HintPath>
+    </Reference>
     <Reference Include="log4net, Version=2.0.7.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\log4net.2.0.7\lib\net45-full\log4net.dll</HintPath>
@@ -75,6 +78,10 @@
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Crypto\Constant.cs" />
+    <Compile Include="Crypto\DesEncrypt.cs" />
+    <Compile Include="Crypto\MD5Encrypt.cs" />
+    <Compile Include="Crypto\RsaEncrypt.cs" />
     <Compile Include="CustomExtend\AttributeExtend.cs" />
     <Compile Include="CustomExtend\CustomEnumToList.cs" />
     <Compile Include="Des3PasswordHelper.cs" />
@@ -83,6 +90,13 @@
     <Compile Include="Log4NetHelper.cs" />
     <Compile Include="MD5PasswordHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ValidateExtend\ValidateErrorModle.cs" />
+    <Compile Include="ValidateExtend\AbstractValidateAttribute.cs" />
+    <Compile Include="ValidateExtend\EmailAttribute.cs" />
+    <Compile Include="ValidateExtend\LongAttribute.cs" />
+    <Compile Include="ValidateExtend\PhoneAttribute.cs" />
+    <Compile Include="ValidateExtend\RequiredAttribute.cs" />
+    <Compile Include="ValidateExtend\StringLengthAttribute.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="log4NetBin\" />

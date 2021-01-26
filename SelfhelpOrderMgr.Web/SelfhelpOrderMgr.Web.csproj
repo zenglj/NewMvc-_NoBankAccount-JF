@@ -261,6 +261,7 @@
     <Compile Include="Controllers\UserQueryController.cs" />
     <Compile Include="Controllers\VueTestController.cs" />
     <Compile Include="Controllers\WebServiceTestController.cs" />
+    <Compile Include="Filters\CustomExceptionFilterAttribute.cs" />
     <Compile Include="Filters\CustomActionFilterAttribute.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>

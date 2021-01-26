@@ -96,37 +96,52 @@ namespace SelfhelpOrderMgr.Web.Controllers
         }
 
 
-        public ActionResult GetSearchUsers()
+        public ActionResult GetSearchUsers(string strJsonWhere, string orderField = " id asc ", int page = 1, int rows = 10)
         {
 
-            string strWhere = SetRequestSearchWhere(Session["loginUserCode"].ToString());
+            PageResult<ViewCriminalInfo> rs = new T_Bank_DepositListBLL().GetPageList<ViewCriminalInfo, ViewCriminalInfoExt_Search>(orderField, strJsonWhere, page, rows);
+            return Json(rs);
+
+            #region 老旧方式--停用了
+            //if (string.IsNullOrWhiteSpace(strJsonWhere) == false)
+            //{
+            //    ViewCriminalInfo s = Newtonsoft.Json.JsonConvert.DeserializeObject<ViewCriminalInfo>(strJsonWhere);
+            //    Type stype = typeof(ViewCriminalInfo);
+            //    var paraList = stype.GetPropertiesInJson(strJsonWhere).Select(p => p)
+            //        .ToList();
+            //}
+
+            //string strWhere = SetRequestSearchWhere(Session["loginUserCode"].ToString());
 
             //分页信息
-            string action = Request["action"];
-            string strPage = Request["page"];
-            string strRow = Request["rows"];
-            int page = 1;
-            int row = 10;
-            decimal listRows = 0;
-            string sss = "";
-            if (string.IsNullOrEmpty(strPage) == false)
-            {
-                page = Convert.ToInt32(strPage);
-            }
 
-            if (string.IsNullOrEmpty(strRow) == false)
-            {
-                row = Convert.ToInt32(strRow);
-            }
+            //string action = Request["action"];
+            //string strPage = Request["page"];
+            //string strRow = Request["rows"];
+            //int page = 1;
+            //int row = 10;
+            //decimal listRows = 0;
+            //string sss = "";
+            //if (string.IsNullOrEmpty(strPage) == false)
+            //{
+            //    page = Convert.ToInt32(strPage);
+            //}
 
-            listRows = new T_CriminalBLL().GetCriminalsCount(strWhere.ToString());
+            //if (string.IsNullOrEmpty(strRow) == false)
+            //{
+            //    row = Convert.ToInt32(strRow);
+            //}
 
-            List<T_Criminal> criminals = new T_CriminalBLL().GetPageCriminalExtInfo(page, row, strWhere, "FCode");
+            //listRows = new T_CriminalBLL().GetCriminalsCount(strWhere.ToString());
 
-            sss = "{\"total\":" + listRows.ToString() + ",\"rows\":" + jss.Serialize(criminals) + "}";
-            return Content(sss);
+            //List<T_Criminal> criminals = new T_CriminalBLL().GetPageCriminalExtInfo(page, row, strWhere, "FCode");
+
+            //sss = "{\"total\":" + listRows.ToString() + ",\"rows\":" + jss.Serialize(criminals) + "}";
+            //return Content(sss);
+            #endregion
         }
 
+        #region 老旧方式-停用了--直接拼接字符串的方式
         //将Request参数传入GetSearchWhere函数，并生成查询条件
         private string SetRequestSearchWhere(string LoginCode)
         {
@@ -275,7 +290,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
             }
             return strWhere;
         }
-
+        #endregion
 
         /// <summary>
         /// 保存犯人信息
@@ -565,82 +580,33 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 return Content("Err|用户编号不存在");
             }
         }
-        //打印用户汇总总表
-        public ActionResult PrintCriminalSumOrder(int id = 1)
-        {
-            string strWhere = SetRequestSearchWhere(Session["loginUserCode"].ToString());
 
-            StringBuilder strSql;
-            string title;
-            string result;
-            SetSumOrderWhereSql(0, id, strWhere, out strSql, out title, out result);
-
-            if (result != "")//Err|对不起,您传入错误的参数了
-            {
-                return Content(result);
-            }
-
-            ViewData["id"] = id;
-            ViewData["title"] = title;
-            List<T_Vcrd> vcrds = new T_VcrdBLL().CustomerQuery(strSql.ToString());
-
-            string startTime = Request["startTime"];
-            string endTime = Request["endTime"];
-
-
-
-            //上期结存金额
-
-            T_Vcrd shangqiJinE = new T_Vcrd();
-            if (string.IsNullOrEmpty(startTime) == false)
-            {
-                shangqiJinE = new T_VcrdBLL().CustomerQuery("Select '上期结存' DType,sum(DAmount-CAmount) DAmount from t_vcrd where flag=0 and crtdate<'" + startTime + "'")[0];
-            }
-            else
-            {
-                shangqiJinE.DType = "上期结存";
-                shangqiJinE.DAmount = 0;
-            }
-
-
-            ViewData["vcrds"] = vcrds;
-            ViewData["shangqiJinE"] = shangqiJinE;
-
-            ViewData["startTime"] = startTime;
-            ViewData["endTime"] = endTime;
-
-            return View();
-        }
 
         //Excel导出用户汇总总表
-        public ActionResult ExcelCriminalSumOrder(int id = 1)
+        public ActionResult ExcelCriminalSumOrder(string strJsonWhere, int id = 1)
         {
-            string strLoginName = new T_CZYBLL().GetModel(Session["loginUserCode"].ToString()).FName;
-
-            string strWhere = SetRequestSearchWhere(Session["loginUserCode"].ToString());
             StringBuilder strSql;
             string title;
             string result;
-            SetSumOrderWhereSql(1, id, strWhere, out strSql, out title, out result);
+            string strLoginName = new T_CZYBLL().GetModel(Session["loginUserCode"].ToString()).FName;
 
+            //如果要判断用户的监区管理权限的附加条件            
+            string otherQuery = CommonQueryService.GetUserAreaPowerString(Session["loginUserCode"].ToString());
+
+            //设置查询参数信息
+            SetSumOrderWhereSqlByDapper(1, id,  out strSql, out title, out result);
             if (result != "")//Err|对不起,您传入错误的参数了
             {
                 return Content(result);
             }
-            //ViewData["id"] = id;
-            //ViewData["title"] = title;
-            //List<T_Vcrd> vcrds = new T_VcrdBLL().CustomerQuery(strSql.ToString());
-            //ViewData["vcrds"] = vcrds;
-            T_SHO_ManagerSet mset = new T_SHO_ManagerSetBLL().GetModel("back-stageMgrTitle");
-            string unitName = "";
-            if (mset != null)
-            {
-                unitName = mset.MgrValue.Substring(0, 4);
-            }
-            DataTable dt = new CommTableInfoBLL().GetDataTable(strSql.ToString());
+            //获取监狱单位名称
+            string unitName = CommonQueryService.GetPrisonUnitName();
+            //获取查询的数据表DataTable
+            DataTable dt = new T_Bank_DepositListBLL().GetPageDataTable<ViewCriminalInfo, ViewCriminalInfoExt_Search>(" FCode asc", strJsonWhere, 1, 5000, otherQuery, strSql.ToString());
+            
+            //设置导出Excel文件的名称
             string strFileName = new CommonClass().GB2312ToUTF8(strLoginName + "_Criminalinfo.xls");
             strFileName = Server.MapPath("~/Upload/" + strFileName); ;
-            //ExcelRender.RenderToExcel(dt, context, strFileName);
             switch (id)
             {
                 case 1:
@@ -653,7 +619,6 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         //int[] cols={{10,1},6,10,12,6,40};
                         int[,] cols = { { 10, 1 }, { 6, 1 }, { 10, 1 }, { 12, 1 }, { 6, 1 }, { 42, 0 } };
                         //List<ExcelColumnsWides> cols = new List<ExcelColumnsWides>();
-
 
                         ExcelRender.RenderToExcelByBankList(dt, strFileName, title, unitName, cols);
                     }
@@ -833,6 +798,82 @@ namespace SelfhelpOrderMgr.Web.Controllers
             }
         }
 
+        private static void SetSumOrderWhereSqlByDapper(int intFlag, int id,  out StringBuilder strSql, out string title, out string result)
+        {
+
+            strSql = new StringBuilder();
+            title = "";
+            result = "";
+            switch (id)
+            {
+                case 1://按个用户个人汇总表
+                    {
+                        if (intFlag == 0)
+                        {
+                            strSql.Append(" fcode,FName,FIdenNo,FDesc,FAreaName,CyName ,CardCode ,SecondaryBankCard,BankCardNo  ");
+
+                        }
+                        else
+                        {
+                            strSql.Append(" fcode 编号,FName 姓名,FIdenNo 身份证号,FDesc 描述,FAreaName 队别,CyName 处遇级别,CardCode IC卡号,SecondaryBankCard 新银行卡,BankCardNo 停用旧烛光卡   ");
+                        }
+                        
+                        title = "用户个人信息表";
+                    }
+                    break;
+                case 2://银行开户清单
+                    {
+                        if (intFlag == 0)
+                        {
+                            strSql.Append(" FName ,FSex ,FAge ,fcode ,'中国' nationality,FAddr ");
+
+                        }
+                        else
+                        {
+                            strSql.Append(" FName 中文姓名,FSex 性别,FAge 出生日期,fcode 证件号码,'中国' 国籍,FAddr 通讯地址  ");
+                        }
+                        
+                        title = "在押服刑人员批量开卡清单";
+                    }
+                    break;
+                case 3://银行税收清单
+                    {
+                        if (intFlag == 0)
+                        {
+                            strSql.Append(" FName,fcode,'仅为中国税收居民' FDesc ");
+
+                        }
+                        else
+                        {
+                            strSql.Append(" FName 中文姓名 ,fcode 证件号码,'仅为中国税收居民' 声明 ");
+                        }
+                        
+                        title = "个人税收居民身份情况说明";
+                    }
+                    break;
+                case 4://银行税收清单
+                    {
+                        if (intFlag == 0)
+                        {
+                            strSql.Append(" fcode 编号,FName 中文姓名 ,'' 金额,'' 备注 ");
+                        }
+                        else
+                        {
+                            strSql.Append(" fcode 编号,FName 中文姓名 ,'' 金额,'' 备注 ");
+                        }
+                        
+                        title = "Excel存款清单模板";
+                    }
+                    break;
+                default:
+                    {
+                        result = "Err|对不起,您传入错误的参数了";
+                        //return Content("Err|对不起,您传入错误的参数了");
+                    }
+                    break;
+
+            }
+        }
 
         public ActionResult ExcelInport()//Excel表格导入
         {
@@ -840,18 +881,10 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
             if (Request.Files.Count > 0)
             {
-                //string strFBid = Request["excelBid"];
                 HttpPostedFileBase f = Request.Files[0];
-                string fname = f.FileName;
-                /* startIndex */
-                int index = fname.LastIndexOf("\\") + 1;
-                /* length */
-                int len = fname.Length - index;
-                fname = fname.Substring(index, len);
-                /* save to server */
-                string savePath = Server.MapPath("~/Upload/" + fname);
-                f.SaveAs(savePath);
-                //context.Response.Write("Success!");
+                string savePath = SavePostExcelFile(f);
+                //string savePath = CommonQueryService.SavePostExcelFile(f);
+                //导入耗时计算
                 DateTime sdt;
                 DateTime edt;
                 TimeSpan tspan;
@@ -871,8 +904,6 @@ namespace SelfhelpOrderMgr.Web.Controllers
                     {
                         workbook = new HSSFWorkbook(stream); // 2003版本  
                     }
-                    
-                     
 
                     //HSSFSheet sheet = workbook.GetSheetAt(0);
                     NPOI.SS.UserModel.ISheet sheet = workbook.GetSheetAt(0);
@@ -887,11 +918,12 @@ namespace SelfhelpOrderMgr.Web.Controllers
                     {
                         DataTable dtUserAdd;
                         DataRow drTemp = null;
-                        int modeId=0;
+                        int modeId = 0;
                         T_SHO_ManagerSet mset = new T_SHO_ManagerSetBLL().GetModel("personInfoExcelImportMode");
-                        if (mset != null )
+                        if (mset != null)
                         {
-                            if(mset.MgrValue == "1"){
+                            if (mset.MgrValue == "1")
+                            {
                                 //编号，姓名，性别，地址，罪行，处遇级别，刑期，入监时间，出监时间，队别，身份证号，备注
                                 dtUserAdd = SetPersonInfoByFZJY();//福州监狱模板
                                 drTemp = ReadExcelPersonInfoByFZJY(sheet, rows, dtUserAdd, drTemp);//福州监狱模板
@@ -905,14 +937,14 @@ namespace SelfhelpOrderMgr.Web.Controllers
                                 modeId = 2;
                             }
                             else
-                            {                                
+                            {
                                 //编号,姓名,性别,队别,处遇,身份证号,备注
                                 #region 定义DataTable
                                 dtUserAdd = SetPersonInfoByBZ();//标准模板
                                 drTemp = ReadExcelPersonInfoByBZ(sheet, rows, dtUserAdd, drTemp);
                                 modeId = 0;
                                 #endregion
-                            }                            
+                            }
                         }
                         else
                         {
@@ -922,16 +954,13 @@ namespace SelfhelpOrderMgr.Web.Controllers
                             #endregion
                         }
 
-
-                        
-
                         #region 写入到数据库中
 
 
                         try
                         {
-                            string strAddResult=new CommTableInfoBLL().AddDataTableToDB(dtUserAdd, "dbo.[T_Criminal_MyTmp]");
-                            if (strAddResult=="1")
+                            string strAddResult = new CommTableInfoBLL().AddDataTableToDB(dtUserAdd, "dbo.[T_Criminal_MyTmp]");
+                            if (strAddResult == "1")
                             {
                                 tspan = DateTime.Now - sdt;
                                 return Content(new T_CriminalBLL().PLExcelImport(strLoginName, modeId) + "。用时:" + tspan.TotalSeconds.ToString());
@@ -946,14 +975,30 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         {
                             return Content("Err|" + e.ToString());
                         }
-                        
+
                         #endregion
 
-                        
+
                     }
                 }
             }
             return Content("Err|导入失败，服务器没有接收到Excel文件");
+        }
+
+        //保存上传的Excel文件
+        private string SavePostExcelFile(HttpPostedFileBase f)
+        {
+            string fname = f.FileName;
+            /* startIndex */
+            int index = fname.LastIndexOf("\\") + 1;
+            /* length */
+            int len = fname.Length - index;
+            fname = fname.Substring(index, len);
+            /* save to server */
+            string savePath = Server.MapPath("~/Upload/" + fname);
+            
+            f.SaveAs(savePath);
+            return savePath;
         }
 
         public ActionResult ExcelChangeEdu()//Excel调整存款金额消费购买食品额度
@@ -1631,9 +1676,6 @@ namespace SelfhelpOrderMgr.Web.Controllers
                             {
                                 FCode = row.GetCell(0).StringCellValue;//文本型 excel列名【名称不能变,否则就会出错】
                             }
-
-
-
                             #region Excel行写入到DataTabel中
                             try
                             {//如果金额有
@@ -1672,8 +1714,6 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         //ExcelRender.RenderToExcel(dt, context, strFileName);
                         ExcelRender.RenderToExcel(dt, strFileName);
                         return Content("OK|" + strLoginName + "_Criminalinfo.xls");
-
-
                     }
                 }
             }

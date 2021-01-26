@@ -92,9 +92,11 @@
     <Compile Include="DapperModel\T_Trans_FeeList.cs" />
     <Compile Include="DapperModel\T_Bank_Rcv_Search.cs" />
     <Compile Include="DapperModel\ViewBankUserInfo.cs" />
+    <Compile Include="DapperModel\ViewCriminalInfo.cs" />
     <Compile Include="DapperModel\ViewPaymentRecordExtend.cs" />
     <Compile Include="DapperModel\T_Vcrd_Search.cs" />
     <Compile Include="DapperModel\T_Bank_DepositList_Search.cs" />
+    <Compile Include="DapperModel\ViewCriminalInfoExt_Search.cs" />
     <Compile Include="DapperModel\ViewPaymentRecordExt_Search.cs" />
     <Compile Include="ExtModel\Comment_Ext.cs" />
     <Compile Include="ExtModel\PeihuoDanPrintList.cs" />

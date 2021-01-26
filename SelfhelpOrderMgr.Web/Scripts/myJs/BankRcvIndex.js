@@ -2,7 +2,6 @@
 $(function () {
     loadDetailTable(); //显示存款明细
 
-    
     //动态改变行颜色
     $('#test').datagrid({
         rowStyler: function (index, row) {
@@ -10,6 +9,17 @@ $(function () {
                 return 'background-color:brown;';
             }
         }
+    });
+
+    $('#addFCrimeName').textbox({
+        inputEvents: $.extend({}, $.fn.textbox.defaults.inputEvents, {
+            keypress: function test() {
+                //alert(event.keyCode);
+                if (event.keyCode == 13) {
+                    findFCrimeCode();
+                }
+            }
+        })
     });
 }); 
 
@@ -417,8 +427,6 @@ function btnExcelBankDtlSch() {
 
 
 
-
-
 //清空条件
 function btnClear() {
     $("#formSearch").form('clear');
@@ -466,4 +474,19 @@ function btnCheckVchnum() {
         }
     });
     
+}
+
+
+function findFCrimeCode() {
+    console.log("dsfdsfsdfsafserew");
+    var fname = $("#addFCrimeName").textbox('getValue');
+    $.post("/BankRcv/findFCrimeCode", { "fname": fname }, function (data, status) {
+        if ("success" == status) {
+            if (data.Flag == true) {
+                $("#addFCrimeCode").textbox('setValue', data.DataInfo);
+            } else {
+                alert(data.ReMsg);
+            }
+        }
+    });
 }

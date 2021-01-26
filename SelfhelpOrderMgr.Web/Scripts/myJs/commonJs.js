@@ -141,17 +141,11 @@ function BankCardFormat(bankCardNo) {
 }
 
 
-function btnFormSearch(formId) {
-    var searchInfo = {
-        CrtDate_Start: '2020-05-01',
-        CrtDate_End: '2020-05-21'
-    };
 
-    var inpunts = $("#formPaySearch:input");
-    var json = {};
-    var message = [];
+//获取查询表单条件的Json
+function GetFormSearchJson(formId) {
     var strJson = "";
-    $("#formPaySearch table tr td span input").each(function (index, element) {   //element-当前的元素,也可使用this选择器
+    $("#" + formId +" tr td span input").each(function (index, element) {   //element-当前的元素,也可使用this选择器
         if (typeof $(this).attr("name") != "undefined" && $(this).val().replace(/^\s*|\s*$/g, "") != "" && typeof $(this).val() != "undefined") {
             console.log($(this).attr("name") + ":" + $(this).val());
             if (strJson == "") {
@@ -162,11 +156,102 @@ function btnFormSearch(formId) {
         }
     });
     strJson = "{" + strJson + "}";
-    console.log(strJson);
-    $('#tbPay').datagrid('load', {
-        strJsonWhere: strJson
-    });
-
-
-    GetMachineBalance();
+    return strJson;
 }
+
+var Commath = {
+    /* #region  精确加法 */
+    accAdd: function (arg1, arg2) {
+        var r1 = 0,
+            r2 = 0,
+            m;
+
+        if (arg1.toString().indexOf(".") > -1) {
+            r1 = arg1.toString().split(".")[1].length;
+        }
+
+        if (arg2.toString().indexOf(".") > -1) {
+            r2 = arg2.toString().split(".")[1].length;
+        }
+
+        m = Math.pow(10, Math.max(r1, r2));
+
+        if (r2 > r1) {
+            arg1 = Number(arg1.toString().replace(".", "")) * Math.pow(10, r2 - r1);
+        }
+
+        if (r1 > r2) {
+            arg2 = Number(arg2.toString().replace(".", "")) * Math.pow(10, r1 - r2);
+        }
+
+        return (Number(arg1.toString().replace(".", "")) + Number(arg2.toString().replace(".", ""))) / m;
+    },
+    /* #endregion */
+
+    /* #region  精确减法 */
+    accMinus: function (arg1, arg2) {
+        var r1 = 0,
+            r2 = 0,
+            m;
+
+        if (arg1.toString().indexOf(".") > -1) {
+            r1 = arg1.toString().split(".")[1].length;
+        }
+
+        if (arg2.toString().indexOf(".") > -1) {
+            r2 = arg2.toString().split(".")[1].length;
+        }
+
+        if (r2 > r1) {
+            arg1 = Number(arg1.toString().replace(".", "")) * Math.pow(10, r2 - r1);
+        }
+
+        if (r1 > r2) {
+            arg2 = Number(arg2.toString().replace(".", "")) * Math.pow(10, r1 - r2);
+        }
+
+        m = Math.pow(10, Math.max(r1, r2));
+        return (Number(arg1.toString().replace(".", "")) - Number(arg2.toString().replace(".", ""))) / m;
+    },
+    /* #endregion */
+
+    /* #region  精确乘法 */
+    //精确乘法
+    accMul: function (arg1, arg2) {
+        var m = 0,
+            s1 = arg1.toString(),
+            s2 = arg2.toString();
+
+        if (s1.toString().indexOf('.') > -1) {
+            m += s1.split(".")[1].length;
+        }
+
+        if (s2.toString().indexOf('.') > -1) {
+            m += s2.split(".")[1].length;
+        }
+
+        return Number(s1.replace(".", "")) * Number(s2.replace(".", "")) / Math.pow(10, m);
+    },
+    /* #endregion */
+    /* #region 精确除法  */
+    //精确除法
+    accDiv: function (arg1, arg2) {
+        var t1 = 0,
+            t2 = 0,
+            r1, r2;
+
+        if (arg1.toString().indexOf('.') > -1) {
+            t1 = arg1.toString().split(".")[1].length;
+        }
+
+        if (arg2.toString().indexOf('.') > -1) {
+            t2 = arg2.toString().split(".")[1].length;
+        }
+        with (Math) {
+            r1 = Number(arg1.toString().replace(".", ""));
+            r2 = Number(arg2.toString().replace(".", ""));
+            return (r1 / r2) * pow(10, t2 - t1);
+        }
+    }
+}
+/* #endregion */

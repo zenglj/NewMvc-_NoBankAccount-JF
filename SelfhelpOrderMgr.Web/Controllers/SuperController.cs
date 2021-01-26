@@ -1206,15 +1206,19 @@ namespace SelfhelpOrderMgr.Web.Controllers
             if (Request.Files.Count > 0)
             {
                 HttpPostedFileBase f = Request.Files[0];
-                string fname = f.FileName;
-                /* startIndex */
-                int index = fname.LastIndexOf("\\") + 1;
-                /* length */
-                int len = fname.Length - index;
-                fname = fname.Substring(index, len);
-                /* save to server */
-                string savePath = Server.MapPath("~/Upload/" + fname);
-                f.SaveAs(savePath);
+                #region 保存文件的方法
+                //string fname = f.FileName;
+                ///* startIndex */
+                //int index = fname.LastIndexOf("\\") + 1;
+                ///* length */
+                //int len = fname.Length - index;
+                //fname = fname.Substring(index, len);
+                ///* save to server */
+                //string savePath = Server.MapPath("~/Upload/" + fname);
+                //f.SaveAs(savePath);
+                #endregion
+
+                string savePath = CommonQueryService.SavePostExcelFile(f);
 
                 using (FileStream stream = new FileStream(savePath, FileMode.Open, FileAccess.Read))
                 {
