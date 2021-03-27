@@ -242,6 +242,7 @@
     <Compile Include="Controllers\LoginController.cs" />
     <Compile Include="Controllers\MainpanelController.cs" />
     <Compile Include="Controllers\MessageController.cs" />
+    <Compile Include="Controllers\MyTestController.cs" />
     <Compile Include="Controllers\NewCriminalController.cs" />
     <Compile Include="Controllers\NewStockController.cs" />
     <Compile Include="Controllers\PayAuditController.cs" />
@@ -1138,6 +1139,7 @@
     <Folder Include="Views\Base\" />
     <Folder Include="Views\Login\" />
     <Folder Include="Views\Menu\" />
+    <Folder Include="Views\MyTest\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="fonts\glyphicons-halflings-regular.woff" />

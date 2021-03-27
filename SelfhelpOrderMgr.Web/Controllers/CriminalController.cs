@@ -2375,6 +2375,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
         public ActionResult AddOutBankInfo()
         {
+            PayeeAccountService _bll= new PayeeAccountService();
             string fOutUserCode = base.Request["FOutUserCode"];
             string outBankCard = base.Request["OutBankCard"];
             string bankOrgName = base.Request["BankOrgName"];
@@ -2383,7 +2384,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
             string openingBank = base.Request["OpeningBank"];
             string outBankRemark = base.Request["OutBankRemark"];
             string crtby = (base.Request.Cookies["loginUserCode"] == null) ? "" : base.Request.Cookies["loginUserCode"].Value;
-            T_Criminal_OutBankAccount model = new PayeeAccountService().GetModelFirst<T_Criminal_OutBankAccount, T_Criminal_OutBankAccount>("{\"FCrimecode\":\"" + fOutUserCode + "\"}");
+            T_Criminal_OutBankAccount model = _bll.GetModelFirst<T_Criminal_OutBankAccount, T_Criminal_OutBankAccount>("{\"FCrimecode\":\"" + fOutUserCode + "\"}");
             if (model != null)
             {
                 model.OutBankCard = outBankCard;
@@ -2396,6 +2397,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 model.ModifyBy = crtby;
                 model.ModifyTime = new DateTime?(DateTime.Now);
                 new PayeeAccountService().Update<T_Criminal_OutBankAccount>(model);
+                //联动保存未审核的付款记录
+                int _rs = _bll.UpdateNotAuditPayRecBankInfo(model);
                 return base.Content("OK|保存成功");
             }
             model = new T_Criminal_OutBankAccount
@@ -2414,6 +2417,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
             };
             if (new PayeeAccountService().Insert<T_Criminal_OutBankAccount>(model) != null)
             {
+                //联动保存未审核的付款记录
+                int _rs = _bll.UpdateNotAuditPayRecBankInfo(model);
                 return base.Content("OK|插入成功");
             }
             return base.Content("Err|插入失败");

@@ -2,6 +2,7 @@
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
 using SelfhelpOrderMgr.BLL;
+using SelfhelpOrderMgr.Common;
 using SelfhelpOrderMgr.Model;
 using SelfhelpOrderMgr.Web.CommonHeler;
 using SelfhelpOrderMgr.Web.Filters;
@@ -508,6 +509,10 @@ namespace SelfhelpOrderMgr.Web.Controllers
             }
             T_Bank_TransDetail dtlRec = new BaseDapperBLL().GetModelFirst<T_Bank_TransDetail, T_Bank_TransDetail>(jss.Serialize(new { vchnum = vchnum }));
 
+            if (dtlRec== null)
+            {
+                return Content("Error|没有找到相应的银行记录，请确流水号，或到网银上查验，也有可能是汇款人姓名有特殊的符号无法下载");
+            }
             if (dtlRec.furinfo != null)
             {
                 if (dtlRec.furinfo.Contains("账号错") || dtlRec.furinfo.Contains("账号误") || dtlRec.furinfo.Contains("账号不存在") || dtlRec.furinfo.Contains("不符"))
@@ -611,13 +616,21 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         dtUserAdd.Columns.Add(new DataColumn("BusinessType", typeof(string)));//业务类型
                         dtUserAdd.Columns.Add(new DataColumn("DebitAccountNo", typeof(string)));//付款人账号
                         dtUserAdd.Columns.Add(new DataColumn("PayersName", typeof(string)));//付款人名称
+                        dtUserAdd.Columns.Add(new DataColumn("PayerAccountBank", typeof(string)));//付款人开户行名
+
                         dtUserAdd.Columns.Add(new DataColumn("PayeesAccountNumber", typeof(string)));//收款人账号
                         dtUserAdd.Columns.Add(new DataColumn("PayeesName", typeof(string)));//收款人名称
+                        dtUserAdd.Columns.Add(new DataColumn("BeneficiaryAccountBank", typeof(string)));//收款人开户行名
+
+                        dtUserAdd.Columns.Add(new DataColumn("VoucherNumber", typeof(string)));//收款人结算子卡号
+
+                        
                         dtUserAdd.Columns.Add(new DataColumn("TransactionDate", typeof(string)));//交易日期
                         dtUserAdd.Columns.Add(new DataColumn("TransactionTime", typeof(string)));//交易时间
                         dtUserAdd.Columns.Add(new DataColumn("TradeCurrency", typeof(string)));//交易货币
 
                         dtUserAdd.Columns.Add(new DataColumn("TradeAmount", typeof(decimal)));//交易金额
+                        dtUserAdd.Columns.Add(new DataColumn("After-transaction-balance", typeof(string)));//交易后的余额
                         dtUserAdd.Columns.Add(new DataColumn("TransactionReferenceNumber", typeof(string)));//交易流水号
                         dtUserAdd.Columns.Add(new DataColumn("Reference", typeof(string)));//摘要
                         dtUserAdd.Columns.Add(new DataColumn("Remark", typeof(string)));//交易附言
@@ -646,6 +659,10 @@ namespace SelfhelpOrderMgr.Web.Controllers
                             {
                                 dis.Add("PayersName", s);
                             }
+                            else if (titleRow.GetCell(s).ToString().StartsWith("付款人开户行名"))
+                            {
+                                dis.Add("PayerAccountBank", s);
+                            }
                             else if (titleRow.GetCell(s).ToString().StartsWith("收款人账号"))
                             {
                                 dis.Add("PayeesAccountNumber", s);
@@ -653,6 +670,14 @@ namespace SelfhelpOrderMgr.Web.Controllers
                             else if (titleRow.GetCell(s).ToString().StartsWith("收款人名称"))
                             {
                                 dis.Add("PayeesName", s);
+                            }
+                            else if (titleRow.GetCell(s).ToString().StartsWith("收款人开户行名"))
+                            {
+                                dis.Add("BeneficiaryAccountBank", s);
+                            }
+                            else if (titleRow.GetCell(s).ToString().StartsWith("凭证号码"))
+                            {
+                                dis.Add("VoucherNumber", s);//收款人结算子卡号
                             }
                             else if (titleRow.GetCell(s).ToString().StartsWith("交易日期"))
                             {
@@ -671,6 +696,10 @@ namespace SelfhelpOrderMgr.Web.Controllers
                             {
                                 dis.Add("TradeAmount", s);
                             }
+                            else if (titleRow.GetCell(s).ToString().StartsWith("交易后余额"))
+                            {
+                                dis.Add("After-transaction-balance", s);
+                            }
                             else if (titleRow.GetCell(s).ToString().StartsWith("交易流水号"))
                             {
                                 dis.Add("TransactionReferenceNumber", s);
@@ -687,6 +716,12 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         }
 
                         #region 标准劳酬Excel格式  ：编号、姓名、金额、备注
+
+                        List<T_Bank_TransDetail> transList = new List<T_Bank_TransDetail>();
+                        List<T_Bank_Rcv> bankrcvList = new List<T_Bank_Rcv>();
+                        decimal TransMoney = 0;
+                        int iDirection = 1;
+
                         for (int i = 1; i < rows; i++)
                         {
                             NPOI.SS.UserModel.IRow row = sheet.GetRow(i);
@@ -714,6 +749,197 @@ namespace SelfhelpOrderMgr.Web.Controllers
                             if (testRow.Length == 0)
                             {
                                 dtUserAdd.Rows.Add(drTemp);
+                                int mainId = Convert.ToInt32( ( DateTime.Now.Year.ToString() + DateTime.Now.Month.ToString("00") + DateTime.Now.Day.ToString("00")));
+
+
+                                #region 判断存款类型
+                                string strTranstype = "";
+                                switch (drTemp["TransactionType"].ToString())
+                                {
+                                    case "国内汇款":
+                                        {
+                                            strTranstype = "01";
+                                        }break;
+                                    case "国外汇款":
+                                        {
+                                            strTranstype = "02";
+                                        }
+                                        break;
+                                    case "人行大额":
+                                        {
+                                            strTranstype = "03";
+                                        }
+                                        break;
+                                    case "人行小额":
+                                        {
+                                            strTranstype = "04";
+                                        }
+                                        break;
+                                    case "现金存款":
+                                        {
+                                            strTranstype = "05";
+                                        }
+                                        break;
+                                    case "转帐收入":
+                                        {
+                                            strTranstype = "06";
+                                        }
+                                        break;
+                                    case "汇票":
+                                        {
+                                            strTranstype = "07";
+                                        }
+                                        break;
+                                    case "本票":
+                                        {
+                                            strTranstype = "08";
+                                        }
+                                        break;
+                                    case "支票":
+                                        {
+                                            strTranstype = "09";
+                                        }
+                                        break;
+                                    case "冲账":
+                                        {
+                                            strTranstype = "10";
+                                        }
+                                        break;
+                                    case "冲正":
+                                        {
+                                            strTranstype = "11";
+                                        }
+                                        break;
+                                    case "承兑汇票":
+                                        {
+                                            strTranstype = "12";
+                                        }
+                                        break;
+                                    case "托收承付":
+                                        {
+                                            strTranstype = "13";
+                                        }
+                                        break;
+                                    case "保证金":
+                                        {
+                                            strTranstype = "14";
+                                        }
+                                        break;
+                                    case "现金取款":
+                                        {
+                                            strTranstype = "15";
+                                        }
+                                        break;
+                                    case "转帐支出":
+                                        {
+                                            strTranstype = "16";
+                                        }
+                                        break;
+                                    case "贷款放款":
+                                        {
+                                            strTranstype = "17";
+                                        }
+                                        break;
+                                    case "贷款还款":
+                                        {
+                                            strTranstype = "18";
+                                        }
+                                        break;
+                                    case "实时汇划":
+                                        {
+                                            strTranstype = "21";
+                                        }
+                                        break;
+                                    case "退汇":
+                                        {
+                                            strTranstype = "22";
+                                        }
+                                        break;
+                                    case "结息":
+                                        {
+                                            strTranstype = "31";
+                                        }
+                                        break;
+                                    case "批量收费":
+                                        {
+                                            strTranstype = "32";
+                                        }
+                                        break;
+                                    case "收费":
+                                        {
+                                            strTranstype = "41";
+                                        }
+                                        break;
+                                    case "其他":
+                                        {
+                                            strTranstype = "99";
+                                        }break;                                        
+                                    default:
+                                        { strTranstype = "99"; }
+                                        break;
+                                }
+
+
+
+
+
+
+
+                                #endregion
+
+                                if (drTemp["TransactionType"].ToString()=="来账")
+                                {
+                                    TransMoney = Convert.ToDecimal(drTemp["TradeAmount"].ToString());
+                                    iDirection = 1;
+                                }
+                                else
+                                {
+                                    TransMoney = -Convert.ToDecimal(drTemp["TradeAmount"].ToString());
+                                    iDirection = 2;
+                                }
+                                
+                                transList.Add(new T_Bank_TransDetail()
+                                {
+                                    MainID = mainId,
+                                    valdat = TongYongHelper.StrToDate(drTemp["TransactionDate"].ToString()),
+                                    avlbal = Convert.ToDecimal(drTemp["After-transaction-balance"].ToString()),
+                                    fractnacntname = drTemp["PayersName"].ToString(),//付款人
+                                    fractnactacn =drTemp["DebitAccountNo"].ToString(),//付款账号
+                                    fractnibkname= drTemp["PayerAccountBank"].ToString(),//付款行
+                                    toactntoname =drTemp["PayeesName"].ToString(),//收款人
+                                    toactnactacn=drTemp["PayeesAccountNumber"].ToString(),//收款账号                                    
+                                    toactntobank = drTemp["BeneficiaryAccountBank"].ToString(),//收款行
+
+                                    toactncardno = drTemp["VoucherNumber"].ToString(),//收款结算子卡号
+                                    txndate = drTemp["TransactionDate"].ToString(),
+                                    txntime = drTemp["TransactionTime"].ToString().Replace(":",""),
+                                    trncur = "CNY",
+                                    transtype= strTranstype,
+                                    txnamt = TransMoney,
+                                    vchnum = drTemp["TransactionReferenceNumber"].ToString(),
+                                    interinfo = drTemp["Reference"].ToString(),
+                                    furinfo = drTemp["Remark"].ToString(),
+                                    direction=iDirection,
+                                });
+
+
+                                bankrcvList.Add(new T_Bank_Rcv() { 
+                                    ImportFlag=0,                                    
+                                    fractName = drTemp["PayersName"].ToString(),//付款人                                    
+                                    Error="Excel补导入",
+                                    CardNo = drTemp["VoucherNumber"].ToString(),//收款结算子卡号
+                                    tnxdate = drTemp["TransactionDate"].ToString(),
+                                    CreateDate = TongYongHelper.StrToDate( drTemp["TransactionDate"].ToString()),
+                                    //FCrimeCode="",
+                                    //FName="",
+                                    //OffsetVchNum="",
+                                    //Id=0,                                    
+                                    direction=iDirection,
+                                    transtype = strTranstype,
+                                    RcvAmount = Convert.ToDecimal(drTemp["TradeAmount"].ToString()),
+                                    VchNum = drTemp["TransactionReferenceNumber"].ToString(),
+                                    Remark = drTemp["Reference"].ToString(),                                    
+                                });
                             }
                             
                         }
@@ -723,7 +949,13 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         {
                             return Content("Err|恭喜，本次Excel记录以及全部导入到系统中了");
                         }
+                        else
+                        {
+                            //插入不存在的记录
+                            bool insertFlag=new BaseDapperBLL().Insert<T_Bank_TransDetail>(transList);
 
+                            bool insertRcvFlag = new BaseDapperBLL().Insert<T_Bank_Rcv>(bankrcvList);
+                        }
                         string title = "筛选后未导入的存款记录报表";
                         
                         //string startTime = Request["startTime"];

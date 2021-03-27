@@ -1245,6 +1245,18 @@ namespace SelfhelpOrderMgr.Web.Controllers
                     }
                     else
                     {
+
+                        #region 自动下架所有商品
+                        T_SHO_ManagerSet mySet = new T_SHO_ManagerSetBLL().GetModel("ShangpinZidongXiajia");
+                        if (mySet != null)
+                        {
+                            if (mySet.MgrValue == "1")
+                            {
+                                new CommTableInfoBLL().ExecSql("update t_goods set active='N'");
+                            }
+                        } 
+                        #endregion
+
                         for (int i = 1; i <= rows; i++)
                         {
                             //商品类别,商品名称,商品条码,店内简码,单位,规格,金额，是否限额，是否上架
@@ -1299,8 +1311,10 @@ namespace SelfhelpOrderMgr.Web.Controllers
                             {
                                 GPrice = Convert.ToString(row.GetCell(6).NumericCellValue);
                             }
-                            catch { }
-
+                            catch {
+                                GPrice = Convert.ToString(row.GetCell(6).StringCellValue);
+                            }
+                            
                             string FFreeFlag = "";  //是否限额
                             try
                             {

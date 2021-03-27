@@ -160,7 +160,32 @@ namespace SelfhelpOrderMgr.BLL
         {
             return dapperDal.GetSumOfFieldList<T, S,R>(sumField, groupField, strJsonWhere, OtherQuery);
         }
-            #endregion
 
+
+        /// <summary>
+        /// 执行SQL脚本
+        /// </summary>
+        /// <param name="sql"></param>
+        /// <param name="param"></param>
+        /// <returns></returns>
+        public int ExecuteSql(string sql, object param)
+        {
+            return dapperDal.ExecuteSql(sql, param);
         }
+
+
+        /// <summary>
+        /// 将Datatable写入到数据库的指定表中
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="TargetTableName"></param>
+        /// <returns></returns>
+        public string AddDataTableToDB(DataTable source, string TargetTableName)
+        {
+            return dapperDal.AddDataTableToDB(source, TargetTableName);
+        }
+
+        #endregion
+
+    }
 }

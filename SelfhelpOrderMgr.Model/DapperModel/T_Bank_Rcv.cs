@@ -20,5 +20,6 @@ namespace SelfhelpOrderMgr.Model
         public int? ImportFlag { get; set; }
         public DateTime CreateDate { get; set; }
         public string fractName { get; set; }
+        public int direction { get; set; }
     }
 }

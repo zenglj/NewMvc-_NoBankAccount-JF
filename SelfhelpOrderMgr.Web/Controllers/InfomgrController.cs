@@ -762,6 +762,19 @@ namespace SelfhelpOrderMgr.Web.Controllers
             //修改人:曾林进
             //由于执行恢复时，可能出现人员 的FFLag 状态为0 ，IC卡的状态为4 所以取消判断
             //===============================================================
+
+            if (payMode == 0)
+            {
+                T_SHO_ManagerSet mySet = new T_SHO_ManagerSetBLL().GetModel("LijianHuifuXianJinStopFlag");
+                if (mySet != null)
+                {
+                    if (mySet.MgrValue == "1")
+                    {
+                        rs.ReMsg = "Err|现金结算的记录不能回复，请与管理部门联系";
+                        return Json(rs);
+                    }
+                }
+            }
             using (TransactionScope ts = new TransactionScope())
             {
                 rs = new SettleService().RestoryInPrison(strFCode, (MoneyPayMode)payMode);               

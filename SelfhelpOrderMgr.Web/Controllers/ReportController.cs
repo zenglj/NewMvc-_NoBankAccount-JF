@@ -185,17 +185,18 @@ namespace SelfhelpOrderMgr.Web.Controllers
             string BankFlags = Request["BankFlags"];//银行状态类型
             string FRemark = Request["FRemark"];//备注
             string FFlags = Request["FFlags"];//记录的有效状态值
-            if(string.IsNullOrEmpty(FFlags)==true)
+            string CheckFlag = Request["CheckFlag"]; //审核标志
+            if (string.IsNullOrEmpty(FFlags)==true)
             {
                 FFlags = "0";
             }
 
-            string strWhere = GetSearchWhere(LoginCode, ref startTime, ref endTime, areaName, FName, FCode, CrtBy, CriminalFlag, CashTypes, PayTypes, AccTypes, BankFlags, FRemark, FFlags);
+            string strWhere = GetSearchWhere(LoginCode, ref startTime, ref endTime, areaName, FName, FCode, CrtBy, CriminalFlag, CashTypes, PayTypes, AccTypes, BankFlags, FRemark, FFlags, CheckFlag);
             return strWhere;
         }
 
         //生成Vcrd查询条件
-        private static string GetSearchWhere(string LoginCode, ref string startTime, ref string endTime, string areaName, string FName, string FCode, string CrtBy, string CriminalFlag, string CashTypes, string PayTypes, string AccTypes, string BankFlags, string FRemark, string FFlags)
+        private static string GetSearchWhere(string LoginCode, ref string startTime, ref string endTime, string areaName, string FName, string FCode, string CrtBy, string CriminalFlag, string CashTypes, string PayTypes, string AccTypes, string BankFlags, string FRemark, string FFlags,string CheckFlag)
         {
             //string strWhere = "Flag=0 ";
             string strWhere = "Flag in("+ FFlags+") ";
@@ -258,7 +259,10 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 }
 
             }
-
+            if (!string.IsNullOrWhiteSpace(CheckFlag))
+            {
+                strWhere = strWhere + " and isnull(checkflag,0)= " + CheckFlag + "";
+            }
             if (string.IsNullOrEmpty(savePays) == false)
             {
                 strWhere = strWhere + " and Dtype in (" + savePays + ")";

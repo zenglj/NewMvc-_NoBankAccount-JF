@@ -72,6 +72,7 @@ $(function () {
     $("#FCashTypes").combobox('clear');
     $("#FAccTypes").combobox('clear');
     $("#FBankFlags").combobox('clear');
+    $("#FCheckFlag").combobox('clear');
 
     $("#winChangeList").window('close');
     
@@ -168,7 +169,21 @@ function loadDetailTable() {
             { field: 'CAmount', title: '支(元)', width: 100, sortable: true },
             { field: 'DType', title: '类型', width: 100, sortable: true },
             { field: 'CrtBy', title: '操作员', width: 100, sortable: true },
-            { field: 'FCheckFlag', title: '标志', width: 100,hidden:true, sortable: true },
+            { field: 'FCheckFlag', title: '审核标志', width: 100, sortable: true, formatter: function (value, row, index) {
+                if (row.DAmount != 0) {
+                    if (row.FCheckFlag = 0) {
+                        return "未审";
+                    } else {
+                        return "已审";
+                    }
+                } else {
+                    if (row.FCheckFlag = -1) {
+                        return "未审";
+                    } else {
+                        return "已审";
+                    }
+                }
+            } },
             {
                 field: 'CrtDate', title: '创建日期', width: 100, sortable: true, formatter: function (value, row, index) {
                     if (row.CrtDate != null) {
@@ -305,7 +320,8 @@ function btnSearch() {
         PayTypes:selPayTypes,
         AccTypes:selAccTypes,
         BankFlags: selBankFlags,
-        FFlags: selFFlags
+        FFlags: selFFlags,
+        CheckFlag:$("#FCheckFlag").combobox('getValue')
 
     });
 

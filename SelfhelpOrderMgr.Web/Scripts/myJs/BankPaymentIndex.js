@@ -550,15 +550,21 @@ function ResetCheckSend() {
         return false;
     }
 
-    $.messager.confirm('确认框', '请确认记录，只有失败没有转账成功才可以复位重发，是否继续?', function (r) {
+    $.messager.confirm('确认框', '请确您已经修正了收款人的账户信息，否则复位账户还是错误的，是否继续?', function (r) {
         if (r) {
-            $.post("/BankPayment/ResetCheckSend", { "id": $("#resetId").textbox('getValue'), "remark": $("#resetRemark").textbox('getValue') }, function (data, status) {
-                if ("success" == status) {
-                    alert(data);
+            $.messager.confirm('确认框', '请确认记录,只有失败没有转账成功才可以复位重发，是否继续?', function (r) {
+                if (r) {
+                    $.post("/BankPayment/ResetCheckSend", { "id": $("#resetId").textbox('getValue'), "remark": $("#resetRemark").textbox('getValue') }, function (data, status) {
+                        if ("success" == status) {
+                            alert(data);
+                        }
+                    });
                 }
             });
         }
     });
+
+    
     
 }
 
@@ -578,16 +584,19 @@ function ResetRefund() {
         return false;
     }
 
-    $.messager.confirm('确认框', '请确认记录，只有退款成功才可以复位重发，否则产生的后果由您承担，是否继续?', function (r) {
+    $.messager.confirm('确认框', '请确您已经修正了收款人的账户信息，否则复位账户还是错误的，是否继续?', function (r) {
         if (r) {
-            $.post("/BankPayment/ResetRefund", { "id": $("#resetId").textbox('getValue'), "remark": $("#resetRemark").textbox('getValue') }, function (data, status) {
-                if ("success" == status) {
-                    alert(data);
+            $.messager.confirm('确认框', '请确认记录，只有退款成功才可以复位重发，否则产生的后果由您承担，是否继续?', function (r) {
+                if (r) {
+                    $.post("/BankPayment/ResetRefund", { "id": $("#resetId").textbox('getValue'), "remark": $("#resetRemark").textbox('getValue') }, function (data, status) {
+                        if ("success" == status) {
+                            alert(data);
+                        }
+                    });
                 }
             });
         }
     });
-
 }
 
 

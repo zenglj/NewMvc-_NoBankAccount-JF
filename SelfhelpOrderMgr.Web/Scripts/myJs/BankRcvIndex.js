@@ -102,7 +102,6 @@ function loadDetailTable() {
                     else if (row.transtype == "13") {
                         return "托收承付";
                     }
-
                     else if (row.transtype == "14") {
                         return "保证金";
                     }
@@ -485,6 +484,7 @@ function findFCrimeCode() {
             if (data.Flag == true) {
                 $("#addFCrimeCode").textbox('setValue', data.DataInfo);
             } else {
+                $("#addFCrimeCode").textbox('setValue', '');
                 alert(data.ReMsg);
             }
         }

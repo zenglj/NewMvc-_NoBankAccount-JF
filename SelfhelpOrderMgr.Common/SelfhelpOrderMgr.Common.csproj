@@ -90,6 +90,7 @@
     <Compile Include="Log4NetHelper.cs" />
     <Compile Include="MD5PasswordHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TongYongHelper.cs" />
     <Compile Include="ValidateExtend\ValidateErrorModle.cs" />
     <Compile Include="ValidateExtend\AbstractValidateAttribute.cs" />
     <Compile Include="ValidateExtend\EmailAttribute.cs" />

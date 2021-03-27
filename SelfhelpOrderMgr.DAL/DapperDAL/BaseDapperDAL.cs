@@ -831,5 +831,54 @@ namespace SelfhelpOrderMgr.DAL
                 return _s;
             }
         }
+
+
+        public int ExecuteSql(string sql,object param)
+        {
+            using (SqlConnection conn = new SqlConnection(SqlHelper.getConnstr()))
+            {
+                int _s = SqlMapper.Execute(conn, sql, param,null,60);
+                return _s;
+
+            }
+        }
+
+        /// <summary>
+        /// 把DataTable中的数据写入DB数据库中
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="TargetTableName"></param>
+        /// <returns></returns>
+        public string AddDataTableToDB(DataTable source, string TargetTableName)
+        {
+            SqlTransaction tran = null;//声明一个事务对象  
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(SqlHelper.getConnstr()))
+                {
+                    conn.Open();//打开链接  
+                    using (tran = conn.BeginTransaction())
+                    {
+                        using (SqlBulkCopy copy = new SqlBulkCopy(conn, SqlBulkCopyOptions.Default, tran))
+                        {
+                            //TargetTableName 表名格式如："AnDequan.dbo.[User]"
+                            copy.DestinationTableName = TargetTableName;  //指定服务器上目标表的名称  
+                            copy.WriteToServer(source);                      //执行把DataTable中的数据写入DB  
+                            tran.Commit();                                      //提交事务  
+                            return "1";                                        //返回True 执行成功！  
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                if (null != tran)
+                    tran.Rollback();
+                //LogHelper.Add(ex);  
+                return ex.ToString();//返回False 执行失败！  
+            }
+        }
+
+
     }
 }
