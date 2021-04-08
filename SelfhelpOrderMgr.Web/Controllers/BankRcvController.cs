@@ -293,7 +293,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
         public ActionResult PrintDetailList(string strJsonWhere)
         {
             T_Bank_Rcv_Search search = null;
-            if (string.IsNullOrWhiteSpace(strJsonWhere))
+            if (!string.IsNullOrWhiteSpace(strJsonWhere))
             {
                 search = Newtonsoft.Json.JsonConvert.DeserializeObject<T_Bank_Rcv_Search>(strJsonWhere);
             }
@@ -633,6 +633,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         dtUserAdd.Columns.Add(new DataColumn("After-transaction-balance", typeof(string)));//交易后的余额
                         dtUserAdd.Columns.Add(new DataColumn("TransactionReferenceNumber", typeof(string)));//交易流水号
                         dtUserAdd.Columns.Add(new DataColumn("Reference", typeof(string)));//摘要
+                        dtUserAdd.Columns.Add(new DataColumn("Purpose", typeof(string)));//用途
                         dtUserAdd.Columns.Add(new DataColumn("Remark", typeof(string)));//交易附言
 
 
@@ -707,6 +708,10 @@ namespace SelfhelpOrderMgr.Web.Controllers
                             else if (titleRow.GetCell(s).ToString().StartsWith("摘要"))
                             {
                                 dis.Add("Reference", s);
+                            }
+                            else if (titleRow.GetCell(s).ToString().StartsWith("用途"))
+                            {
+                                dis.Add("Purpose", s);
                             }
                             else if (titleRow.GetCell(s).ToString().StartsWith("交易附言"))
                             {
@@ -897,7 +902,21 @@ namespace SelfhelpOrderMgr.Web.Controllers
                                     TransMoney = -Convert.ToDecimal(drTemp["TradeAmount"].ToString());
                                     iDirection = 2;
                                 }
-                                
+                                //获取用户备注摘要信息
+                                string strfurinfo = "";
+                                if (!string.IsNullOrWhiteSpace(drTemp["Remark"].ToString()))
+                                {
+                                    strfurinfo = drTemp["Remark"].ToString();
+                                }
+                                else if(!string.IsNullOrWhiteSpace(drTemp["Purpose"].ToString()))
+                                {
+                                    strfurinfo = drTemp["Purpose"].ToString();
+                                }
+                                else if (!string.IsNullOrWhiteSpace(drTemp["Reference"].ToString()))
+                                {
+                                    strfurinfo = drTemp["Reference"].ToString();
+                                }
+                                //增加记录
                                 transList.Add(new T_Bank_TransDetail()
                                 {
                                     MainID = mainId,
@@ -909,7 +928,6 @@ namespace SelfhelpOrderMgr.Web.Controllers
                                     toactntoname =drTemp["PayeesName"].ToString(),//收款人
                                     toactnactacn=drTemp["PayeesAccountNumber"].ToString(),//收款账号                                    
                                     toactntobank = drTemp["BeneficiaryAccountBank"].ToString(),//收款行
-
                                     toactncardno = drTemp["VoucherNumber"].ToString(),//收款结算子卡号
                                     txndate = drTemp["TransactionDate"].ToString(),
                                     txntime = drTemp["TransactionTime"].ToString().Replace(":",""),
@@ -918,28 +936,28 @@ namespace SelfhelpOrderMgr.Web.Controllers
                                     txnamt = TransMoney,
                                     vchnum = drTemp["TransactionReferenceNumber"].ToString(),
                                     interinfo = drTemp["Reference"].ToString(),
-                                    furinfo = drTemp["Remark"].ToString(),
+                                    furinfo = "Excel补导入:"+strfurinfo,
                                     direction=iDirection,
                                 });
 
-
-                                bankrcvList.Add(new T_Bank_Rcv() { 
-                                    ImportFlag=0,                                    
-                                    fractName = drTemp["PayersName"].ToString(),//付款人                                    
-                                    Error="Excel补导入",
-                                    CardNo = drTemp["VoucherNumber"].ToString(),//收款结算子卡号
-                                    tnxdate = drTemp["TransactionDate"].ToString(),
-                                    CreateDate = TongYongHelper.StrToDate( drTemp["TransactionDate"].ToString()),
-                                    //FCrimeCode="",
-                                    //FName="",
-                                    //OffsetVchNum="",
-                                    //Id=0,                                    
-                                    direction=iDirection,
-                                    transtype = strTranstype,
-                                    RcvAmount = Convert.ToDecimal(drTemp["TradeAmount"].ToString()),
-                                    VchNum = drTemp["TransactionReferenceNumber"].ToString(),
-                                    Remark = drTemp["Reference"].ToString(),                                    
-                                });
+                                //不插入T_Bank_Rcv 改为存储过程执行
+                                //bankrcvList.Add(new T_Bank_Rcv() { 
+                                //    ImportFlag=0,                                    
+                                //    fractName = drTemp["PayersName"].ToString(),//付款人                                    
+                                //    Error="Excel补导入",
+                                //    CardNo = drTemp["VoucherNumber"].ToString(),//收款结算子卡号
+                                //    tnxdate = drTemp["TransactionDate"].ToString(),
+                                //    CreateDate = TongYongHelper.StrToDate( drTemp["TransactionDate"].ToString()),
+                                //    //FCrimeCode="",
+                                //    //FName="",
+                                //    //OffsetVchNum="",
+                                //    //Id=0,                                    
+                                //    direction=iDirection,
+                                //    transtype = strTranstype,
+                                //    RcvAmount = Convert.ToDecimal(drTemp["TradeAmount"].ToString()),
+                                //    VchNum = drTemp["TransactionReferenceNumber"].ToString(),
+                                //    Remark = strfurinfo,//备注信息
+                                //});
                             }
                             
                         }
@@ -953,8 +971,9 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         {
                             //插入不存在的记录
                             bool insertFlag=new BaseDapperBLL().Insert<T_Bank_TransDetail>(transList);
-
-                            bool insertRcvFlag = new BaseDapperBLL().Insert<T_Bank_Rcv>(bankrcvList);
+                            //不插入T_Bank_Rcv 改为存储过程执行
+                            //bool insertRcvFlag = new BaseDapperBLL().Insert<T_Bank_Rcv>(bankrcvList);
+                            int r=new BaseDapperBLL().ExecuteSql("exec [P_BankInsertNoCardRec]",null);
                         }
                         string title = "筛选后未导入的存款记录报表";
                         

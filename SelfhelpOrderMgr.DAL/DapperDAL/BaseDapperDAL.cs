@@ -630,7 +630,7 @@ namespace SelfhelpOrderMgr.DAL
                         }
                     }
                     else
-                    {
+                    {                        
                         if (p.Name.EndsWith("Name") || p.Name.EndsWith("Remark"))
                         {
                             string strlike = null;
@@ -645,11 +645,23 @@ namespace SelfhelpOrderMgr.DAL
                             }
                             stringWhere = SetWhereString(stringWhere, " like ", p.Name, p.Name);
                         }
+                        else if (p.Name.EndsWith("_Start"))
+                        {
+                            param.Add(p.Name, p.GetValue(s) ?? DBNull.Value, dbtypeInt);
+                            stringWhere = SetWhereString(stringWhere, ">=", p.Name.Substring(0, p.Name.Length - 6), p.Name);
+                        }
+                        else if (p.Name.EndsWith("_End"))
+                        {
+                            param.Add(p.Name, p.GetValue(s) ?? DBNull.Value, dbtypeInt);
+                            stringWhere = SetWhereString(stringWhere, "<=", p.Name.Substring(0, p.Name.Length - 4), p.Name);
+                        }                       
                         else
                         {
                             param.Add(p.Name, p.GetValue(s) ?? DBNull.Value, dbtypeInt);
                             stringWhere = SetWhereString(stringWhere, "=", p.Name, p.Name);
                         }
+
+                        
 
                     }
                 }
