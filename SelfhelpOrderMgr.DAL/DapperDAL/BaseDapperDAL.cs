@@ -16,19 +16,30 @@ namespace SelfhelpOrderMgr.DAL
         {
             using (SqlConnection conn = new SqlConnection(SqlHelper.getConnstr()))
             {
+                Type type = typeof(T);
                 string sql = SqlBuilder<T>.GetInsertSql() + ";select @@IDENTITY;";
+                //string columnsString = string.Join(",", type.GetProperties().Select(p => @"[" + p.Name + "]"));
+                //string valuesString = string.Join(",", type.GetProperties().Select(p => @"@" + p.Name + ""));
+                //string strInsertSql = @"INSERT INTO [" + type.Name + "] (" + columnsString + ") VALUES(" + valuesString + ");";
+                //string sql = strInsertSql ;
+
                 //获取所有参数
                 //Type type=typeof(T);                
                 //var paraArray=type.GetProperties().Where(p=>!p.Name.Equals("Id")).Select(p=>new SqlParameter("@"+p.Name, p.GetValue(t) ?? DBNull.Value)).ToArray();
-                
+
                 //param 直接传实体进去就可以
-                int _sid= SqlMapper.Query<int>(conn, sql,t).ToList()[0];//得出自增长的Id
+                int _sid= SqlMapper.Execute(conn, sql,t);//得出自增长的Id
                 sql = SqlBuilder<T>.GetFindSql() + _sid;
-                var list = SqlMapper.Query<T>(conn, sql).ToList();
-                if (list.Count > 0)
+                //var list = SqlMapper.Query<T>(conn, sql).ToList();
+                //if (list.Count > 0)
+                //{
+                //    return list[0];//这里的【0】可以去掉，因为我这个只是返回一条记录，实际使用可以根据情况返回数组
+                //}
+                if (_sid > 0)
                 {
-                    return list[0];//这里的【0】可以去掉，因为我这个只是返回一条记录，实际使用可以根据情况返回数组
+                    return t;
                 }
+                
                 return null;
             }
         }
@@ -173,7 +184,15 @@ namespace SelfhelpOrderMgr.DAL
             using (SqlConnection conn = new SqlConnection(SqlHelper.getConnstr()))
             {
                 string sql = SqlBuilder<T>.GetFindSql() + id;
-                return SqlMapper.Query<T>(conn, sql).AsList<T>()[0];//这里的【0】可以去掉，因为我这个只是返回一条记录，实际使用可以根据情况返回数组
+                var list=SqlMapper.Query<T>(conn, sql).AsList<T>();//这里的【0】可以去掉，因为我这个只是返回一条记录，实际使用可以根据情况返回数组
+                if (list.Count >0)
+                {
+                    return list[0];
+                }
+                else
+                {
+                    return null;
+                }
             } 
         }
 

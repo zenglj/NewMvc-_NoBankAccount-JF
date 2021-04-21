@@ -1,0 +1,219 @@
+﻿@{
+    Layout = null;
+}
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>楼房管理</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <script src="~/Scripts/jquery-1.11.3.min.js"></script>
+    <script src="~/Scripts/EasyUI/jquery.easyui.min.js"></script>
+    <script src="~/Scripts/EasyUI/locale/easyui-lang-zh_CN.js"></script>
+    <link href="~/Scripts/EasyUI/themes/icon.css" rel="stylesheet" />
+    <link href="~/Scripts/EasyUI/themes/default/easyui.css" rel="stylesheet" />
+    <script src="~/Scripts/myJs/BedEditHouse.js"></script>
+</head>
+<body class="easyui-layout">
+    <div data-options="region:'west',title:'楼房管理',split:true" style="width:520px;">
+        <div style="height:200px;">
+            <table id="test" class="easyui-datagrid">
+            </table>
+        </div>
+        <div style="height:350px;">
+            <span style="color:Blue;">号房列表</span>
+            <table id="room" class="easyui-datagrid">
+            </table>
+        </div>
+        <div id="editWindows" title="信息编辑栏" data-options="iconCls:'icon-edit'" style="height:420px; width:400px; padding:10px;background:#fafafa;">
+            <form id="ff" ENCTYPE="multipart/form-data" method="post">
+                <input type="hidden" id="dotype" name="dotype" />
+                <input type="hidden" id="LevelName" name="LevelName" />
+                <input type="hidden" id="FAreaName" name="FAreaName" />
+                <table>
+                    <tr>
+                        <th align="right">编号：</th>
+                        <td><input id="ID" name="ID" style="width:250px;" /></td>
+                    </tr>
+                    <tr>
+                        <th align="right">名称：</th>
+                        <td><input id="FName" name="FName" style="width:250px;" /></td>
+                    </tr>
+                    <tr>
+                        <th align="right">类型：</th>
+                        <td>
+                            <select id="LevelID" class="easyui-combobox" name="LevelID" style="width:200px;">
+                                <option value="1">大楼</option>
+                                <option value="2">号房</option>
+                                <option value="3">床位</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">队别：</th>
+                        <td>
+                            <input id="FAreaCode" name="FAreaCode" class="easyui-validatebox" data-options="required:true" value="请选择类别" style="width:255px" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">备注：</th>
+                        <td><input id="FRemark" name="FRemark" style="width:250px;" /></td>
+                    </tr>
+                    <tr>
+                        <th></th>
+                        <td> <a href="#" id="btnSave" class="easyui-linkbutton" data-options="iconCls:'icon-save'" onclick="submitsaveContent()">保存</a></td>
+                    </tr>
+
+
+                </table>
+            </form>
+        </div>
+
+    </div>
+    <div data-options="region:'center',title:'床位列表'" style="padding:5px;">
+        <div data-options="region:'north',title:'North Title',split:true" style="height:200px;">
+            <div style="height:250px;">
+                <table id="bed" class="easyui-datagrid">
+                </table>
+            </div>
+        </div>
+    </div>
+    <div id="editRoom" title="号房编辑栏" data-options="iconCls:'icon-edit'" style="height:300px; width:400px; padding:10px;background:#fafafa;">
+        <form id="ffRoom" ENCTYPE="multipart/form-data" method="post">
+            <input type="hidden" id="dotypeRoom" name="dotype" />
+            <input type="hidden" id="LevelNameRoom" name="LevelName" />
+            <input type="hidden" id="FAreaNameRoom" name="FAreaName" />
+            <table>
+                <tr>
+                    <th align="right">编号：</th>
+                    <td><input id="IDRoom" name="ID" style="width:250px;" /></td>
+                </tr>
+                <tr>
+                    <th align="right">名称：</th>
+                    <td><input id="FNameRoom" name="FName" style="width:250px;" /></td>
+                </tr>
+                <tr>
+                    <th align="right">类型：</th>
+                    <td>
+                        <select id="LevelIDRoom" class="easyui-combobox" name="LevelID" style="width:200px;">
+                            <option value="2">号房</option>
+                            <option value="1">大楼</option>
+                            <option value="3">床位</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th align="right">队别：</th>
+                    <td>
+                        <input id="FAreaCodeRoom" name="FAreaCode" class="easyui-validatebox" data-options="required:true" value="请选择类别" style="width:255px" />
+                    </td>
+                </tr>
+                <tr>
+                    <th align="right">备注：</th>
+                    <td><input id="FRemarkRoom" name="FRemark" style="width:250px;" /></td>
+                </tr>
+                <tr>
+                    <th></th>
+                    <td> <a href="#" id="btnSaveRoom" class="easyui-linkbutton" data-options="iconCls:'icon-save'" onclick="saveRoomContent()">保存</a></td>
+                </tr>
+
+
+            </table>
+        </form>
+    </div>
+
+    <div id="editBatchRoom" title="批量生成号房" data-options="iconCls:'icon-edit'" style="height:200px; width:400px; padding:10px;background:#fafafa;">
+        <form id="batchRoom" ENCTYPE="multipart/form-data" method="post">
+            <table>
+                <tr>
+                    <th align="right">楼层数：</th>
+                    <td><input id="Flood" name="Flood" style="width:250px;" /></td>
+                </tr>
+                <tr>
+                    <th align="right">每层间数：</th>
+                    <td><input id="RoomNum" name="RoomNum" style="width:250px;" /></td>
+                </tr>
+                <tr>
+                    <th></th>
+                    <td> <a href="#" id="A1" class="easyui-linkbutton" data-options="iconCls:'icon-save'" onclick="BatchAddHouse()">保存</a></td>
+                </tr>
+
+
+            </table>
+        </form>
+    </div>
+
+    <div id="editBatchBed" title="批量生成号房" data-options="iconCls:'icon-edit'" style="height:200px; width:400px; padding:10px;background:#fafafa;">
+        <form id="batchAddBed" ENCTYPE="multipart/form-data" method="post">
+            <table>
+                <tr>
+                    <th align="right">每间床位：</th>
+                    <td><input id="BedNum" name="BedNum" style="width:250px;" /></td>
+                </tr>
+                <tr>
+                    <th align="right"><span style=" color:Red">特别说明：</span></th>
+                    <td>上下铺只能算是一个床位，系统自动升级上下铺信息</td>
+                </tr>
+                <tr>
+                    <th></th>
+                    <td> <a href="#" id="btnBedSave" class="easyui-linkbutton" data-options="iconCls:'icon-save'" onclick="BatchAddRoom()">保存</a></td>
+                </tr>
+
+
+            </table>
+        </form>
+    </div>
+
+    <div id="editBed" title="床位编辑栏" data-options="iconCls:'icon-edit'" style="height:300px; width:400px; padding:10px;background:#fafafa;">
+        <form id="ffBed" ENCTYPE="multipart/form-data" method="post">
+            <input type="hidden" id="dotypeBed" name="dotype" />
+            <input type="hidden" id="LevelNameBed" name="LevelName" />
+            <input type="hidden" id="FAreaNameBed" name="FAreaName" />
+            <table>
+                <tr>
+                    <th align="right">编号：</th>
+                    <td><input id="IDBed" name="ID" style="width:250px;" /></td>
+                </tr>
+                <tr>
+                    <th align="right">名称：</th>
+                    <td><input id="FNameBed" name="FName" style="width:250px;" /></td>
+                </tr>
+                <tr>
+                    <th align="right">类型：</th>
+                    <td>
+                        <select id="LevelIDBed" class="easyui-combobox" name="LevelID" style="width:200px;">
+                            <option value="3">床位</option>
+                            <option value="2">号房</option>
+                            <option value="1">大楼</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th align="right">队别：</th>
+                    <td>
+                        <input id="FAreaCodeBed" name="FAreaCode" class="easyui-validatebox" data-options="required:true" value="请选择类别" style="width:255px" />
+                    </td>
+                </tr>
+                <tr>
+                    <th align="right">人员编号：</th>
+                    <td><input id="FCrimeCodeBed" name="FCrimeCode" style="width:250px;" /></td>
+                </tr>
+                <tr>
+                    <th align="right">人员姓名：</th>
+                    <td><input id="FCrimeNameBed" name="FCrimeName" style="width:250px;" /></td>
+                </tr>
+                <tr>
+                    <th align="right">备注：</th>
+                    <td><input id="FRemarkBed" name="FRemark" style="width:250px;" /></td>
+                </tr>
+                <tr>
+                    <th></th>
+                    <td> <a href="#" id="btnSaveBed" class="easyui-linkbutton" data-options="iconCls:'icon-save'" onclick="saveBedContent()">保存</a></td>
+                </tr>
+
+
+            </table>
+        </form>
+    </div>
+
+</body>
+</html>

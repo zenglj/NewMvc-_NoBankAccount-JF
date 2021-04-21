@@ -75,6 +75,7 @@
     <Compile Include="DapperDAL\BaseDapperDAL.cs" />
     <Compile Include="DapperDAL\SettleDao.cs" />
     <Compile Include="DapperDAL\T_Bank_CNAPSDAL.cs" />
+    <Compile Include="DapperDAL\BedInfomationDAL.cs" />
     <Compile Include="DapperDAL\ViewCriminalInfoDAL.cs" />
     <Compile Include="DapperDAL\T_Criminal_OutBankAccountDAL.cs" />
     <Compile Include="DapperHelper.cs" />

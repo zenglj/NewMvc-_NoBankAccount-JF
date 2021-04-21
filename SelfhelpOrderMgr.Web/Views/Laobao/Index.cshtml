@@ -120,29 +120,31 @@
         </div>
         <table id="mainOrderTable" data-options="toolbar:'#tb'"></table>
         <div id="tb">
-            <div>@*FCheckFlag是“确认”,auditflag是“审核”,FdbcheckFlag是“复核”,Flag是“财务入账”*@
+            <div>
+                @*FCheckFlag是“确认”,auditflag是“审核”,FdbcheckFlag是“复核”,Flag是“财务入账”*@
 
                 @if (ViewData["PowerId"] != null)
                 {
                     int id = Convert.ToInt32(ViewData["PowerId"]);
-                    if(id==1)
+                    if (id == 1)
                     {
-                <a href="#" id="btnAdd" class="easyui-linkbutton" iconcls="icon-add" plain="true" onclick="AddMain()">增加主单</a><label>|</label>
-                <a href="#" id="btnSave" class="easyui-linkbutton" iconcls="icon-save" plain="true" onclick="SaveMain()">保存主单</a><label>|</label>
-                <a href="#" id="btnSubmit" class="easyui-linkbutton" iconcls="icon-ok" plain="true" onclick="SubmitMain()">确认提交</a><label>|</label>
-                <a href="#" id="btnDel" class="easyui-linkbutton" iconcls="icon-cancel" plain="true" onclick="DeleteMain()">删除主单</a><label>|</label>
+                        <a href="#" id="btnAdd" class="easyui-linkbutton" iconcls="icon-add" plain="true" onclick="AddMain()">增加主单</a><label>|</label>
+                        <a href="#" id="btnSave" class="easyui-linkbutton" iconcls="icon-save" plain="true" onclick="SaveMain()">保存主单</a><label>|</label>
+                        <a href="#" id="btnSubmit" class="easyui-linkbutton" iconcls="icon-ok" plain="true" onclick="SubmitMain()">确认提交</a><label>|</label>
+                        <a href="#" id="btnDel" class="easyui-linkbutton" iconcls="icon-cancel" plain="true" onclick="DeleteMain()">删除主单</a><label>|</label>
 
-                    }else if (id == 2)
+                    }
+                    else if (id == 2)
                     {
                         <a href="#" id="btnAudit" class="easyui-linkbutton" iconcls="icon-edit" plain="true" onclick="AuditMain()">审核|</a><label>|</label>
                         <a href="#" id="btnUndoSubmit" class="easyui-linkbutton" iconcls="icon-undo" plain="true" onclick="undoSubmitAction('undoSubmit')">退回中队</a>
-                        
+
                         <a href="#" id="btnDbCheck" class="easyui-linkbutton" iconcls="icon-reload" plain="true" onclick="DbCheckMain()">财务复核</a><label>|</label>
                         <a href="#" id="btnUndoAudit" class="easyui-linkbutton" iconcls="icon-undo" plain="true" onclick="undoSubmitAction('undoAudit')">退回审核</a><label>|</label>
                     }
                     else if (id == 3)
                     {
-                        
+
                         <a href="#" id="btnDbCheck" class="easyui-linkbutton" iconcls="icon-reload" plain="true" onclick="DbCheckMain()">财务复核</a><label>|</label>
                         <a href="#" id="btnUndoAudit" class="easyui-linkbutton" iconcls="icon-undo" plain="true" onclick="undoSubmitAction('undoAudit')">退回审核</a><label>|</label>
                     }
@@ -155,44 +157,52 @@
                     }
                     else if (id == 5)
                     {
-                <a href="#" id="btnAdd" class="easyui-linkbutton" iconcls="icon-add" plain="true" onclick="AddMain()">增加主单</a><label>|</label>
-                <a href="#" id="btnSave" class="easyui-linkbutton" iconcls="icon-save" plain="true" onclick="SaveMain()">保存主单</a><label>|</label>
-                <a href="#" id="btnSubmit" class="easyui-linkbutton" iconcls="icon-ok" plain="true" onclick="SubmitMain()">确认提交</a><label>|</label>
-                <a href="#" id="btnDel" class="easyui-linkbutton" iconcls="icon-cancel" plain="true" onclick="DeleteMain()">删除主单</a><label>|</label>
+                        <a href="#" id="btnAdd" class="easyui-linkbutton" iconcls="icon-add" plain="true" onclick="AddMain()">增加主单</a><label>|</label>
+                        <a href="#" id="btnSave" class="easyui-linkbutton" iconcls="icon-save" plain="true" onclick="SaveMain()">保存主单</a><label>|</label>
+                        <a href="#" id="btnSubmit" class="easyui-linkbutton" iconcls="icon-ok" plain="true" onclick="SubmitMain()">确认提交</a><label>|</label>
+                        <a href="#" id="btnDel" class="easyui-linkbutton" iconcls="icon-cancel" plain="true" onclick="DeleteMain()">删除主单</a><label>|</label>
 
-                <a href="#" id="btnUndoSubmit" class="easyui-linkbutton" iconcls="icon-undo" plain="true" onclick="undoSubmitAction('undoSubmit')">退回中队</a>
-                <a href="#" id="btnAudit" class="easyui-linkbutton" iconcls="icon-edit" plain="true" onclick="AuditMain()">审核</a><label>|</label>
-                <a href="#" id="btnUndoAudit" class="easyui-linkbutton" iconcls="icon-undo" plain="true" onclick="undoSubmitAction('undoAudit')">退回审核</a><label>|</label>
-                <a href="#" id="btnDbCheck" class="easyui-linkbutton" iconcls="icon-reload" plain="true" onclick="DbCheckMain()">财务复核</a><label>|</label>
-                <a href="#" id="btnUndoDbCheck" class="easyui-linkbutton" iconcls="icon-undo" plain="true" onclick="undoSubmitAction('undoDbCheck')">退回复核</a><label>|</label>
-                <a href="#" id="btnInDb" class="easyui-linkbutton" iconcls="icon-save" plain="true" onclick="InDbMain()">财务入账</a>
-                <a href="#" id="btnUndo" class="easyui-linkbutton" iconcls="icon-redo" plain="true" onclick="UndoMain()">财务退账</a>
+                        <a href="#" id="btnUndoSubmit" class="easyui-linkbutton" iconcls="icon-undo" plain="true" onclick="undoSubmitAction('undoSubmit')">退回中队</a>
+                        <a href="#" id="btnAudit" class="easyui-linkbutton" iconcls="icon-edit" plain="true" onclick="AuditMain()">审核</a><label>|</label>
+                        <a href="#" id="btnUndoAudit" class="easyui-linkbutton" iconcls="icon-undo" plain="true" onclick="undoSubmitAction('undoAudit')">退回审核</a><label>|</label>
+                        <a href="#" id="btnDbCheck" class="easyui-linkbutton" iconcls="icon-reload" plain="true" onclick="DbCheckMain()">财务复核</a><label>|</label>
+                        <a href="#" id="btnUndoDbCheck" class="easyui-linkbutton" iconcls="icon-undo" plain="true" onclick="undoSubmitAction('undoDbCheck')">退回复核</a><label>|</label>
+                        <a href="#" id="btnInDb" class="easyui-linkbutton" iconcls="icon-save" plain="true" onclick="InDbMain()">财务入账</a>
+                        <a href="#" id="btnUndo" class="easyui-linkbutton" iconcls="icon-redo" plain="true" onclick="UndoMain()">财务退账</a>
                     }
-                    else if(id==6)//莆田模式
+                    else if (id == 6)//莆田模式
                     {
                         <a href="#" id="btnAdd" class="easyui-linkbutton" iconcls="icon-add" plain="true" onclick="AddMain()">增加主单</a><label>|</label>
-                    <a href="#" id="btnSave" class="easyui-linkbutton" iconcls="icon-save" plain="true" onclick="SaveMain()">保存主单</a><label>|</label>
-                    <a href="#" id="btnSubmit" class="easyui-linkbutton" iconcls="icon-ok" plain="true" onclick="SubmitMain()">确认提交</a><label>|</label>
-                    <a href="#" id="btnDel" class="easyui-linkbutton" iconcls="icon-cancel" plain="true" onclick="DeleteMain()">删除主单</a><label>|</label>
-                    <a href="#" id="btnBankReturn" class="easyui-linkbutton" iconcls="icon-reload" plain="true" onclick="BankReturnMain()">莆田银行返回导入</a><label>|</label>
+                        <a href="#" id="btnSave" class="easyui-linkbutton" iconcls="icon-save" plain="true" onclick="SaveMain()">保存主单</a><label>|</label>
+                        <a href="#" id="btnSubmit" class="easyui-linkbutton" iconcls="icon-ok" plain="true" onclick="SubmitMain()">确认提交</a><label>|</label>
+                        <a href="#" id="btnDel" class="easyui-linkbutton" iconcls="icon-cancel" plain="true" onclick="DeleteMain()">删除主单</a><label>|</label>
+                        <a href="#" id="btnBankReturn" class="easyui-linkbutton" iconcls="icon-reload" plain="true" onclick="BankReturnMain()">莆田银行返回导入</a><label>|</label>
 
                     }
-                    else if(id==7)//一般不走流程的模式
+                    else if (id == 7)//一般不走流程的模式
                     {
-                    <a href="#" id="btnAdd" class="easyui-linkbutton" iconcls="icon-add" plain="true" onclick="AddMain()">增加主单</a><label>|</label>
-                    <a href="#" id="btnSave" class="easyui-linkbutton" iconcls="icon-save" plain="true" onclick="SaveMain()">保存主单</a><label>|</label>
-                    <a href="#" id="btnSubmit" class="easyui-linkbutton" iconcls="icon-ok" plain="true" onclick="SubmitMain()">确认提交</a><label>|</label>
-                    <a href="#" id="btnDel" class="easyui-linkbutton" iconcls="icon-cancel" plain="true" onclick="DeleteMain()">删除主单</a><label>|</label>
-                    <a href="#" id="btnInDb" class="easyui-linkbutton" iconcls="icon-save" plain="true" onclick="InDbMain()">财务入账</a>
-                    <a href="#" id="btnUndo" class="easyui-linkbutton" iconcls="icon-redo" plain="true" onclick="UndoMain()">财务退账</a>
+                        <a href="#" id="btnAdd" class="easyui-linkbutton" iconcls="icon-add" plain="true" onclick="AddMain()">增加主单</a><label>|</label>
+                        <a href="#" id="btnSave" class="easyui-linkbutton" iconcls="icon-save" plain="true" onclick="SaveMain()">保存主单</a><label>|</label>
+                        <a href="#" id="btnSubmit" class="easyui-linkbutton" iconcls="icon-ok" plain="true" onclick="SubmitMain()">确认提交</a><label>|</label>
+                        <a href="#" id="btnDel" class="easyui-linkbutton" iconcls="icon-cancel" plain="true" onclick="DeleteMain()">删除主单</a><label>|</label>
+                        <a href="#" id="btnInDb" class="easyui-linkbutton" iconcls="icon-save" plain="true" onclick="InDbMain()">财务入账</a>
+                        <a href="#" id="btnUndo" class="easyui-linkbutton" iconcls="icon-redo" plain="true" onclick="UndoMain()">财务退账</a>
                     }
+                    else if (id == 8)//创建并提交
+                    {
+                        <a href="#" id="btnAdd" class="easyui-linkbutton" iconcls="icon-add" plain="true" onclick="AddMain()">增加主单</a><label>|</label>
+                        <a href="#" id="btnSave" class="easyui-linkbutton" iconcls="icon-save" plain="true" onclick="SaveMain()">保存主单</a><label>|</label>
+                        <a href="#" id="btnSubmit" class="easyui-linkbutton" iconcls="icon-ok" plain="true" onclick="SubmitMain()">确认提交</a><label>|</label>
+                        <a href="#" id="btnDel" class="easyui-linkbutton" iconcls="icon-cancel" plain="true" onclick="DeleteMain()">删除主单</a><label>|</label>
+                    }
+                    
                 }
                 <a href="#" id="btnPrint" class="easyui-linkbutton" iconcls="icon-print" plain="true" onclick="PrintMain()">打印列表</a><label>|</label>
                 <a href="#" id="btnExcel" class="easyui-linkbutton" iconcls="icon-redo" plain="true" onclick="ExcelMain()">Excel导出</a><label>|</label>
 
-            <a href="#" id="ddts" title="This is the tooltip message." class="easyui-tooltip">状态提示</a>
+                <a href="#" id="ddts" title="This is the tooltip message." class="easyui-tooltip">状态提示</a>
 
-</div>
+            </div>
         </div>
     </div>
     <div data-options="region:'center',title:'劳动报酬明细列表:（2003版Excel格式 【编号】【姓名】【金额】【备注】）'" style="padding:5px;background:#eee;">

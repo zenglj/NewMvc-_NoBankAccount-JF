@@ -224,6 +224,7 @@
     <Compile Include="Controllers\BaseInfoMgrController.cs" />
     <Compile Include="Controllers\BaseMenuController.cs" />
     <Compile Include="Controllers\BatchCustomerController.cs" />
+    <Compile Include="Controllers\BedMgrController.cs" />
     <Compile Include="Controllers\CashPayController.cs" />
     <Compile Include="Controllers\ComAppController.cs" />
     <Compile Include="Controllers\CriminalController.cs" />
@@ -822,6 +823,7 @@
     <Content Include="Scripts\myJs\BankSumReport.js" />
     <Content Include="Scripts\myJs\CriminalMgr.js" />
     <Content Include="Scripts\myJs\BankRcvIndex.js" />
+    <Content Include="Scripts\myJs\BedEditHouse.js" />
     <Content Include="Scripts\myJs\GoodsPriceChangeMgr.js" />
     <Content Include="Scripts\myJs\JiariMgr.js" />
     <Content Include="Scripts\myJs\BankDataReset.js" />
@@ -863,6 +865,7 @@
     <Content Include="Scripts\myJs\DepositIndex.js" />
     <Content Include="Scripts\myJs\BankPaymentIndex.js" />
     <Content Include="Scripts\myJs\SaleDayListMgr.js" />
+    <Content Include="Scripts\myJs\BedSearchBed.js" />
     <Content Include="Scripts\myJs\SelfDongJie.js" />
     <Content Include="Scripts\myJs\SelfDongJieLogin.js" />
     <Content Include="Scripts\myJs\areaSelfLogin.js" />
@@ -1132,6 +1135,7 @@
     <Content Include="Views\Infomgr\NewPrintOutPrisonReport - 通用.cshtml" />
     <Content Include="Views\BankRcv\PrintDetailList.cshtml" />
     <Content Include="Views\BankRcv\HttpTest.cshtml" />
+    <Content Include="Views\BedMgr\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

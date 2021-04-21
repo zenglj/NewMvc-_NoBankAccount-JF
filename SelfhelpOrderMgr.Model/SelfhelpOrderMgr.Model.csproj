@@ -73,6 +73,9 @@
     <Compile Include="BatchDeposit.cs" />
     <Compile Include="BatchDepositDTL.cs" />
     <Compile Include="DapperModel\BaseSumFieldModel.cs" />
+    <Compile Include="DapperModel\BfOrderMain.cs" />
+    <Compile Include="DapperModel\BedInfomation.cs" />
+    <Compile Include="DapperModel\BfShopType.cs" />
     <Compile Include="DapperModel\EasyUiPageResult.cs" />
     <Compile Include="DapperModel\PageResult.cs" />
     <Compile Include="DapperModel\ResultInfo.cs" />
@@ -81,6 +84,7 @@
     <Compile Include="DapperModel\T_Bank_AtmMachine.cs" />
     <Compile Include="DapperModel\T_Bank_CardPool_Search.cs" />
     <Compile Include="DapperModel\T_Bank_CardPool.cs" />
+    <Compile Include="DapperModel\BfUseListMgr.cs" />
     <Compile Include="DapperModel\T_Bank_CNAPS.cs" />
     <Compile Include="DapperModel\T_Bank_AtmDealList_Search.cs" />
     <Compile Include="DapperModel\T_Bank_PaymentDetail.cs" />

@@ -167,14 +167,15 @@ namespace SelfhelpOrderMgr.Web.Filters
 		public void OnActionExecuting(ActionExecutingContext context)
 		{
 			MyLogActionFilterAttribute.CheckLoginInfo(context);
-			string sessionId = context.HttpContext.Session.SessionID;
-			IDictionary<string, object> curActionParam = context.ActionParameters;
-			if (this.sessionDicts.ContainsKey(sessionId))
-			{
-				this.sessionDicts[sessionId] = curActionParam;
-				return;
-			}
-			this.sessionDicts.Add(sessionId, curActionParam);
+            string sessionId = context.HttpContext.Session.SessionID;
+            IDictionary<string, object> curActionParam = context.ActionParameters;
+            if (this.sessionDicts.ContainsKey(sessionId))
+            {
+                this.sessionDicts[sessionId] = curActionParam;
+                return;
+            }
+            this.sessionDicts.Add(sessionId, curActionParam);
+
 		}
 		private static void CheckLoginInfo(ActionExecutingContext context)
 		{

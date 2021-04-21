@@ -67,6 +67,7 @@
     <Compile Include="DapperBLL\SettleService.cs" />
     <Compile Include="DapperBLL\T_Bank_CardPoolBLL.cs" />
     <Compile Include="DapperBLL\T_Bank_CNAPSBLL.cs" />
+    <Compile Include="DapperBLL\BedInfomationBLL.cs" />
     <Compile Include="DapperBLL\ViewCriminalInfoBLL.cs" />
     <Compile Include="DapperHelperBLL.cs" />
     <Compile Include="CommTableInfoBLL.cs" />

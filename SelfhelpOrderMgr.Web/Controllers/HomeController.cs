@@ -328,6 +328,10 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 string ip = System.Web.HttpContext.Current.Request.UserHostAddress;
                 Log4NetHelper.logger.Info("小票打印管理卡方式登录,操作员：" + managerCardNo + ",登录时间=" + DateTime.Now.ToString() + ",登录IP为：" + ip + "");
 
+                T_CZY user = users[0];
+
+                //设定登录Cookie记录
+                SetLoginCookieInfo(user);
                 status = "OK|登录成功";
             }
             return Content(status);
@@ -350,12 +354,52 @@ namespace SelfhelpOrderMgr.Web.Controllers
             string status = "Error|用户名和密码不正确";
             if (users.Count == 1)
             {
+                T_CZY user = users[0];
+
                 string ip = System.Web.HttpContext.Current.Request.UserHostAddress;
                 Log4NetHelper.logger.Info("小票打印用户名方式登录,操作员：" + userName + ",登录时间=" + DateTime.Now.ToString() + ",登录IP为：" + ip + "");
 
-                status = "OK|"+ users[0].FManagerCard.ToString();
+                //设定登录Cookie记录
+                SetLoginCookieInfo(user);
+
+                status = "OK|" + users[0].FManagerCard.ToString();
             }
             return Content(status);
+        }
+
+        private void SetLoginCookieInfo(T_CZY user)
+        {
+            string strCookieLogin = "";
+            T_SHO_ManagerSet checkUserLoginModeMgr = new T_SHO_ManagerSetBLL().GetModel("CheckLoginSeccionOrCookie");
+            if (checkUserLoginModeMgr != null)
+            {
+                if (checkUserLoginModeMgr.MgrValue == "1")
+                {
+                    //创建Cookie
+                    HttpCookie cookie = new HttpCookie("loginUserName", user.FName);
+                    cookie.Expires = DateTime.Now.AddHours(4);
+                    //写入Cookie
+                    Response.Cookies.Set(cookie);
+
+                    HttpCookie cookieCode = new HttpCookie("loginUserCode", user.FCode);
+                    cookieCode.Expires = DateTime.Now.AddHours(4);
+                    //写入Cookie
+                    Response.Cookies.Set(cookieCode);
+
+                    strCookieLogin = "COOKIE";
+                    Session["loginUserAdmin"] = user.FPRIVATE;
+                    Session["loginUserCode"] = user.FCode;
+                    Session["loginUserName"] = user.FName;
+                }
+            }
+            //如果不是Cookie就用Seccion
+            if (string.IsNullOrEmpty(strCookieLogin))
+            {
+                //Session["loginUserLevelId"] = user.FRole.LevelId;
+                Session["loginUserAdmin"] = user.FPRIVATE;
+                Session["loginUserCode"] = user.FCode;
+                Session["loginUserName"] = user.FName;
+            }
         }
 
         public ActionResult PrintXiaoPiao()//开始打印小票
