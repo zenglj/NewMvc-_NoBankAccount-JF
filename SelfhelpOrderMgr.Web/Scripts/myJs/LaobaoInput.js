@@ -42,23 +42,28 @@
         { title: '用户编号', field: 'FCRIMECODE', width: 80, sortable: true }
         ]],
         columns: [[
-        { field: 'seqno', title: 'seqno', width: 120, hidden: true },
-        { field: 'fcriminal', title: '姓名', width: 120 },
-        {
-            field: 'fareaName', title: '队别名称', width: 220, sortable: true, //rowspan: 2,
-            sorter: function (a, b) {
-                return (a > b ? 1 : -1);
-            }
-        },
-        //{ field: 'FBankAccNo', title: '银行卡号', width: 150 },
-        //{ field: 'FAmountA', title: '存款账户', width: 150 },
-        //{ field: 'FAmountB', title: '报酬账户', width: 150 },
-        //{ field: 'FAmountC', title: '留存金额', width: 150 },
-        { field: 'FAMOUNT', title: '实发余额', width: 150, editor: 'numberbox' },
-        { field: 'AmountA', title: '一般劳酬', width: 150 ,hidden:false},
-        { field: 'AmountB', title: '超常奖', width: 150, hidden: false },
-        { field: 'AmountC', title: '留存金额', width: 150 },
-        { field: 'remark', title: '备注', width: 150 }
+            { field: 'seqno', title: 'seqno', width: 120, hidden: true },
+            { field: 'fcriminal', title: '姓名', width: 120 },
+            {
+                field: 'fareaName', title: '队别名称', width: 220, sortable: true, //rowspan: 2,
+                sorter: function (a, b) {
+                    return (a > b ? 1 : -1);
+                }
+            },
+            //{ field: 'FBankAccNo', title: '银行卡号', width: 150 },
+            //{ field: 'FAmountA', title: '存款账户', width: 150 },
+            //{ field: 'FAmountB', title: '报酬账户', width: 150 },
+            //{ field: 'FAmountC', title: '留存金额', width: 150 },
+            { field: 'FAMOUNT', title: '实发余额', width: 150, editor: 'numberbox' },
+            { field: 'AmountA', title: '存款', width: 150, hidden: false },
+            { field: 'AmountB', title: '劳酬', width: 150, hidden: false },
+            { field: 'AmountC', title: '留存', width: 150, hidden: false },
+            { field: 'remark', title: '备注', width: 150 },
+            { field: 'cqbt', title: '出勤补贴', width: 100 },
+            { field: 'gwjt', title: '岗位津贴', width: 100 },
+            { field: 'ldjx', title: '劳动绩效', width: 100 },
+            { field: 'tbbz', title: '特别补助', width: 100 },
+            { field: 'grkj', title: '个人扣减', width: 100 }
         ]],
         pagination: true,
         rownumbers: true,
@@ -223,10 +228,19 @@ function DelAllDetailList(bid) {
     });
 }
 
+//检查目标审批人是否为空
+function checkTargitAppvBy() {
+    var targitUser = $("#TargetUser").combobox("getValue");
+    if (targitUser == null || targitUser == "undefined") {
+        $.messager.alert('提示', "审批人不能为空");
+        return false;
+    }
+}
 
 //确定提交主单
 function SubmitMainOrder(bid) {
-    $.post("/Laobao/PostMainOrder/"+$("#PowerId").val(), { "sbid": bid }, function (data, status) {
+    checkTargitAppvBy();//检查目标审批人是否为空
+    $.post("/Laobao/PostMainOrder/" + $("#PowerId").val(), { "sbid": bid, "TargetUser": $("#TargetUser").combobox("getValue") }, function (data, status) {
         if (status == "success") {
             var words = data.split("|");
             if (words[0] == "OK") {
@@ -265,6 +279,7 @@ function SubmitMainOrder(bid) {
 
 //审核已经提交的主单
 function AuditMain(bid) {
+    checkTargitAppvBy();//检查目标审批人是否为空
     var row = $("#mainOrderTable").datagrid("getSelected");
     if (row == null) {
         $.messager.alert("请选择一条劳报主单记录");
@@ -272,7 +287,7 @@ function AuditMain(bid) {
     }
     if (row.FCheckFlag == 1) {
         if (row.auditflag == 0) {
-            $.post("/Laobao/AuditMainOrder", { "sbid": row.BID }, function (data, status) {
+            $.post("/Laobao/AuditMainOrder", { "sbid": row.BID, "TargetUser": $("#TargetUser").combobox("getValue")}, function (data, status) {
                 if (status == "success") {
                     var words = data.split(".");
                     if (words[0] == "OK") {
@@ -301,6 +316,7 @@ function AuditMain(bid) {
 
 //复核已经提交的主单
 function DbCheckMain(bid) {
+    checkTargitAppvBy();//检查目标审批人是否为空
     var row = $("#mainOrderTable").datagrid("getSelected");
     if (row == null) {
         $.messager.alert("请选择一条劳报主单记录");
@@ -308,7 +324,7 @@ function DbCheckMain(bid) {
     }
     if (row.auditflag == 1) {
         if (row.Fdbcheckflag == 0) {
-            $.post("/Laobao/DbCheckMainOrder", { "sbid": row.BID }, function (data, status) {
+            $.post("/Laobao/DbCheckMainOrder", { "sbid": row.BID, "TargetUser": $("#TargetUser").combobox("getValue") }, function (data, status) {
                 if (status == "success") {
                     var words = data.split(".");
                     if (words[0] == "OK") {
@@ -586,7 +602,8 @@ function loadMainOrderTable() {
         },
         frozenColumns: [[//DataGrid表格排序列
             { field: 'ck', checkbox: true },
-            { title: '序号', field: 'BID', width: 100, sortable: true }
+            { title: '序号', field: 'BID', width: 100, sortable: true },
+            { title: '科目', field: 'DType', width: 100, sortable: true }
         ]],
         columns: [[//DataGrid表格数据列
         {
@@ -602,6 +619,12 @@ function loadMainOrderTable() {
                 } else {
                     return value;
                 }
+            }
+        },
+        {
+            field: 'TargetExaminerBy', title: '待审批人', width: 100, sortable: true, //rowspan: 2,
+            sorter: function (a, b) {
+                return (a > b ? 1 : -1);
             }
         },
         {
@@ -718,6 +741,16 @@ function SaveMain() {
         $("#MainAction").val("AddMainOrder");
         $("#sAreaName").val($("#mainAreaName").combobox('getText'));
         $("#sAreaCode").val($("#mainAreaName").combobox('getValue'));
+        $("#sDtype").val($("#mainTypeName").combobox('getText'));
+        if ($("#mainTypeName").combobox('getValue') == '4') {
+            $("#sTypeFlag").val('4');
+            $("#sSubTypeFlag").val('0');
+        } else {
+            $("#sTypeFlag").val('0');
+            $("#sSubTypeFlag").val($("#mainTypeName").combobox('getValue'));
+        }
+        
+        
         $('#ffMainOrder').form({
             url: "/Laobao/AddMainOrder",
             onSubmit: function () {
@@ -983,13 +1016,15 @@ function noMoneyEnter() {
         return false;
     }
 
-    if (excelModel_Id == "1") {
+    if (excelModel_Id == "1" || excelModel_Id == "4") {
+        console.log($("#iMoney").val());
         if (isNaN($("#iMoney").val())) {
             $("#lblInfo").text('金额必须是数值的!');
             $("#iMoney").focus();
             return false;
         }
     } else {
+        console.log($("#iMoney").val());
         if (isNaN($("#iAmountA").val())) {
             $("#lblInfo").text('金额必须是数值的!');
             $("#iAmountA").focus();

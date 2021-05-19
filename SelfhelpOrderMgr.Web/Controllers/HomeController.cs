@@ -114,6 +114,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
         }
 
         //验证系统登录
+        [MyLogActionFilterAttribute]
         public ActionResult LoginCheck()
         {
             string ip = System.Web.HttpContext.Current.Request.UserHostAddress;
@@ -196,6 +197,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
             return Content(status);
         }//消费登录开启，管理卡模式
 
+        [MyLogActionFilterAttribute]
         public ActionResult UserSignInCheck()
         {
             //string managerCardNo = Request["managerCardNo"];
@@ -318,6 +320,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
             return View("PrintCkeck");
         }
+        [MyLogActionFilterAttribute]
         public ActionResult PrintCkeckLogin()//打印小票登录验证
         {
             string managerCardNo = Request["managerCardNo"];
@@ -336,7 +339,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
             }
             return Content(status);
         }
-
+        [MyLogActionFilterAttribute]
         public ActionResult PrintCkeckSignIn()//打印小票用户密码登录验证
         {
             string userName = Request["userName"];

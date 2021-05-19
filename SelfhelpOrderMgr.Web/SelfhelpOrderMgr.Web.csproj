@@ -830,6 +830,7 @@
     <Content Include="Scripts\myJs\CriminalChangeMgr.js" />
     <Content Include="Scripts\myJs\EdiMainRcvPay.js" />
     <Content Include="Scripts\myJs\ComApp.js" />
+    <Content Include="Scripts\myJs\LeavePrisonList - 复制.js" />
     <Content Include="Scripts\myJs\MyNumerKeyBoard.js" />
     <Content Include="Scripts\myJs\NewLayout\BI_AreaMgr.js" />
     <Content Include="Scripts\myJs\NewLayout\BI_CriminalMgr.js" />

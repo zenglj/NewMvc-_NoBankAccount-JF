@@ -2,6 +2,7 @@
 using Newtonsoft.Json.Linq;
 using SelfhelpOrderMgr.BLL;
 using SelfhelpOrderMgr.Model;
+using SelfhelpOrderMgr.Web.Filters;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -233,7 +234,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
 
         }
-
+        [MyLogActionFilterAttribute]
         public ActionResult Save_RequestChangeList()//保存申请列表
         {
             //Request.("UTF-8");

@@ -71,6 +71,10 @@ namespace SelfhelpOrderMgr.BLL
             {
                 return new T_BONUSDAL().UpdateInDbFlag(bid, crtby, checkflag);
             }
+            else if (excelModel_Id == 4)//仓山监狱格式
+            {
+                return new T_BONUSDAL().UpdateInDbFlag_Model2(bid, crtby, checkflag);
+            }
             else
             {
                 return false;

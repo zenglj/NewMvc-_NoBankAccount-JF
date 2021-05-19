@@ -17,5 +17,8 @@ namespace SelfhelpOrderMgr.Model
         public string BankUserName { get; set; }//收款人姓名
         public string OpeningBank { get; set; }//开户行
         public string PayMode { get; set; }//结算模式
+        public int CollectMoneyFlag { get; set; }//现金已领标识
+        public int seqno { get; set; }
+
     }
 }

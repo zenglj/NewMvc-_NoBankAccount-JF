@@ -51,17 +51,22 @@ namespace SelfhelpOrderMgr.DAL
             strSql.Append("CHECKBY=@CHECKBY,");
             strSql.Append("CheckDate=@CheckDate,");
             strSql.Append("FCheckFlag=@FCheckFlag");
+            strSql.Append(",TargetExaminerBy=@TargetExaminerBy");
+            strSql.Append(",MainStatus=@MainStatus ");
             strSql.Append(" where BID=@BID ");
             SqlParameter[] parameters = {
 					new SqlParameter("@BID", SqlDbType.VarChar,20),
 					new SqlParameter("@CHECKBY", SqlDbType.VarChar,20),
 					new SqlParameter("@CheckDate", SqlDbType.DateTime),
-					new SqlParameter("@FCheckFlag", SqlDbType.Int,4)};
+					new SqlParameter("@FCheckFlag", SqlDbType.Int,4),
+                    new SqlParameter("@TargetExaminerBy",SqlDbType.VarChar,50),
+                    new SqlParameter("@MainStatus", SqlDbType.Int,4)};
             parameters[0].Value = model.BID;
             parameters[1].Value = model.CHECKBY;
             parameters[2].Value = model.CheckDate;
             parameters[3].Value = model.FCheckFlag;
-
+            parameters[4].Value = model.TargetExaminerBy;
+            parameters[5].Value = model.MainStatus;
             int rows = SqlHelper.ExecuteSql( strSql.ToString(), parameters);
             if (rows > 0)
             {
@@ -84,17 +89,22 @@ namespace SelfhelpOrderMgr.DAL
             strSql.Append("AuditBy=@AuditBy,");
             strSql.Append("AuditDate=@AuditDate,");
             strSql.Append("AuditFlag=@AuditFlag");
+            strSql.Append(",TargetExaminerBy=@TargetExaminerBy");
+            strSql.Append(",MainStatus=@MainStatus ");
             strSql.Append(" where BID=@BID ");
             SqlParameter[] parameters = {
 					new SqlParameter("@BID", SqlDbType.VarChar,20),
 					new SqlParameter("@AuditBy", SqlDbType.VarChar,20),
 					new SqlParameter("@AuditDate", SqlDbType.DateTime),
-					new SqlParameter("@AuditFlag", SqlDbType.Int,4)};
+					new SqlParameter("@AuditFlag", SqlDbType.Int,4),
+                    new SqlParameter("@TargetExaminerBy", SqlDbType.VarChar,50),
+                    new SqlParameter("@MainStatus", SqlDbType.Int,4)};
             parameters[0].Value = model.BID;
             parameters[1].Value = model.auditby;
             parameters[2].Value = model.auditdate;
             parameters[3].Value = model.auditflag;
-
+            parameters[4].Value = model.TargetExaminerBy;
+            parameters[5].Value = model.MainStatus;
             int rows = SqlHelper.ExecuteSql(strSql.ToString(), parameters);
             if (rows > 0)
             {
@@ -194,16 +204,22 @@ namespace SelfhelpOrderMgr.DAL
             strSql.Append("FDbCheckBY=@FDbCheckBY,");
             strSql.Append("Fdbcheckdate=@Fdbcheckdate,");
             strSql.Append("Fdbcheckflag=@Fdbcheckflag");
+            strSql.Append(",TargetExaminerBy=@TargetExaminerBy");
+            strSql.Append(",MainStatus=@MainStatus ");
             strSql.Append(" where BID=@BID ");
             SqlParameter[] parameters = {
 					new SqlParameter("@BID", SqlDbType.VarChar,20),
 					new SqlParameter("@FDbCheckBY", SqlDbType.VarChar,20),
 					new SqlParameter("@Fdbcheckdate", SqlDbType.DateTime),
-					new SqlParameter("@Fdbcheckflag", SqlDbType.Int,4)};
+					new SqlParameter("@Fdbcheckflag", SqlDbType.Int,4),
+                    new SqlParameter("@TargetExaminerBy", SqlDbType.VarChar,50),
+                    new SqlParameter("@MainStatus", SqlDbType.Int,4)};
             parameters[0].Value = model.BID;
             parameters[1].Value = model.FDbCheckBY;
             parameters[2].Value = model.Fdbcheckdate;
             parameters[3].Value = model.Fdbcheckflag;
+            parameters[4].Value = model.TargetExaminerBy;
+            parameters[5].Value = model.MainStatus;
 
             int rows = SqlHelper.ExecuteSql(strSql.ToString(), parameters);
             if (rows > 0)
@@ -223,6 +239,17 @@ namespace SelfhelpOrderMgr.DAL
         /// <returns></returns>
         public bool UpdateInDbFlag(string bid, string crtby,int checkflag)
         {
+            #region 根据配置文件DepositInVcrdFlag设定项，获取Flag的值
+            T_SHO_ManagerSet mset = new T_SHO_ManagerSetDAL().GetModel("DepositInVcrdFlag");            
+            int iflag = 0;//默认值VCRD Flag为0
+            if (mset != null)
+            {
+                if (mset.MgrValue == "-2")
+                {
+                    iflag = -2;
+                }
+            } 
+            #endregion
             using (IDbConnection conn = new SqlConnection(SqlHelper.getConnstr()))
             {
                 conn.Open();
@@ -240,43 +267,70 @@ namespace SelfhelpOrderMgr.DAL
                     strSql.Append(@"insert into t_Vcrd ([Vouno],[CardCode],[FCrimeCode],[DAmount],[CAmount],[CrtBy]
                       ,[CrtDate],[DType],[Depositer],[Remark],[Flag]
 	                  ,[FAreaCode],[FAreaName],[FCriminal],[Frealareacode]
-                      ,[FrealAreaName],[PType],[UDate],[OrigId],[CardType],[TypeFlag]
+                      ,[FrealAreaName],[PType],[UDate],[OrigId],[CardType],[TypeFlag],[SubTypeFlag]
                       ,[AccType],[CheckFlag],[CheckDate]
                       ,[CheckBy],[pc],[CurUserAmount],[CurAllAmount])
                 select 'VOUB'+substring( '00000'+convert(varchar(20),a.seqno),len('00000'+convert(varchar(20),a.seqno))-5,6)
-                ,a.CardCode,a.FCrimeCode,a.FAmount-a.AmountC DAmount,0 CAmount,@CrtBy CrtBy
-                ,getDate() CrtDate,'劳动报酬' DType,'' Depositer,a.Remark,0 Flag,a.FAreaCode,a.FAreaName,a.FCriminal,'' Frealareacode
-                ,'' FrealAreaName,'' PType,b.Udate,a.BID OrigId,0 CardType,4 TypeFlag
+                ,a.CardCode,a.FCrimeCode,isnull(a.AmountA,0) DAmount,0 CAmount,@CrtBy CrtBy
+                ,getDate() CrtDate,b.DType as DType,'' Depositer,a.Remark,@vcrdFlag as Flag,a.FAreaCode,a.FAreaName,a.FCriminal,'' Frealareacode
+                ,'' FrealAreaName,'' PType,b.Udate,a.BID OrigId,0 CardType,b.TypeFlag as TypeFlag,b.SubTypeFlag as SubTypeFlag
+                ,0 AccType,@CheckFlag [CheckFlag],getDate() [CheckDate]
+                ,@CrtBy [CheckBy],0 [pc],(c.AmountA+c.AmountB) [CurUserAmount]
+                ,(c.AmountA+c.AmountB+c.AmountC)[CurAllAmount]
+                 from t_bonusdtl a,t_bonus b,t_Criminal_Card c  
+                where a.Bid=b.Bid and a.FCrimeCode=c.FCrimeCode and b.BID=@BID and isnull(a.Amount,0)<>0 and c.cardflaga<>4;");
+                    if (iflag == 0)
+                    {
+                        strSql.Append(@"update t_Criminal_Card set AMountA=AMountA+b.Fmoney from (
+                            select FCrimeCode,sum(isnull(AmountA,0)) Fmoney from t_bonusdtl where BID=@BID  and isnull(a.Amount,0)<>0 group by fcrimecode 
+                            ) b where t_Criminal_Card.FCrimeCode=b.FCrimeCode  and t_Criminal_Card.cardflaga<>4;");
+                    }
+                    strSql.Append(@"insert into t_Vcrd ([Vouno],[CardCode],[FCrimeCode],[DAmount],[CAmount],[CrtBy]
+                      ,[CrtDate],[DType],[Depositer],[Remark],[Flag]
+	                  ,[FAreaCode],[FAreaName],[FCriminal],[Frealareacode]
+                      ,[FrealAreaName],[PType],[UDate],[OrigId],[CardType],[TypeFlag],[SubTypeFlag]
+                      ,[AccType],[CheckFlag],[CheckDate]
+                      ,[CheckBy],[pc],[CurUserAmount],[CurAllAmount])
+                select 'VOUB'+substring( '00000'+convert(varchar(20),a.seqno),len('00000'+convert(varchar(20),a.seqno))-5,6)
+                ,a.CardCode,a.FCrimeCode,(a.FAmount-isnull(a.AmountA,0)-isnull(a.AmountC,0)) DAmount,0 CAmount,@CrtBy CrtBy
+                ,getDate() CrtDate,b.DType as DType,'' Depositer,a.Remark,@vcrdFlag as Flag,a.FAreaCode,a.FAreaName,a.FCriminal,'' Frealareacode
+                ,'' FrealAreaName,'' PType,b.Udate,a.BID OrigId,0 CardType,b.TypeFlag as TypeFlag,b.SubTypeFlag as SubTypeFlag
                 ,1 AccType,@CheckFlag [CheckFlag],getDate() [CheckDate]
                 ,@CrtBy [CheckBy],0 [pc],(c.AmountA+c.AmountB) [CurUserAmount]
                 ,(c.AmountA+c.AmountB+c.AmountC)[CurAllAmount]
                  from t_bonusdtl a,t_bonus b,t_Criminal_Card c  
-                where a.Bid=b.Bid and a.FCrimeCode=c.FCrimeCode and b.BID=@BID  and c.cardflaga<>4;");
-                    strSql.Append(@"update t_Criminal_Card set AMountB=AMountB+b.Fmoney from (
-                select FCrimeCode,sum(FAmount-AMountC) Fmoney from t_bonusdtl where BID=@BID group by fcrimecode 
+                where a.Bid=b.Bid and a.FCrimeCode=c.FCrimeCode and b.BID=@BID and (a.FAmount-isnull(a.AmountA,0)-isnull(a.AmountC,0))<>0 and c.cardflaga<>4;");
+                    if (iflag == 0)
+                    {
+                        strSql.Append(@"update t_Criminal_Card set AMountB=AMountB+b.Fmoney from (
+                select FCrimeCode,sum((FAmount-isnull(AmountA,0)-isnull(AmountC,0))) Fmoney from t_bonusdtl where BID=@BID and (FAmount-isnull(AmountA,0)-isnull(AmountC,0)) group by fcrimecode 
                 ) b where t_Criminal_Card.FCrimeCode=b.FCrimeCode  and t_Criminal_Card.cardflaga<>4;");
-                    strSql.Append(@"insert into t_Vcrd ([Vouno],[CardCode],[FCrimeCode],[DAmount],[CAmount],[CrtBy]
+                    }
+                        strSql.Append(@"insert into t_Vcrd ([Vouno],[CardCode],[FCrimeCode],[DAmount],[CAmount],[CrtBy]
                   ,[CrtDate],[DType],[Depositer],[Remark],[Flag]
 	              ,[FAreaCode],[FAreaName],[FCriminal],[Frealareacode]
-                  ,[FrealAreaName],[PType],[UDate],[OrigId],[CardType],[TypeFlag]
+                  ,[FrealAreaName],[PType],[UDate],[OrigId],[CardType],[TypeFlag],[SubTypeFlag]
                   ,[AccType],[CheckFlag],[CheckDate]
                   ,[CheckBy],[pc],[CurUserAmount],[CurAllAmount])
             select 'VOUB'+substring( '00000'+convert(varchar(20),a.seqno),len('00000'+convert(varchar(20),a.seqno))-5,6)
-                ,a.CardCode,a.FCrimeCode,a.AmountC DAmount,0 CAmount,@CrtBy CrtBy
-                ,getDate() CrtDate,'劳动报酬' DType,'' Depositer,a.Remark,0 Flag,a.FAreaCode,a.FAreaName,a.FCriminal,'' Frealareacode
-                ,'' FrealAreaName,'' PType,b.Udate,a.BID OrigId,0 CardType,4 TypeFlag
+                ,a.CardCode,a.FCrimeCode,isnull(a.AmountC,0) DAmount,0 CAmount,@CrtBy CrtBy
+                ,getDate() CrtDate,b.DType as DType,'' Depositer,a.Remark,@vcrdFlag as  Flag,a.FAreaCode,a.FAreaName,a.FCriminal,'' Frealareacode
+                ,'' FrealAreaName,'' PType,b.Udate,a.BID OrigId,0 CardType,b.TypeFlag as TypeFlag,b.SubTypeFlag as SubTypeFlag
                 ,2 AccType,@CheckFlag [CheckFlag],getDate() [CheckDate]
                 ,@CrtBy [CheckBy],0 [pc],(c.AmountA+c.AmountB) [CurUserAmount]
                 ,(c.AmountA+c.AmountB+c.AmountC)[CurAllAmount]
                  from t_bonusdtl a,t_bonus b,t_Criminal_Card c  
-                where a.Bid=b.Bid and a.FCrimeCode=c.FCrimeCode and b.BID=@BID  and c.cardflaga<>4;");
-                    strSql.Append(@"update t_Criminal_Card set AMountC=AMountC+b.Fmoney from (
-                select FCrimeCode,sum(AMountC) Fmoney from t_bonusdtl where BID=@BID
+                where a.Bid=b.Bid and a.FCrimeCode=c.FCrimeCode and b.BID=@BID and isnull(a.AmountC,0)<>0 and c.cardflaga<>4;");
+                    if (iflag == 0)
+                    {
+                        strSql.Append(@"update t_Criminal_Card set AMountC=AMountC+b.Fmoney from (
+                select FCrimeCode,sum(isnull(AMountC,0)) Fmoney from t_bonusdtl where BID=@BID and isnull(AmountC,0)<>0
                 group by fcrimecode
                 ) b where t_Criminal_Card.FCrimeCode=b.FCrimeCode  and t_Criminal_Card.cardflaga<>4;");
+                    }
                     strSql.Append(@"update t_bonusDTL set Flag=1 where BID=@BID 
                     and fcrimecode in(select fcrimecode from t_Criminal_Card where cardflaga<>4);");
-                    strSql.Append(@"update t_bonus set cnt=b.fcount,famount=b.fmoney,Flag=1,FPostBy=@CrtBy,FPostDate=getdate(),FPostFlag=1 from (
+                    strSql.Append(@"update t_bonus set cnt=b.fcount,famount=b.fmoney,Flag=1,FPostBy=@CrtBy,FPostDate=getdate(),FPostFlag=1,MainStatus=9,TargetExaminerBy='' from (
                 select bid,count(*) fcount,sum(famount) fmoney from t_bonusdtl 
                 where BID=@BID and flag=1 group by bid) b
                 where t_bonus.BID=@BID and t_bonus.BID=b.BID;");
@@ -447,7 +501,7 @@ namespace SelfhelpOrderMgr.DAL
                                     and origid=@bid
                                     group by fcrimecode) t
                                     where t_criminal_Card.fcrimecode=t.fcrimecode;");
-                    strSql.Append("delete from t_Vcrd where flag=0 and origid=@bid;");
+                    strSql.Append("delete from t_Vcrd where flag in(0,-2) and origid=@bid;");
                     strSql.Append("update t_BonusDtl set flag=0 where Bid=@bid;");
                     strSql.Append("update t_Bonus set flag=0,FDBCheckFlag=0,auditflag=0,FPostFlag=0,fcheckflag=0 where Bid=@bid;");
 

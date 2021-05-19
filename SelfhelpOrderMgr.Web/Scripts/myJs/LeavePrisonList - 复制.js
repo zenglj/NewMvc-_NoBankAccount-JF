@@ -1,5 +1,100 @@
 ﻿
 $(function() {
+  //  $('#test').datagrid({
+  //      title: '即离名单',
+  //      iconCls: 'icon-save',
+  //      //width: 900,
+  //      height: 210,
+  //      queryParams: {
+  //          startDate: $("#crimeSearch input[name=fStartDate]").val(),
+  //          endDate: $("#crimeSearch input[name=fEndDate]").val(),
+  //          FAreaCode: '',
+  //          FCode: '',
+  //          FName: '',
+  //          action: 'GetLeavePrison'
+  //      },
+  //      //fitColumns: true,
+  //      singleSelect:true,
+  //      nowrap: true,
+  //      autoRowHeight: false,
+  //      striped: true,
+  //      collapsible: true,
+  //      url: '/Infomgr/GetTempLeavePrisonList',
+  //      sortName: 'foudate',
+  //      sortOrder: 'asc',
+  //      remoteSort: false,
+  //      idField: 'fcode',
+  //      pageSize: 50,
+  //      pageList: [50, 100],
+  //      onClickRow: function(rowIndex, rowData) {
+  //          var iRowId = rowIndex;
+  //          $('#test').datagrid('clearSelections'); //清除所有的选择项
+  //          $('#test').datagrid('selectRow', iRowId);
+  //          $('#test').datagrid('checkRow', iRowId); 
+  //      },
+  //      frozenColumns: [[
+	 //   { field: 'ck', checkbox: true },
+	 //   { title: '用户编号', field: 'fcode', width: 100, sortable: true }
+  //      ]],
+  //      columns: [[
+  //          { field: 'fname', title: '用户姓名', width: 120 },
+  //          //{
+  //          //    field: 'CollectMoneyFlag', title: '现金领款', width: 80, sortable: true
+  //          //    , formatter: function (value, row, index) {
+  //          //        if (value == 1) {
+  //          //            return '现金已领'
+  //          //        } else {
+  //          //            return value
+  //          //        }
+  //          //    }
+  //          //},
+		//{ field: 'foudate', title: '出监日期', width: 100, sortable: true,hidden:true },
+  //      { field: 'strOutDate', title: '出监日期', width: 100, sortable: true },
+		//{ field: 'fareaname', title: '队别名称', width: 150, sortable: true, //rowspan: 2,
+		//	sorter: function(a, b) {
+		//		return (a > b ? 1 : -1);
+		//	}
+		//},        
+  //      {
+  //          field: 'AllMoney', title: '总金额', width: 80, sortable: true, formatter: function (value, row, index) {
+  //              return row.AmountA+row.AmountB+row.AmountC;
+  //          }
+  //      },
+  //      {
+  //          field: 'PayMode', title: '结算方式', width: 80, sortable: true
+  //          , formatter: function (value, row, index) {
+  //              if (value == 0) {
+  //                  return '网点取款';
+  //              } else if (value == 1) {
+  //                  return '现金结算';
+  //              } else if (value == 2) {
+  //                  return '转账支付'
+  //              } else {
+  //                  return value
+  //              }
+
+  //          }},
+		//{ field: 'OutBankCard', title: '出监收款账号', width: 200, sortable: true },
+		//{ field: 'BankUserName', title: '收款人姓名', width: 150, sortable: true },
+  //      { field: 'OpeningBank', title: '开户行', width: 200, sortable: true },
+		//{ field: 'FStatus', title: '办理状态', width: 80, sortable: true },
+		//{ field: 'BankCardNo', title: '银行卡号', width: 150, sortable: true },
+  //      { field: 'JSMoney', title: '已结金额', width: 80, sortable: true },
+  //      { field: 'AmountA', title: '存款账户', width: 80, sortable: true },
+  //      { field: 'AmountB', title: '报酬账户', width: 80, sortable: true },
+  //      { field: 'AmountC', title: '留存账户', width: 80, sortable: true }
+        
+  //      ]],
+  //      pagination: true,
+  //      rownumbers: true,
+  //      onSelect: function (rowIndex, rowData) {
+  //          if (rowData.fcode != $("#selectRowFCode").val()) {
+  //              loadDetailTable(rowData.fcode);
+  //          }
+  //      }
+  //  });
+
+
     $('#test').datagrid({
         title: '即离名单',
         iconCls: 'icon-save',
@@ -14,7 +109,7 @@ $(function() {
             action: 'GetLeavePrison'
         },
         //fitColumns: true,
-        singleSelect:true,
+        singleSelect: true,
         nowrap: true,
         autoRowHeight: false,
         striped: true,
@@ -26,65 +121,56 @@ $(function() {
         idField: 'fcode',
         pageSize: 50,
         pageList: [50, 100],
-        onClickRow: function(rowIndex, rowData) {
+        onClickRow: function (rowIndex, rowData) {
             var iRowId = rowIndex;
             $('#test').datagrid('clearSelections'); //清除所有的选择项
             $('#test').datagrid('selectRow', iRowId);
-            $('#test').datagrid('checkRow', iRowId); 
+            $('#test').datagrid('checkRow', iRowId);
         },
         frozenColumns: [[
             { field: 'ck', checkbox: true },
-            { field: 'seqno', title: '序号', width: 100, sortable: true },
-        { field: 'fcode', title: '用户编号', width: 100, sortable: true }
+            { title: '用户编号', field: 'fcode', width: 100, sortable: true }
         ]],
         columns: [[
             { field: 'fname', title: '用户姓名', width: 120 },
+            { field: 'foudate', title: '出监日期', width: 100, sortable: true, hidden: true },
+            { field: 'strOutDate', title: '出监日期', width: 100, sortable: true },
             {
-                field: 'CollectMoneyFlag', title: '现金领款', width: 80, sortable: true
-                , formatter: function (value, row, index) {
-                    if (value == 1) {
-                        return '现金已领'
-                    } else {
-                        return ''
-                    }
+                field: 'fareaname', title: '队别名称', width: 150, sortable: true, //rowspan: 2,
+                sorter: function (a, b) {
+                    return (a > b ? 1 : -1);
                 }
             },
-		{ field: 'foudate', title: '出监日期', width: 100, sortable: true,hidden:true },
-        { field: 'strOutDate', title: '出监日期', width: 100, sortable: true },
-		{ field: 'fareaname', title: '队别名称', width: 150, sortable: true, //rowspan: 2,
-			sorter: function(a, b) {
-				return (a > b ? 1 : -1);
-			}
-		},        
-        {
-            field: 'AllMoney', title: '总金额', width: 80, sortable: true, formatter: function (value, row, index) {
-                return row.AmountA+row.AmountB+row.AmountC;
-            }
-        },
-        {
-            field: 'PayMode', title: '结算方式', width: 80, sortable: true
-            , formatter: function (value, row, index) {
-                if (value == 0) {
-                    return '网点取款';
-                } else if (value == 1) {
-                    return '现金结算';
-                } else if (value == 2) {
-                    return '转账支付'
-                } else {
-                    return value
+            {
+                field: 'AllMoney', title: '总金额', width: 80, sortable: true, formatter: function (value, row, index) {
+                    return row.AmountA + row.AmountB + row.AmountC;
                 }
+            },
+            {
+                field: 'PayMode', title: '结算方式', width: 80, sortable: true
+                , formatter: function (value, row, index) {
+                    if (value == 0) {
+                        return '网点取款';
+                    } else if (value == 1) {
+                        return '现金结算';
+                    } else if (value == 2) {
+                        return '转账支付'
+                    } else {
+                        return value
+                    }
 
-            }},
-		{ field: 'OutBankCard', title: '出监收款账号', width: 200, sortable: true },
-		{ field: 'BankUserName', title: '收款人姓名', width: 150, sortable: true },
-        { field: 'OpeningBank', title: '开户行', width: 200, sortable: true },
-		{ field: 'FStatus', title: '办理状态', width: 80, sortable: true },
-		{ field: 'BankCardNo', title: '银行卡号', width: 150, sortable: true },
-        { field: 'JSMoney', title: '已结金额', width: 80, sortable: true },
-        { field: 'AmountA', title: '存款账户', width: 80, sortable: true },
-        { field: 'AmountB', title: '报酬账户', width: 80, sortable: true },
-        { field: 'AmountC', title: '留存账户', width: 80, sortable: true }
-        
+                }
+            },
+            { field: 'OutBankCard', title: '出监收款账号', width: 200, sortable: true },
+            { field: 'BankUserName', title: '收款人姓名', width: 150, sortable: true },
+            { field: 'OpeningBank', title: '开户行', width: 200, sortable: true },
+            { field: 'FStatus', title: '办理状态', width: 80, sortable: true },
+            { field: 'BankCardNo', title: '银行卡号', width: 150, sortable: true },
+            { field: 'JSMoney', title: '已结金额', width: 80, sortable: true },
+            { field: 'AmountA', title: '存款账户', width: 80, sortable: true },
+            { field: 'AmountB', title: '报酬账户', width: 80, sortable: true },
+            { field: 'AmountC', title: '留存账户', width: 80, sortable: true }
+
         ]],
         pagination: true,
         rownumbers: true,
@@ -94,7 +180,6 @@ $(function() {
             }
         }
     });
-
 
     var p = $('#test').datagrid('getPager');
     $(p).pagination({
@@ -106,9 +191,7 @@ $(function() {
     //动态改变行颜色
     $('#test').datagrid({
         rowStyler:function(index,row){
-            if (row.CollectMoneyFlag == "1" && row.FStatus == "已结算" && row.PayMode == "0") {
-                return 'background-color:cadetblue;';
-            }else if (row.FStatus == "已结算") {
+            if (row.FStatus=="已结算"){
                 return 'background-color:gray;';
             } else if (row.FStatus == "已挂失") {
                 return 'background-color:#17A05D;';
@@ -210,7 +293,8 @@ function RecoveryInPrison() {
     if (selected.PayMode != null && selected.PayMode!="") {
         paymode = selected.PayMode;
     }
-
+    $.messager.confirm('确认框', '执行恢复在押状态前，您是否与财务人员沟通过，造成异常责任将由您承担，是否继续执行恢复?', function (r) {
+        if (r) {
     $.post("/Infomgr/ResotreCriminalInPrison", {
         "FCode": selected.fcode,
         "FName": selected.fname,

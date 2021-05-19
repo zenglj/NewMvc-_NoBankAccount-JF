@@ -27,10 +27,14 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
         JavaScriptSerializer jss = new JavaScriptSerializer();
         string userLoginName = "";
+        BaseDapperBLL _bll = new BaseDapperBLL();
         //
         // GET: /DepositList/
         public ActionResult Index()
         {
+            string sql = "select TransType as fcode,TypeName as fname from [T_Bank_TransType]";
+            List<T_CommonTypeTab> _ts = new CommTableInfoBLL().GetList<T_CommonTypeTab>(sql, null).ToList();
+            ViewData["types"] = _ts;
             return View();
         }
 
@@ -42,6 +46,47 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 userLoginName = new T_CZYBLL().GetModel(Session["loginUserCode"].ToString()).FName;
             }
             return userLoginName;
+        }
+
+        //设置或取消对公账
+        public JsonResult SetImportFlag(int flag,int id)
+        {
+            ResultInfo rs = new ResultInfo()
+            {
+                Flag = false,
+                ReMsg = "未处理",
+                DataInfo = null
+            };
+            if(!(flag ==0 || flag == 2))
+            {
+                rs.ReMsg = "Err|flag值只能传0或2";
+                return Json(rs);
+            }
+            try
+            {
+                T_Bank_Rcv rcv = _bll.GetModel<T_Bank_Rcv>(id);
+                if (rcv != null && rcv.ImportFlag != 1)
+                {
+                    rcv.ImportFlag = flag;
+                    _bll.Update<T_Bank_Rcv>(rcv);
+                    rs.Flag = true;
+                    rs.ReMsg = "更新成功,请刷新";
+                    rs.DataInfo = rcv;
+                    return Json(rs);
+                }
+                else
+                {
+                    rs.ReMsg = "已入账的记录不能修改";
+                }
+            }
+            catch (Exception ex)
+            {
+
+                rs.ReMsg = ex.Message;
+            }
+            
+            
+            return Json(rs);
         }
 
         //按姓名查找
@@ -140,8 +185,46 @@ namespace SelfhelpOrderMgr.Web.Controllers
         [HttpPost]
         public JsonResult GetSearchList(string strJsonWhere, string orderField = " id asc ", int page = 1, int rows = 10)
         {
+            
+            if (strJsonWhere!=null && strJsonWhere.Contains("\"transtype\":\"22\""))
+            {
+                string sql = @"select ROW_NUMBER() OVER (ORDER BY c.[CreateDate]) AS Id,* from (
+                                select
+                                      fractnactacn as  [CardNo]
+                                      ,a.[VchNum]
+                                      ,txnamt as [RcvAmount]
+                                      ,a.[transtype]
+                                      ,txndate[tnxdate]
+                                      ,vouchnum[OffsetVchNum]
+                                      ,furinfo[Remark]
+                                      ,isnull(b.FcrimeCode, '') as [FcrimeCode]
+                                      ,isnull(b.FName, '') as [FName]
+                                      ,isnull(b.Error, '') as [Error]
+                                      ,isnull(b.ImportFlag, 0) as  [ImportFlag]
+                                      ,valdat as  [CreateDate]
+                                      , fractnacntname[fractname]
+                                      ,a.[direction]
+                                    from t_bank_transDetail a left outer join t_bank_rcv b
+                                    on a.vchnum = b.VchNum
+                                    where a.valdat between @CreateDate_Start and @CreateDate_End and a.transtype = 22
+                                    group by fractnactacn ,a.[VchNum] ,txnamt ,a.[transtype]
+                                      ,txndate ,vouchnum  ,furinfo ,isnull(b.FcrimeCode, '')
+                                      ,isnull(b.FName, '')  ,isnull(b.Error, '') ,isnull(b.ImportFlag, 0)
+                                      ,valdat , fractnacntname ,a.[direction]) C";
+                var paramWhere = Newtonsoft.Json.JsonConvert.DeserializeObject<T_Bank_Rcv_Search>(strJsonWhere);
+                
+
+                PageResult<T_Bank_Rcv> _r = new PageResult<T_Bank_Rcv>();
+                List<T_Bank_Rcv> ls = new CommTableInfoBLL().GetList<T_Bank_Rcv>(sql, paramWhere).ToList();
+                _r.rows = ls;
+                _r.PageIndex = 1;
+                _r.PageSize = 200;
+                _r.total = ls.Count;
+                return Json(_r);
+            }
             PageResult<T_Bank_Rcv> rs = new T_Bank_DepositListBLL().GetPageList<T_Bank_Rcv, T_Bank_Rcv_Search>(orderField, strJsonWhere, page, rows);
             return Json(rs);
+
             //return Content(jss.Serialize(rs));
         }
 
@@ -389,7 +472,9 @@ namespace SelfhelpOrderMgr.Web.Controllers
             string strFileName = new CommonClass().GB2312ToUTF8(strLoginName + "_BankTotalList.xls");
             strFileName = Server.MapPath("~/Upload/" + strFileName); ;
 
-            ExcelRender.RenderToExcel(dt, title, 2, strFileName, mul_lan, strCountTime);
+            //ExcelRender.RenderToExcel(dt, title, 2, strFileName, mul_lan, strCountTime);
+            ExcelRender.RenderToExcel(dt, title,strFileName);
+
             return Content("OK|" + strLoginName + "_BankTotalList.xls");
         }
         public ActionResult HttpTest()
@@ -489,6 +574,91 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
         }
 
+
+        //银行流水记录导出 财务软件导入格式
+        public ActionResult ExcelOutBankTransList(DateTime startTime, DateTime endTime)
+        {
+            try
+            {
+                
+                StringBuilder strSql = new StringBuilder();
+                strSql.Append(@"IF not EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[T_Bank_TransType]') AND type in (N'U'))
+                     begin ");
+                strSql.Append(@"CREATE TABLE [dbo].[T_Bank_TransType](
+	                    [TransType] [varchar](50) NOT NULL,
+	                    [TypeName] [varchar](50) NULL,
+	                    PRIMARY KEY ([TransType])
+                    ) ;");
+                strSql.Append(@"insert into [T_Bank_TransType] (TransType,TypeName) values('01','国内汇款');
+                    insert into [T_Bank_TransType] (TransType,TypeName) values('02','国外汇款');
+                    insert into [T_Bank_TransType] (TransType,TypeName) values('03','人行大额');
+                    insert into [T_Bank_TransType] (TransType,TypeName) values('04','人行小额');
+                    insert into [T_Bank_TransType] (TransType,TypeName) values('05','现金存款');
+                    insert into [T_Bank_TransType] (TransType,TypeName) values('06','转帐收入');
+                    insert into [T_Bank_TransType] (TransType,TypeName) values('07','汇票');
+                    insert into [T_Bank_TransType] (TransType,TypeName) values('08','本票');
+                    insert into [T_Bank_TransType] (TransType,TypeName) values('09','支票');
+                    insert into [T_Bank_TransType] (TransType,TypeName) values('10','冲账');
+                    insert into [T_Bank_TransType] (TransType,TypeName) values('11','冲正');
+                    insert into [T_Bank_TransType] (TransType,TypeName) values('12','承兑汇票');
+                    insert into [T_Bank_TransType] (TransType,TypeName) values('13','托收承付');
+                    insert into [T_Bank_TransType] (TransType,TypeName) values('14','保证金');
+                    insert into [T_Bank_TransType] (TransType,TypeName) values('15','现金取款');
+                    insert into [T_Bank_TransType] (TransType,TypeName) values('16','转帐支出');
+                    insert into [T_Bank_TransType] (TransType,TypeName) values('17','贷款放款');
+                    insert into [T_Bank_TransType] (TransType,TypeName) values('18','贷款还款');
+                    insert into [T_Bank_TransType] (TransType,TypeName) values('21','实时汇划');
+                    insert into [T_Bank_TransType] (TransType,TypeName) values('22','退汇');
+                    insert into [T_Bank_TransType] (TransType,TypeName) values('31','结息');
+                    insert into [T_Bank_TransType] (TransType,TypeName) values('32','批量收费');
+                    insert into [T_Bank_TransType] (TransType,TypeName) values('41','收费');
+                    insert into [T_Bank_TransType] (TransType,TypeName) values('99','其他'); 
+                     end ");
+                new CommTableInfoBLL().ExecSql(strSql.ToString());
+                strSql = new StringBuilder();
+                strSql.Append(@"select valdat as 交易日期,b.TypeName as 业务类型,furinfo as 摘要,'' as 票据类型,vchnum as 票据号
+                    ,case direction when 1 then a.fractnacntname else toactntoname end as '对方单位'
+                    ,'' as '凭证号'
+                    ,(case when direction=1 and a.transtype<>11 then txnamt when direction=2 and a.transtype=11 then txnamt else null end) as 借方金额
+                    ,(case when direction=2 and a.transtype<>11 then txnamt when direction=1 and a.transtype=11 then txnamt else null end) as 贷方金额
+
+                    ,isnull(case direction when 1 then a.fractnacntname else toactntoname end,'监狱其他') as '经办人'
+                    ,direction
+                     from t_bank_transDetail a 
+                    left outer join t_bank_transType b on a.transtype=b.transtype
+                    where valdat between @startTime and @endTime
+                    group by valdat ,b.TypeName,furinfo,vchnum 
+                    ,case direction when 1 then a.fractnacntname else toactntoname end 
+                    ,(case when direction=1 and a.transtype<>11 then txnamt when direction=2 and a.transtype=11 then txnamt else null end) 
+                    ,(case when direction=2 and a.transtype<>11 then txnamt when direction=1 and a.transtype=11 then txnamt else null end) 
+                    ,direction
+                    ");
+                string strLoginName = this.GetUserLoginName();
+                string strCountTime = string.Format("统计期间:{0}--{1}", startTime, endTime);
+
+                SqlParameter[] parameters = {
+                    new SqlParameter("@startTime", SqlDbType.DateTime),
+                    new SqlParameter("@endTime", SqlDbType.DateTime)};
+                parameters[0].Value = startTime;
+                parameters[1].Value = endTime;
+
+                //DataTable dt = new CommTableInfoBLL().GetDataTable(strSql.ToString(), parameters);
+                DataTable dt = new CommTableInfoBLL().GetDataTable(strSql.ToString(), new { startTime= startTime, endTime = endTime });
+                string strFileName = new CommonClass().GB2312ToUTF8(strLoginName + "_BankTransList.xls");
+                strFileName = Server.MapPath("~/Upload/" + strFileName); ;
+
+
+                ExcelRender.RenderToExcel(dt, strFileName);
+                return Content("OK|" + strLoginName + "_BankTransList.xls");
+            }
+            catch (Exception e)
+            {
+
+                return Content("Error|" + e.Message.ToString());
+            }
+
+
+        }
 
         /// <summary>
         /// 手动识别流水号

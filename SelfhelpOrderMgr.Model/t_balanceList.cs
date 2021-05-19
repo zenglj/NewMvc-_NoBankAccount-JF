@@ -170,6 +170,24 @@ namespace SelfhelpOrderMgr.Model
             get { return _paymode; }
             set { _paymode = value; }
         }
+        /// <summary>
+        /// CollectMoneyFlag
+        /// </summary>		
+        private int _collectmoneyflag;
+        public int CollectMoneyFlag
+        {
+            get { return _collectmoneyflag; }
+            set { _collectmoneyflag = value; }
+        }
+        /// <summary>
+        /// PrintCount
+        /// </summary>		
+        private int _printcount;
+        public int PrintCount
+        {
+            get { return _printcount; }
+            set { _printcount = value; }
+        }
 
     }
 }

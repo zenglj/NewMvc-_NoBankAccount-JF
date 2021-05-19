@@ -158,7 +158,7 @@ public class ExcelRender
     }
 
     //Excel数据行样式
-    private static void StyleInfoRow(IWorkbook workbook, ICellStyle infoStyle)
+    private static void StyleInfoRow(IWorkbook workbook, ICellStyle infoStyle,bool dataFlag=false)
     {
         infoStyle.Alignment = HorizontalAlignment.Center;
         infoStyle.VerticalAlignment = VerticalAlignment.Center;
@@ -168,7 +168,12 @@ public class ExcelRender
         infoStyle.SetFont(infoFont);
 
         infoStyle.WrapText = true;//自动换行
-
+        if (dataFlag == true)
+        {
+            NPOI.HSSF.UserModel.HSSFDataFormat format = (HSSFDataFormat)workbook.CreateDataFormat();
+            infoStyle.DataFormat = format.GetFormat("yyyy-mm-dd");
+        }
+        
         // 设置边框
         infoStyle.BorderTop = NPOI.SS.UserModel.BorderStyle.Thin;
         infoStyle.BorderBottom = NPOI.SS.UserModel.BorderStyle.Thin;
@@ -182,6 +187,7 @@ public class ExcelRender
         //infoStyle.BorderRight = CellBorderType.THIN;//右边框
     }
 
+    
     private static void StyleInfoRow(IWorkbook workbook, ICellStyle infoStyle,int aligmentStyle)
     {
         StyleInfoRow(workbook, infoStyle);
@@ -194,6 +200,33 @@ public class ExcelRender
                 { infoStyle.Alignment = HorizontalAlignment.Right; 
                 } break;
         }
+    }
+
+    private static void StyleDateRow(IWorkbook workbook, ICellStyle infoStyle)
+    {
+        infoStyle.Alignment = HorizontalAlignment.Center;
+        infoStyle.VerticalAlignment = VerticalAlignment.Center;
+        IFont infoFont = workbook.CreateFont();
+        infoFont.FontHeightInPoints = 10;
+        //infoFont.Boldweight = 700;
+        infoStyle.SetFont(infoFont);
+
+        infoStyle.WrapText = true;//自动换行
+
+        NPOI.HSSF.UserModel.HSSFDataFormat format = (HSSFDataFormat)workbook.CreateDataFormat();
+        infoStyle.DataFormat = format.GetFormat("yyyy-mm-dd");
+
+        // 设置边框
+        infoStyle.BorderTop = NPOI.SS.UserModel.BorderStyle.Thin;
+        infoStyle.BorderBottom = NPOI.SS.UserModel.BorderStyle.Thin;
+        infoStyle.BorderLeft = NPOI.SS.UserModel.BorderStyle.Thin;
+        infoStyle.BorderRight = NPOI.SS.UserModel.BorderStyle.Thin;
+
+
+        //infoStyle.BorderBottom = CellBorderType.THIN; //下边框
+        //infoStyle.BorderLeft = CellBorderType.THIN;//左边框
+        //infoStyle.BorderTop = CellBorderType.THIN;//上边框
+        //infoStyle.BorderRight = CellBorderType.THIN;//右边框
     }
 
     //Excel列头行样式
@@ -629,6 +662,8 @@ public class ExcelRender
         //Excel明细行样试
         ICellStyle infoStyle = workbook.CreateCellStyle();
         StyleInfoRow(workbook, infoStyle);
+        ICellStyle dateStyle = workbook.CreateCellStyle();
+        StyleDateRow(workbook, dateStyle);
 
         // 列头标题行.
         IRow headerRow = sheet.CreateRow(rowIndex);
@@ -640,6 +675,7 @@ public class ExcelRender
 
         foreach (DataColumn column in table.Columns)
         {
+            
             headerRow.CreateCell(column.Ordinal + 1).SetCellValue(column.Caption);//If Caption not set, returns the ColumnName value
             headerRow.GetCell(column.Ordinal + 1).CellStyle = headStyle;
             if (table.Rows[0][column].ToString().Length > 10)
@@ -678,8 +714,70 @@ public class ExcelRender
             
             foreach (DataColumn column in table.Columns)
             {
-                dataRow.CreateCell(column.Ordinal + 1).SetCellValue(row[column].ToString());
-                dataRow.GetCell(column.Ordinal + 1).CellStyle = infoStyle;
+                //StyleInfoRow(workbook, infoStyle);
+                NPOI.HSSF.UserModel.HSSFDataFormat format = (HSSFDataFormat)workbook.CreateDataFormat();
+                infoStyle.DataFormat = format.GetFormat("");
+                //dataRow.CreateCell(column.Ordinal + 1).SetCellValue(row[column].ToString());
+                Type dataType = column.DataType;
+                if (dataType.Name == "DateTime")
+                {
+                    if (row[column].ToString() != "")
+                    {
+                        dataRow.CreateCell(column.Ordinal + 1).SetCellValue(Convert.ToDateTime(row[column].ToString()));
+                    }
+                    else
+                    {
+                        dataRow.CreateCell(column.Ordinal + 1).SetCellValue("");
+                    }
+                    dataRow.GetCell(column.Ordinal + 1).CellStyle = dateStyle;
+                }
+                else
+                {
+                    if (dataType.Name == "String")
+                    {
+                        dataRow.CreateCell(column.Ordinal + 1).SetCellValue(row[column].ToString());
+                    }
+                    else if (dataType.Name == "Int32")
+                    {
+                        if (row[column].ToString() != "")
+                        {
+                            dataRow.CreateCell(column.Ordinal + 1).SetCellValue(Convert.ToDouble(row[column].ToString()));
+                        }
+                        else
+                        {
+                            dataRow.CreateCell(column.Ordinal + 1).SetCellValue("");
+                        }
+                    }
+                    else if (dataType.Name == "Decimal")
+                    {
+                        if (row[column].ToString() != "")
+                        {
+                            dataRow.CreateCell(column.Ordinal + 1).SetCellValue(Convert.ToDouble(row[column].ToString()));
+                        }
+                        else
+                        {
+                            dataRow.CreateCell(column.Ordinal + 1).SetCellValue("");
+                        }
+                    }
+                    else if (dataType.Name == "Double")
+                    {
+                        if (row[column].ToString() != "")
+                        {
+                            dataRow.CreateCell(column.Ordinal + 1).SetCellValue(Convert.ToDouble(row[column].ToString()));
+                        }
+                        else
+                        {
+                            dataRow.CreateCell(column.Ordinal + 1).SetCellValue("");
+                        }
+                    }
+
+                    else
+                    {
+                        //其他数据类型的判断.......
+                        dataRow.CreateCell(column.Ordinal + 1).SetCellValue(row[column].ToString());
+                    }
+                    dataRow.GetCell(column.Ordinal + 1).CellStyle = infoStyle;
+                }
             }
             rowIndex++;
         }
@@ -692,6 +790,103 @@ public class ExcelRender
         SetExcelPrintPageAndMargin(sheet);
     }
 
+    private static void CreateExcelDetailNotId(DataTable table, IWorkbook workbook, ISheet sheet, int rowIndex, string strCountTime = "")
+    {
+
+        //列头标题行样式
+        ICellStyle headStyle = workbook.CreateCellStyle();
+        StyleHeadRow(workbook, headStyle);
+        //Excel明细行样试
+        ICellStyle infoStyle = workbook.CreateCellStyle();
+        StyleInfoRow(workbook, infoStyle);
+
+        // 列头标题行.
+        IRow headerRow = sheet.CreateRow(rowIndex);
+
+        //headerRow.CreateCell(0).SetCellValue("序号");//If Caption not set, returns the ColumnName value
+        //headerRow.GetCell(0).CellStyle = headStyle;
+        //sheet.SetColumnWidth(0, 4 * 256);
+
+
+        foreach (DataColumn column in table.Columns)
+        {
+            headerRow.CreateCell(column.Ordinal ).SetCellValue(column.Caption);//If Caption not set, returns the ColumnName value
+            headerRow.GetCell(column.Ordinal ).CellStyle = headStyle;
+            if (table.Rows[0][column].ToString().Length > 10)
+            {
+                sheet.SetColumnWidth(column.Ordinal , 2 * 11 * 256);
+            }
+            else if (column.DataType.Equals(typeof(decimal)))
+            {
+                sheet.SetColumnWidth(column.Ordinal , 9 * 256);
+            }
+            else
+            {
+                sheet.SetColumnWidth(column.Ordinal , 11 * 256);
+            }
+
+        }
+
+        // handling value.
+        rowIndex++;
+        foreach (DataRow row in table.Rows)
+        {
+            IRow dataRow = sheet.CreateRow(rowIndex);
+
+            if (strCountTime != "")
+            {
+                dataRow.CreateCell(0).SetCellValue(rowIndex - 2);
+            }
+            else
+            {
+                dataRow.CreateCell(0).SetCellValue(rowIndex - 1);
+            }
+            dataRow.GetCell(0).CellStyle = infoStyle;
+
+
+
+
+            foreach (DataColumn column in table.Columns)
+            {
+                Type dataType = column.DataType;
+                if (dataType.Name == "String")
+                {
+                    dataRow.CreateCell(column.Ordinal).SetCellValue(row[column].ToString());
+                }
+                else if (dataType.Name == "Int32")
+                {
+                    dataRow.CreateCell(column.Ordinal).SetCellValue(Convert.ToInt32(row[column].ToString()));
+                }
+                else if (dataType.Name == "decimal")
+                {
+                    dataRow.CreateCell(column.Ordinal).SetCellValue(Convert.ToDouble(row[column].ToString()));
+                }
+                else if (dataType.Name == "Double")
+                {
+                    dataRow.CreateCell(column.Ordinal).SetCellValue(Convert.ToDouble(row[column].ToString()));
+                }
+                else if (dataType.Name == "DateTime")
+                {
+                    dataRow.CreateCell(column.Ordinal).SetCellValue(Convert.ToDateTime(row[column].ToString()));
+                }
+                else
+                {
+                    //其他数据类型的判断.......
+                    dataRow.CreateCell(column.Ordinal).SetCellValue(row[column].ToString());
+                }
+                
+                dataRow.GetCell(column.Ordinal ).CellStyle = infoStyle;
+            }
+            rowIndex++;
+        }
+
+        //设定页眉页脚
+        SetExcelPrintHeaderAndFooter(sheet);
+
+        AutoSizeColumns(sheet);
+        //设定Excel的边距和纸张类型
+        SetExcelPrintPageAndMargin(sheet);
+    }
 
     //（两栏模式）生成Excel表主体数据行
     private static void CreateExcelTitle_TowCol(DataTable table, string titleName, IWorkbook workbook, ISheet sheet, string strCountTime = "")

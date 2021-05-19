@@ -321,8 +321,8 @@ function btnSearch() {
         AccTypes:selAccTypes,
         BankFlags: selBankFlags,
         FFlags: selFFlags,
-        CheckFlag:$("#FCheckFlag").combobox('getValue')
-
+        CheckFlag:$("#FCheckFlag").combobox('getValue'),
+        CardTypeFlag: $("#CardTypeFlag").combobox('getValue')
     });
 
 
@@ -444,6 +444,8 @@ function getSearchCondition() {
     strSearchWhere = strSearchWhere + "&AccTypes=" + selAccTypes;
     strSearchWhere = strSearchWhere + "&BankFlags=" + selBankFlags;
     strSearchWhere = strSearchWhere + "&FFlags=" + selFFlags;
+    strSearchWhere = strSearchWhere + "&CardTypeFlag=" + $("#CardTypeFlag").combobox('getValue');
+
     return strSearchWhere;
 }
 
@@ -521,7 +523,8 @@ function getSearchObjCondition() {
         PayTypes: selPayTypes,
         AccTypes: selAccTypes,
         BankFlags: selBankFlags,
-        FFlags: selFFlags
+        FFlags: selFFlags,
+        CardTypeFlag:$("#CardTypeFlag").combobox('getValue')
     };
     
     return objWhere;
@@ -544,7 +547,7 @@ function btnClear() {
     $("#FAreaName").combobox('clear');
     $("#FCrtBy").combobox('clear');
     $("#FCriminalFlag").combobox('clear');
- 
+    $("#CardTypeFlag").combobox('clear');    
 }
 
 //A4打印消费单

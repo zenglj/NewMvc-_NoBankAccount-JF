@@ -13,10 +13,28 @@ namespace SelfhelpOrderMgr.DAL
 {
     public class CommTableInfoDAL
     {
-        public DataTable GetDataTable(string sql, params SqlParameter[] Paramters)
+        //public DataTable GetDataTable(string sql, params SqlParameter[] Paramters)
+        //{
+        //    DataSet ds = SqlHelper.Query(sql, Paramters);
+        //    return ds.Tables[0];
+        //}
+        public DataTable GetDataTable(string sql)
         {
-            DataSet ds = SqlHelper.Query(sql, Paramters);
+            SqlParameter[] parameters = new SqlParameter[] { };
+            DataSet ds = SqlHelper.Query(sql,  parameters);
             return ds.Tables[0];
+        }
+
+        //Dapper方式返回DataTable 数据
+        public DataTable GetDataTable(string sql, object p=null)
+        {            
+            using (IDbConnection conn = new SqlConnection(SqlHelper.getConnstr()))
+            {
+                DataTable table = new DataTable("MyTable");
+                var reader = conn.ExecuteReader(sql,p);
+                table.Load(reader);
+                return table;
+            }
         }
 
         /// <summary>

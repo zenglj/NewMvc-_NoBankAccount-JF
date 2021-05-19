@@ -32,6 +32,13 @@ namespace SelfhelpOrderMgr.Web.Controllers
             List<T_AREA> areas = new T_AREABLL().GetModelList("fcode in(select fareacode From t_czy_area where fcode='" + Session["loginUserCode"].ToString() + "' and fflag=2)");
             ViewData["areas"] = areas;
 
+            //操作员
+            List<T_CZY> czies = new T_CZYBLL().GetModelList("");
+            ViewData["czies"] = czies;
+
+            List<T_Savetype> savetypes = new T_SavetypeBLL().GetModelList(" typeflag=0");
+            ViewData["savetypes"] = savetypes;
+
             ViewData["PowerId"] = id;//1是一般录入，2是审核，3是复核，4是财务入账,5是所有功能都有,6是莆田
 
             //判断劳动报酬Excel的格式
@@ -57,23 +64,23 @@ namespace SelfhelpOrderMgr.Web.Controllers
             {
                 switch (id)
                 {
-                    case 1:
+                    case 1://新建待提交的记录
                         {
                             strSql.Append("isnull(flag,0)=0 and CrtBy='" + strLoginName + "'"); 
                         } break;
-                    case 2:
+                    case 2://已提交待审核的记录
                         {
-                            strSql.Append("isnull(flag,0)=0 and isnull(FCheckFlag,0)=1 and isnull(AuditFlag,0)=0 ");
+                            strSql.Append("isnull(flag,0)=0 and isnull(FCheckFlag,0)=1 and isnull(AuditFlag,0)=0 and (TargetExaminerBy='"+ strLoginName + "' or AuditBy='"+ strLoginName +"')");
                         } break;
-                    case 3:
+                    case 3://已审核待复核的记录
                         {
-                            strSql.Append("isnull(flag,0)=0 and isnull(auditFlag,0)=1 and isnull(FDbCheckFlag,0)=0 ");
+                            strSql.Append("isnull(flag,0)=0 and isnull(auditFlag,0)=1 and isnull(FDbCheckFlag,0)=0 and (TargetExaminerBy='" + strLoginName + "' or FDbCheckBy='" + strLoginName + "')");
                         } break;
-                    case 4:
+                    case 4://已复核待入账的记录
                         {
-                            strSql.Append("isnull(flag,0)=0 and isnull(FDbCheckFlag,0)=1 ");
+                            strSql.Append("isnull(flag,0)=0 and isnull(FDbCheckFlag,0)=1 and (TargetExaminerBy='" + strLoginName + "' or FPostBy='" + strLoginName + "')");
                         } break;
-                    default:
+                    default://为入账的地址
                         {
                             strSql.Append("isnull(flag,0)=0 "); 
                         }
@@ -103,15 +110,15 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         }break;
                     case 2: 
                         {
-                            strSql.Append(" and FCheckFlag=1 ");
+                            strSql.Append(" and FCheckFlag=1 and (auditBy='" + strLoginName + "' or TargetExaminerBy='"+ strLoginName +"')");
                         }break;
                     case 3:
                         {
-                            strSql.Append(" and auditFlag=1 ");
+                            strSql.Append(" and auditFlag=1 and (FDbCheckBy='" + strLoginName + "' or TargetExaminerBy='" + strLoginName + "')");
                         } break;
                     case 4:
                         {
-                            strSql.Append(" and FDbCheckFlag=1 ");
+                            strSql.Append(" and FDbCheckFlag=1 and (FPostBy='" + strLoginName + "' or TargetExaminerBy='" + strLoginName + "')");
                         } break;
                     default:
                         break;
@@ -268,6 +275,23 @@ namespace SelfhelpOrderMgr.Web.Controllers
         {
             //生成设定一个主单信息
             bonusInfo bonusinfo = new bonusInfo();
+            bonusinfo.strDType= Request["sDtype"];//类型
+            List<T_Savetype> stypes = new T_SavetypeBLL().GetModelList("typeflag=0");
+            var subtypes=stypes.Where(e => e.fname == bonusinfo.strDType).ToList();
+            if(bonusinfo.strDType!="劳动报酬" && subtypes.Count <= 0)
+            {
+                return Content("Error|请选择一个正确的主单");
+            }
+            if (Request["sTypeFlag"].ToString() == "4")
+            {
+                bonusinfo.iTypeFlag = Convert.ToInt32(Request["sTypeFlag"]);//类型编码
+                bonusinfo.iSubTypeFlag = 0;//类型子编码
+            }
+            else
+            {
+                bonusinfo.iTypeFlag = 0;//类型编码
+                bonusinfo.iSubTypeFlag = Convert.ToInt32(Request["sSubTypeFlag"]);//类型子编码
+            }
             bonusinfo.strApplyBy = Request["sapplyby"];//申请人
             bonusinfo.strFAreaName = Request["sAreaName"];//队别名称
             bonusinfo.strFAreaCode = Request["sAreaCode"];//队别编号
@@ -275,16 +299,30 @@ namespace SelfhelpOrderMgr.Web.Controllers
             bonusinfo.strFMonth = Request["smonth"];//月 
             bonusinfo.strRemark = Request["sremark"];//备注
             bonusinfo.strCrtDate = strFYear + "-" + strFMonth + "-1";
-            T_BONUS model = SetMainOrderModelInfo(bonusinfo, strLoginName);
-            if (new T_BONUSBLL().Add(model, "part"))
+            //T_BONUS model = SetMainOrderModelInfo(bonusinfo, strLoginName);
+            //if (new T_BONUSBLL().Add(model, "part"))
+            //{
+            //    T_BONUS newModel = new T_BONUSBLL().GetModel(model.BID);
+            //    return Content("OK|" + jss.Serialize(newModel));
+            //}
+            //else
+            //{
+            //    return Content("Error|创建主单失败");
+            //}
+
+            try
             {
-                T_BONUS newModel = new T_BONUSBLL().GetModel(model.BID);
-                return Content("OK|" + jss.Serialize(newModel));
+                T_BONUS model = SetMainOrderModelInfoExt(bonusinfo, strLoginName);
+
+                var rs = new BaseDapperBLL().Insert<T_BONUS>(model);
+                return Content("OK|" + jss.Serialize(rs));
             }
-            else
+            catch (Exception e)
             {
-                return Content("Error|创建主单失败");
+
+                return Content("Error|创建主单失败"+e.Message);
             }
+            
         }
 
         private static T_BONUS SetMainOrderModelInfo(bonusInfo bonusinfo, string LoginUserName)
@@ -304,6 +342,46 @@ namespace SelfhelpOrderMgr.Web.Controllers
             model.cnt = 0;
             model.Applydt = DateTime.Today;
             model.ptype = bonusinfo.strRemark;
+            return model;
+        }
+
+        private static T_BONUS SetMainOrderModelInfoExt(bonusInfo bonusinfo, string LoginUserName)
+        {
+            T_BONUS model = new T_BONUS()
+            {
+                BID = new T_BONUSBLL().CreateOrderId("BNS"),
+                ApplyBy = bonusinfo.strApplyBy,
+                crtdt = DateTime.Today,
+                FCheckFlag = 0,
+                FLAG = 0,
+                udate = Convert.ToDateTime(bonusinfo.strCrtDate),
+                Remark = bonusinfo.strRemark,
+                fareaName = bonusinfo.strFAreaName,
+                FAREACODE = bonusinfo.strFAreaCode,
+                Crtby = LoginUserName,
+                fAMOUNT = 0,
+                cnt = 0,
+                Applydt = DateTime.Today,
+                ptype = bonusinfo.strRemark,
+                DType = bonusinfo.strDType,
+                TypeFlag = bonusinfo.iTypeFlag,
+                SubTypeFlag = bonusinfo.iSubTypeFlag,
+                auditby = "",
+                auditflag = 0,
+                auditdate = Convert.ToDateTime("1900-01-01"),
+                CHECKBY = "",
+                CheckDate = Convert.ToDateTime("1900-01-01"),
+                FDbCheckBY = "",
+                Fdbcheckdate = Convert.ToDateTime("1900-01-01"),
+                Fdbcheckflag = 0,
+                FPostBy = "",
+                FPostDate = Convert.ToDateTime("1900-01-01"),
+                FPostFlag = 0,
+                Frealareacode = "",
+                FrealAreaName = ""
+            };
+            
+
             return model;
         }
 
@@ -398,9 +476,17 @@ namespace SelfhelpOrderMgr.Web.Controllers
         {
             string strLoginName = new T_CZYBLL().GetModel(Session["loginUserCode"].ToString()).FName;
             string strFBid = Request["sbid"];//主单编号
-            if(string.IsNullOrEmpty(strFBid))
+            
+
+            if (string.IsNullOrEmpty(strFBid))
             {
                 return Content("Err|主单号不能为空");
+            }
+
+            string targetUser = Request["TargetUser"];//目标审核人
+            if (string.IsNullOrWhiteSpace(targetUser))
+            {
+                return Content("Err|目标审核人不能为空");
             }
             T_BONUS model = new T_BONUSBLL().GetModel(strFBid);
             if(model==null)
@@ -428,6 +514,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
             model.CheckDate = DateTime.Today;
             model.FCheckFlag = 1;
             model.BID = strFBid;
+            model.TargetExaminerBy = targetUser;
+            model.MainStatus = 1;
             model.FrealAreaName = "";
             //id=6是莆田模式的提交，首先将FCheckFlag、AuditFlag、FDbCheckFlag都设1
             //其次是把记录写到T_Vcrd中，并将BankFlag设定1， 本提交只执行这步
@@ -449,7 +537,9 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 model.FPostBy = "";
                 model.FPostDate = DateTime.Today;
                 model.FPostFlag = 0;
-                if(new T_BONUSBLL().Update(model))//如果更新状态成功，则开写入到VCRD
+
+                model.MainStatus = 3;
+                if (new T_BONUSBLL().Update(model))//如果更新状态成功，则开写入到VCRD
                 {
                     T_BONUS ttbbs = new T_BONUSBLL().GetModel(strFBid);
                     if (id == 7)//一般模式不要执行写VCrd数据
@@ -490,6 +580,11 @@ namespace SelfhelpOrderMgr.Web.Controllers
         public ActionResult AuditMainOrder()//审核主单
         {
             string strFBid = Request["sbid"];//主单编号
+            string targetUser = Request["TargetUser"];//目标审核人
+            if (string.IsNullOrWhiteSpace(targetUser))
+            {
+                return Content("Err.目标审核人不能为空");
+            }
             if (string.IsNullOrEmpty(strFBid) == false)
             {
                 T_BONUS model = new T_BONUSBLL().GetModel(strFBid);
@@ -505,6 +600,9 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 model.auditdate = DateTime.Today;
                 model.auditflag = 1;
                 model.BID = strFBid;
+                model.TargetExaminerBy = targetUser;
+                model.MainStatus = 2;
+
                 string rtnStr=new T_BONUSBLL().CheckOutPrisonList(strFBid);
                 if (new T_BONUSBLL().UpdateByAuditFlag(model))
                 {
@@ -525,7 +623,12 @@ namespace SelfhelpOrderMgr.Web.Controllers
         public ActionResult DbCheckMainOrder()//财务复核主单
         {
             string strFBid = Request["sbid"];//主单编号
-            if(string.IsNullOrEmpty(strFBid)==false)
+            string targetUser = Request["TargetUser"];//目标审核人
+            if (string.IsNullOrWhiteSpace(targetUser))
+            {
+                return Content("Err|目标审核人不能为空");
+            }
+            if (string.IsNullOrEmpty(strFBid)==false)
             {
                 T_BONUS model = new T_BONUSBLL().GetModel(strFBid);
                 if (model != null)
@@ -541,6 +644,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 model.Fdbcheckdate = DateTime.Today;
                 model.Fdbcheckflag = 1;
                 model.BID = strFBid;
+                model.TargetExaminerBy = targetUser;
+                model.MainStatus = 3;
                 if (new T_BONUSBLL().UpdateByDbCheckFlag(model))
                 {
                     return Content("OK.提交成功");
@@ -615,9 +720,11 @@ namespace SelfhelpOrderMgr.Web.Controllers
             }
             
         }
-        public ActionResult DelMainOrder()//删除主单
+
+        [MyLogActionFilterAttribute]
+        public ActionResult DelMainOrder(string sbid)//删除主单
         {
-            string strFBid = Request["sbid"];//主单编号
+            string strFBid = sbid;// Request["sbid"];//主单编号
             T_BONUS model = new T_BONUSBLL().GetModel( strFBid);
             if (model.auditflag != 1)//判断是否已经审核
             {
@@ -637,10 +744,10 @@ namespace SelfhelpOrderMgr.Web.Controllers
             }
         }
 
-
-        public ActionResult UndoMainOrder()//主单退账
+        [MyLogActionFilterAttribute]
+        public ActionResult UndoMainOrder(string sbid)//主单退账
         {
-            string strFBid = Request["sbid"];//主单编号
+            string strFBid = sbid;// Request["sbid"];//主单编号
             T_BONUS model = new T_BONUSBLL().GetModel(strFBid);
 
             //如果已经发送到银行不能退账
@@ -769,6 +876,15 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 ExcelRender.RenderToExcel(dt, "失败记录清单", 5, strFileName);
 
             }
+            else if (excelModel_Id == 4)
+            {
+                DataTable dt = new CommTableInfoBLL().GetDataTable("select pc 主单流水号,fcrimecode 编号,fname 姓名,AmountB 劳酬金额,AmountC 留存金额 ,Amount 总录金额,Crtdt 导入日期,Remark 失败原因  FROM t_ImportList where pc='" + strFBid + "' ");
+                string strFileName = new CommonClass().GB2312ToUTF8(strFBid + "_LaobaoErrList.xls");
+                strFileName = Server.MapPath("~/Upload/" + strFileName); ;
+                //ExcelRender.RenderToExcel(dt, strFileName);
+                ExcelRender.RenderToExcel(dt, "失败记录清单", 5, strFileName);
+
+            }
             else
             {
                 return Content("Err|您传入的Excel模板格式不正确");
@@ -845,33 +961,53 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         dtUserAdd.Columns.Add(new DataColumn("FCriminal", typeof(string)));
                         dtUserAdd.Columns.Add(new DataColumn("FMoney", typeof(decimal)));
                         dtUserAdd.Columns.Add(new DataColumn("FRemark", typeof(string)));
-                        dtUserAdd.Columns.Add(new DataColumn("Notes", typeof(string)));
+                        dtUserAdd.Columns.Add(new DataColumn("Notes", typeof(string)));                        
                         dtUserAdd.Columns.Add(new DataColumn("AmountA", typeof(decimal)));
                         dtUserAdd.Columns.Add(new DataColumn("AmountB", typeof(decimal)));
                         dtUserAdd.Columns.Add(new DataColumn("AmountC", typeof(decimal)));
+                        
+                        dtUserAdd.Columns.Add(new DataColumn("cqbt", typeof(decimal)));
+                        dtUserAdd.Columns.Add(new DataColumn("gwjt", typeof(decimal)));
+                        dtUserAdd.Columns.Add(new DataColumn("ldjx", typeof(decimal)));
+                        dtUserAdd.Columns.Add(new DataColumn("tbbz", typeof(decimal)));
+                        dtUserAdd.Columns.Add(new DataColumn("grkj", typeof(decimal)));
                         DataRow drTemp = null;
                         #endregion  
-
-                        if (id == 1)
+                        T_BONUS bonus = new T_BONUSBLL().GetModel(strFBid);
+                        if (bonus == null)
                         {
-                            drTemp = lbExcelModel_One(strFBid, sheet, rows, dtUserAdd, drTemp);
-
+                            return Content("Err|主单编号不存在");
                         }
-                        else if(id==2)
+                        else if(bonus.TypeFlag==4)
                         {
-                            drTemp = lbExcelModel_Two(strFBid, sheet, rows, dtUserAdd, drTemp);
+                            if (id == 1)
+                            {
+                                drTemp = lbExcelModel_One(strFBid, sheet, rows, dtUserAdd, drTemp);
 
-                        }
-                        else if (id == 3)//女监模式
-                        {
-                            drTemp = lbExcelModel_Three(strFBid, sheet, rows, dtUserAdd, drTemp);
+                            }
+                            else if (id == 2)
+                            {
+                                drTemp = lbExcelModel_Two(strFBid, sheet, rows, dtUserAdd, drTemp);
+
+                            }
+                            else if (id == 3)//女监模式
+                            {
+                                drTemp = lbExcelModel_Three(strFBid, sheet, rows, dtUserAdd, drTemp);
+                            }
+                            else if (id == 4)//仓山模式
+                            {
+                                drTemp = lbExcelModel_Four(strFBid, sheet, rows, dtUserAdd, drTemp);
+                            }
+                            else
+                            {
+                                return Content("Err|传入的Excel文件格式不正确");
+                            }
 
                         }
                         else
                         {
-                            return Content("Err|传入的Excel文件格式不正确");
+                            drTemp = lbExcelModel_Five(strFBid, sheet, rows, dtUserAdd, drTemp);
                         }
-
 
                         #region 写入到数据库中
                         //将DataTabe dtUserAdd 写入到数据库中
@@ -915,6 +1051,10 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 else if (id == 3)// 女监的模板
                 {
                     blDoFlag = new T_BONUSBLL().PLWriteBonusDtl_Model2(strFBid, strLoginName,reSaveFlag);
+                }
+                else if (id == 4)// 女监的模板
+                {
+                    blDoFlag = new T_BONUSBLL().PLWriteBonusDtl_Model2(strFBid, strLoginName, reSaveFlag);
                 }
                 if (blDoFlag)
                 {
@@ -1228,7 +1368,237 @@ namespace SelfhelpOrderMgr.Web.Controllers
             return drTemp;
         }
 
+        /// <summary>
+        /// 仓山监狱模式
+        /// </summary>
+        /// <param name="strFBid"></param>
+        /// <param name="sheet"></param>
+        /// <param name="rows"></param>
+        /// <param name="dtUserAdd"></param>
+        /// <param name="drTemp"></param>
+        /// <returns></returns>
+        private static DataRow lbExcelModel_Four(string strFBid, NPOI.SS.UserModel.ISheet sheet, int rows, DataTable dtUserAdd, DataRow drTemp)
+        {
+            #region 仓山格式4：犯人编号	姓名 出勤补贴 岗位津贴 劳动绩效	特别补助 个人扣减 金额 备注
+            for (int i = 1; i <= rows; i++)
+            {
+                NPOI.SS.UserModel.IRow row = sheet.GetRow(i);
+                //int iType = row.GetCell(0).CellType;//文本是1，数字是0
+                NPOI.SS.UserModel.CellType iType = 0;
+                try
+                {
+                    iType = row.GetCell(0).CellType;
+                }
+                catch
+                {
+                    break;
+                }
+                string FCode = "";
+                if (iType == 0)
+                {
+                    FCode = Convert.ToString(row.GetCell(0).NumericCellValue);//数字型 excel列名【名称不能变,否则就会出错】
+                }
+                else
+                {
+                    FCode = row.GetCell(0).StringCellValue;//文本型 excel列名【名称不能变,否则就会出错】
+                }
+                //cqbt,gwjt,ldjx,tbbz,grkj
+                string FName = row.GetCell(1).StringCellValue;//编号 列名 以下类似
+                string cqbt = "0";  //出勤补贴
+                try
+                {
+                    cqbt = Convert.ToString(row.GetCell(2).NumericCellValue);
+                }
+                catch { }
 
+                string gwjt = "0";  //岗位津贴
+                try
+                {
+                    gwjt = Convert.ToString(row.GetCell(3).NumericCellValue);
+                }
+                catch { }
+
+                string ldjx = "0";  //劳动绩效
+                try
+                {
+                    ldjx = Convert.ToString(row.GetCell(4).NumericCellValue);
+                }
+                catch { }
+
+
+                string tbbz = "";  //特别补助
+                try
+                {
+                    tbbz = Convert.ToString(row.GetCell(5).NumericCellValue);
+                }
+                catch { }
+
+                string grkj = "0";  //个人扣减
+                try
+                {
+                    grkj = Convert.ToString(row.GetCell(6).NumericCellValue);
+                }
+                catch { }
+
+                string FMoney = "0";  //金额
+                try
+                {
+                    FMoney = Convert.ToString(row.GetCell(7).NumericCellValue);
+                }
+                catch { }
+
+
+                string FRemark = "";  //开始日期
+                try
+                {
+                    FRemark = Convert.ToString(row.GetCell(8).StringCellValue);
+                }
+                catch { }
+
+
+                #region Excel行写入到DataTabel中
+                decimal rstMoney = 0;
+                //string FMoney = "0";
+                try
+                {//如果金额有                  
+
+                    rstMoney = Convert.ToDecimal(FMoney);
+                    if (FCode != "")
+                    {
+                        drTemp = dtUserAdd.NewRow();
+                        drTemp["BID"] = strFBid;
+                        drTemp["FCrimeCode"] = FCode;
+                        drTemp["FCriminal"] = FName;
+                        drTemp["cqbt"] = cqbt;
+                        drTemp["gwjt"] = gwjt;
+                        drTemp["ldjx"] = ldjx;
+                        drTemp["tbbz"] = tbbz;
+                        drTemp["grkj"] = grkj;
+                        drTemp["FMoney"] = FMoney;
+                        drTemp["FRemark"] = FRemark;
+                        //出勤补贴 岗位津贴 劳动绩效	特别补助 个人扣减
+                        //cqbt     ,gwjt,    ldjx,     tbbz,      grkj
+                        if ((Convert.ToDecimal(FMoney) != (Convert.ToDecimal(cqbt) + Convert.ToDecimal(gwjt) + Convert.ToDecimal(ldjx) + Convert.ToDecimal(tbbz) - Convert.ToDecimal(grkj))))
+                        {
+                            drTemp["Notes"] = "【5项明细金额】相加不等于合计金额";
+                        }
+                        else
+                        {
+                            drTemp["Notes"] = "";
+                        }
+
+                        drTemp["AmountA"] = 0;
+                        drTemp["AmountB"] = 0;
+                        drTemp["AmountC"] = 0;
+
+                        dtUserAdd.Rows.Add(drTemp);
+                    }
+
+                }
+                catch
+                { }
+                #endregion
+            }
+            #endregion
+            return drTemp;
+        }
+
+        private static DataRow lbExcelModel_Five(string strFBid, NPOI.SS.UserModel.ISheet sheet, int rows, DataTable dtUserAdd, DataRow drTemp)
+        {
+            T_BONUS bonus = new BaseDapperBLL().GetModelFirst<T_BONUS, T_BONUS>("{\"BID\":\""+strFBid+"\"}");
+            List<T_Savetype> savetypes = new T_SavetypeBLL().GetModelList("typeflag=0 and fcode='" + bonus.SubTypeFlag.ToString() + "'");
+            int accTypeFlag = 0;
+            if (savetypes.Count > 0)
+            {
+                accTypeFlag = savetypes[0].AccType;
+            }
+            #region 其他存款格式  ：编号、姓名、金额、备注
+            for (int i = 1; i <= rows; i++)
+            {
+                NPOI.SS.UserModel.IRow row = sheet.GetRow(i);
+                //int iType = row.GetCell(0).CellType;//文本是1，数字是0
+                NPOI.SS.UserModel.CellType iType = 0;
+                try
+                {
+                    iType = row.GetCell(0).CellType;
+                }
+                catch
+                {
+                    break;
+                }
+                string FCode = "";
+                if (iType == 0)
+                {
+                    FCode = Convert.ToString(row.GetCell(0).NumericCellValue);//数字型 excel列名【名称不能变,否则就会出错】
+                }
+                else
+                {
+                    FCode = row.GetCell(0).StringCellValue;//文本型 excel列名【名称不能变,否则就会出错】
+                }
+                string FName = row.GetCell(1).StringCellValue;//编号 列名 以下类似
+                string FMoney = "0";  //金额
+                try
+                {
+                    FMoney = Convert.ToString(row.GetCell(2).NumericCellValue);
+                }
+                catch
+                {
+
+                }
+
+                string FRemark = "";  //开始日期
+                try
+                {
+                    FRemark = Convert.ToString(row.GetCell(3).StringCellValue);
+                }
+                catch { }
+
+
+                #region Excel行写入到DataTabel中
+                decimal rstMoney = 0;
+                try
+                {//如果金额有
+                    rstMoney = Convert.ToDecimal(FMoney);
+                    if (FCode != "")
+                    {
+                        drTemp = dtUserAdd.NewRow();
+                        drTemp["BID"] = strFBid;
+                        drTemp["FCrimeCode"] = FCode;
+                        drTemp["FCriminal"] = FName;
+                        drTemp["AmountA"] = 0;
+                        drTemp["AmountB"] = 0;
+                        drTemp["AmountC"] = 0;
+                        if (accTypeFlag == 1)
+                        {
+                            drTemp["AmountB"] = FMoney;
+                        }
+                        else if (accTypeFlag == 2)
+                        {
+                            drTemp["AmountC"] = FMoney;
+                        }
+                        else
+                        {
+                            drTemp["AmountA"] = FMoney;
+                        }
+                        drTemp["FMoney"] = FMoney;
+                        drTemp["FRemark"] = FRemark;
+                        drTemp["Notes"] = "";
+                        drTemp["cqbt"] = 0;
+                        drTemp["gwjt"] = 0;
+                        drTemp["ldjx"] = 0;
+                        drTemp["tbbz"] = 0;
+                        drTemp["grkj"] = 0;
+                        dtUserAdd.Rows.Add(drTemp);
+                    }
+
+                }
+                catch
+                { }
+                #endregion
+            }
+            #endregion
+            return drTemp;
+        }
         public ActionResult PuTianExcelInport()//莆田银行Excel返回表格导入
         {
             string strLoginName = new T_CZYBLL().GetModel(Session["loginUserCode"].ToString()).FName;
@@ -1947,6 +2317,10 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
     public class bonusInfo
     {
+        public string strDType { get; set; }//类型
+        public int iTypeFlag { get; set; }//类型编码
+        public int? iSubTypeFlag { get; set; }//字类型编码
+
         public string strApplyBy { get; set; }//申请人
         public string strFAreaName { get; set; }//队别名称
         public string strFAreaCode { get; set; }//队别编号

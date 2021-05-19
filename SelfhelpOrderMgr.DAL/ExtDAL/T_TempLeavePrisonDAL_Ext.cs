@@ -17,7 +17,7 @@ namespace SelfhelpOrderMgr.DAL
             using (IDbConnection conn = new SqlConnection(SqlHelper.getConnstr()))
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.Append(@"select top 200 c.*,isnull((d.AmountA+d.AmountB+d.AmountC),0) JSMoney,e.OutBankCard,e.BankUserName,e.OpeningBank ,d.PayMode from (
+                strSql.Append(@"select top 200 c.*,isnull((d.AmountA+d.AmountB+d.AmountC),0) JSMoney,e.OutBankCard,e.BankUserName,e.OpeningBank ,d.PayMode,d.CollectMoneyFlag,d.seqno from (
 select a.fcode,a.fname,a.foudate,isnull(b.fname,'') fareaName,a.foudate strOutDate
                     ,case isnull(c.CardFlaga,0) when 4 then '已结算' when 2 then '已挂失' when 3 then '已作废' else '未结' end as FStatus,isnull(c.BankAccNo,'') BankCardNo
                     ,c.AmountA,c.AmountB,c.AmountC

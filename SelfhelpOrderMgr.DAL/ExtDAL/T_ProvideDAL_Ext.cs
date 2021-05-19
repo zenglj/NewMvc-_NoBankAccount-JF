@@ -316,6 +316,16 @@ namespace SelfhelpOrderMgr.DAL
         //财务过账
         public bool UpdateInDbData(string pid, string crtby, int intAcctype = 0)
         {
+            int iflag = 0;
+            T_SHO_ManagerSet mset = new T_SHO_ManagerSetDAL().GetModel("DepositInVcrdFlag");
+            if (mset != null)
+            {
+                if (mset.MgrValue == "-2")
+                {
+                    iflag = -2;
+                }
+            }
+
             StringBuilder strSql = new StringBuilder();
             //要一条条的导入
             /*首先创建一个事务
@@ -365,7 +375,7 @@ namespace SelfhelpOrderMgr.DAL
 
                         object paramVcrd;
                         //设定账户额
-                        paramVcrd = new { VOUNO = invoiceno, cardcode = dtl.CardCode, fcrimecode = dtl.FCrimeCode, DAMOUNT = dtl.FAmount, CAMOUNT = 0, crtBy = crtby, CRTDATE = DateTime.Now, DTYPE = "零花钱发放", DEPOSITER = "", REMARK = pidRemark, flag = 0, fareacode = dtl.FAreaCode, fareaName = dtl.FAreaName, fcriminal = dtl.FCriminal, Frealareacode = "", FrealAreaName = "", ptype = "", udate = DateTime.Now.Year + "-" + DateTime.Now.Month + "-1", origid = pid, cardtype = 0, TypeFlag = 3, acctype = intAcctype, Bankflag = 0, checkflag = 0, checkby = crtby, pc = 0, curUserAmount = 0, curAllAmount = 0, PId = dtl.PId, Seqno = dtl.seqno };
+                        paramVcrd = new { VOUNO = invoiceno, cardcode = dtl.CardCode, fcrimecode = dtl.FCrimeCode, DAMOUNT = dtl.FAmount, CAMOUNT = 0, crtBy = crtby, CRTDATE = DateTime.Now, DTYPE = "零花钱发放", DEPOSITER = "", REMARK = pidRemark, flag = iflag, fareacode = dtl.FAreaCode, fareaName = dtl.FAreaName, fcriminal = dtl.FCriminal, Frealareacode = "", FrealAreaName = "", ptype = "", udate = DateTime.Now.Year + "-" + DateTime.Now.Month + "-1", origid = pid, cardtype = 0, TypeFlag = 3, acctype = intAcctype, Bankflag = 0, checkflag = 0, checkby = crtby, pc = 0, curUserAmount = 0, curAllAmount = 0, PId = dtl.PId, Seqno = dtl.seqno };
                         int x = conn.Execute(strSql.ToString(), paramVcrd, myTran);
                         #endregion
 
@@ -565,7 +575,7 @@ namespace SelfhelpOrderMgr.DAL
                                 where a.fcrimecode=b.fcrimecode;");
                     //strSql.Append("update t_bonusdtl set Remark='该记录财务入账时，已离监销户了' where flag=0 and bid=@BID;");
                     strSql.Append(@"update t_Vcrd set flag=1,delby=@crtby,deldate=getdate(),remark='已被财务退账，批量删除:' +isnull(remark,'') 
-                                    where flag=0 and isnull(bankflag,0)<=0 and typeflag=3 and origid=@PId;");
+                                    where flag in(0,-2) and isnull(bankflag,0)<=0 and typeflag=3 and origid=@PId;");
                     strSql.Append(@"update  T_Providedtl set flag=0 where pid=@PId;");
                     strSql.Append(@"update T_Provide set flag=0,pflag=0 where pid=@PId;");
                     #endregion

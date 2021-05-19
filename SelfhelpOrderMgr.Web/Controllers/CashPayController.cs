@@ -507,12 +507,12 @@ namespace SelfhelpOrderMgr.Web.Controllers
             List<T_Vcrd> vcrds = new List<T_Vcrd>();
             if (id == 1)
             {
-                vcrds = new T_VcrdBLL().GetModelList("FCrimecode='" + strFCode + "' and Flag=0 and TypeFlag=0");
+                vcrds = new T_VcrdBLL().GetModelList("FCrimecode='" + strFCode + "' and Flag in (0,-2) and TypeFlag=0");
 
             }
             else if (id == 2)
             {
-                vcrds = new T_VcrdBLL().GetModelList("FCrimecode='" + strFCode + "' and Flag=0 and TypeFlag=2");
+                vcrds = new T_VcrdBLL().GetModelList("FCrimecode='" + strFCode + "' and Flag in (0,-2) and TypeFlag=2");
 
             }
             return Content(jss.Serialize(vcrds));
@@ -1059,7 +1059,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
             //    return Content("Err|该主单号没有对应的Vcrd记录，无法批量删除！");
             //}
 
-            List<T_Vcrd> vcrds = new T_VcrdBLL().GetModelList(" flag=0 and typeflag='" + typeflag.ToString() + "' and Origid='" + pkId + "' and isnull(bankflag,0)>=1");
+            List<T_Vcrd> vcrds = new T_VcrdBLL().GetModelList(" flag in(0,-2) and typeflag='" + typeflag.ToString() + "' and Origid='" + pkId + "' and isnull(bankflag,0)>=1");
             if (vcrds.Count > 0)
             {
                 return Content("Err|该主单号的数据已经发送到银行了，不能删除！");

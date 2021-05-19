@@ -5,7 +5,7 @@ using System.Data;
 namespace SelfhelpOrderMgr.Model
 {
     //T_BONUS
-    public class T_BONUS
+    public class T_BONUS:BaseModel
     {
 
         /// <summary>
@@ -251,6 +251,52 @@ namespace SelfhelpOrderMgr.Model
             get { return _fcheckflag; }
             set { _fcheckflag = value; }
         }
+        /// <summary>
+        /// TypeFlag
+        /// </summary>		
+        private int _typeflag;
+        public int TypeFlag
+        {
+            get { return _typeflag; }
+            set { _typeflag = value; }
+        }
+        /// <summary>
+        /// SubTypeFlag
+        /// </summary>		
+        private int? _subtypeflag;
+        public int? SubTypeFlag
+        {
+            get { return _subtypeflag; }
+            set { _subtypeflag = value; }
+        }
+        /// <summary>
+        /// DType
+        /// </summary>		
+        private string _dtype;
+        public string DType
+        {
+            get { return _dtype; }
+            set { _dtype = value; }
+        }
+        /// <summary>
+        /// TargetExaminerBy
+        /// </summary>		
+        private string _targetexaminerby;
+        public string TargetExaminerBy
+        {
+            get { return _targetexaminerby; }
+            set { _targetexaminerby = value; }
+        }
+        /// <summary>
+        /// MainStatus
+        /// </summary>		
+        private int _mainstatus;
+        public int MainStatus
+        {
+            get { return _mainstatus; }
+            set { _mainstatus = value; }
+        }
+        
 
     }
 }
