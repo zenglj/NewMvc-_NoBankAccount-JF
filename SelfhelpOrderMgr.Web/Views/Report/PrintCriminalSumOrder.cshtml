@@ -68,6 +68,7 @@
                                             <th>编号</th>
                                             <th>姓名</th>
                                             <th>队别</th>
+                                            <th>状态</th>
                                             <th>收入</th>
                                             <th>支出</th>
                                             <th>金额</th>
@@ -90,6 +91,7 @@
                                                     <td>@vcrd.FCrimeCode</td>
                                                     <td>@vcrd.FCriminal</td>
                                                     <td>@vcrd.FAreaName</td>
+                                                    <td>@vcrd.Remark</td>
                                                     <td>@vcrd.DAmount</td>
                                                     <td>@vcrd.CAmount</td>
                                                     <td>@vcrdMoney</td>
@@ -98,7 +100,7 @@
                                                 sumMoney = sumMoney + vcrdMoney;
 
                                             }
-                                            <tr><td></td><td></td><td></td><td></td><td>共计:</td><td></td><td>@sumMoney</td><td></td></tr>
+                                            <tr><td></td><td></td><td></td><td></td><td></td><td>共计:</td><td></td><td>@sumMoney</td><td></td></tr>
                                             @*<tr>
                                         <td colspan="3">经办人：</td>
                                         <td colspan="3">监区领导：</td>
@@ -1274,130 +1276,187 @@
                             break;
                         case 25:
                             { //出监结算统计报表
-            <table class="table table-striped table-condensed contentFontSizeSmall">
-                <thead>
-                    <tr>
-                        <th>序号</th>
-                        <th>类型</th>
-                        <th>编号</th>
-                        <th style="width:100px;">姓名</th>
-                        <th>队别</th>
-                        <th>日期</th>
-                        <th>结算模式</th>
-                        <th>存款</th>
-                        <th>报酬</th>
-                        <th>留存</th>
-                        <th class="text-right">金额</th>
-                        <th>扣款状态</th>
-                        <th>备注</th>
-                    </tr>
-                </thead>
-                @if (ViewData["vcrds"] != null)
-                {
-                    int i = 0;
-                    decimal vcrdMoney = 0;
-                    decimal sumMoney = 0;
-                    decimal groupMoney = 0;
-                    string typeName = "";
-                    string groupTypeName = "";
-                    <tbody>
-                        @foreach (SelfhelpOrderMgr.Model.T_Vcrd vcrd in ViewData["vcrds"] as List<SelfhelpOrderMgr.Model.T_Vcrd>)
-                        {
-                            vcrdMoney = vcrd.AmountA + vcrd.AmountB + vcrd.AmountC;
-                            string strPayMode = "现金领取";
-                            if (vcrd.PayMode == 2)
-                            {
-                                strPayMode = "转账支付";
-                            }
-                            else if (vcrd.PayMode == 1)
-                            {
-                                strPayMode = "ATM机取款";
-                            }
-                            else
-                            {
-                                strPayMode = "现金领取";
-                            }
-                            typeName = strPayMode;
-                            i++;
-                            if (groupTypeName != typeName && i != 1)
-                            {
-                                <tr><td colspan="8"></td><td colspan="2">@groupTypeName</td><td class="text-right">@groupMoney</td><td></td><td></td></tr>
-                                groupTypeName = typeName;
-                                groupMoney = 0;
-                            }
-                            
+                                <table class="table table-striped table-condensed contentFontSizeSmall">
+                                    <thead>
+                                        <tr>
+                                            <th>序号</th>
+                                            <th>类型</th>
+                                            <th>编号</th>
+                                            <th style="width:100px;">姓名</th>
+                                            <th>队别</th>
+                                            <th>日期</th>
+                                            <th>结算模式</th>
+                                            <th>存款</th>
+                                            <th>报酬</th>
+                                            <th>留存</th>
+                                            <th class="text-right">金额</th>
+                                            <th>扣款状态</th>
+                                            <th>备注</th>
+                                        </tr>
+                                    </thead>
+                                    @if (ViewData["vcrds"] != null)
+                                    {
+                                        int i = 0;
+                                        decimal vcrdMoney = 0;
+                                        decimal sumMoney = 0;
+                                        decimal groupMoney = 0;
+                                        string typeName = "";
+                                        string groupTypeName = "";
+                                        <tbody>
+                                            @foreach (SelfhelpOrderMgr.Model.T_Vcrd vcrd in ViewData["vcrds"] as List<SelfhelpOrderMgr.Model.T_Vcrd>)
+                                            {
+                                                vcrdMoney = vcrd.AmountA + vcrd.AmountB + vcrd.AmountC;
+                                                string strPayMode = "现金领取";
+                                                if (vcrd.PayMode == 2)
+                                                {
+                                                    strPayMode = "转账支付";
+                                                }
+                                                else if (vcrd.PayMode == 1)
+                                                {
+                                                    strPayMode = "ATM机取款";
+                                                }
+                                                else
+                                                {
+                                                    strPayMode = "现金领取";
+                                                }
+                                                typeName = strPayMode;
+                                                i++;
+                                                if (groupTypeName != typeName && i != 1)
+                                                {
+                                                    <tr><td colspan="8"></td><td colspan="2">@groupTypeName</td><td class="text-right">@groupMoney</td><td></td><td></td></tr>
+                                                    groupTypeName = typeName;
+                                                    groupMoney = 0;
+                                                }
 
-                    <tr>
-                        <td>@i</td>
-                        <td>@vcrd.DType</td>
-                        <th>@vcrd.FCrimeCode</th>
-                        <td>@vcrd.FCriminal</td>
-                        <td>@vcrd.FAreaName</td>
-                        <td>@vcrd.CrtDate</td>
-                        <td>@strPayMode</td>
-                        <td>@vcrd.AmountA</td>
-                        <td>@vcrd.AmountB</td>
-                        <td>@vcrd.AmountC</td>
-                        <td class="text-right">@vcrdMoney</td>
-                        @switch (vcrd.BankFlag)
-                        {
-                            case 0:
-                                {
-                                    <td>待发送</td>
-                                }
-                                break;
-                            case 1:
-                                {
-                                    <td>发送中</td>
-                                }
-                                break;
-                            case 2:
-                                {
-                                    <td>成功</td>
-                                }
-                                break;
-                            case 3:
-                                {
-                                    <td>手动成功</td>
-                                }
-                                break;
-                            case -1:
-                                {
-                                    <td>扣款失败</td>
-                                }
-                                break;
-                            default:
-                                {
-                                    <td>未知状态</td>
-                                }
-                                break;
-                        }
-                        <td>@vcrd.Remark</td>
-                    </tr>
-                            typeName = vcrd.DType;
-                            groupTypeName = strPayMode;
-                            sumMoney = sumMoney + vcrdMoney;
-                            groupMoney = groupMoney + vcrdMoney;
-                        }
-                        <tr><td colspan="8"></td><td colspan="2">@groupTypeName</td><td class="text-right">@groupMoney</td><td></td><td></td></tr>
 
-                        <tr>
-                            <td colspan="10">合计</td>
-                            <td class="text-right">@sumMoney 元</td>
-                            <td></td>
-                            <td></td>
-                        </tr>
-                        @*<tr>
-                    <td colspan="3">经办人：</td>
-                    <td colspan="3">监区领导：</td>
-                    <td colspan="3">供应站：</td>
-                    <td></td>
-                    <td></td>
-                </tr>*@
-                        </tbody>
-                    }
+                                                <tr>
+                                                    <td>@i</td>
+                                                    <td>@vcrd.DType</td>
+                                                    <th>@vcrd.FCrimeCode</th>
+                                                    <td>@vcrd.FCriminal</td>
+                                                    <td>@vcrd.FAreaName</td>
+                                                    <td>@vcrd.CrtDate</td>
+                                                    <td>@strPayMode</td>
+                                                    <td>@vcrd.AmountA</td>
+                                                    <td>@vcrd.AmountB</td>
+                                                    <td>@vcrd.AmountC</td>
+                                                    <td class="text-right">@vcrdMoney</td>
+                                                    @switch (vcrd.BankFlag)
+                                                    {
+                                                        case 0:
+                                                            {
+                                                                <td>待发送</td>
+                                                            }
+                                                            break;
+                                                        case 1:
+                                                            {
+                                                                <td>发送中</td>
+                                                            }
+                                                            break;
+                                                        case 2:
+                                                            {
+                                                                <td>成功</td>
+                                                            }
+                                                            break;
+                                                        case 3:
+                                                            {
+                                                                <td>手动成功</td>
+                                                            }
+                                                            break;
+                                                        case -1:
+                                                            {
+                                                                <td>扣款失败</td>
+                                                            }
+                                                            break;
+                                                        default:
+                                                            {
+                                                                <td>未知状态</td>
+                                                            }
+                                                            break;
+                                                    }
+                                                    <td>@vcrd.Remark</td>
+                                                </tr>
+                                                typeName = vcrd.DType;
+                                                groupTypeName = strPayMode;
+                                                sumMoney = sumMoney + vcrdMoney;
+                                                groupMoney = groupMoney + vcrdMoney;
+                                            }
+                                            <tr><td colspan="8"></td><td colspan="2">@groupTypeName</td><td class="text-right">@groupMoney</td><td></td><td></td></tr>
 
-            </table>
+                                            <tr>
+                                                <td colspan="10">合计</td>
+                                                <td class="text-right">@sumMoney 元</td>
+                                                <td></td>
+                                                <td></td>
+                                            </tr>
+                                            @*<tr>
+                                        <td colspan="3">经办人：</td>
+                                        <td colspan="3">监区领导：</td>
+                                        <td colspan="3">供应站：</td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>*@
+                                        </tbody>
+                                    }
+
+                                </table>
+                            }
+                            break;
+                        case 26:
+                            { //个人余额表
+                                <table class="table table-striped table-condensed contentFontSizeSmall">
+                                    <thead>
+                                        <tr>
+                                            <th>序号</th>
+                                            <th>编号</th>
+                                            <th style="width:100px;">姓名</th>
+                                            <th>队别</th>
+                                            <th>状态</th>
+                                            <th>金额</th>
+                                            <th>烛光卡</th>
+                                        </tr>
+                                    </thead>
+                                    @if (ViewData["vcrds"] != null)
+                                    {
+                                        int i = 0;
+                                        decimal vcrdMoney = 0;
+                                        decimal sumMoney = 0;
+                                        <tbody>
+                                            @foreach (SelfhelpOrderMgr.Model.T_Vcrd vcrd in ViewData["vcrds"] as List<SelfhelpOrderMgr.Model.T_Vcrd>)
+                                            {
+                                                vcrdMoney = vcrd.DAmount;
+                                                
+                                                i++;                                                
+
+                                                <tr>
+                                                    <td>@i</td>
+                                                    <th>@vcrd.FCrimeCode</th>
+                                                    <td>@vcrd.FCriminal</td>
+                                                    <td>@vcrd.FAreaName</td>
+                                                    <td>@vcrd.Frealareacode</td>
+                                                    <td>@vcrd.DAmount</td>
+                                                    <td>@vcrd.Remark</td>
+                                                </tr>
+                                                
+                                                sumMoney = sumMoney + vcrdMoney;
+                                            }
+
+                                            <tr>
+                                                <td colspan="5">合计</td>
+                                                <td class="text-right">@sumMoney 元</td>
+                                                <td></td>
+                                            </tr>
+                                            @*<tr>
+                                        <td colspan="3">经办人：</td>
+                                        <td colspan="3">监区领导：</td>
+                                        <td colspan="3">供应站：</td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>*@
+                                        </tbody>
+                                    }
+
+                                </table>
                             }
                             break;
                         default:

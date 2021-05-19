@@ -16,6 +16,7 @@ using System.Text;
 using SelfhelpOrderMgr.Common;
 using NPOI.XSSF.UserModel;
 using NPOI.SS.UserModel;
+using SelfhelpOrderMgr.Web.Filters;
 
 namespace SelfhelpOrderMgr.Web.Controllers
 {
@@ -175,6 +176,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
             return Content(sss);
         }
 
+        [MyLogActionFilterAttribute]
         public ActionResult SaveGoods()
         {
             string src = "";
@@ -450,6 +452,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
             return Content("Err|未知道处理的错误");
         }
 
+
+        [MyLogActionFilterAttribute]
         public ActionResult DelGoodAttrs()//删除商品Attr属性
         {
             string ID = Request["ID"];
@@ -564,6 +568,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
         /// 删除商品信息  2018年10月30日增加功能 ——zeng
         /// </summary>
         /// <returns></returns>
+        [MyLogActionFilterAttribute]
         public ActionResult DeleteGood()
         {
             //"GCode": row.GCODE,
@@ -850,13 +855,16 @@ namespace SelfhelpOrderMgr.Web.Controllers
             List<T_InvoiceDTL> dtls = new T_InvoiceDTLBLL().GetModelList("InvoiceNo='"+ invoiceNo +"'");
             return Content("OK|" + jss.Serialize(dtls));
         }
+
+
         //提交退货单
-        public ActionResult AddTuiHuoOrder()
+        [MyLogActionFilterAttribute]
+        public ActionResult AddTuiHuoOrder(string details)
         {
             string ip = System.Web.HttpContext.Current.Request.UserHostAddress;
             string crtby = Session["loginUserName"].ToString();
             string ipLastCode = CommonClass.GetIpLastCode(ip);
-            string details = Request["details"];
+            //string details = Request["details"];
             if (details != null)
             {
                 //把json字符串转换成对象
@@ -869,6 +877,35 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 if (ja.Count > 0)
                 {
                     List<T_InvoiceDTL> models = SetTuihuoDetail(ja, "Add");
+                    //判断退货数量 对应的消费主单：INV210400007120
+                    List<T_InvoiceDTL> dtls = new T_InvoiceDTLBLL().GetModelList("InvoiceNo='"+ models[0].INVOICENO +"'");
+                    string sql = "select gtxm,count(qty) as qty from t_invoiceDtl where Remark like '%"+ models[0].INVOICENO + "%' group by GTXM";
+                    var _rs=new CommTableInfoBLL().GetList<T_InvoiceDTL>(sql, null);
+
+                    var _ms = models.GroupBy(o => o.GTXM).Select(g => new { key = g.Key, value = g.Count() }).ToList();
+
+                    var _ds = dtls.GroupBy(o => o.GTXM).Select(g => new { key = g.Key, value = g.Count() }).ToList();
+
+                    foreach (var item in _ms)
+                    {
+                        var orderCount = _ds.Where(o => o.key == item.key).FirstOrDefault().value;
+                        if (item.value > orderCount)
+                        {
+                            return Content($"Err|条码：{item.key}超过原购物数量{orderCount}，不能退货");
+
+                        }
+                        else
+                        {
+                            var _r = _rs.Where(o => o.GTXM == item.key).FirstOrDefault();
+                            if (_r != null)
+                            {
+                                if(_r.QTY+ item.value> orderCount)
+                                {
+                                    return Content($"Err|有历史退货，条码：{item.key}超过原购物数量{orderCount}，不能退货");
+                                }
+                            }
+                        }
+                    }
                     string resultInfo = new T_InvoiceBLL().AddTuiHuoOrder(models, crtby, ipLastCode);
 
                     return Content(resultInfo);
@@ -902,10 +939,10 @@ namespace SelfhelpOrderMgr.Web.Controllers
             return models;
         }
 
-
-        public ActionResult CancelInvoiceOrder()
+        [MyLogActionFilterAttribute]
+        public ActionResult CancelInvoiceOrder(string Invoices)
         {
-            string strInvoices = Request["Invoices"];
+            string strInvoices = Invoices;// Request["Invoices"];
 
             if (string.IsNullOrEmpty(strInvoices))
             {
@@ -971,6 +1008,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
             ViewData["xfBeiShu"] = xfBeiShu;
             return View();
         }
+
+        [MyLogActionFilterAttribute]
         public ActionResult SaveXFDateRect()//保存特殊消费时段设定
         {
             string xfDateRect = Request["XFDateRect"];
@@ -1091,6 +1130,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 return Content("");
             }
         }
+
+        [MyLogActionFilterAttribute]
         public ActionResult SaveXianEGoodsList()//保存限额商品列表
         {
             //Request.("UTF-8");
@@ -1846,6 +1887,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
             return models;
         }
 
+        [MyLogActionFilterAttribute]
         public ActionResult DeleleSaleType()//删除商品类型
         {
             string strRes = "Err|删除失败";

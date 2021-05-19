@@ -614,18 +614,60 @@ namespace SelfhelpOrderMgr.Web.Controllers
         /// <returns></returns>
         public ActionResult NoBankCardLeavePrisonList(int payMode, string FCode, string FName, string FOuDate)
         {
+            string LoginUserName = Session["loginUserCode"] == null ? string.Empty : Session["LoginUserName"].ToString();
+            
             string startDt = Request["startDate"];
             string endDt = Request["endDate"];
-
-            string LoginUserName = Session["loginUserCode"] == null ? string.Empty : Session["LoginUserName"].ToString();
+            
             if (string.IsNullOrEmpty(FCode))
             {
                 return Content("Err|离监的犯人编号不能为空");
             }
+
+            //验证是否具有管辖权
+            if (!new CommTableInfoBLL().CheckUserManagerrPower(FCode, Session["loginUserCode"].ToString()))
+            {
+                return Content("Err|您没有该犯的管理权限，不能办理");
+            }
+
+
             string rtnReustl = "OK|该犯之前就结算过了";
             T_Criminal fuser = new T_CriminalBLL().GetModel(FCode);
             string FAreaCode = Request["FAreaCode"];
             string rtnJson = "";
+
+            //判断是否有在途的记录存取款记录
+            #region 判断是否有在途的记录存取款记录
+            //判断劳动报酬
+            string sql = "";
+            sql = "select b.BID,a.DType,b.FCRIMECODE,b.FAMOUNT,a.Crtdt from t_Bonus a,T_BONUSDTL b where a.BID=b.BID and a.FLAG=0 and b.FCRIMECODE=@fcrimecode";
+            DataTable dt = new CommTableInfoBLL().GetDataTable(sql, new { fcrimecode = FCode });
+            if (dt.Rows.Count > 0)
+            {
+                return Content($"Err|劳动报酬有未审批完记录，没有进账，单号：{dt.Rows[0]["BID"].ToString()},日期{dt.Rows[0]["Crtdt"].ToString()},记录{dt.Rows.Count}条，不能结算。");
+            }
+
+           
+
+            //判断零用金在途
+
+            sql = "select b.pid,'零用金' as DType,b.FCRIMECODE,b.FAMOUNT,a.Crtdt from T_PROVIDE a,T_PROVIDEDTL b where a.pid=b.pid and a.FLAG=0 and b.FCRIMECODE=@fcrimecode";
+            dt = new CommTableInfoBLL().GetDataTable(sql, new { fcrimecode = FCode });
+            if (dt.Rows.Count > 0)
+            {
+                return Content($"Err|零用金有未审批完记录，没有进账，单号：{dt.Rows[0]["pid"].ToString()},日期{dt.Rows[0]["Crtdt"].ToString()},记录：{dt.Rows.Count}条,不能结算");
+            }
+
+            //判断未审核的记录
+            sql = "select DType,fcrimecode,CrtDate from t_Vcrd where  flag =-2 and FCRIMECODE=@fcrimecode";
+            dt = new CommTableInfoBLL().GetDataTable(sql, new { fcrimecode = FCode });
+            if (dt.Rows.Count > 0)
+            {
+                return Content($"Err|未审批完记录，没有进账，类型：{dt.Rows[0]["DType"].ToString()},日期{dt.Rows[0]["CrtDate"].ToString()},记录：{dt.Rows.Count}条,不能结算");
+            }
+
+
+            #endregion
 
             //否则采用正常结算模式
             if (fuser.fflag !=1)//如果未结算过，就进行结算
@@ -737,6 +779,13 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
             string strFCode = Request["FCode"];
             string strFName = Request["FName"];
+
+            //验证是否具有管辖权
+            if (!new CommTableInfoBLL().CheckUserManagerrPower(FCode, Session["loginUserCode"].ToString()))
+            {
+                return Content("Err|您没有该犯的管理权限，不能办理");
+            }
+
             if (string.IsNullOrEmpty(strFCode) == true)
             {
                 //return Content("Err|编号不能为空");
@@ -763,6 +812,16 @@ namespace SelfhelpOrderMgr.Web.Controllers
             //由于执行恢复时，可能出现人员 的FFLag 状态为0 ，IC卡的状态为4 所以取消判断
             //===============================================================
 
+            t_balanceList bal = new t_balanceListBLL().GetModelList("FCrimeCode='" + FCode + "'").OrderByDescending(o => o.seqno).FirstOrDefault();
+            if (bal != null)
+            {
+                if (bal.fcrimecode == FCode && bal.PayMode == 0 && bal.CollectMoneyFlag == 1)
+                {
+                    rs.ReMsg = "Err|结算的现金已领走，不能恢复";
+                    return Json(rs);
+                }
+            }
+
             if (payMode == 0)
             {
                 T_SHO_ManagerSet mySet = new T_SHO_ManagerSetBLL().GetModel("LijianHuifuXianJinStopFlag");
@@ -775,6 +834,9 @@ namespace SelfhelpOrderMgr.Web.Controllers
                     }
                 }
             }
+
+
+
             using (TransactionScope ts = new TransactionScope())
             {
                 rs = new SettleService().RestoryInPrison(strFCode, (MoneyPayMode)payMode);               
@@ -782,11 +844,63 @@ namespace SelfhelpOrderMgr.Web.Controllers
             }
             return Json(rs);
         }
-        
-        #endregion
 
-        //Excel导出消费清表
-        public ActionResult ExcelOutList(int id = 1)
+        /// <summary>
+        /// 设置已领现金
+        /// </summary>
+        /// <param name="FCode"></param>
+        /// <param name="FName"></param>
+        /// <param name="seqno"></param>
+        /// <returns></returns>
+        [MyLogActionFilterAttribute]
+        public ActionResult QuerenXianjinLingqu(string FCode, string FName,int seqno)
+        {
+            
+            ResultInfo rs = new ResultInfo()
+            {
+                Flag = false,
+                ReMsg = "未处理",
+                DataInfo = null
+            };
+            try
+            {
+                if (!new CommTableInfoBLL().CheckUserManagerrPower(FCode, Session["loginUserCode"].ToString()))
+                {
+                    rs.ReMsg = "对不起，您没改犯的管理权限！";
+                    return Json(rs);
+                }
+                t_balanceList bal = new t_balanceListBLL().GetModelList("FCrimeCode='"+ FCode +"' and seqno="+seqno).OrderByDescending(o=>o.seqno ).FirstOrDefault();
+                if (bal != null)
+                {
+                    if (bal.fcrimecode == FCode && bal.PayMode == 0 && bal.CollectMoneyFlag == 0)
+                    {
+                        bal.CollectMoneyFlag = 1;
+                        if (new t_balanceListBLL().Update(bal))
+                        {
+                            rs.DataInfo = bal;
+                            rs.Flag = true;
+                            rs.ReMsg = "标记成功";
+                        }
+                    }
+                }
+                else
+                {
+                    rs.ReMsg = "找不到相应的结算记录";
+                }
+            }
+            catch (Exception e)
+            {
+
+                rs.ReMsg = e.Message;
+            }
+            
+            return Json(rs);
+        }
+
+            #endregion
+
+            //Excel导出消费清表
+            public ActionResult ExcelOutList(int id = 1)
         {
             string strLoginName = new T_CZYBLL().GetModel(Session["loginUserCode"].ToString()).FName;
 
@@ -1174,13 +1288,16 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
             if (proves.Count > 0)
             {
+                bal.PrintCount = bal.PrintCount + 1;
                 prove.CrtBy = bal.crtby;
                 prove.AmountA = bal.AmountA;
                 prove.AmountB = bal.AmountB;
                 prove.AmountC = bal.AmountC;
+                prove.PrintCount = bal.PrintCount;
                 ViewData["prove"] =prove;
             }
 
+            new t_balanceListBLL().Update(bal);//更新打印数量
             return View();
         }
 

@@ -195,6 +195,7 @@ namespace SelfhelpOrderMgr.BLL
             return new T_InvoiceDAL().CancelInvoiceOrder(strInvoices,crtby);
         }
 
+
         public string AddTuiHuoOrder(List<T_InvoiceDTL> models, string crtby, string ipLastCode)
         {
             return new T_InvoiceDAL().AddTuiHuoOrder(models, crtby, ipLastCode);

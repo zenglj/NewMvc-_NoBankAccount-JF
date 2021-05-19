@@ -48,7 +48,7 @@ namespace SelfhelpOrderMgr.DAL
                 }
                 else
                 {
-                    strSql.Append(" where Flag=0 and CAmount<>0 ");
+                    strSql.Append(" where  Flag in(0,-2) and CAmount<>0 ");
                 }
             decimal[] rs={0,0,0};
             decimal fcount = Convert.ToDecimal( SqlHelper.Query(strSql.ToString()).Tables[0].Rows[0][0]);
@@ -122,6 +122,15 @@ namespace SelfhelpOrderMgr.DAL
         /// <returns></returns>
         public List<T_Vcrd> UserCunKouKuan(T_Criminal criminal, int flag, decimal fmoney, T_Savetype savetype, string crtby, string remark, string apply, string pkId, int checkFlag=0)
         {
+            int ivcrdflag = 0;
+            T_SHO_ManagerSet mset = new T_SHO_ManagerSetDAL().GetModel("DepositInVcrdFlag");
+            if (mset != null)
+            {
+                if (mset.MgrValue == "-2")
+                {
+                    ivcrdflag = -2;
+                }
+            }
             using (IDbConnection conn = new SqlConnection(SqlHelper.getConnstr()))
             {
                 conn.Open();
@@ -176,7 +185,7 @@ namespace SelfhelpOrderMgr.DAL
                         {
                             savetype.AccType = 0;
                         }
-                        paramVcrd = new { cardcode = criminal.CardCode, fcrimecode = criminal.FCode, DAMOUNT = fmoney, CAMOUNT = 0, crtBy = crtby, CRTDATE = DateTime.Now, DTYPE = savetype.fname, DEPOSITER = apply, REMARK = remark, flag = 0, fareacode = criminal.FAreaCode, fareaName = criminal.FAreaName, fcriminal = criminal.FName, Frealareacode = "", FrealAreaName = "", ptype = "", udate = DateTime.Now.Year + "-" + DateTime.Now.Month + "-1", origid = invoiceno, cardtype = 0, TypeFlag = 0, acctype = savetype.AccType, Bankflag = 0, checkflag = 0, checkby = crtby, pc = 0, curUserAmount = criminal.OkUseAllMoney, curAllAmount = criminal.AmountAmoney + criminal.AmountBmoney + criminal.AmountCmoney, SubTypeFlag = savetype.fcode };
+                        paramVcrd = new { cardcode = criminal.CardCode, fcrimecode = criminal.FCode, DAMOUNT = fmoney, CAMOUNT = 0, crtBy = crtby, CRTDATE = DateTime.Now, DTYPE = savetype.fname, DEPOSITER = apply, REMARK = remark, flag = ivcrdflag, fareacode = criminal.FAreaCode, fareaName = criminal.FAreaName, fcriminal = criminal.FName, Frealareacode = "", FrealAreaName = "", ptype = "", udate = DateTime.Now.Year + "-" + DateTime.Now.Month + "-1", origid = invoiceno, cardtype = 0, TypeFlag = 0, acctype = savetype.AccType, Bankflag = 0, checkflag = 0, checkby = crtby, pc = 0, curUserAmount = criminal.OkUseAllMoney, curAllAmount = criminal.AmountAmoney + criminal.AmountBmoney + criminal.AmountCmoney, SubTypeFlag = savetype.fcode };
                         seqs = (List<int>)conn.Query<int>(strSql.ToString(), paramVcrd, myTran);
                         seq = Convert.ToInt32(seqs[0]);
                         seqnos = seq.ToString();
@@ -350,21 +359,33 @@ namespace SelfhelpOrderMgr.DAL
                         {
                             savetype.AccType = 0;
                         }
-                        switch (savetype.AccType)
+
+                        if (ivcrdflag == -2)//如果需要审核后才可以入账的话，变动金额就全部置为0
                         {
-                            case 1:
-                                {
-                                    paramVcrd = new { fmoneyA = 0, fmoneyB = fmoney * flag, fmoneyC = 0, fcrimecode = criminal.FCode };
-                                }break;
-                            case 2:
-                                {
-                                    paramVcrd = new { fmoneyA = 0, fmoneyB = 0, fmoneyC = fmoney * flag, fcrimecode = criminal.FCode };
-                                }break;
-                            default:
-                                {
-                                    paramVcrd = new { fmoneyA = fmoney * flag, fmoneyB = 0, fmoneyC=0, fcrimecode = criminal.FCode };
-                                }break;
+                            paramVcrd = new { fmoneyA = 0, fmoneyB = 0, fmoneyC = 0, fcrimecode = criminal.FCode };
                         }
+                        else
+                        {
+                            switch (savetype.AccType)
+                            {
+                                case 1:
+                                    {
+                                        paramVcrd = new { fmoneyA = 0, fmoneyB = fmoney * flag, fmoneyC = 0, fcrimecode = criminal.FCode };
+                                    }
+                                    break;
+                                case 2:
+                                    {
+                                        paramVcrd = new { fmoneyA = 0, fmoneyB = 0, fmoneyC = fmoney * flag, fcrimecode = criminal.FCode };
+                                    }
+                                    break;
+                                default:
+                                    {
+                                        paramVcrd = new { fmoneyA = fmoney * flag, fmoneyB = 0, fmoneyC = 0, fcrimecode = criminal.FCode };
+                                    }
+                                    break;
+                            }
+                        }
+                        
                         
 
                         if(flag==-1)
@@ -504,7 +525,7 @@ namespace SelfhelpOrderMgr.DAL
             {
                 return false;
             }
-            if(vcrd.Flag!=0)//记录标志状态不正确
+            if(!(vcrd.Flag==0 || vcrd.Flag==-2))//记录标志状态不正确
             {
                 return false;
             }
@@ -512,24 +533,28 @@ namespace SelfhelpOrderMgr.DAL
             decimal ChangeMoney = vcrd.DAmount - vcrd.CAmount;
 
             strSql.Append("update t_Invoice set flag=0,Remark=Remark+',该记录被删除了',FrealAreaName='删除人员:'+@DelBy where flag=1 and FCrimeCode=@FCrimeCode and TypeFlag=2 ");
-            strSql.Append(" and invoiceno=(select origid from t_vcrd where flag=0 and seqno=@seqno);");
-            strSql.Append("update t_vcrd set flag=1,Remark=Remark+',该记录被删除了',DelBy=@DelBy,DelDate=getdate() where flag=0 and FCrimeCode=@FCrimeCode and seqno=@seqno;");
-            if(vcrd.AccType==0)
+            strSql.Append(" and invoiceno=(select origid from t_vcrd where flag in(0,-2) and seqno=@seqno);");
+            strSql.Append("update t_vcrd set flag=1,Remark=Remark+',该记录被删除了',DelBy=@DelBy,DelDate=getdate() where flag in(0,-2) and FCrimeCode=@FCrimeCode and seqno=@seqno;");
+            if (vcrd.Flag == 0)
             {
-                strSql.Append("update t_Criminal_card set AMountA=AMountA-@ChangeMoney where FCrimeCode=@FCrimeCode;");
+                if (vcrd.AccType == 0)
+                {
+                    strSql.Append("update t_Criminal_card set AMountA=AMountA-@ChangeMoney where FCrimeCode=@FCrimeCode;");
+                }
+                else if (vcrd.AccType == 1)
+                {
+                    strSql.Append("update t_Criminal_card set AMountB=AMountB-@ChangeMoney where FCrimeCode=@FCrimeCode;");
+                }
+                else if (vcrd.AccType == 2)
+                {
+                    strSql.Append("update t_Criminal_card set AMountC=AMountC-@ChangeMoney where FCrimeCode=@FCrimeCode;");
+                }
+                else
+                {
+                    return false;
+                }
             }
-            else if(vcrd.AccType==1)
-            {
-                strSql.Append("update t_Criminal_card set AMountB=AMountB-@ChangeMoney where FCrimeCode=@FCrimeCode;");
-            }
-            else if (vcrd.AccType == 2)
-            {
-                strSql.Append("update t_Criminal_card set AMountC=AMountC-@ChangeMoney where FCrimeCode=@FCrimeCode;");
-            }
-            else
-            {
-                return false;
-            }
+            
 
             SqlParameter[] parameters = {
 					new SqlParameter("@FCrimeCode", SqlDbType.VarChar,20),

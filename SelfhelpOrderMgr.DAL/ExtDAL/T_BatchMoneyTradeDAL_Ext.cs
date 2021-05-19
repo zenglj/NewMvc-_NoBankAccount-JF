@@ -319,7 +319,7 @@ namespace SelfhelpOrderMgr.DAL
                                 where a.fcrimecode=b.fcrimecode;");
                     //strSql.Append("update t_bonusdtl set Remark='该记录财务入账时，已离监销户了' where flag=0 and bid=@BID;");
                     strSql.Append(@"update t_Vcrd set flag=1,delby=@crtby,deldate=getdate(),remark='已补批量删除:' +isnull(remark,'') 
-                                    where flag=0 and isnull(bankflag,0)<=0 and typeflag=@typeflag and origid=@pkId;");
+                                    where flag in(0,-2) and isnull(bankflag,0)<=0 and typeflag=@typeflag and origid=@pkId;");
                     strSql.Append(@"delete from T_BatchMoneyTrade_dtl where bid=@pkId;");
                     strSql.Append(@"delete from T_BatchMoneyTrade where bid=@pkId;");
                     strSql.Append(@"delete from T_BatchMoneyTrade_ErrList where pc=@pkId;");

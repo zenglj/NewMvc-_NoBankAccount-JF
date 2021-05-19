@@ -114,6 +114,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
         }
 
         //验证系统登录
+        //[MyLogActionFilterAttribute]
         public ActionResult LoginCheck()
         {
             string ip = System.Web.HttpContext.Current.Request.UserHostAddress;
@@ -189,13 +190,27 @@ namespace SelfhelpOrderMgr.Web.Controllers
                             }
                         }
                     }
-                }    
+                }
+                T_SysOperationLog log = new T_SysOperationLog()
+                {
+                    ControlName = "Home",
+                    ActionName = "LoginCheck",
+                    CrtDate = DateTime.Now,
+                    Remark = "消费开启登录",
+                    ReqJson = managerCardNo,
+                    RtnJson = status +",IP:"+ip,
+                    UserCode = users[0].FName
+                };
+                new BaseDapperBLL().Insert<T_SysOperationLog>(log);
             }
             Log4NetHelper.logger.Info("消费登录开启,操作员：" + managerCardNo + ",登录时间=" + DateTime.Now.ToString() + ",登录IP为：" + ip + ",登录结果：" + status);
+
+            
 
             return Content(status);
         }//消费登录开启，管理卡模式
 
+        //[MyLogActionFilterAttribute]
         public ActionResult UserSignInCheck()
         {
             //string managerCardNo = Request["managerCardNo"];
@@ -278,7 +293,17 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         
                     }
                 }
-
+                T_SysOperationLog log = new T_SysOperationLog()
+                {
+                    ControlName = "Home",
+                    ActionName = "UserSingCheck",
+                    CrtDate = DateTime.Now,
+                    Remark = "消费开启登录,IP:"+ ip,
+                    ReqJson = userName,
+                    RtnJson = status,
+                    UserCode = userName
+                };
+                new BaseDapperBLL().Insert<T_SysOperationLog>(log);
             }
             Log4NetHelper.logger.Info("消费登录开启,操作员：" + userName + ",登录时间=" + DateTime.Now.ToString() + ",登录IP为：" + ip + ",登录结果：" + status);
 
@@ -318,6 +343,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
             return View("PrintCkeck");
         }
+        //[MyLogActionFilterAttribute]
         public ActionResult PrintCkeckLogin()//打印小票登录验证
         {
             string managerCardNo = Request["managerCardNo"];
@@ -332,11 +358,22 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
                 //设定登录Cookie记录
                 SetLoginCookieInfo(user);
+                T_SysOperationLog log = new T_SysOperationLog()
+                {
+                    ControlName = "Home",
+                    ActionName = "PrintCkeckSignIn",
+                    CrtDate = DateTime.Now,
+                    Remark = "消费查询登录" + ",IP:" + ip,
+                    ReqJson = managerCardNo,
+                    RtnJson = "OK|登录成功",
+                    UserCode = user.FName
+                };
+                new BaseDapperBLL().Insert<T_SysOperationLog>(log);
                 status = "OK|登录成功";
             }
             return Content(status);
         }
-
+        //[MyLogActionFilterAttribute]
         public ActionResult PrintCkeckSignIn()//打印小票用户密码登录验证
         {
             string userName = Request["userName"];
@@ -361,7 +398,17 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
                 //设定登录Cookie记录
                 SetLoginCookieInfo(user);
-
+                T_SysOperationLog log = new T_SysOperationLog()
+                {
+                    ControlName = "Home",
+                    ActionName = "PrintCkeckSignIn",
+                    CrtDate = DateTime.Now,
+                    Remark = "消费查询登录" + ",IP:" + ip,
+                    ReqJson = "操作员：" + userName,
+                    RtnJson = "OK",
+                    UserCode = userName
+                };
+                new BaseDapperBLL().Insert<T_SysOperationLog>(log);
                 status = "OK|" + users[0].FManagerCard.ToString();
             }
             return Content(status);

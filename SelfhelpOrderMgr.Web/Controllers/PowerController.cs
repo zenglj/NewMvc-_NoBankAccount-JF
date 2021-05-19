@@ -79,17 +79,19 @@ namespace SelfhelpOrderMgr.Web.Controllers
         }
 
         //保存操作员用户
-        public ActionResult SaveTree()
+        [MyLogActionFilterAttribute]
+        public ActionResult SaveTree(string selectTree,string UserCode,string UserName,string UserPwd,string UserArea,string UserRole,string FManagerCard,int selectRadio,string FUserChinaName)
         {
-            string selectTree = Request["selectTree"].ToString();
-            string strUserCode = Request["UserCode"].ToString();
-            string strUserName = Request["UserName"].ToString();
-            string strUserPwd = Request["UserPwd"].ToString();
-            string strUserArea = Request["UserArea"].ToString();
-            string strUserRole = Request["UserRole"].ToString();
-            string FManagerCard = Request["FManagerCard"].ToString();
-            int fprivate = Request["selectRadio"] == null ? 0 : Convert.ToInt32(Request["selectRadio"]);
-            string FUserChinaName = Request["FUserChinaName"] == null ? "" : Request["FUserChinaName"];
+            //string selectTree = Request["selectTree"].ToString();
+            string strUserCode = UserCode;// Request["UserCode"].ToString();
+            string strUserName = UserName;//Request["UserName"].ToString();
+            string strUserPwd = UserPwd;//Request["UserPwd"].ToString();
+            string strUserArea = UserArea;//Request["UserArea"].ToString();
+            string strUserRole = UserRole;//Request["UserRole"].ToString();
+            //string FManagerCard = Request["FManagerCard"].ToString();
+            int fprivate = selectRadio;// Request["selectRadio"] == null ? 0 : Convert.ToInt32(Request["selectRadio"]);
+
+            //string FUserChinaName = Request["FUserChinaName"] == null ? "" : Request["FUserChinaName"];
 
             if (selectTree == "")
             {
@@ -202,10 +204,11 @@ namespace SelfhelpOrderMgr.Web.Controllers
         }
 
         //删除操作员用户
-        public ActionResult DelTreeUser()
+        [MyLogActionFilterAttribute]
+        public ActionResult DelTreeUser(string FUserID,string FUserName)
         {
-            string UserID = Request["FUserID"];
-            string UserName = Request["FUserName"];
+            string UserID = FUserID;// Request["FUserID"];
+            string UserName = FUserName;//Request["FUserName"];
             T_CZY czy = new T_CZYBLL().GetModel(UserID);
             string res = "删除失败";
             if (czy != null)
@@ -392,12 +395,13 @@ namespace SelfhelpOrderMgr.Web.Controllers
             return Content(selRole);
         }
         //保存角色的功能权限
-        public ActionResult SaveRoleTree()
+        [MyLogActionFilterAttribute]
+        public ActionResult SaveRoleTree(string RoleID,string RoleName)
         {
             //string LoginUserCode = "102";
             //增加或是修改角色信息
-            string strRoleID = Request["RoleID"].ToString();
-            string strRoleName = Request["RoleName"].ToString();
+            string strRoleID = RoleID;// Request["RoleID"].ToString();
+            string strRoleName = RoleName;// Request["RoleName"].ToString();
             //int levelid = Request["LevelId"] == null ? 0 : Convert.ToInt32(Request["LevelId"]);
 
             //首先判断下角色是否存在,如果存在就修改它,如果不存在就增加它
@@ -464,10 +468,11 @@ namespace SelfhelpOrderMgr.Web.Controllers
             return Content("OK." + doType);
         }
         //删除角色
-        public ActionResult DelRoleTree()
+        [MyLogActionFilterAttribute]
+        public ActionResult DelRoleTrees(string RoleID,string RoleName)
         {
-            string strRoleID = Request["RoleID"];
-            string strRoleName = Request["RoleName"];
+            string strRoleID = RoleID;// Request["RoleID"];
+            string strRoleName = RoleName;// Request["RoleName"];
 
             string result = "删除失败";
             List<t_TreeRole> trs = new t_TreeRoleBLL().GetModelList("RoleId="+strRoleID);

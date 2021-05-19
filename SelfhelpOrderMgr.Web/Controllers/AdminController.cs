@@ -2,6 +2,7 @@
 using SelfhelpOrderMgr.Common;
 using SelfhelpOrderMgr.Model;
 using SelfhelpOrderMgr.Web.CommonHeler;
+using SelfhelpOrderMgr.Web.Filters;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -137,8 +138,18 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         Session["loginUserCode"] = user.FCode;
                         Session["loginUserName"] = user.FName;
                     }
-
-                    status="OK|验证成功";
+                    T_SysOperationLog log = new T_SysOperationLog()
+                    {
+                        ControlName = "Home",
+                        ActionName = "UserSingCheck",
+                        CrtDate = DateTime.Now,
+                        Remark = "后台登录,IP:" + ip,
+                        ReqJson = user.FName,
+                        RtnJson = "OK|验证成功",
+                        UserCode = user.FName
+                    };
+                    new BaseDapperBLL().Insert<T_SysOperationLog>(log);
+                    status ="OK|验证成功";
                 }
             }
             

@@ -2,8 +2,7 @@
 using System.Text;
 using System.Collections.Generic;
 using System.Data;
-using SelfhelpOrderMgr.Common;
-using SelfhelpOrderMgr.Model;
+
 namespace SelfhelpOrderMgr.BLL
 {
 	//t_balanceList
@@ -64,6 +63,7 @@ namespace SelfhelpOrderMgr.BLL
 
 			return dal.GetModel(seqno);
 		}
+
 
 
 		/// <summary>
@@ -132,7 +132,15 @@ namespace SelfhelpOrderMgr.BLL
 					{
 						model.PayMode = int.Parse(dt.Rows[n]["PayMode"].ToString());
 					}
+					if (dt.Rows[n]["CollectMoneyFlag"].ToString() != "")
+					{
+						model.CollectMoneyFlag = int.Parse(dt.Rows[n]["CollectMoneyFlag"].ToString());
+					}
 					model.fcrimecode = dt.Rows[n]["fcrimecode"].ToString();
+					if (dt.Rows[n]["PrintCount"].ToString() != "")
+					{
+						model.PrintCount = int.Parse(dt.Rows[n]["PrintCount"].ToString());
+					}
 					model.vounoa = dt.Rows[n]["vounoa"].ToString();
 					model.cardcodea = dt.Rows[n]["cardcodea"].ToString();
 					if (dt.Rows[n]["typeflagA"].ToString() != "")

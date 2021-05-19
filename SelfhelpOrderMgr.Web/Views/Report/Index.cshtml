@@ -34,6 +34,7 @@
                     <div data-options="iconCls:'icon-reload'" onclick="printMenuBtn(6)">按存取类型清单</div>
                     <div data-options="iconCls:'icon-search'" onclick="printMenuBtn(22)">按类型个人汇总清单</div>
                     <div data-options="iconCls:'icon-search'" onclick="printMenuBtn(25)">离监统计报表</div>
+                    <div data-options="iconCls:'icon-search'" onclick="printMenuBtn(26)">个人账户余额清单</div>
                     <div class="menu-sep"></div>
                     <div onclick="printMenuBtn(7)">超市消费汇总表</div>
                     <div onclick="printMenuBtn(8)">明细记录清单</div>
@@ -65,6 +66,7 @@
                     <div data-options="iconCls:'icon-search'" onclick="OutExcelSumOrder(22)">（两栏）个人汇总清单</div>
                     <div data-options="iconCls:'icon-search'" onclick="OutExcelSumOrder(23)">（两栏日期）个人汇总清单</div>
                     <div data-options="iconCls:'icon-search'" onclick="OutExcelSumOrder(24)">（一栏）个人汇总清单</div>
+                    <div data-options="iconCls:'icon-search'" onclick="OutExcelSumOrder(26)">个人账户余额清单</div>
                     <div class="menu-sep"></div>
                     <div onclick="OutExcelSumOrder(7)">超市消费汇Excel</div>
                     <div onclick="OutExcelSumOrder(8)">明细记录Excel</div>
@@ -239,7 +241,7 @@
                     <tr>
                         <th align="right">审核状态：</th>
                         <td align="left">
-                            <select id="FCheckFlag" name="FCheckFlag" class="easyui-combobox"  style="width:190px;">
+                            <select id="FCheckFlag" name="FCheckFlag" class="easyui-combobox" style="width:190px;">
                                 <option value="-1">未配货</option>
                                 <option value="0">待审核</option>
                                 <option value="1">已审核</option>
@@ -252,6 +254,16 @@
                             <select id="FFlags" name="FFlags" class="easyui-combobox" data-options=" multiple:true" style="width:190px;">
                                 <option value="0" selected="selected">正常</option>
                                 <option value="1">已删除</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">烛光卡：</th>
+                        <td align="left">
+                            <select id="CardTypeFlag" name="CardTypeFlag" class="easyui-combobox"  style="width:190px;">
+                                <option value="" selected="selected">请选择</option>
+                                <option value="0">无</option>
+                                <option value="1">有</option>
                             </select>
                         </td>
                     </tr>

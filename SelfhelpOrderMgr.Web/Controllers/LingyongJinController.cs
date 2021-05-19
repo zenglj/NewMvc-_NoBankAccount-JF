@@ -14,6 +14,8 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using NPOI.XSSF.UserModel;
 using NPOI.SS.UserModel;
+using SelfhelpOrderMgr.Web.Filters;
+
 namespace SelfhelpOrderMgr.Web.Controllers
 {
     public class LingyongJinController : BaseController
@@ -273,10 +275,11 @@ namespace SelfhelpOrderMgr.Web.Controllers
         }
 
         //删除明细记录
-        public ActionResult DelOrderDetail()
+        [MyLogActionFilterAttribute]
+        public ActionResult DelOrderDetail(string sbid,string seqno)
         {
-            string strFBid = Request["sbid"];//主单编号
-            string strSeqno = Request["seqno"];//流水号
+            string strFBid = sbid;// Request["sbid"];//主单编号
+            string strSeqno = seqno;// Request["seqno"];//流水号
             T_Provide bonus = new T_ProvideBLL().GetModel(strFBid);
 
             if (bonus.PFlag==1)
@@ -314,9 +317,9 @@ namespace SelfhelpOrderMgr.Web.Controllers
             }
         }
 
-        public ActionResult DelMainOrder()//删除主单
+        public ActionResult DelMainOrder(string sbid)//删除主单
         {
-            string strFBid = Request["sbid"];//主单编号
+            string strFBid = sbid;// Request["sbid"];//主单编号
             T_Provide model = new T_ProvideBLL().GetModel(strFBid);
             if (model.Flag != 1)//判断是否已经审核
             {
@@ -336,9 +339,10 @@ namespace SelfhelpOrderMgr.Web.Controllers
             }
         }
 
-        public ActionResult CancalOrderById()//账务退账
+        [MyLogActionFilterAttribute]
+        public ActionResult CancalOrderById(string sbid)//账务退账
         {
-            string PId = Request["PId"];
+            string PId = sbid;// Request["PId"];
             if (string.IsNullOrEmpty(PId))
             {
                 return Content("Err.主单号不能为空");
@@ -355,13 +359,13 @@ namespace SelfhelpOrderMgr.Web.Controllers
             }
             string strLoginName = new T_CZYBLL().GetModel(Session["loginUserCode"].ToString()).FName;
 
-            List<T_Vcrd> checkVcrds = new T_VcrdBLL().GetModelList(" flag=0 and typeflag=3 and Origid='" + PId + "'");
+            List<T_Vcrd> checkVcrds = new T_VcrdBLL().GetModelList(" flag in(0,-2) and typeflag=3 and Origid='" + PId + "'");
             if (checkVcrds.Count <= 0)
             {
                 return Content("Err.该主单号没有对应的Vcrd记录，无法批量删除！");
             }
 
-            List<T_Vcrd> vcrds = new T_VcrdBLL().GetModelList(" flag=0 and typeflag=3 and Origid='" + PId + "' and isnull(bankflag,0)>=1");
+            List<T_Vcrd> vcrds = new T_VcrdBLL().GetModelList(" flag in(0,-2) and typeflag=3 and Origid='" + PId + "' and isnull(bankflag,0)>=1");
             if (vcrds.Count > 0)
             {
                 return Content("Err.该主单号的数据已经发送到银行了，不能删除！");

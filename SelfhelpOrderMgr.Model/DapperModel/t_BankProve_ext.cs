@@ -44,7 +44,6 @@ namespace SelfhelpOrderMgr.Model
         public decimal AmountA { get; set; }
         public decimal AmountB { get; set; }
         public decimal AmountC { get; set; }
-
-
+        public int PrintCount { get; set; }//打印次数
     }
 }

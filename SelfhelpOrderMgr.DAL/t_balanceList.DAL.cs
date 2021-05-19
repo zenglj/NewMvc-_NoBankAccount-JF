@@ -3,6 +3,7 @@ using System.Text;
 using System.Data.SqlClient;
 using System.Collections.Generic;
 using System.Data;
+
 namespace SelfhelpOrderMgr.DAL
 {
 	//t_balanceList
@@ -31,9 +32,9 @@ namespace SelfhelpOrderMgr.DAL
 		{
 			StringBuilder strSql = new StringBuilder();
 			strSql.Append("insert into t_balanceList(");
-			strSql.Append("AmountB,crtdate,crtby,remark,baltype,DEPOSITER,AmountC,bankamount,PayMode,fcrimecode,vounoa,cardcodea,typeflagA,AmountA,vounob,cardcodeB,typeflagB");
+			strSql.Append("AmountB,crtdate,crtby,remark,baltype,DEPOSITER,AmountC,bankamount,PayMode,CollectMoneyFlag,fcrimecode,PrintCount,vounoa,cardcodea,typeflagA,AmountA,vounob,cardcodeB,typeflagB");
 			strSql.Append(") values (");
-			strSql.Append("@AmountB,@crtdate,@crtby,@remark,@baltype,@DEPOSITER,@AmountC,@bankamount,@PayMode,@fcrimecode,@vounoa,@cardcodea,@typeflagA,@AmountA,@vounob,@cardcodeB,@typeflagB");
+			strSql.Append("@AmountB,@crtdate,@crtby,@remark,@baltype,@DEPOSITER,@AmountC,@bankamount,@PayMode,@CollectMoneyFlag,@fcrimecode,@PrintCount,@vounoa,@cardcodea,@typeflagA,@AmountA,@vounob,@cardcodeB,@typeflagB");
 			strSql.Append(") ");
 			strSql.Append(";select @@IDENTITY");
 			SqlParameter[] parameters = {
@@ -46,7 +47,9 @@ namespace SelfhelpOrderMgr.DAL
 						new SqlParameter("@AmountC", SqlDbType.Decimal,9) ,
 						new SqlParameter("@bankamount", SqlDbType.Decimal,9) ,
 						new SqlParameter("@PayMode", SqlDbType.Int,4) ,
+						new SqlParameter("@CollectMoneyFlag", SqlDbType.Int,4) ,
 						new SqlParameter("@fcrimecode", SqlDbType.VarChar,20) ,
+						new SqlParameter("@PrintCount", SqlDbType.Int,4) ,
 						new SqlParameter("@vounoa", SqlDbType.VarChar,20) ,
 						new SqlParameter("@cardcodea", SqlDbType.VarChar,20) ,
 						new SqlParameter("@typeflagA", SqlDbType.Int,4) ,
@@ -66,14 +69,16 @@ namespace SelfhelpOrderMgr.DAL
 			parameters[6].Value = model.AmountC;
 			parameters[7].Value = model.bankamount;
 			parameters[8].Value = model.PayMode;
-			parameters[9].Value = model.fcrimecode;
-			parameters[10].Value = model.vounoa;
-			parameters[11].Value = model.cardcodea;
-			parameters[12].Value = model.typeflagA;
-			parameters[13].Value = model.AmountA;
-			parameters[14].Value = model.vounob;
-			parameters[15].Value = model.cardcodeB;
-			parameters[16].Value = model.typeflagB;
+			parameters[9].Value = model.CollectMoneyFlag;
+			parameters[10].Value = model.fcrimecode;
+			parameters[11].Value = model.PrintCount;
+			parameters[12].Value = model.vounoa;
+			parameters[13].Value = model.cardcodea;
+			parameters[14].Value = model.typeflagA;
+			parameters[15].Value = model.AmountA;
+			parameters[16].Value = model.vounob;
+			parameters[17].Value = model.cardcodeB;
+			parameters[18].Value = model.typeflagB;
 
 			object obj = SqlHelper.GetSingle(strSql.ToString(), parameters);
 			if (obj == null)
@@ -107,7 +112,9 @@ namespace SelfhelpOrderMgr.DAL
 			strSql.Append(" AmountC = @AmountC , ");
 			strSql.Append(" bankamount = @bankamount , ");
 			strSql.Append(" PayMode = @PayMode , ");
+			strSql.Append(" CollectMoneyFlag = @CollectMoneyFlag , ");
 			strSql.Append(" fcrimecode = @fcrimecode , ");
+			strSql.Append(" PrintCount = @PrintCount , ");
 			strSql.Append(" vounoa = @vounoa , ");
 			strSql.Append(" cardcodea = @cardcodea , ");
 			strSql.Append(" typeflagA = @typeflagA , ");
@@ -128,7 +135,9 @@ namespace SelfhelpOrderMgr.DAL
 						new SqlParameter("@AmountC", SqlDbType.Decimal,9) ,
 						new SqlParameter("@bankamount", SqlDbType.Decimal,9) ,
 						new SqlParameter("@PayMode", SqlDbType.Int,4) ,
+						new SqlParameter("@CollectMoneyFlag", SqlDbType.Int,4) ,
 						new SqlParameter("@fcrimecode", SqlDbType.VarChar,20) ,
+						new SqlParameter("@PrintCount", SqlDbType.Int,4) ,
 						new SqlParameter("@vounoa", SqlDbType.VarChar,20) ,
 						new SqlParameter("@cardcodea", SqlDbType.VarChar,20) ,
 						new SqlParameter("@typeflagA", SqlDbType.Int,4) ,
@@ -149,14 +158,16 @@ namespace SelfhelpOrderMgr.DAL
 			parameters[7].Value = model.AmountC;
 			parameters[8].Value = model.bankamount;
 			parameters[9].Value = model.PayMode;
-			parameters[10].Value = model.fcrimecode;
-			parameters[11].Value = model.vounoa;
-			parameters[12].Value = model.cardcodea;
-			parameters[13].Value = model.typeflagA;
-			parameters[14].Value = model.AmountA;
-			parameters[15].Value = model.vounob;
-			parameters[16].Value = model.cardcodeB;
-			parameters[17].Value = model.typeflagB;
+			parameters[10].Value = model.CollectMoneyFlag;
+			parameters[11].Value = model.fcrimecode;
+			parameters[12].Value = model.PrintCount;
+			parameters[13].Value = model.vounoa;
+			parameters[14].Value = model.cardcodea;
+			parameters[15].Value = model.typeflagA;
+			parameters[16].Value = model.AmountA;
+			parameters[17].Value = model.vounob;
+			parameters[18].Value = model.cardcodeB;
+			parameters[19].Value = model.typeflagB;
 			int rows = SqlHelper.ExecuteSql(strSql.ToString(), parameters);
 			if (rows > 0)
 			{
@@ -222,7 +233,7 @@ namespace SelfhelpOrderMgr.DAL
 		{
 
 			StringBuilder strSql = new StringBuilder();
-			strSql.Append("select seqno, AmountB, crtdate, crtby, remark, baltype, DEPOSITER, AmountC, bankamount, PayMode, fcrimecode, vounoa, cardcodea, typeflagA, AmountA, vounob, cardcodeB, typeflagB  ");
+			strSql.Append("select seqno, AmountB, crtdate, crtby, remark, baltype, DEPOSITER, AmountC, bankamount, PayMode, CollectMoneyFlag, fcrimecode, PrintCount, vounoa, cardcodea, typeflagA, AmountA, vounob, cardcodeB, typeflagB  ");
 			strSql.Append("  from t_balanceList ");
 			strSql.Append(" where seqno=@seqno");
 			SqlParameter[] parameters = {
@@ -267,7 +278,15 @@ namespace SelfhelpOrderMgr.DAL
 				{
 					model.PayMode = int.Parse(ds.Tables[0].Rows[0]["PayMode"].ToString());
 				}
+				if (ds.Tables[0].Rows[0]["CollectMoneyFlag"].ToString() != "")
+				{
+					model.CollectMoneyFlag = int.Parse(ds.Tables[0].Rows[0]["CollectMoneyFlag"].ToString());
+				}
 				model.fcrimecode = ds.Tables[0].Rows[0]["fcrimecode"].ToString();
+				if (ds.Tables[0].Rows[0]["PrintCount"].ToString() != "")
+				{
+					model.PrintCount = int.Parse(ds.Tables[0].Rows[0]["PrintCount"].ToString());
+				}
 				model.vounoa = ds.Tables[0].Rows[0]["vounoa"].ToString();
 				model.cardcodea = ds.Tables[0].Rows[0]["cardcodea"].ToString();
 				if (ds.Tables[0].Rows[0]["typeflagA"].ToString() != "")

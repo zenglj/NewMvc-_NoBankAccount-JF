@@ -34,6 +34,7 @@
             <form id="frmBankExcel" method="post" enctype="multipart/form-data">
                 <input type="file"  id="FExcelFile" name="FExcelFile" formenctype="multipart/form-data" />   
                 <a id="btnBankDetailSearch" href="#" onclick="btnExcelBankDtlSch()" class="easyui-linkbutton" data-options="iconCls:'icon-search'">银行记录筛选</a>
+                <a id="btnExcelOut" href="#" onclick="btnExcelOutBankTransList()" class="easyui-linkbutton" data-options="iconCls:'icon-save'">银行交易流水记录导出</a>
             </form>
             
             <label id="schSumMoney" style="float:right;font-size:1.2em;">查询结果总额: ____________</label>
@@ -79,7 +80,14 @@
                         <th align="right">姓名：</th>
                         <td align="left">
                             <input class="easyui-textbox" id="SearchFName" name="FName"
-                                   style="width:190px" >
+                                   style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">汇款人：</th>
+                        <td align="left">
+                            <input class="easyui-textbox" id="SearchFractName" name="fractName"
+                                   style="width:190px">
                         </td>
                     </tr>
                     <tr>
@@ -113,6 +121,24 @@
                             <select id="SearchImportFlag" name="ImportFlag" class="easyui-combobox" style="width:190px">
                                 <option value="1">是</option>
                                 <option value="0">否</option>
+                                <option value="2">公账</option>
+                            </select>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th align="right">汇款类型：</th>
+                        <td align="left">
+                            <select id="Searchtranstype" name="transtype" class="easyui-combobox" style="width:190px">
+                                <option value="">请选择</option>
+                                @if (ViewData["types"] != null)
+                                {
+                                    foreach (var item in ViewData["types"] as List<SelfhelpOrderMgr.Model.T_CommonTypeTab>)
+                                    {
+                                        <option value="@item.FCode">@item.FName</option>
+                                    }
+                                }
+
                             </select>
                         </td>
                     </tr>

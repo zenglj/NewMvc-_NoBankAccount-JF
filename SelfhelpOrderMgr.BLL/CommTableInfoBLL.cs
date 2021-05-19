@@ -11,9 +11,14 @@ namespace SelfhelpOrderMgr.BLL
 {
     public partial class CommTableInfoBLL
     {
-        public DataTable GetDataTable(string sql,  params SqlParameter[] Paramters)
+        public DataTable GetDataTable(string sql)
         {
-            return new CommTableInfoDAL().GetDataTable(sql, Paramters);
+            return new CommTableInfoDAL().GetDataTable(sql);
+        }
+
+        public DataTable GetDataTable(string sql,object p=null)
+        {
+            return new CommTableInfoDAL().GetDataTable(sql, p);            
         }
         /// <summary>
         /// 执行sql返回list
@@ -80,6 +85,29 @@ namespace SelfhelpOrderMgr.BLL
         {
             return new CommTableInfoDAL().ExecSql(Sql);
         }
-        
+
+        #region 通过方法的封装
+        /// <summary>
+        /// 判断用户是否有犯人的管理权限
+        /// </summary>
+        /// <param name="fcode"></param>
+        /// <param name="loginUserCode"></param>
+        /// <returns></returns>
+        public bool CheckUserManagerrPower(string fcode, string loginUserCode)
+        {
+            //验证是否具有管辖权
+            string strsql = "";
+            strsql = "select b.fcode,b.fname,isnull(b.fflag,0) as fflag from t_czy_area a,T_CRIMINAL b where a.fareacode=b.FAreaCode and b.FCode=@fcrimecode and a.fcode = @loginCode";
+            DataTable dtUser = this.GetDataTable(strsql, new { fcrimecode = fcode, loginCode = loginUserCode });
+            if (dtUser.Rows.Count <= 0)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        } 
+        #endregion
     }
 }

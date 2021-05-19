@@ -122,7 +122,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
             if (idOperationType == "1")
             {
                 //14 亲属存款,3 零花钱发放,4 奖金发放,1 会见存款，0 存款（各类）            
-                strWhere = strWhere + " and DAmount<>0 and TypeFlag in(0,1,3,4)";
+                strWhere = strWhere + " and DAmount<>0 and Flag in(0,-2) and TypeFlag in(0,1,3,4)";
             }
             else if (idOperationType == "2")
             {
@@ -132,7 +132,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
             else
             {
                 //14 亲属存款,3 零花钱发放,4 奖金发放,1 会见存款，0 存款（各类）            
-                strWhere = strWhere + " and DAmount<>0 and TypeFlag in(0,1,3,4)";
+                strWhere = strWhere + " and DAmount<>0 and Flag in(0,-2) and TypeFlag in(0,1,3,4)";
             }
 
             listRows = new T_VcrdBLL().GetListCount(strWhere.ToString())[0];
@@ -175,7 +175,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
             if (idOperationType == "1")
             {
                 //14 亲属存款,3 零花钱发放,4 奖金发放,1 会见存款，0 存款（各类）            
-                strWhere = strWhere + " and DAmount<>0 and TypeFlag in(0,1,3,4)";
+                strWhere = strWhere + " and DAmount<>0 and Flag in(0,-2) and TypeFlag in(0,1,3,4)";
             }
             else if (idOperationType=="2")
             {
@@ -185,7 +185,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
             else
             {
                 //14 亲属存款,3 零花钱发放,4 奖金发放,1 会见存款，0 存款（各类）            
-                strWhere = strWhere + " and DAmount<>0 and TypeFlag in(0,1,3,4)";
+                strWhere = strWhere + " and DAmount<>0 and Flag in(0,-2) and TypeFlag in(0,1,3,4)";
             }
              
             decimal[] schMoneies= new T_VcrdBLL().GetListCount(strWhere.ToString());
@@ -222,7 +222,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
         //生成Vcrd查询条件
         private static string GetSearchWhere(string LoginCode, ref string startTime, ref string endTime, string areaName, string FName, string FCode, string CrtBy, string CriminalFlag, string CashTypes, string PayTypes, string AccTypes, string BankFlags)
         {
-            string strWhere = "Flag=0 ";
+            string strWhere = "Flag in(0,-2) ";
             if (string.IsNullOrEmpty(startTime) == false)
             {
                 DateTime sdt = Convert.ToDateTime(startTime);
@@ -307,11 +307,12 @@ namespace SelfhelpOrderMgr.Web.Controllers
         {
             string strWhere = SetRequestSearchWhere(Session["loginUserCode"].ToString());
 
-            
+            //获取ManagerSet表里设定的VcrdFlag个管理值
+            int ivcrdFlag = GetVcrdFlagForSysManagerset();
             //14 亲属存款,3 零花钱发放,4 奖金发放,1 会见存款，0 存款（各类）
             if (idOperationType == 1)
             {
-                strWhere = strWhere + " and DAmount<>0 and TypeFlag in(0,1,3,4)";
+                strWhere = strWhere + " and DAmount<>0 and Flag in(0,-2) and TypeFlag in(0,1,3,4)";
             }
             else if (idOperationType == 2)
             {
@@ -329,16 +330,56 @@ namespace SelfhelpOrderMgr.Web.Controllers
             {
                 if (AuditMode == "all")
                 {
-                    i = new CommTableInfoBLL().ExecSql("Update T_Vcrd set CheckFlag=1,checkdate=getdate(),checkby='" + Session["loginUserName"].ToString() + "' where DAmount>0 and checkflag=0 and " + strWhere);
+                    string sql = "";
+                    if (ivcrdFlag == -2)
+                    {
+                        sql = @"update t_criminal_card set AmountA=a.AmountA+b.A,AmountB=a.AmountB+b.B,AmountC=a.AmountC+b.C
+                        from t_criminal_card a,(
+                        select fcrimecode, sum(case acctype when 0 then DAMOUNT else 0 end) A
+                        ,sum(case acctype when 1 then DAMOUNT else 0 end) B
+                        ,sum(case acctype when 2 then DAMOUNT else 0 end) C
+                        from  T_Vcrd where " + strWhere + @" and DAmount>0 and checkflag=0 and flag = -2  group by fcrimecode) b
+                             where a.fcrimecode = b.fcrimecode; ";
+                    }
+                    
+
+                     sql = sql+ "Update T_Vcrd set CheckFlag=1,flag=0,checkdate=getdate(),checkby='" + Session["loginUserName"].ToString() + "' where DAmount>0 and checkflag=0 and " + strWhere;
+
+
+                    //i = new CommTableInfoBLL().ExecSql("Update T_Vcrd set CheckFlag=1,checkdate=getdate(),checkby='" + Session["loginUserName"].ToString() + "' where DAmount>0 and checkflag=0 and " + strWhere);
+                    i = new CommTableInfoBLL().ExecSql(sql);
+
                 }
                 else
                 {
-                    i = new CommTableInfoBLL().ExecSql("Update T_Vcrd set CheckFlag=1,checkdate=getdate(),checkby='" + Session["loginUserName"].ToString() + "' where DAmount>0 and checkflag=0 and seqno in(" + AuditMode + ")");
+                    string sql = "";
+                    if (ivcrdFlag == -2)
+                    {
+                        sql = @"update t_criminal_card set AmountA=a.AmountA+b.A,AmountB=a.AmountB+b.B,AmountC=a.AmountC+b.C
+                        from t_criminal_card a,(
+                        select fcrimecode, sum(case acctype when 0 then DAMOUNT else 0 end) A
+                        ,sum(case acctype when 1 then DAMOUNT else 0 end) B
+                        ,sum(case acctype when 2 then DAMOUNT else 0 end) C
+                        from  T_Vcrd where DAmount>0 and checkflag=0 and flag = -2 and seqno in(" + AuditMode + @") group by fcrimecode) b
+                             where a.fcrimecode = b.fcrimecode; ";
+                    }
+                    sql = sql + "Update T_Vcrd set CheckFlag = 1,flag=0, checkdate = getdate(), checkby = '" + Session["loginUserName"].ToString() + "' where DAmount> 0 and checkflag = 0 and seqno in(" + AuditMode + ")";
+
+                    //i = new CommTableInfoBLL().ExecSql("Update T_Vcrd set CheckFlag=1,checkdate=getdate(),checkby='" + Session["loginUserName"].ToString() + "' where DAmount>0 and checkflag=0 and seqno in(" + AuditMode + ")");
+                    i = new CommTableInfoBLL().ExecSql(sql);
 
                 }
                 if (i > 0)
                 {
-                    return Content("OK|成功审核" + i.ToString() + "条记录，请刷新！");
+                    if (ivcrdFlag == -2)
+                    {
+                        return Content("OK|成功审核，请刷新！");
+                    }
+                    else
+                    {
+                        return Content("OK|成功审核" + i.ToString() + "条记录，请刷新！");
+                    }
+                        
                 }
                 else
                 {
@@ -375,12 +416,14 @@ namespace SelfhelpOrderMgr.Web.Controllers
         {
             string strWhere = SetRequestSearchWhere(Session["loginUserCode"].ToString());
 
+            //获取ManagerSet表里设定的VcrdFlag个管理值
+            int ivcrdFlag = GetVcrdFlagForSysManagerset();
 
             //14 亲属存款,3 零花钱发放,4 奖金发放,1 会见存款，0 存款（各类）
             //strWhere = strWhere + " and DAmount<>0 and TypeFlag in(0,1,3,4)";
             if (idOperationType == 1)
             {
-                strWhere = strWhere + " and DAmount<>0 and TypeFlag in(0,1,3,4)";
+                strWhere = strWhere + " and DAmount<>0 and Flag in(0,-2) and TypeFlag in(0,1,3,4)";
             }
             else if (idOperationType == 2)
             {
@@ -397,16 +440,54 @@ namespace SelfhelpOrderMgr.Web.Controllers
             {
                 if (AuditMode == "all")
                 {
-                    i = new CommTableInfoBLL().ExecSql("Update T_Vcrd set CheckFlag=0 where " + strWhere + " and DAmount>0 and Checkflag=1 and isnull(BankFlag,0)=0");
+                    string sql = "";
+                    if (ivcrdFlag == -2)
+                    {
+                        sql = @"update t_criminal_card set AmountA=a.AmountA-b.A,AmountB=a.AmountB-b.B,AmountC=a.AmountC-b.C
+                            from t_criminal_card a,(
+                            select fcrimecode, sum(case acctype when 0 then DAMOUNT else 0 end) A
+                            ,sum(case acctype when 1 then DAMOUNT else 0 end) B
+                            ,sum(case acctype when 2 then DAMOUNT else 0 end) C
+                            from  T_Vcrd where " + strWhere + @" and DAmount <> 0 and checkflag = 1 and flag = 0 group by fcrimecode) b
+                                 where a.fcrimecode = b.fcrimecode;";
+                    }
+
+                    sql = sql + "Update T_Vcrd set CheckFlag=0,Flag=" + ivcrdFlag.ToString() + " where " + strWhere + " and DAmount>0 and Checkflag=1 and isnull(BankFlag,0)=0";
+
+                    //i = new CommTableInfoBLL().ExecSql("Update T_Vcrd set CheckFlag=0 where " + strWhere + " and DAmount>0 and Checkflag=1 and isnull(BankFlag,0)=0");
+                    i = new CommTableInfoBLL().ExecSql(sql);
+
                 }
                 else
                 {
-                    i = new CommTableInfoBLL().ExecSql("Update T_Vcrd set CheckFlag=0 where seqno in(" + AuditMode + ")  and DAmount>0 and Checkflag=1 and isnull(BankFlag,0)=0");
+                    string sql = "";
+                    if (ivcrdFlag == -2)
+                    {
+                        sql = @"update t_criminal_card set AmountA=a.AmountA-b.A,AmountB=a.AmountB-b.B,AmountC=a.AmountC-b.C
+                            from t_criminal_card a,(
+                            select fcrimecode, sum(case acctype when 0 then DAMOUNT else 0 end) A
+                            ,sum(case acctype when 1 then DAMOUNT else 0 end) B
+                            ,sum(case acctype when 2 then DAMOUNT else 0 end) C
+                            from  T_Vcrd where seqno in(" + AuditMode + @") and DAmount <> 0 and checkflag = 1 and flag = 0 group by fcrimecode) b
+                                 where a.fcrimecode = b.fcrimecode;";
+                    }
+                    sql = sql + "Update T_Vcrd set CheckFlag=0,Flag=" + ivcrdFlag.ToString() + " where seqno in(" + AuditMode + ")  and DAmount>0 and Checkflag=1 and isnull(BankFlag,0)=0";
+
+                    //i = new CommTableInfoBLL().ExecSql("Update T_Vcrd set CheckFlag=0 where seqno in(" + AuditMode + ")  and DAmount>0 and Checkflag=1 and isnull(BankFlag,0)=0");
+                    i = new CommTableInfoBLL().ExecSql(sql);
 
                 }
                 if (i > 0)
                 {
-                    return Content("OK|成功撤消" + i.ToString() + "条记录，请刷新！");
+                    if (ivcrdFlag == -2)
+                    {
+                        return Content("OK|成功撤消，请刷新！");
+                    }
+                    else
+                    {
+                        return Content("OK|成功撤消" + i.ToString() + "条记录，请刷新！");
+                    }
+
                 }
                 else
                 {
@@ -437,5 +518,24 @@ namespace SelfhelpOrderMgr.Web.Controllers
             return Content("Err|撤销审核失败，未知审核类型");
 
         }
-	}
+
+        /// <summary>
+        /// 获取ManagerSet表里设定的VcrdFlag个管理值
+        /// </summary>
+        /// <returns></returns>
+        private static int GetVcrdFlagForSysManagerset()
+        {
+            T_SHO_ManagerSet mset = new T_SHO_ManagerSetBLL().GetModel("DepositInVcrdFlag");
+            int ivcrdFlag = 0;
+            if (mset != null)
+            {
+                if (mset.MgrValue == "-2")
+                {
+                    ivcrdFlag = -2;
+                }
+            }
+
+            return ivcrdFlag;
+        }
+    }
 }

@@ -102,6 +102,7 @@ namespace SelfhelpOrderMgr.Web.Filters
 			string controllerName = context.ActionDescriptor.ControllerDescriptor.ControllerName;
 			string actionName = context.ActionDescriptor.ActionName;
 			string actionRemarName = "";
+			actionRemarName = "登录IP:"+ IpAddressHelper.GetHostAddress(); ;
 			MethodInfo[] methods = context.Controller.GetType().GetMethods();
 			for (int l = 0; l < methods.Length; l++)
 			{

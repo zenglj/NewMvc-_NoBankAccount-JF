@@ -181,6 +181,17 @@ function loadDetailTable() {
                         return '';
                     }
                 }
+            },
+            {
+                field: 'Opration', title: '操作', width: 100, sortable: true, formatter: function (value, row, index) {
+                    if (row.ImportFlag == 0) {
+                        return "<input type='button' value='设为公账' onclick='SetImportFlag(2," + row.Id + ")'/>"
+                    } else if (row.ImportFlag == 2){
+                        return "<input type='button' value='设为个人账' onclick='SetImportFlag(0," + row.Id + ")'/>";
+                    }else {
+                    return "";
+                }
+                }
             }
         ]],
         onSelect: function (rowIndex, rowData) {
@@ -189,6 +200,29 @@ function loadDetailTable() {
         pagination: true,
         rownumbers: true
     });
+}
+
+//设置对公对私
+function SetImportFlag(flag, id) {
+    
+    if (id !== '') {
+        $.post("/BankRcv/SetImportFlag", { "flag": flag, "id": id }, function (data, status) {
+            if ("success" == status) {
+                console.log(data);
+                if (data.fflag == true) {
+                    var idx = $('#test').datagrid('getRowIndex', id);
+                    $('#test').datagrid('updateRow', {
+                        index: idx,
+                        row: data.DataInfo
+                    });
+                    alert(data.ReMsg);
+                } else {
+                    alert(data.ReMsg);
+                }
+                
+            }
+        });
+    }
 }
 
 function SetAuditDiv(row) {
@@ -393,6 +427,18 @@ function btnExcelReportSave() {
     });
 }
 
+function btnExcelOutBankTransList() {
+    $.post("/BankRcv/ExcelOutBankTransList/", { "startTime": $("#SearchCreateDate_Start").datetimebox('getValue'), "endTime": $("#SearchCreateDate_End").datetimebox('getValue') }, function (data, status) {
+        if (status != "success") {
+            return false;
+        } else {
+            var words = data.split("|");
+            if (words[0] == "OK") {
+                window.open("/Upload/" + words[1]);
+            }
+        }
+    });
+}
 
 function btnExcelBankDtlSch() {
 

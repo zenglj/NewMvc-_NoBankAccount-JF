@@ -169,7 +169,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
         }
 
         //将Request参数传入GetSearchWhere函数，并生成查询条件
-        private string SetRequestSearchWhere(string LoginCode)
+        private string SetRequestSearchWhere(string LoginCode,int id=1)
         {
             string startTime = Request["startTime"];
             string endTime = Request["endTime"];
@@ -186,17 +186,18 @@ namespace SelfhelpOrderMgr.Web.Controllers
             string FRemark = Request["FRemark"];//备注
             string FFlags = Request["FFlags"];//记录的有效状态值
             string CheckFlag = Request["CheckFlag"]; //审核标志
+            string CardTypeFlag = Request["CardTypeFlag"];//烛光卡表示
             if (string.IsNullOrEmpty(FFlags)==true)
             {
                 FFlags = "0";
             }
 
-            string strWhere = GetSearchWhere(LoginCode, ref startTime, ref endTime, areaName, FName, FCode, CrtBy, CriminalFlag, CashTypes, PayTypes, AccTypes, BankFlags, FRemark, FFlags, CheckFlag);
+            string strWhere = GetSearchWhere(LoginCode, ref startTime, ref endTime, areaName, FName, FCode, CrtBy, CriminalFlag, CashTypes, PayTypes, AccTypes, BankFlags, FRemark, FFlags, CheckFlag, CardTypeFlag, id);
             return strWhere;
         }
 
         //生成Vcrd查询条件
-        private static string GetSearchWhere(string LoginCode, ref string startTime, ref string endTime, string areaName, string FName, string FCode, string CrtBy, string CriminalFlag, string CashTypes, string PayTypes, string AccTypes, string BankFlags, string FRemark, string FFlags,string CheckFlag)
+        private static string GetSearchWhere(string LoginCode, ref string startTime, ref string endTime, string areaName, string FName, string FCode, string CrtBy, string CriminalFlag, string CashTypes, string PayTypes, string AccTypes, string BankFlags, string FRemark, string FFlags,string CheckFlag,string CardTypeFlag, int id=1)
         {
             //string strWhere = "Flag=0 ";
             string strWhere = "Flag in("+ FFlags+") ";
@@ -213,7 +214,10 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
             if (string.IsNullOrEmpty(startTime) == false)
             {
-                strWhere = strWhere + " and  CrtDate>='" + startTime + "'";
+                if (id != 26)
+                {
+                    strWhere = strWhere + " and  CrtDate>='" + startTime + "'";
+                }                
             }
             if (string.IsNullOrEmpty(startTime) == false)
             {
@@ -285,6 +289,12 @@ namespace SelfhelpOrderMgr.Web.Controllers
             {
                 strWhere = strWhere + " and Remark like '%" + FRemark + "%' ";
             }
+            //烛光卡状态
+            if (!string.IsNullOrWhiteSpace(CardTypeFlag))
+            {
+                strWhere = strWhere + @" and fcrimecode in( select fcrimecode from t_Criminal_Card 
+                        where (case when isnull(Bankaccno,'')<>'' then 1 else 0 end )='"+CardTypeFlag+"')";
+            }
 
             //验证用户的队别,如果设定了Vcrd验证用户队别，则要查看是否有相应的队别权限下的犯人才可以查询到
             T_SHO_ManagerSet mset = new T_SHO_ManagerSetBLL().GetModel("VcrdCheckUserManagerAarea");
@@ -304,6 +314,9 @@ namespace SelfhelpOrderMgr.Web.Controllers
             string CashTypes = Request["CashTypes"];//存款类型
             string PayTypes = Request["PayTypes"];//取款类型
 
+            string startTime = Request["startTime"];
+            string endTime = Request["endTime"];
+
             string strWhere = SetRequestSearchWhere(Session["loginUserCode"].ToString());
 
             StringBuilder strSql;
@@ -319,12 +332,31 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
             ViewData["id"] = id;
             ViewData["title"] = title;
-            List<T_Vcrd> vcrds = new T_VcrdBLL().CustomerQuery(strSql.ToString());
+            
+            object param = null;
+            if (id == 26)
+            {
+                param = new { endTime = endTime };
+                title = title;
+            }
+            //ViewData["id"] = id;
+            //ViewData["title"] = title;
+            //List<T_Vcrd> vcrds = new T_VcrdBLL().CustomerQuery(strSql.ToString());
+            //ViewData["vcrds"] = vcrds;
+            List<T_Vcrd> vcrds;
+            if (param != null)
+            {
+                vcrds = new CommTableInfoBLL().GetList<T_Vcrd>(strSql.ToString(), param).ToList();
+            }
+            else
+            {
+                vcrds = new T_VcrdBLL().CustomerQuery(strSql.ToString());
+            }
+            
 
-            string startTime = Request["startTime"];
-            string endTime = Request["endTime"];
+            
 
-
+           
 
             //上期结存金额
 
@@ -364,7 +396,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
         {
             string strLoginName = new T_CZYBLL().GetModel(Session["loginUserCode"].ToString()).FName;
 
-            string strWhere = SetRequestSearchWhere(Session["loginUserCode"].ToString());
+            string strWhere = SetRequestSearchWhere(Session["loginUserCode"].ToString(),id);
             StringBuilder strSql;
             bool mul_lan = false;
             string title;
@@ -377,16 +409,31 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
             SetSumOrderWhereSql(1,id, strWhere, out strSql, out title, out result,out mul_lan);
 
+            object param = null;
             if (result != "")//Err|对不起,您传入错误的参数了
             {
                 return Content(result);
+            }
+            if (id == 26)
+            {
+                param = new { endTime = endTime };
+                title = title;
             }
             //ViewData["id"] = id;
             //ViewData["title"] = title;
             //List<T_Vcrd> vcrds = new T_VcrdBLL().CustomerQuery(strSql.ToString());
             //ViewData["vcrds"] = vcrds;
-
-            DataTable dt = new CommTableInfoBLL().GetDataTable(strSql.ToString());
+            DataTable dt ;
+            if (param != null)
+            {
+                dt = new CommTableInfoBLL().GetDataTable(strSql.ToString(),param);
+            }
+            else
+            {
+                dt = new CommTableInfoBLL().GetDataTable(strSql.ToString());
+            }
+            
+            
             string strFileName = new CommonClass().GB2312ToUTF8(strLoginName + "_SumOrder.xls");
             strFileName = Server.MapPath("~/Upload/" + strFileName); ;
             //ExcelRender.RenderToExcel(dt, context, strFileName);
@@ -449,6 +496,12 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         }
                         ExcelRender.RenderToExcel(dt, title, 5, strFileName, mul_lan, strCountTime);
                     } break;
+                case 26://单行模式
+                    {
+                        
+                        ExcelRender.RenderToExcel(dt, title, 4, strFileName, mul_lan, strCountTime);
+                    }
+                    break;
                 default:
                     {
                         ExcelRender.RenderToExcel(dt, title, strFileName, mul_lan);
@@ -487,14 +540,16 @@ namespace SelfhelpOrderMgr.Web.Controllers
                     {
                         if(intFlag==0)
                         {
-                            strSql.Append("select FCrimeCode,FCriminal,b.FAreaName,Sum(Damount) Damount,Sum(Camount) Camount from T_VCrd a,(Select FCode ,FAreaName=(select fname from t_area where fcode=e.FAreaCode) from T_Criminal e where isnull(FFlag,0)=0) b   ");
+                            strSql.Append("select FCrimeCode,FCriminal,b.FAreaName,Sum(Damount) Damount,Sum(Camount) Camount,b.Remark from T_VCrd a" +
+                                ",(Select FCode ,FAreaName=(select fname from t_area where fcode=e.FAreaCode),case when isnull(e.fflag,0)=1 then '离监' when isnull(e.fflag,0)=2 then '保外' else '在押' end as Remark from T_Criminal e ) b   ");
 
                         }else
                         {
-                            strSql.Append("select FCrimeCode 编号,FCriminal 姓名,b.FAreaName 队别,Sum(Damount) 收入,Sum(Camount) 支出,Sum(Damount-Camount) 余额 from T_VCrd a,(Select FCode ,FAreaName=(select fname from t_area where fcode=e.FAreaCode) from T_Criminal e where isnull(FFlag,0)=0) b  ");
+                            strSql.Append("select FCrimeCode 编号,FCriminal 姓名,b.FAreaName 队别,Sum(Damount) 收入,Sum(Camount) 支出,Sum(Damount-Camount) 余额,b.Remark 备注 from T_VCrd a" +
+                                ",(Select FCode ,FAreaName=(select fname from t_area where fcode=e.FAreaCode),case when isnull(e.fflag,0)=1 then '离监' when isnull(e.fflag,0)=2 then '保外' else '在押' end as Remark from T_Criminal e ) b  ");
                         }
                         strSql.Append(" Where a.fcrimecode=b.FCode and " + strWhere);
-                        strSql.Append(" group by FCrimeCode,FCriminal,b.FAreaName ");
+                        strSql.Append(" group by a.FCrimeCode,FCriminal,b.FAreaName,b.Remark ");
                         strSql.Append(" Order by b.FAreaName,FCriminal,FCrimeCode ;");
                         title = "用户个人汇总报表";
                     } break;
@@ -846,7 +901,42 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         title = "出监结算统计报表";
                         return;
                     }
+                case 26:
+                    {
+                        if (intFlag == 0)
+                        {
+                            strSql.Append(@"select a.fcrimecode,fcriminal,c.FName As FAreaName,case b.fflag when 1 then '离监' when 2 then '保外' else '在押' end as Frealareacode,sum(DAMOUNT-CAMOUNT) as DAmount
+                                    ,(case when isnull(e.BankAccNo,'')<>'' then '有' else '无' end) as Remark
+                                from (select * from t_vcrd where " + strWhere + @") a left outer join T_CRIMINAL b on a.fcrimecode=b.FCode
+                                left outer join T_AREA c on b.FAreaCode=c.FCode 
+                                left outer join (select fcrimecode,CONVERT(varchar(10), dateadd(day,1,CRTDATE),120) OutDate from t_vcrd where flag=0 and typeflag=5
+                                    group by fcrimecode,CONVERT(varchar(10), dateadd(day,1,CRTDATE),120)) d on a.fcrimecode=d.fcrimecode
+                                left outer join T_Criminal_Card e on a.fcrimecode=e.fcrimecode
+                                where a.fcrimecode=b.FCode and  a.flag=0 and a.CRTDATE<=@endTime  
+                                GROUP by a.fcrimecode,fcriminal,c.FName,b.fflag,OutDate
+                                    ,(case when isnull(e.BankAccNo,'')<>'' then '有' else '无' end)
+                                having sum(DAMOUNT-CAMOUNT)<>0 or isnull(d.OutDate,getdate())>@endTime or isnull(b.fflag,0)=0
+                                ");
+                        }
+                        else
+                        {
+                            strSql.Append(@"select a.fcrimecode as 编号, fcriminal as 姓名, c.FName As 队别,case b.fflag when 1 then '离监' when 2 then '保外' else '在押' end as 状态,sum(DAMOUNT - CAMOUNT) 金额
+                                    ,(case when isnull(e.BankAccNo, '') <> '' then '有' else '无' end) as 卡标志
+                                from(select * from t_vcrd where " + strWhere + @") a left outer join T_CRIMINAL b on a.fcrimecode = b.FCode
+                                left outer join T_AREA c on b.FAreaCode = c.FCode
+                                left outer join(select fcrimecode, CONVERT(varchar(10), dateadd(day, 1, CRTDATE), 120) OutDate from t_vcrd where flag = 0 and typeflag = 5
+                                    group by fcrimecode, CONVERT(varchar(10), dateadd(day, 1, CRTDATE), 120)) d on a.fcrimecode = d.fcrimecode
+                                left outer join T_Criminal_Card e on a.fcrimecode = e.fcrimecode
+                                where a.fcrimecode = b.FCode and a.flag = 0 and a.CRTDATE <= @endTime
+                                GROUP by a.fcrimecode,fcriminal,c.FName,b.fflag,OutDate
+                                    ,(case when isnull(e.BankAccNo, '') <> '' then '有' else '无' end)
+                                having sum(DAMOUNT-CAMOUNT)<> 0 or isnull(d.OutDate, getdate())> @endTime or isnull(b.fflag,0)=0
+                            ");
+                        }
+                        title = "个人账户实点余额统计表";
 
+                    }
+                    break;
                 default:
                     {
                         result = "Err|对不起,您传入错误的参数了";

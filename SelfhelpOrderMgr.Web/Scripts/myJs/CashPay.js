@@ -29,7 +29,15 @@
             }
         } 
     });
+    $('#detail').datagrid({
+        rowStyler: function (index, row) {
+            if (row.Flag == 0) {
 
+            } else if (row.Flag == "-2" ) {
+                return 'background-color:brown;';
+            }
+        }
+    });
 });
 
 
@@ -160,6 +168,17 @@ function loadDetailTable() {
             { field: 'DType', title: '类型', width: 100 },
             { field: 'DAmount', title: '存款金额', width: 100 },
             { field: 'CAmount', title: '取款金额', width: 100 },
+            {
+                field: 'Flag', title: '状态', width: 80, formatter: function (value, row, index) {
+                    if (row.Flag == "0") {
+                        return "正常";
+                    } else if (row.Flag == "-2") {
+                        return "未审核";
+                    } else {
+                        return "异常";
+                    }
+                }
+            },
             { field: 'CrtBy', title: '操作员', width: 100 },
             {
                 field: 'CrtDate', title: '创建日期', width: 100, formatter: function (value, row, index) {

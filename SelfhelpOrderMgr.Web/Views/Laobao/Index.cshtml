@@ -85,6 +85,22 @@
             <form id="ffMainOrder" method="post">
                 <table id="mainOrder">
                     <tr>
+                        <th align="right">存款类型：</th>
+                        <td align="left">
+                            <input type="hidden" id="sDtype" name="sDtype" /><!--Dtype存款类型-->
+                            <input type="hidden" id="sTypeFlag" name="sTypeFlag" /><!--TypeFlag-->
+                            <input type="hidden" id="sSubTypeFlag" name="sSubTypeFlag" /><!--主单的备注信息-->
+                            <select id="mainTypeName" name="mainTypeName" class="easyui-combobox" style="width: 135px;">
+                                <option value="4" selected="selected">劳动报酬</option>
+                                @if (ViewData["savetypes"] != null)
+                                {
+                                    foreach (SelfhelpOrderMgr.Model.T_Savetype type in ViewData["savetypes"] as List<SelfhelpOrderMgr.Model.T_Savetype>)
+                                    {
+                                        <option value="@type.fcode">@type.fname</option>
+                                    }
+                                }
+                            </select>
+                        </td>
                         <th align="right">队别：</th>
                         <td align="left">
                             <input type="hidden" id="sbid" /><!--主单的Bid-->
@@ -139,8 +155,8 @@
                         <a href="#" id="btnAudit" class="easyui-linkbutton" iconcls="icon-edit" plain="true" onclick="AuditMain()">审核|</a><label>|</label>
                         <a href="#" id="btnUndoSubmit" class="easyui-linkbutton" iconcls="icon-undo" plain="true" onclick="undoSubmitAction('undoSubmit')">退回中队</a>
 
-                        <a href="#" id="btnDbCheck" class="easyui-linkbutton" iconcls="icon-reload" plain="true" onclick="DbCheckMain()">财务复核</a><label>|</label>
-                        <a href="#" id="btnUndoAudit" class="easyui-linkbutton" iconcls="icon-undo" plain="true" onclick="undoSubmitAction('undoAudit')">退回审核</a><label>|</label>
+                        @*<a href="#" id="btnDbCheck" class="easyui-linkbutton" iconcls="icon-reload" plain="true" onclick="DbCheckMain()">财务复核</a><label>|</label>
+                        <a href="#" id="btnUndoAudit" class="easyui-linkbutton" iconcls="icon-undo" plain="true" onclick="undoSubmitAction('undoAudit')">退回审核</a><label>|</label>*@
                     }
                     else if (id == 3)
                     {
@@ -201,7 +217,17 @@
                 <a href="#" id="btnExcel" class="easyui-linkbutton" iconcls="icon-redo" plain="true" onclick="ExcelMain()">Excel导出</a><label>|</label>
 
                 <a href="#" id="ddts" title="This is the tooltip message." class="easyui-tooltip">状态提示</a>
-
+                | <label>目标审批人</label>
+                <select id="TargetUser" name="TargetUser" class="easyui-combobox">
+                    <option value="" selected="selected"  >请选择</option>
+                    @if (ViewData["czies"] != null)
+                    {
+                        foreach (var item in ViewData["czies"] as List<SelfhelpOrderMgr.Model.T_CZY> )
+                        {
+                            <option value="@item.FName">@item.FUserChinaName</option>
+                        }
+                    }
+                </select>
             </div>
         </div>
     </div>

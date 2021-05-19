@@ -109,7 +109,7 @@ function DX(n) {
 
         return "数据非法";
 
-    var unit = "千百拾亿千百拾万千百拾元角分", str = "";
+    var unit = "千百拾亿千百拾万仟佰拾元角分", str = "";
 
     n += "00";
 
