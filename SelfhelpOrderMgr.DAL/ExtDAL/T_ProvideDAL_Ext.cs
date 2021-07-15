@@ -390,16 +390,28 @@ namespace SelfhelpOrderMgr.DAL
                     strSql = new StringBuilder();
                     strSql.Append("update t_Provide set Flag=1,CheckBy=@CheckBy,CheckDt=@CheckDt ");
                     strSql.Append("where PId=@PId;");
+                    //if (intAcctype == 1)
+                    //{
+                    //    strSql.Append("update t_criminal_card set amountb=amountb+b.damount from ");                        
+                    //}
+                    //else
+                    //{
+                    //    strSql.Append("update t_criminal_card set amounta=amounta+b.damount from ");
+                    //}
+                    //strSql.Append("(select fcrimecode,damount from t_vcrd where Origid=@InvoiceNo and flag=0) b ");
+                    //strSql.Append("where t_criminal_card.fcrimecode=b.fcrimecode;");
+
+                    //分析可能出现更新账户余额变成负数的原因
                     if (intAcctype == 1)
                     {
-                        strSql.Append("update t_criminal_card set amountb=amountb+b.damount from ");                        
+                        strSql.Append("update t_criminal_card set amountb=amountb+isnull(b.damount,0) from t_criminal_card a");
                     }
                     else
                     {
-                        strSql.Append("update t_criminal_card set amounta=amounta+b.damount from ");
+                        strSql.Append("update t_criminal_card set amounta=amounta+isnull(b.damount,0) from t_criminal_card a");
                     }
-                    strSql.Append("(select fcrimecode,damount from t_vcrd where Origid=@InvoiceNo and flag=0) b ");
-                    strSql.Append("where t_criminal_card.fcrimecode=b.fcrimecode;");
+                    strSql.Append("(select fcrimecode,damount from t_vcrd where Origid=@InvoiceNo and flag=0) b where a.fcrimecode=b.fcrimecode;");
+
                     object paramProvide;
                     //设定账户额
                     paramProvide = new { CheckBy = crtby, CheckDt = DateTime.Today, InvoiceNo = pid, PId = pid };
@@ -568,7 +580,8 @@ namespace SelfhelpOrderMgr.DAL
 
 
                     #region 增加SQL脚本
-                    strSql.Append(@"update t_Criminal_Card set amounta=a.amounta-b.amounta,amountb=a.amountb-b.amountb,amountc=a.amountc-b.amountc from  t_Criminal_card a,(
+                    //第一行增加了ISNULL函数
+                    strSql.Append(@"update t_Criminal_Card set amounta=a.amounta-isnull(b.amounta,0),amountb=a.amountb-isnull(b.amountb,0),amountc=a.amountc-isnull(b.amountc,0) from  t_Criminal_card a,(
                                 select fcrimecode,sum(case acctype when 0 then(damount-camount) else 0 end) amounta,sum(case acctype when 1 then(damount-camount) else 0 end) amountb,sum(case acctype when 2 then(damount-camount) else 0 end) amountc from t_Vcrd 
                                 where flag=0 and isnull(bankflag,0)<=0 and typeflag=3 and origid=@PId
                                 group by fcrimecode) b

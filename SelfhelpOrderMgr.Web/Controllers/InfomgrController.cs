@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SelfhelpOrderMgr.BLL;
+using SelfhelpOrderMgr.Common;
 using SelfhelpOrderMgr.Common.CustomExtend;
 using SelfhelpOrderMgr.Model;
 using SelfhelpOrderMgr.Web.Filters;
@@ -841,6 +842,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
             {
                 rs = new SettleService().RestoryInPrison(strFCode, (MoneyPayMode)payMode);               
                 ts.Complete();
+                Log4NetHelper.logger.Info("恢复离监人员为在押(将离监人员),操作员：" + Session["loginUserName"].ToString() + ",ID=" + criminal.FCode + ",用户名为：" + criminal.FName + "");
+
             }
             return Json(rs);
         }

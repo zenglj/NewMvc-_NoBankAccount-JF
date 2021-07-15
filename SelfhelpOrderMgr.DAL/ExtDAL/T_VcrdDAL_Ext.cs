@@ -248,7 +248,7 @@ namespace SelfhelpOrderMgr.DAL
                                             fmoneyC = fmoney;
                                         }
                                     } break;
-                                default://先A，再A，最后C
+                                default://先A，再B，最后C
                                     {
                                         if (card.AmountA + card.AmountB < fmoney)//A+B钱不够扣
                                         {//分别从三个账户扣款
@@ -360,9 +360,10 @@ namespace SelfhelpOrderMgr.DAL
                             savetype.AccType = 0;
                         }
 
-                        if (ivcrdflag == -2)//如果需要审核后才可以入账的话，变动金额就全部置为0
+                        if (ivcrdflag == -2 && flag==1)//如果需要审核后才可以入账的话，变动金额就全部置为0
                         {
                             paramVcrd = new { fmoneyA = 0, fmoneyB = 0, fmoneyC = 0, fcrimecode = criminal.FCode };
+                            
                         }
                         else
                         {
@@ -537,15 +538,15 @@ namespace SelfhelpOrderMgr.DAL
             strSql.Append("update t_vcrd set flag=1,Remark=Remark+',该记录被删除了',DelBy=@DelBy,DelDate=getdate() where flag in(0,-2) and FCrimeCode=@FCrimeCode and seqno=@seqno;");
             if (vcrd.Flag == 0)
             {
-                if (vcrd.AccType == 0)
+                if (vcrd.AccType == 0 && vcrd.Flag==0)
                 {
                     strSql.Append("update t_Criminal_card set AMountA=AMountA-@ChangeMoney where FCrimeCode=@FCrimeCode;");
                 }
-                else if (vcrd.AccType == 1)
+                else if (vcrd.AccType == 1 && vcrd.Flag == 0)
                 {
                     strSql.Append("update t_Criminal_card set AMountB=AMountB-@ChangeMoney where FCrimeCode=@FCrimeCode;");
                 }
-                else if (vcrd.AccType == 2)
+                else if (vcrd.AccType == 2 && vcrd.Flag == 0)
                 {
                     strSql.Append("update t_Criminal_card set AMountC=AMountC-@ChangeMoney where FCrimeCode=@FCrimeCode;");
                 }
