@@ -561,7 +561,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         }
                         else
                         {
-                            strSql.Append("select Top 200000 Vouno 流水号,FCrimeCode 编号,FCriminal 姓名,Dtype 类型,DAmount 收入,CAmount 支出,FAreaName 队别,FAreaCode 队别号,CrtDate 日期,BankFlag 银行标志 from T_VCrd  ");
+                            strSql.Append("select Top 200000 Vouno 流水号,FCrimeCode 编号,FCriminal 姓名,Dtype 类型,DAmount 收入,CAmount 支出,FAreaName 队别,FAreaCode 队别号,CrtDate 日期,BankFlag 银行标志,Origid 消费流水单号 from T_VCrd  ");
                         }
                         strSql.Append(" Where " + strWhere);
                         strSql.Append(" Order by FCrimeCode,FCriminal,CrtDate ;");
@@ -590,7 +590,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         }
                         else
                         {
-                            strSql.Append("select Top 200000 Vouno 流水号,FCrimeCode 编号,FCriminal 姓名,Dtype 类型,DAmount 收入,CAmount 支出,FAreaName 队别,FAreaCode 队别号,CrtDate 日期,BankFlag 银行标志,Remark 备注 from T_VCrd  ");
+                            strSql.Append("select Top 200000 Vouno 流水号,FCrimeCode 编号,FCriminal 姓名,Dtype 类型,DAmount 收入,CAmount 支出,FAreaName 队别,FAreaCode 队别号,CrtDate 日期,BankFlag 银行标志,Origid 消费流水单号,Remark 备注 from T_VCrd  ");
                         }
                         strSql.Append(" Where " + strWhere);
                         strSql.Append(" Order by FAreaCode,FAreaName,FCriminal,CrtDate ;");
@@ -619,7 +619,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         }
                         else
                         {
-                            strSql.Append("select Top 200000 Vouno 流水号,FCrimeCode 编号,FCriminal 姓名,Dtype 类型,DAmount 收入,CAmount 支出,FAreaName 队别,FAreaCode 队别号,CrtDate 日期,BankFlag 银行标志,Remark 备注 from T_VCrd  ");
+                            strSql.Append("select Top 200000 Vouno 流水号,FCrimeCode 编号,FCriminal 姓名,Dtype 类型,DAmount 收入,CAmount 支出,FAreaName 队别,FAreaCode 队别号,CrtDate 日期,BankFlag 银行标志,Origid 消费流水单号,Remark 备注 from T_VCrd  ");
                         }
                         strSql.Append(" Where " + strWhere);
                         strSql.Append(" Order by TypeFlag,DType,FAreaCode,CrtDate ;");

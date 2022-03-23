@@ -756,6 +756,14 @@ namespace SelfhelpOrderMgr.Web.Controllers
             {
                 return Content("Error.该主单数据已经发送到银行付款，不能退账");
             }
+
+            List<T_BONUSDTL> dtls = new T_BONUSDTLBLL().GetModelList(" bid='" + strFBid + "' and fcrimecode in(select fcode from t_criminal where fflag=1)");
+            if (dtls.Count > 0)
+            {
+                return Content($"Error.有罪犯{dtls[0].fcriminal}等{dtls.Count}人已经离监了，不能退账");
+            }
+
+
             Log4NetHelper.logger.Info("劳动报酬退账,操作员：" + Session["loginUserName"].ToString() + ",主单号：ID=" + model.BID + ",金额：" + model.fAMOUNT.ToString() + "");
 
             if (new T_BONUSBLL().UndoMainOrder(strFBid))

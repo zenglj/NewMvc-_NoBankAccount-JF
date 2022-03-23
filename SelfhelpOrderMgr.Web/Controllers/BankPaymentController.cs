@@ -311,7 +311,40 @@ namespace SelfhelpOrderMgr.Web.Controllers
             return Content(rs);
 
         }
-        
+
+
+
+        #region 放弃领款
+
+        public ActionResult AbandonMoney(string strJsonWhere, string selectMulIds,string remark)
+        {
+            crtby = Request.Cookies["loginUserName"].Value;
+            //string crtby = "admin";
+            Int16 auditAction = 1;
+            string otherStrWhere = " isnull(AuditFlag,0)=0 and isnull(TranStatus,0)<1";
+            otherStrWhere += " and Id in(" + selectMulIds + ")";
+
+            var rs = _bllPay.GetPageList<T_Bank_PaymentRecord, T_Bank_PaymentRecord>("Id asc", strJsonWhere, 1, 10, otherStrWhere);
+
+            //string strMsg = "放弃领款";
+            if (rs.rows.Count != 1)
+            {
+                return Content($"Err|记录{rs.rows.Count}条，不能存在两条及以上的记录");
+            }
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append($"update T_Bank_PaymentRecord set AuditFlag=1,AuditDate='{DateTime.Now.ToString()}',AuditBy='{crtby}', TranStatus=5,BankResultInfo='用户主动放弃领款:{remark }' where Id={rs.rows[0].Id} ;");
+            strSql.Append($" delete T_Bank_PaymentDetail where MainId={rs.rows[0].Id} ;");
+            strSql.Append(@" update t_balanceList set PayMode=5 where seqno	in(
+                select top 1  seqno from t_balanceList where FCrimeCode = '" + rs.rows[0].FCrimeCode + @"' order by crtdate desc
+                ); ");
+            new CommTableInfoBLL().ExecSql(strSql.ToString());
+
+            return Content($"OK|设定放弃领款成功");
+        }
+
+        #endregion
+
+
         /// <summary>
         /// 密码此次归零
         /// </summary>

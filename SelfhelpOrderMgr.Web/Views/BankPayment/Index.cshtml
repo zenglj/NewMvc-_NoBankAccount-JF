@@ -186,7 +186,8 @@
                                 <div data-options="iconCls:'icon-redo'" onclick="auditMenuBtn('all')">全部审核</div>
                                 <div class="menu-sep"></div>
                                 <div onclick="unAuditMenuBtn('mul')">个别撤审</div>
-                                <div onclick="unAuditMenuBtn('all')">全部撤审</div>
+                                <div onclick="unAuditMenuBtn('all')">全部撤审</div>                                
+                                <div class="menu-sep"></div>
                                 <div onclick="pwdCountReset()">密码次数归零</div>
                                 <div onclick="btnExcelSave()">Excel导出</div>
                                 <div onclick="btnExcelSaveDetail()">Excel导出主单明细</div>
@@ -194,11 +195,19 @@
                             </div> |
                             记录Id:
                             <input type="text" value="" id="resetId" name="id" class="easyui-textbox" disabled="disabled" />
-                            复位重发原因:
+                            备注原因或单号:
                             <input type="text" value="" id="resetRemark" name="remark" class="easyui-textbox" />
-                            <a href="#" class="easyui-linkbutton" iconcls="icon-save" id="resetBtnSave" onclick="ResetCheckSend()">确认复位</a>
-                            <a href="#" class="easyui-linkbutton" iconcls="icon-help" id="refundBtnSave" onclick="ResetRefund()">退款更正复位</a>
+                            <a href="javascript:void(0)" id="mpSets" class="easyui-menubutton"
+                               data-options="menu:'#mpList',iconCls:'icon-redo'">复位方式</a>
+                            <div id="mpList" style="width:150px;">
+                                <div data-options="iconCls:'icon-save'" id="resetBtnSave" onclick="ResetCheckSend()">确认复位</div>
+                                <div data-options="iconCls:'icon-help'" id="refundBtnSave" onclick="ResetRefund()">退款更正复位</div>
+                                <div data-options="iconCls:'icon-redo'" onclick="abandonMoney()">放弃领款</div>
+                                @*<a href="#" class="easyui-linkbutton" iconcls="icon-save" id="resetBtnSave" onclick="ResetCheckSend()">确认复位</a>
+        <a href="#" class="easyui-linkbutton" iconcls="icon-help" id="refundBtnSave" onclick="ResetRefund()">退款更正复位</a>*@
+                            </div>
                             
+
                         </div>
                     </div>
                 </div>
@@ -210,7 +219,7 @@
 
             
 
-            <div data-options="region:'east',title:'查询条件',split:true" style="width:300px;">
+            <div data-options="region:'east',title:'查询条件',split:true" style="width:300px;" >
                 <div data-options="region:'north',title:'North Title',split:true" style="height:580px;">
                     <form method="post" id="formPaySearch">
                         <table>
@@ -291,6 +300,7 @@
                                         <option value="2">支付成功</option>
                                         <option value="3">银行转账失败</option>
                                         <option value="4">失败已复位重发</option>
+                                        <option value="5">放弃领款</option>
                                     </select>
                                 </td>
                             </tr>

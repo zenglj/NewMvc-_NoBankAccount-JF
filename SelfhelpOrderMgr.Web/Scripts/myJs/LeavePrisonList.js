@@ -273,6 +273,8 @@ function OutPrisonSettle() {
         NoBankCard_JieSuanMode('现金结算', 1);
     } else if (payMode == 2) {//转账支付
         NoBankCard_JieSuanMode('银行转账', 2)
+    } else if (payMode == 5) {//转账支付
+        NoBankCard_JieSuanMode('放弃领款', 5)
     }
 }
 

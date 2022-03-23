@@ -279,7 +279,26 @@ namespace SelfhelpOrderMgr.Web.Controllers
                     return Content("Err|你传入的扣款类型不存在，请核实");
                 }
 
-                //验证金额是否够扣
+                //增加判断留存账户是否可用的，默认是可用的，0是不可用，1是可用
+                T_SHO_ManagerSet fmset = new T_SHO_ManagerSetBLL().GetModel("LiucunJineKeyongBiaozhi");
+                if(fmset!=null && fmset.MgrValue == "0")
+                {
+                    if (card.AmountA + card.AmountB - (dongjeJinE) < Convert.ToDecimal(strFMoney))
+                    {
+                        if (savetypes[0].FuShuFlag == 0)//判断是否可以透支
+                        {
+                            //2020年改为：可以扣二个账户
+                            if (card.AmountA + card.AmountB > Convert.ToDecimal(strFMoney))
+                            {
+                                return Content("Err|账户余额不足,有冻结金额:" + dongjeJinE.ToString() + "，不可用");
+                            }
+                            return Content("Err|账户余额不足(不含留存)");
+                        }
+                    }
+                }
+                
+
+                    //验证金额是否够扣
                 if (card.AmountA + card.AmountB + card.AmountC - (dongjeJinE) < Convert.ToDecimal(strFMoney))
                 {
                     if (savetypes[0].FuShuFlag == 0)//判断是否可以透支

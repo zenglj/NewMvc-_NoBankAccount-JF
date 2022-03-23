@@ -698,6 +698,12 @@ namespace SelfhelpOrderMgr.Web.Controllers
                             rtnReustl = new T_TempLeavePrisonBLL().ExcuteStoredProc_NoBankCard(FCode, LoginUserName, payMode);
                             //转账支付
                         } break;
+                    case 5://放弃领款
+                        {
+                            rtnReustl = new T_TempLeavePrisonBLL().ExcuteStoredProcedure(FCode, LoginUserName);
+                            new CommTableInfoBLL().ExecSql($"update T_balancelist set PayMode=5 where fcrimecode='{FCode}'");
+                        }
+                        break;
                     case 3://只做挂失
                         {
                             rtnReustl = new T_TempLeavePrisonBLL().SetLossAndInsertBankProve(FCode);

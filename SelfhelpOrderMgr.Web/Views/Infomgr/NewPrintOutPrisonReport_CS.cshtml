@@ -39,6 +39,10 @@
                         {
                             strPayMode = "转账支付";
                         }
+                        else if (prove.PayMode == 5)
+                        {
+                            strPayMode = "放弃领款";
+                        }
                         if (string.IsNullOrWhiteSpace(prove.FIdenNo) == false)
                         {
                             strIdenNo = prove.FIdenNo;

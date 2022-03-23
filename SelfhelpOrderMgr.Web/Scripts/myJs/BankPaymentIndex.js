@@ -102,7 +102,9 @@ $(function () {
                 return 'background-color:red;';
             } else if (row.TranStatus == "4") {
                 return 'background-color:brown;';
-            }else if (row.AuditFlag == "1") {
+            } else if (row.TranStatus == "5") {
+                return 'background-color:coral;';
+            } else if (row.AuditFlag == "1") {
                 return 'background-color:green;';
             } 
 
@@ -378,6 +380,8 @@ function loadPayGrid() {
                         return "转账失败";
                     } else if (row.TranStatus == "4") {
                         return "失败已复位";
+                    } else if (row.TranStatus == "5") {
+                        return "放弃领款";
                     } else {
                         return "其他失败";
                     }
@@ -825,6 +829,41 @@ function auditMenuBtn(mode) {
 function unAuditMenuBtn(mode) {
     auditRequest(mode, 'tbPay', 'formPaySearch', '/BankPayment/UnAuditPayList');
 }
+
+
+//放弃领款
+function abandonMoney() {
+    var rows = $("#tbPay").datagrid('getSelections');
+    if (rows.length != 1) {
+        $.messager.alert('提示', "每次只能选择一条放弃领款的记录");
+        return false;
+    }
+    var remark = $("#resetRemark").textbox('getValue');
+    if (remark=="") {
+        $.messager.alert('提示', "请输入放弃原因备注");
+        return false;
+    }
+
+
+    $.messager.confirm('确认对话框', '您确认要放弃该记录吗？', function (r) {
+        if (r) {
+            //auditRequest("mul", 'tbPay', 'formPaySearch', '/BankPayment/AbandonMoney');
+            var selectIds = "";
+            selectIds = GetGridSelectIds('tbPay');
+            console.log(selectIds);
+            var strJson = GetSearchJson('formPaySearch');
+            $.post('/BankPayment/AbandonMoney', { "strJsonWhere": strJson, "selectMulIds": selectIds, "remark": remark}, function (data,status) {
+                if ("success" == status) {
+                    alert(data);
+                }
+            });
+            $("#tbPay").datagrid("unselectAll");
+            
+        }
+    });
+
+}
+
 
 //审核与撤销审核的请求提交
 function auditRequest(mode,gridId,formId,urlAddress) {

@@ -569,7 +569,7 @@ namespace SelfhelpOrderMgr.DAL
                         where t_bonus_Temp.FCrimeCode=B.fcode and t_bonus_Temp.FCriminal<>b.FName and t_bonus_Temp.Notes='' and t_bonus_Temp.Bid=@Bid;");
                     //更新 该用户已离监无法导入
                     strSql.Append(@"update t_bonus_Temp set Notes ='该用户已离监无法导入' from t_Criminal b
-                        where t_bonus_Temp.FCrimeCode=B.fcode and isnull(b.FFlag,0)=1 and t_bonus_Temp.Bid=@Bid;");
+                        where t_bonus_Temp.FCrimeCode=B.fcode and isnull(b.FFlag,0)=1  and t_bonus_Temp.Notes='' and t_bonus_Temp.Bid=@Bid;");
                     //该用户狱号不存在
                     strSql.Append(@"update t_bonus_Temp set Notes ='该用户狱号不存在' where FCrimeCode not in(
                         select distinct fcode from t_Criminal ) and Notes='' and t_bonus_Temp.Bid=@Bid;");
@@ -587,10 +587,12 @@ namespace SelfhelpOrderMgr.DAL
                     //更新 该用户本月已经发放了,只能发一次
                     if (reSaveFlag == 0)
                     {
-                        strSql.Append(@"update t_bonus_Temp set notes='该犯该月('+left(convert(varchar(20),c.udate,120),10)+')已经发放过了，不可以重复发放' from t_bonusdtl c,
-						(select b.udate,a.* from t_bonus_Temp a left join t_bonus b on a.bid=b.bid
+                        strSql.Append(@"update t_bonus_Temp set notes='该犯该月('+left(convert(varchar(20),c.udate,120),10)+')已经发放过了，不可以重复发放' from
+                        (select e.bid,e.DType,e.TypeFlag, f.udate,FCRIMECODE,f.fcriminal from T_BONUS e,T_BONUSDTL f where e.BID=f.BID) c,
+						(select b.udate,b.DType,a.* from t_bonus_Temp a left join t_bonus b on a.bid=b.bid
 						where a.bid=@bid) d
-						where t_bonus_Temp.bid=d.bid and t_bonus_Temp.fcrimecode=d.fcrimecode and c.udate=d.udate and c.fcrimecode=d.fcrimecode;");
+						where t_bonus_Temp.bid=d.bid and t_bonus_Temp.fcrimecode=d.fcrimecode and c.udate=d.udate and c.fcrimecode=d.fcrimecode
+						and c.DType=d.DType;");
                     }
 
                     if(mset.MgrValue=="1")

@@ -1238,7 +1238,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 }
                 catch { }
 
-                string FRemark = "";  //开始日期
+                string FRemark = "";  //备注
                 try
                 {
                     FRemark = Convert.ToString(row.GetCell(6).StringCellValue);

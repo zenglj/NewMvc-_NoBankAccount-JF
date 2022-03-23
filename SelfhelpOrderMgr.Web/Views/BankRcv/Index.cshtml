@@ -42,15 +42,23 @@
                 <form id="ffBankRecAudit">
                     <input type="hidden" id="addVchnum" name="vchnum" />
                     <label>编号:</label><input type="text" style="width:100px;" class="easyui-numberbox" id="addFCrimeCode" name="fcrimecode" />
-                    <label>姓名:</label><input type="text" style="width:150px;" class="easyui-textbox" id="addFCrimeName" name="fcrimename"  />
+                    <label>姓名:</label><input type="text" style="width:150px;" class="easyui-textbox" id="addFCrimeName" name="fcrimename" />
                     <label>审核备注:</label><input type="text" style="width:150px;" class="easyui-textbox" id="addFRemark" name="remark" />
                     <select id="forceCheckFlag" class="easyui-combobox" name="checkFlag" style="width:100px;">
                         <option value="1" selected="selected">标准入账</option>
                         <option value="2">强制入账</option>
                     </select>
-                    <a id="btn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-save'" onclick="btnAuditBankRec()">确认审核入账</a>
-                </form>
+                    @*<a id="btn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-save'" onclick="btnAuditBankRec()">确认审核入账</a>*@
 
+                    <a href="javascript:void(0)" id="mpSets" class="easyui-menubutton"
+                       data-options="menu:'#mpList',iconCls:'icon-redo'">审核方式</a>
+                    <div id="mpList" style="width:150px;">
+                        <div data-options="iconCls:'icon-save'" onclick="btnAuditBankRec()">确认审核入账</div>
+                        <div data-options="iconCls:'icon-redo'" onclick="btnReturnPersonalAccount()">网银对私退回</div>
+                    </div>
+
+                </form>
+                
             </div>
 
 
@@ -119,9 +127,10 @@
                         <th align="right">导入标志：</th>
                         <td align="left">
                             <select id="SearchImportFlag" name="ImportFlag" class="easyui-combobox" style="width:190px">
-                                <option value="1">是</option>
+                                <option value="1">已入账</option>
                                 <option value="0">否</option>
                                 <option value="2">公账</option>
+                                <option value="3">已退回</option>
                             </select>
                         </td>
                     </tr>

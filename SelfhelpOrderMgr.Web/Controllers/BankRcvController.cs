@@ -344,6 +344,12 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 rs.ReMsg = "Err|该记录已经入账成功了，不能重复入账";
                 return Content(jss.Serialize(rs));
             }
+            if (!(rcv.ImportFlag ==null || rcv.ImportFlag==0))
+            {
+                rs.Flag = false;
+                rs.ReMsg = "Err|记录的状态不是【否】，不能入账";
+                return Content(jss.Serialize(rs));
+            }
             string strForceText = "";
             if (checkFlag==1)
             {
@@ -381,6 +387,77 @@ namespace SelfhelpOrderMgr.Web.Controllers
             return Content(jss.Serialize(rs));
             //return Content(jss.Serialize(rs));
         }
+
+
+        public ActionResult SetListForReturnPersonalAccount(string fcrimecode, string fcrimename, string remark, string vchnum, int checkFlag = 1)
+        {
+            ResultInfo rs = new ResultInfo()
+            {
+                Flag = false,
+                ReMsg = "失败",
+                DataInfo = null
+            };
+
+            T_Criminal criminal = new T_CriminalBLL().GetModel(fcrimecode);
+            if (criminal == null)
+            {
+                rs.Flag = false;
+                rs.ReMsg = "犯人编号不存在";
+                return Content(jss.Serialize(rs));
+            }
+
+            if (criminal.FName != fcrimename)
+            {
+                rs.Flag = false;
+                rs.ReMsg = "犯人编号与姓名不一致";
+                return Content(jss.Serialize(rs));
+            }
+            if (criminal.fflag != 1)
+            {
+                rs.Flag = false;
+                rs.ReMsg = "犯人还在押,不能办理退回";
+                return Content(jss.Serialize(rs));
+            }
+            //var search = new { OrigId = vchnum };
+
+            T_Vcrd _vcrd = new T_VcrdBLL().GetModelList($"OrigId='{vchnum}'").FirstOrDefault();
+            if (_vcrd != null)
+            {
+                rs.Flag = false;
+                rs.ReMsg = "已经入账到个人中银结算卡账户了，不能退款";
+                return Content(jss.Serialize(rs));
+            }
+
+            var _sch = new { VchNum = vchnum };
+            T_Bank_Rcv rcv = new BaseDapperBLL().GetModelFirst<T_Bank_Rcv, T_Bank_Rcv>(jss.Serialize(_sch));
+            if (!(rcv.ImportFlag == null || rcv.ImportFlag == 0  || rcv.ImportFlag == 2))
+            {
+                rs.Flag = false;
+                rs.ReMsg = "记录状态不对，不能退款";
+                return Content(jss.Serialize(rs));
+            }
+            string _desc = Session["loginUserName"].ToString() + "_" + $"说明：{remark},编号：{fcrimecode}，姓名:{fcrimename}";
+            rcv.Remark = _desc;
+            rcv.ImportFlag = 3;//3表示网银退回个人
+             
+
+            if (new T_Bank_DepositListBLL().Update(rcv))
+            {
+                rs.Flag = true;
+                rs.ReMsg = "设置成功";
+            }
+            else
+            {
+                rs.Flag = false;
+                rs.ReMsg = "设置失败";
+            }
+            
+            rs.DataInfo = new T_Bank_DepositListBLL().GetModelFirst<T_Bank_Rcv, T_Bank_Rcv_Search>(jss.Serialize(_sch)); ;
+
+            return Content(jss.Serialize(rs));
+            //return Content(jss.Serialize(rs));
+        }
+
 
 
         public ActionResult PrintSumList(string strJsonWhere)

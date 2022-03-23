@@ -59,12 +59,12 @@
                 <a id="btnSave" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-print',plain:true" onclick="PrintLossReport()">挂失结算证明</a><label>|</label>
                 <a id="btnSave" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-save',plain:true" onclick="ExcelExport()">Excel清单</a><label>|</label>
                 <a id="btnUndo" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-reload',plain:true" onclick="RecoveryInPrison()">恢复在押</a> <label>|</label>
-                <a id="btnUndo" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-lock',plain:true" onclick="QuerenXianjinLingqu()">确认已领现金</a> <label>|</label>
                 <select id="ccPayMode" class="easyui-combobox" name="PayMode" style="width:200px;">
                     <option value="">请选择结算方式</option>
                     <option value="0">(网点/现金)取款</option>
                     <option value="1">ATM机取款</option>
-                    <option value=" 2">转账支付</option>
+                    <option value="2">转账支付</option>
+                    <option value="5">放弃领款</option>
                 </select>
                 <a id="btnUndo" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-save'" onclick="OutPrisonSettle()">出监结算</a> <label>|</label>
             </div>

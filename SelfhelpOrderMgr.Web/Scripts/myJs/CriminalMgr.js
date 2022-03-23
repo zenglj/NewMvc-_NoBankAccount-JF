@@ -95,7 +95,7 @@ function loadDetailTable() {
         remoteSort: false,
         idField: 'FCode',
         pageSize: 10,
-        pageList: [5, 10, 20, 50, 100],
+        pageList: [5, 10, 20, 50, 100,1000,5000],
         frozenColumns: [[//DataGrid表格排序列
             { field: 'ck', checkbox: true },
             { title: '编号', field: 'FCode', width: 80, sortable: true },

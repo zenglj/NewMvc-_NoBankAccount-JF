@@ -151,8 +151,12 @@ function loadDetailTable() {
                 field: 'ImportFlag', title: '导入标志', width: 100, sortable: true, formatter: function (value, row, index) {
                     if (row.ImportFlag != null) {
                         if (row.ImportFlag == 1) {
-                            return '是';
-                        } else {
+                            return '已入账';
+                        } if (row.ImportFlag == 3) {
+                            return '已退回';
+                        } if (row.ImportFlag == 2) {
+                            return '公账';
+                        }else {
                             return '否';
                         }
                     } else {
@@ -274,6 +278,51 @@ function btnAuditBankRec() {
     });
     // submit the form    
     $('#ffBankRecAudit').submit();  
+}
+
+
+//网银退回个人账户
+function btnReturnPersonalAccount() {
+    if ($('#addFCrimeCode').val() == "") {
+        $.message.alert("罪犯编号不能为空");
+        return false;
+    }
+    if ($('#addFCrimeName').val() == "") {
+        $.message.alert("罪犯姓名不能为空");
+        return false;
+    }
+    if ($('#addFRemark').val() == "") {
+        $.message.alert("备注信息不能为空");
+        return false;
+    }
+    $('#ffBankRecAudit').form({
+        url: "/BankRcv/SetListForReturnPersonalAccount",//设置为退回个人账户
+        onSubmit: function () {
+            // do some check    
+            // return false to prevent submit;    
+        },
+        success: function (data) {
+            var rs = $.parseJSON(data);
+
+            if (rs.Flag == true) {
+                var mainRow = $('#test').datagrid('getSelected');
+                var idx = $('#test').datagrid('getRowIndex', mainRow);
+                var bouns = rs.DataInfo;
+                $('#test').datagrid('updateRow', {
+                    index: idx,
+                    row: {
+                        FCrimeCode: bouns.FCrimeCode,
+                        FName: bouns.FName,
+                        ImportFlag: bouns.ImportFlag
+                    }
+                });
+            }
+
+            alert(rs.ReMsg)
+        }
+    });
+    // submit the form    
+    $('#ffBankRecAudit').submit();
 }
 
 function btnSearch() {

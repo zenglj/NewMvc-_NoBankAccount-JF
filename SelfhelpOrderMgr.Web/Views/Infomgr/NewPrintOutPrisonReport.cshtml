@@ -39,6 +39,10 @@
                         {
                             strPayMode = "转账支付";
                         }
+                        else if (prove.PayMode == 5)
+                        {
+                            strPayMode = "放弃领款";
+                        }
                         if (string.IsNullOrWhiteSpace(prove.FIdenNo) == false)
                         {
                             strIdenNo = prove.FIdenNo;
@@ -47,38 +51,37 @@
                         {
                             strUnitName = prove.UnitName;
                         }
-                    <div>
-                        <h3 class="text-center">罪犯离监账上余额领取申请报告</h3>
-                        
+                        <div>
+                            <h3 class="text-center">罪犯离监账上余额领取申请报告</h3>
 
-                        <h3 class="text-left"><span>@strUnitName</span>财务科:</h3>
+                            <h3 class="text-left"><span>@strUnitName</span>财务科:</h3>
 
-                        <p>
-                            <strong>　　</strong>本人<u> <strong>@prove.fname</strong> </u>是<u> <strong>@prove.fareaName</strong> </u>罪犯，
-                            身份证号：<u> <strong>@strIdenNo</strong>  </u>
-                            ,狱证编号：<u> <strong>@prove.fcode</strong>  </u>
-                            ,结算卡账号：<u> <strong>@prove.BankCode</strong>  </u>,将于_____年_____月_____日刑满释放，特申请将本人离监结算后的账上余额<strong><span id="jsMoney3"></span> (¥: @prove.CardMoney)</strong>
-                            @if (prove.PayMode == 2)
-                            {
-                                <span>转至亲属账户：收款人姓名：</span><u> <strong>@prove.BankUserName</strong> </u> <span>(与本人系</span><u> <strong> @prove.OutBankRemark </strong>  </u><span>),开户行名称：</span><u> <strong>@prove.OpeningBank</strong>  </u>
-                                <span>,银行账号：</span><u> <strong>@prove.OutBankCard</strong>  。</u>
-                            }
-                            else if (prove.PayMode == 1)
-                            {
+                            <p>
+                                <strong>　　</strong>本人<u> <strong>@prove.fname</strong> </u>是<u> <strong>@prove.fareaName</strong> </u>罪犯，
+                                身份证号：<u> <strong>@strIdenNo</strong>  </u>
+                                ,狱证编号：<u> <strong>@prove.fcode</strong>  </u>
+                                ,结算卡账号：<u> <strong>@prove.BankCode</strong>  </u>,将于_____年_____月_____日刑满释放，特申请将本人离监结算后的账上余额<strong><span id="jsMoney3"></span> (¥: @prove.CardMoney)</strong>
+                                @if (prove.PayMode == 2)
+                                {
+                                    <span>转至亲属账户：收款人姓名：</span><u> <strong>@prove.BankUserName</strong> </u> <span>(与本人系</span><u> <strong> @prove.OutBankRemark </strong>  </u><span>),开户行名称：</span><u> <strong>@prove.OpeningBank</strong>  </u>
+                                    <span>,银行账号：</span><u> <strong>@prove.OutBankCard</strong>  。</u>
+                                }
+                                else if (prove.PayMode == 1)
+                                {
+                                    <span>,将通过<strong><u>@strPayMode</u></strong>方式支取全部金额。</span>
+                                }
+                                else
+                                {
                                 <span>,将通过<strong><u>@strPayMode</u></strong>方式支取全部金额。</span>
-                            }
-                            else
-                            {
-                                <span>,将通过<strong><u>@strPayMode</u></strong>方式支取全部金额。</span>
-                            }
-                        </p>
-                        <p>　　<strong>本人对以上信息的准确性负责，如因此产生的一切经济法律责任，由本人自行承担。</strong></p>
+                                }
+                            </p>
+                            <p>　　<strong>本人对以上信息的准确性负责，如因此产生的一切经济法律责任，由本人自行承担。</strong></p>
 
-                        <br />
-                        <h5 style="text-align:right">申请人(签字按手印):　　　　　　　　　　　</h5>
-                        <h5 style="text-align:right">　　　年　　月　　日　　　</h5>
+                            <br />
+                            <h5 style="text-align:right">申请人(签字按手印):　　　　　　　　　　　</h5>
+                            <h5 style="text-align:right">　　　年　　月　　日　　　</h5>
 
-                    </div>
+                        </div>
                         <br />
                         <hr />
                         <br />
@@ -90,7 +93,7 @@
 
                                 <tr style="height:20px;">
                                     <td style="width:600px;">审批栏:</td>
-                                    <td style="width:600px;text-align:right;">_____年_____月_____日(第 @prove.PrintCount 次打印) </td>
+                                    <td style="width:600px;text-align:right;">_____年_____月_____日 </td>
                                 </tr>
                             </table>
                             <table class="table table-bordered">
