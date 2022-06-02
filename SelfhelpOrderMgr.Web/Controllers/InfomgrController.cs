@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Rotativa.MVC;
 using SelfhelpOrderMgr.BLL;
 using SelfhelpOrderMgr.Common;
 using SelfhelpOrderMgr.Common.CustomExtend;
@@ -228,7 +229,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 ViewData["days"] = days.ToString()+"天";
             }
             
-            return View();
+            //return View();
+            return new PartialViewAsPdf();
         }
 
         public int Fun(DateTime endDate,DateTime datetime )
@@ -1254,6 +1256,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
             }
             
             return View();
+            
         }
 
 
@@ -1315,7 +1318,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
             }
 
             new t_balanceListBLL().Update(bal);//更新打印数量
-            return View();
+            //return View();
+            return new PartialViewAsPdf();
         }
 
 

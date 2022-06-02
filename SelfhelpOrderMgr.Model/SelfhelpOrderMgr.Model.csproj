@@ -250,7 +250,12 @@
     <Compile Include="WebServModel\VcrdEntity.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="App_Browsers\qt.browser" />
+    <None Include="packages.config" />
     <None Include="Properties\PublishProfiles\selfOrderManager.pubxml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Rotativa\wkhtmltopdf.exe" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

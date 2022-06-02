@@ -1,4 +1,5 @@
-﻿using SelfhelpOrderMgr.BLL;
+﻿using Rotativa.MVC;
+using SelfhelpOrderMgr.BLL;
 using SelfhelpOrderMgr.Model;
 using System;
 using System.Collections.Generic;
@@ -388,7 +389,9 @@ namespace SelfhelpOrderMgr.Web.Controllers
             ViewData["crtby"] = crtby;
 
             ViewData["Dtype"] = CashTypes + "," + PayTypes;
-            return View();
+            //return View();
+            //var model = new TestViewModel { DocTitle = id, DocContent = "This is a test with a partial view" };
+            return new PartialViewAsPdf();
         }
 
         //Excel导出用户汇总总表

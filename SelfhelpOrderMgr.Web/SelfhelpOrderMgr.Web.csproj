@@ -74,6 +74,12 @@
     <Reference Include="NPOI.OpenXmlFormats">
       <HintPath>..\packages\NPOI.2.4.1\lib\net45\NPOI.OpenXmlFormats.dll</HintPath>
     </Reference>
+    <Reference Include="Rotativa.Core">
+      <HintPath>..\packages\Rotativa.Core.2.0.0\lib\net45\Rotativa.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Rotativa.MVC">
+      <HintPath>..\packages\Rotativa.MVC.2.0.3\lib\net45\Rotativa.MVC.dll</HintPath>
+    </Reference>
     <Reference Include="RouteDebug">
       <HintPath>..\packages\RouteDebug.dll</HintPath>
     </Reference>
@@ -398,6 +404,8 @@
     <Content Include="HospitalWS.asmx" />
     <Content Include="lib_ext\ICSharpCode.SharpZipLib.dll" />
     <Content Include="lib_ext\ICSharpCode.SharpZipLib.xml" />
+    <Content Include="Rotativa\wkhtmltoimage.exe" />
+    <Content Include="Rotativa\wkhtmltopdf.exe" />
     <Content Include="Scripts\bootstrap-datetimepicker.min.js" />
     <Content Include="Scripts\bootstrap-datetimepicker.zh-CN.js" />
     <Content Include="Scripts\bootstrap-select.min.js" />
