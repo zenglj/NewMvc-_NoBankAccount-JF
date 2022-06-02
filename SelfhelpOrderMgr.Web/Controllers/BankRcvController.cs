@@ -679,11 +679,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
             }
             catch (Exception e)
             {
-
                 return Content("Error|"+ e.Message.ToString());
             }
-            
-
         }
 
 
@@ -772,6 +769,96 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
         }
 
+        //银行流水记录导出 财务对账格式
+        public ActionResult ExcelOutBankDuizhang(DateTime startTime, DateTime endTime)
+        {
+            try
+            {
+
+                StringBuilder strSql = new StringBuilder();
+                strSql.Append(@"IF not EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[T_Bank_TransType]') AND type in (N'U'))
+                     begin ");
+                strSql.Append(@"CREATE TABLE [dbo].[T_Bank_TransType](
+	                    [TransType] [varchar](50) NOT NULL,
+	                    [TypeName] [varchar](50) NULL,
+	                    PRIMARY KEY ([TransType])
+                    ) ;");
+                strSql.Append(@"insert into [T_Bank_TransType] (TransType,TypeName) values('01','国内汇款');
+                    insert into [T_Bank_TransType] (TransType,TypeName) values('02','国外汇款');
+                    insert into [T_Bank_TransType] (TransType,TypeName) values('03','人行大额');
+                    insert into [T_Bank_TransType] (TransType,TypeName) values('04','人行小额');
+                    insert into [T_Bank_TransType] (TransType,TypeName) values('05','现金存款');
+                    insert into [T_Bank_TransType] (TransType,TypeName) values('06','转帐收入');
+                    insert into [T_Bank_TransType] (TransType,TypeName) values('07','汇票');
+                    insert into [T_Bank_TransType] (TransType,TypeName) values('08','本票');
+                    insert into [T_Bank_TransType] (TransType,TypeName) values('09','支票');
+                    insert into [T_Bank_TransType] (TransType,TypeName) values('10','冲账');
+                    insert into [T_Bank_TransType] (TransType,TypeName) values('11','冲正');
+                    insert into [T_Bank_TransType] (TransType,TypeName) values('12','承兑汇票');
+                    insert into [T_Bank_TransType] (TransType,TypeName) values('13','托收承付');
+                    insert into [T_Bank_TransType] (TransType,TypeName) values('14','保证金');
+                    insert into [T_Bank_TransType] (TransType,TypeName) values('15','现金取款');
+                    insert into [T_Bank_TransType] (TransType,TypeName) values('16','转帐支出');
+                    insert into [T_Bank_TransType] (TransType,TypeName) values('17','贷款放款');
+                    insert into [T_Bank_TransType] (TransType,TypeName) values('18','贷款还款');
+                    insert into [T_Bank_TransType] (TransType,TypeName) values('21','实时汇划');
+                    insert into [T_Bank_TransType] (TransType,TypeName) values('22','退汇');
+                    insert into [T_Bank_TransType] (TransType,TypeName) values('31','结息');
+                    insert into [T_Bank_TransType] (TransType,TypeName) values('32','批量收费');
+                    insert into [T_Bank_TransType] (TransType,TypeName) values('41','收费');
+                    insert into [T_Bank_TransType] (TransType,TypeName) values('99','其他'); 
+                     end ");
+                new CommTableInfoBLL().ExecSql(strSql.ToString());
+                strSql = new StringBuilder();
+                strSql.Append(@"select valdat as 交易日期,txntime as 交易时间,convert(varchar(7),valdat,120) as 年月,b.TypeName as 业务类型,furinfo as 摘要,'' as 票据类型,a.vchnum as 票据号
+					,a.toactncardno as 结算卡号
+                    ,case a.direction when 1 then a.fractnacntname else toactntoname end as '对方单位'
+                    ,'' as '凭证号'
+                    ,(case when a.direction=1 and a.transtype<>11 then txnamt when a.direction=2 and a.transtype=11 then txnamt else null end) as 借方金额
+                    ,(case when a.direction=2 and a.transtype<>11 then txnamt when a.direction=1 and a.transtype=11 then txnamt else null end) as 贷方金额
+
+                    ,isnull(case a.direction when 1 then a.fractnacntname else toactntoname end,'监狱其他') as '经办人'
+					,c.FcrimeCode as 狱政编号
+					,c.FName as 姓名
+					,case when c.ImportFlag=1 then '是' when c.ImportFlag=2 then '公账' when c.ImportFlag=3 then '已退回' else '' end 状态
+					,c.Error 错误描述
+                    ,a.direction
+                     from t_bank_transDetail a 
+                    left outer join t_bank_transType b on a.transtype=b.transtype
+					left outer join T_bank_Rcv c on a.vchnum=c.VchNum
+                    where valdat between @startTime and @endTime
+                    group by valdat ,txntime,b.TypeName,furinfo,a.vchnum,a.toactncardno 
+                    ,case a.direction when 1 then a.fractnacntname else toactntoname end 
+                    ,(case when a.direction=1 and a.transtype<>11 then txnamt when a.direction=2 and a.transtype=11 then txnamt else null end) 
+                    ,(case when a.direction=2 and a.transtype<>11 then txnamt when a.direction=1 and a.transtype=11 then txnamt else null end) 
+                    ,a.direction,c.FcrimeCode,c.FName,c.ImportFlag,c.Error
+                    ");
+                string strLoginName = this.GetUserLoginName();
+                string strCountTime = string.Format("统计期间:{0}--{1}", startTime, endTime);
+
+                SqlParameter[] parameters = {
+                    new SqlParameter("@startTime", SqlDbType.DateTime),
+                    new SqlParameter("@endTime", SqlDbType.DateTime)};
+                parameters[0].Value = startTime;
+                parameters[1].Value = endTime;
+
+                //DataTable dt = new CommTableInfoBLL().GetDataTable(strSql.ToString(), parameters);
+                DataTable dt = new CommTableInfoBLL().GetDataTable(strSql.ToString(), new { startTime = startTime, endTime = endTime });
+                string strFileName = new CommonClass().GB2312ToUTF8(strLoginName + "_BankTransDuizhangList.xls");
+                strFileName = Server.MapPath("~/Upload/" + strFileName); ;
+
+
+                ExcelRender.RenderToExcel(dt, strFileName);
+                return Content("OK|" + strLoginName + "_BankTransDuizhangList.xls");
+            }
+            catch (Exception e)
+            {
+
+                return Content("Error|" + e.Message.ToString());
+            }
+
+
+        }
         /// <summary>
         /// 手动识别流水号
         /// </summary>
@@ -1276,6 +1363,11 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
         #endregion
 
+
+        public ActionResult BankDateReport()
+        {
+            return View();
+        }
 
     }
 }

@@ -116,7 +116,7 @@ namespace SelfhelpOrderMgr.Web.Filters
 							string expr_86 = atr.ToString();
 							int i = expr_86.IndexOf("(\"") + 2;
 							int j = expr_86.IndexOf("\")");
-							actionRemarName = expr_86.Substring(i, j - i);
+							actionRemarName = $"[{expr_86.Substring(i, j - i)}]{actionRemarName}";
 						}
 					}
 				}

@@ -489,6 +489,18 @@ function btnExcelOutBankTransList() {
     });
 }
 
+function btnExcelOutBankDuizhang() {
+    $.post("/BankRcv/ExcelOutBankDuizhang/", { "startTime": $("#SearchCreateDate_Start").datetimebox('getValue'), "endTime": $("#SearchCreateDate_End").datetimebox('getValue') }, function (data, status) {
+        if (status != "success") {
+            return false;
+        } else {
+            var words = data.split("|");
+            if (words[0] == "OK") {
+                window.open("/Upload/" + words[1]);
+            }
+        }
+    });
+}
 function btnExcelBankDtlSch() {
 
     //$("#lblInfo").html("系统正在导入请稍候......");

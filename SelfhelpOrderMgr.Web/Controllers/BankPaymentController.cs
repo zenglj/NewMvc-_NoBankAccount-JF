@@ -15,6 +15,7 @@ using System.Web.Script.Serialization;
 namespace SelfhelpOrderMgr.Web.Controllers
 {
     [CustomActionFilterAttribute]
+    [MyLogActionFilterAttribute]
     public class BankPaymentController : Controller
     {
         JavaScriptSerializer jss = new JavaScriptSerializer();
@@ -159,12 +160,62 @@ namespace SelfhelpOrderMgr.Web.Controllers
             crtby = Request.Cookies["loginUserName"].Value;
             //string crtby = "admin";
             Int16 auditAction = 1;
-            string otherStrWhere = " isnull(AuditFlag,0)=0 ";
+            string otherStrWhere = " isnull(AuditFlag,0)=0 and PayMode in(1,2)";
             string strMsg = "审核";
             string result = DelegateAuditPayList(crtby, strJsonWhere, selectMulIds, auditAction, otherStrWhere, strMsg);
             return Content(result);
 
         }
+        [RemarkAttribute("审核-现金的记录")]
+        public ActionResult AuditXianJinPayList(string strJsonWhere, string selectMulIds,int modeXianJin)
+        {
+            crtby = Request.Cookies["loginUserName"].Value;
+            if (modeXianJin != 0)
+            {
+                return Content("Err|审核参数不正确");
+            }
+            //string crtby = "admin";
+            Int16 auditAction = 1;
+            string otherStrWhere = " isnull(AuditFlag,0)=0 and PayMode =0";
+            string strMsg = "审核";
+            string result = DelegateAuditPayList(crtby, strJsonWhere, selectMulIds, auditAction, otherStrWhere, strMsg);
+
+            if (result.StartsWith("OK|")==true){
+                #region 如果是财务现金支付，则直接设置为付款成功
+                List<T_Bank_PaymentRecord> modelList = new T_Bank_PaymentRecordBLL().GetModelList<T_Bank_PaymentRecord, T_Bank_PaymentRecord>(jss.Serialize(new { Id=Convert.ToInt32( selectMulIds)}), "Id", 50000);
+                var _ls = modelList.Where(o => o.PayMode == 0).ToList();
+                for (int i = 0; i < _ls.Count; i++)
+                {
+                    _ls[i].TranDate = DateTime.Now;
+                    _ls[i].TranStatus = 2;
+                    _ls[i].BankResultInfo = "财务科现金领取";
+                    new T_Bank_PaymentRecordBLL().ExecuteSql("update t_Bank_PaymentDetail set SuccFlag=1 where MainId=@MainId", new { MainId = _ls[i].Id });
+                    new T_Bank_PaymentRecordBLL().ExecuteSql("update t_Vcrd set BankFlag=3,remark=isnull(remark,'')+':财务科现金支付' where flag=0 and TypeFlag in (5,6) and isnull(BankFlag,0)=0 and FCrimeCode=@FCrimeCode", new { FCrimeCode = _ls[i].FCrimeCode });
+                }
+                new T_Bank_PaymentRecordBLL().Update(_ls);
+                #endregion
+            }
+
+
+            return Content(result);
+
+        }
+
+        public ActionResult CheckUserInfo(string pwd)
+        {
+            ResultInfo rs = new ResultInfo();
+            crtby = Request.Cookies["loginUserName"].Value;
+            var _m = new T_CZYBLL().GetModelList($" FName='{crtby}' and FPwd='{pwd}'");
+            
+            if (_m != null && _m.Count==1)
+            {
+                rs.Flag = true;          
+            }
+
+            return Json(rs);
+
+        }
+
 
         [MyLogActionFilterAttribute]
         [RemarkAttribute("撤销审核-转账的记录")]
@@ -179,7 +230,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
             //string crtby = "admin";
             crtby = Request.Cookies["loginUserName"].Value;
             Int16 auditAction = 0;
-            string strCheckWhere = " isnull(AuditFlag,0)=1 and isnull(TranStatus,0)>0 ";
+            string strCheckWhere = " isnull(AuditFlag,0)=1 and PayMode in(1,2) and isnull(TranStatus,0)>0 ";
             if (selectMulIds != "")
             {
                 strCheckWhere = strCheckWhere + " and Id in (" + selectMulIds + ") ";
@@ -209,6 +260,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
         private string DelegateAuditPayList(string crtby, string strJsonWhere, string selectMulIds, Int16 auditAction, string otherStrWhere, string strMsg)
         {
             string[] ids;
+
             var list = new List<T_Bank_PaymentRecord>();
             if (!string.IsNullOrWhiteSpace(selectMulIds))
             {
@@ -234,6 +286,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
             if (new T_Bank_PaymentRecordBLL().Update<T_Bank_PaymentRecord>(list, strUpdateJson, otherStrWhere))
             {
+                
                 return "OK|" + strMsg + "成功";
             }
             else

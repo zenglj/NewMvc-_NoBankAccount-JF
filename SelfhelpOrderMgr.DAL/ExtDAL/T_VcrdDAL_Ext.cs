@@ -177,7 +177,13 @@ namespace SelfhelpOrderMgr.DAL
                     object paramVcrd;
                     int seq = 0;
                     List<int> seqs;
-                    if(flag==1)
+                T_Criminal_card _uCard = new T_Criminal_cardDAL().GetModel(criminal.FCode);
+                if (savetype.AccType == 1)
+                {
+
+                }
+
+                if (flag==1)
                     {
                         //存款都在A账户
                         //2020修改为根据savetype的 acctype 值
@@ -185,7 +191,8 @@ namespace SelfhelpOrderMgr.DAL
                         {
                             savetype.AccType = 0;
                         }
-                        paramVcrd = new { cardcode = criminal.CardCode, fcrimecode = criminal.FCode, DAMOUNT = fmoney, CAMOUNT = 0, crtBy = crtby, CRTDATE = DateTime.Now, DTYPE = savetype.fname, DEPOSITER = apply, REMARK = remark, flag = ivcrdflag, fareacode = criminal.FAreaCode, fareaName = criminal.FAreaName, fcriminal = criminal.FName, Frealareacode = "", FrealAreaName = "", ptype = "", udate = DateTime.Now.Year + "-" + DateTime.Now.Month + "-1", origid = invoiceno, cardtype = 0, TypeFlag = 0, acctype = savetype.AccType, Bankflag = 0, checkflag = 0, checkby = crtby, pc = 0, curUserAmount = criminal.OkUseAllMoney, curAllAmount = criminal.AmountAmoney + criminal.AmountBmoney + criminal.AmountCmoney, SubTypeFlag = savetype.fcode };
+                        
+                    paramVcrd = new { cardcode = criminal.CardCode, fcrimecode = criminal.FCode, DAMOUNT = fmoney, CAMOUNT = 0, crtBy = crtby, CRTDATE = DateTime.Now, DTYPE = savetype.fname, DEPOSITER = apply, REMARK = remark, flag = ivcrdflag, fareacode = criminal.FAreaCode, fareaName = criminal.FAreaName, fcriminal = criminal.FName, Frealareacode = "", FrealAreaName = "", ptype = "", udate = DateTime.Now.Year + "-" + DateTime.Now.Month + "-1", origid = invoiceno, cardtype = 0, TypeFlag = 0, acctype = savetype.AccType, Bankflag = 0, checkflag = 0, checkby = crtby, pc = 0, curUserAmount = criminal.OkUseAllMoney, curAllAmount = criminal.AmountAmoney + criminal.AmountBmoney + criminal.AmountCmoney, SubTypeFlag = savetype.fcode };
                         seqs = (List<int>)conn.Query<int>(strSql.ToString(), paramVcrd, myTran);
                         seq = Convert.ToInt32(seqs[0]);
                         seqnos = seq.ToString();

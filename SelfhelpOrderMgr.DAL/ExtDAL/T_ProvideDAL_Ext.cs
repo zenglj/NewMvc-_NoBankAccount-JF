@@ -410,7 +410,7 @@ namespace SelfhelpOrderMgr.DAL
                     {
                         strSql.Append("update t_criminal_card set amounta=amounta+isnull(b.damount,0) from t_criminal_card a");
                     }
-                    strSql.Append("(select fcrimecode,damount from t_vcrd where Origid=@InvoiceNo and flag=0) b where a.fcrimecode=b.fcrimecode;");
+                    strSql.Append(",(select fcrimecode,damount from t_vcrd where Origid=@InvoiceNo and flag=0) b where a.fcrimecode=b.fcrimecode;");
 
                     object paramProvide;
                     //设定账户额

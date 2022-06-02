@@ -27,75 +27,17 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
         public ActionResult GetRegInfo()
         {
-            try
-            {
-                string strFileName = Server.MapPath("~/Upload/RegInfo.rar");
-
-                HardwareInfo hwi = new HardwareInfo();
-                string hardId = hwi.GetHardDiskID();
-                if (hardId == "")
-                {
-                    hardId="jdxxkj_059183754355";
-                }
-
-                StreamWriter sw = new StreamWriter(strFileName);
-
-                sw.Write(hardId);
-                sw.Close();
-                
-                return Content("OK|RegInfo.rar");
-                
-            }
-            catch
-            {
-                return Content("Err|获取注册信息失败");
-            }   
+            return Content(LicenseHelper.GetRegInfo());
         }
 
         public ActionResult GetLicense()
         {
-
             string CheckCode = Request["CheckCode"];
-            if (string.IsNullOrEmpty(CheckCode))
-            {
-                return Content("OK&执行验证码不能为空");
-            }
-            if("zenlj"!=CheckCode)
-            {
-                return Content("Err&执行验证码不正确");
-            }
-                string RegCode = Request["RegCode"];
-                string RegDays = Request["RegDays"];
-                if(string.IsNullOrEmpty(RegCode))
-                {
-                    return Content("OK&用户的注册码不能为空");
-                }
-                if (string.IsNullOrEmpty(RegDays))
-                {
-                    return Content("OK&授权许可日期不能为空");
-                }
+            string RegCode = Request["RegCode"];
+            string RegDays = Request["RegDays"];
 
-                try
-                {
-                    int days = Convert.ToInt32(RegDays);
-                    DateTime dt = DateTime.Today.AddDays(days);
-                    string rcode = MD5Process.LicenseMD5_Date(RegCode, dt);
-
-                    string strFileName = Server.MapPath("~/Upload/JvdLicenseCode.rar");
-                    StreamWriter sw = new StreamWriter(strFileName);
-                    sw.Write(rcode);
-                    sw.Close();
-
-                    return Content("OK&" + rcode + "&JvdLicenseCode.rar");
-                }
-                catch
-                {
-                    return Content("Err&授权许可日期格式不正确");
-                }
-                
-            
-
-
+            var _r = LicenseHelper.GetLicense(CheckCode, RegCode, Convert.ToInt32(RegDays));
+            return Content(_r);
         }
 
         public ActionResult StartReg()
@@ -197,7 +139,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
         /// <returns></returns>
         public ActionResult GetBankMd5Key(string doPwd,string pwd, string ipAddr)
         {
-            if (doPwd == "zenglj")
+            if (doPwd == "zenglj4355")
             {
                 return Content(MD5ProcessHelper.GetMD5Token(pwd, ipAddr));
             }

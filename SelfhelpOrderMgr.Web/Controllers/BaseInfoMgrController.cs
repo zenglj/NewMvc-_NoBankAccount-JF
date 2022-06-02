@@ -11,6 +11,7 @@ using System.Web.Script.Serialization;
 
 namespace SelfhelpOrderMgr.Web.Controllers
 {
+
     public class BaseInfoMgrController : BaseController
     {
         //
@@ -400,6 +401,13 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 }
                 model.Remark = o["Remark"].ToString();
 
+                if(model.KeyName== "InterestRate")
+                {
+                    if( Convert.ToDouble(model.MgrValue) > 0.003)
+                    {
+                        throw new Exception("银行活动利息不能超过千分之三(0.003)");
+                    }
+                }
 
                 T_SHO_ManagerSet m = new T_SHO_ManagerSetBLL().GetModel(model.KeyName);
                 if (m != null)

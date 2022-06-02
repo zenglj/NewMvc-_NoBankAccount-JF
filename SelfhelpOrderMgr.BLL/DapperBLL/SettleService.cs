@@ -44,11 +44,17 @@ namespace SelfhelpOrderMgr.BLL
                 }
                 
             }
-            if (bal.PayMode != 0)
-            {
+            //if (bal.PayMode != 0)
+            if (bal.PayMode != null)//所有的类型都验证
+                {
                 PageResult<T_Bank_PaymentRecord> list = this.GetPageList<T_Bank_PaymentRecord, T_Bank_PaymentRecord>(" Id Desc ", jss.Serialize(new { FCrimeCode = fcrimecode }), 1, 10, "");
                 if (list.rows.Count > 0)
                 {
+                    if (list.rows[0].AuditFlag == 1)
+                    {
+                        rs.ReMsg = "离监结算款已经财务审核，不能恢复";
+                        return rs;
+                    }
                     if (list.rows[0].TranStatus == 2)
                     {
                         rs.ReMsg = "离监结算款已经支付成功，不能恢复";

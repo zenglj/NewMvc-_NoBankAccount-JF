@@ -28,6 +28,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
             return View();
         }
 
+        [MyLogActionFilterAttribute]
         public ActionResult SearchInfo()
         {
             //string dbname = context.Request.Cookies["person_Users"]["dbname"];
@@ -613,6 +614,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
         /// <param name="FName"></param>
         /// <param name="FOuDate"></param>
         /// <returns></returns>
+        [MyLogActionFilterAttribute]
         public ActionResult NoBankCardLeavePrisonList(int payMode, string FCode, string FName, string FOuDate)
         {
             string LoginUserName = Session["loginUserCode"] == null ? string.Empty : Session["LoginUserName"].ToString();
@@ -683,15 +685,19 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 {
                     case 0://网点支取
                         {
-                            rtnReustl = new T_TempLeavePrisonBLL().ExcuteStoredProcedure(FCode, LoginUserName);
+                            //=====2022-05-16 zenglj 应武夷山监狱要求现金结算也要到PaymentRecord表进行审核
+                            //rtnReustl = new T_TempLeavePrisonBLL().ExcuteStoredProcedure(FCode, LoginUserName);
+                            rtnReustl = new T_TempLeavePrisonBLL().ExcuteStoredProc_NoBankCard(FCode, LoginUserName, payMode);
 
-                            //网点支取
-                        } break;
-                    case 1://现金结算
+                            //网点支取，现金支付
+                        }
+                        break;
+                    case 1://ATM机现金结算
                         {
                             rtnReustl = new T_TempLeavePrisonBLL().ExcuteStoredProc_NoBankCard(FCode, LoginUserName, payMode);
-                            //现金结算
-                        } break;
+                            //ATM机现金结算
+                        }
+                        break;
                     case 2://转账支付
                         {
                             //否则采用正常结算模式
@@ -731,6 +737,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
         /// <param name="FAreaCode"></param>
         /// <param name="rtnJson"></param>
         /// <returns></returns>
+        [Remark("获取离监用户列表")]
+        [MyLogActionFilterAttribute]
         public ActionResult GetTempLeavePrisonList(string FCode, string FName, string startDate, string endDate, string FAreaCode)
         {
             string loginUserCode = Session["loginUserCode"] == null ? string.Empty : Session["loginUserCode"].ToString();

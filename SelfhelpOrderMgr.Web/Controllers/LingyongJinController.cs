@@ -960,7 +960,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
             }
             else
             {
-                return Content("OK.提交失败");
+                return Content("Err.提交失败");
             }
         }
 

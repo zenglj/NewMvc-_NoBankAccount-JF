@@ -422,17 +422,33 @@ function loadPayGrid() {
             if (rowData.TranStatus == 3) {
                 console.log(rowData);
                 $("#resetId").textbox("setValue", rowData.Id);
-                $("#resetBtnSave").linkbutton("enable");
-                $("#refundBtnSave").linkbutton("disable");
+                //$("#resetBtnSave").linkbutton("enable");
+                //$("#refundBtnSave").linkbutton("disable");
+
+                var itemReset = $('#mpList').menu('findItem', '确认复位');
+                $('#mpList').menu('enableItem', itemReset.target);
+                var itemRefund = $('#mpList').menu('findItem', '退款更正复位');
+                $('#mpList').menu('disableItem', itemRefund.target);
+                //enableItem  disableItem
             } else if (rowData.TranStatus == 2) {
                 $("#resetId").textbox("setValue", rowData.Id);
-                $("#resetBtnSave").linkbutton("disable");
-                $("#refundBtnSave").linkbutton("enable");
+                //$("#resetBtnSave").linkbutton("disable");
+                //$("#refundBtnSave").linkbutton("enable");
+
+                var itemReset = $('#mpList').menu('findItem', '确认复位');
+                $('#mpList').menu('disableItem', itemReset.target);
+                var itemRefund = $('#mpList').menu('findItem', '退款更正复位');
+                $('#mpList').menu('enableItem', itemRefund.target);
             }
             else {
                 $("#resetId").textbox("setValue", "");
-                $("#resetBtnSave").linkbutton("disable");
-                $("#refundBtnSave").linkbutton("disable");
+                //$("#resetBtnSave").linkbutton("disable");
+                //$("#refundBtnSave").linkbutton("disable");
+
+                var itemReset = $('#mpList').menu('findItem', '确认复位');
+                $('#mpList').menu('disableItem', itemReset.target);
+                var itemRefund = $('#mpList').menu('findItem', '退款更正复位');
+                $('#mpList').menu('disableItem', itemRefund.target);
             }
             $('#tbPayDetail').datagrid('load', {
                 mainId: rowData.Id
@@ -869,34 +885,122 @@ function abandonMoney() {
 function auditRequest(mode,gridId,formId,urlAddress) {
     var selectIds = "";
     if (mode == "all") {
+        $.messager.confirm('确认对话框', '一般是单条审核，您确认要全部审付款记录吗？', function (r) {
+            if (r) {
 
-    } else if (mode == "mul") {
-        //var rows = $('#'+gridId).datagrid('getSelections');
-        //rows.forEach(function (element,index ) {
-        //    if (selectIds == "") {
-        //        selectIds = element.Id;
-        //    } else {
-        //        selectIds = selectIds + "," + element.Id;
-        //    }
-        //});
+                $.messager.confirm('再次确认', '请再次确认，是否要全部审？', function (r) {
+                    if (r) {
+                        $.messager.prompt({
+                            title: '验证',
+                            msg: '请输入审核密码:',
+                            fn: function (r) {
+                                if (r) {
+                                    $.post("/BankPayment/CheckUserInfo", {
+                                        pwd: r,
+                                    }, function (rdata, status) {
+                                        if ("success" == status) {
+                                            if (rdata.Flag == true) {
 
-        //获取选中的Id记录
-        selectIds=GetGridSelectIds(gridId);
-    } else {
+                                                console.log(selectIds);
+                                                var strJson = GetSearchJson(formId);
+                                                $.post(urlAddress, {
+                                                    strJsonWhere: strJson,
+                                                    selectMulIds: selectIds
+                                                }, function (data, status) {
+                                                    if ("success" == status) {
+                                                        alert(data);
+                                                    }
+                                                });
+                                                $("#" + gridId).datagrid("unselectAll");
+                                            }
+                                            else {
+
+                                                $.messager.alert('提示', '审核密码不正确!', 'info');
+                                            }
+                                        }
+                                    });
+                                }
+                                
+                            }
+                        });
+
+                        
+                    }
+                });
+
+            }
+        });
+    }
+    else if (mode == "mul") {
+        var rows = $('#'+gridId).datagrid('getSelections');
+        if (rows != null) {
+            if (rows[0].PayMode != 0) {
+                $.messager.confirm('确认对话框', '审核后将立即进行支付，确认无误才能审核，是否继续？', function (r) {
+                    if (r) {
+
+                        console.log(selectIds);
+                        var strJson = GetSearchJson(formId);
+                        $.post(urlAddress, {
+                            strJsonWhere: strJson,
+                            selectMulIds: selectIds
+                        }, function (data, status) {
+                            if ("success" == status) {
+                                alert(data);
+                            }
+                        });
+                        $("#" + gridId).datagrid("unselectAll");
+                    }
+                });
+                //获取选中的Id记录
+                selectIds = GetGridSelectIds(gridId);
+            }
+            else {
+                alert("本模式不支持现金支付审核");
+            }
+        }
+
+        
+    }
+    else if (mode == "xianjin") {
+        rows = $('#'+gridId).datagrid('getSelections');
+        if (rows != null) {
+            if (rows[0].PayMode == 0) {
+                $.messager.confirm('确认对话框', '本记录是现金支付，是否正确？', function (r) {
+                    if (r) {
+
+                        $.messager.confirm('再次确认', '现金审核不能恢复，是否继续？', function (r) {
+                            if (r) {
+                                console.log(selectIds);
+                                var strJson = GetSearchJson(formId);
+                                $.post("/BankPayment/AuditXianJinPayList", {
+                                    strJsonWhere: strJson,
+                                    selectMulIds: selectIds,
+                                    modeXianJin: 0  //现金模式
+                                }, function (data, status) {
+                                    if ("success" == status) {
+                                        alert(data);
+                                    }
+                                });
+                                $("#" + gridId).datagrid("unselectAll");
+                            }
+                        });
+
+                    }
+                });
+                //获取选中的Id记录
+                selectIds = GetGridSelectIds(gridId);
+            }
+            else {
+                alert("本模式不支持【转账】支付审核");
+            }
+        }
+        
+    }
+    else {
         alert("您传入的参数不对");
         return false;
     }
-    console.log(selectIds);
-    var strJson = GetSearchJson(formId);
-    $.post(urlAddress, {
-        strJsonWhere: strJson,
-        selectMulIds: selectIds
-    }, function (data, status) {
-        if ("success" == status) {
-            alert(data);
-        }
-    });
-    $("#" + gridId).datagrid("unselectAll");
+    
 }
 
 
@@ -908,7 +1012,7 @@ function GetGridSelectIds(gridId) {
             selectIds = element.Id;
         } else {
             selectIds = selectIds + "," + element.Id;
-        }
+        }        
     });
     return selectIds;
 }

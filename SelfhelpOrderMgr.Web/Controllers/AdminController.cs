@@ -2,6 +2,7 @@
 using SelfhelpOrderMgr.Common;
 using SelfhelpOrderMgr.Model;
 using SelfhelpOrderMgr.Web.CommonHeler;
+using SelfhelpOrderMgr.Web.Filter;
 using SelfhelpOrderMgr.Web.Filters;
 using System;
 using System.Collections.Generic;
@@ -35,62 +36,14 @@ namespace SelfhelpOrderMgr.Web.Controllers
             }
             return View();
         }
+        
         //验证系统登录
+
+        [CheckLicenseCodeAttribute]
         public ActionResult LoginCheck()
         {
             #region 注册码验证
-            //HardwareInfo hwi = new HardwareInfo();
-            //string hardId = hwi.GetHardDiskID();
-            ////HardwareInfo.GetHardDiskID
-            //if (hardId == "")
-            //{
-            //    hardId = "jdxxkj_059183754355";
-            //}
-            ////文件方式注册
-            //string see;
-            //try
-            //{
-            //    string strFileUpload = Server.MapPath("~/Upload");
-            //    //创建月份目录
-            //    if (!Directory.Exists(strFileUpload))
-            //    {
-            //        DirectoryInfo d = Directory.CreateDirectory(strFileUpload);
-            //    }
-            //    //string strFileName = Server.MapPath("C:/Windows/System32/JvdLicenseCode.rar");
-            //    string strFileName = Server.MapPath("~/JvdLicenseCode.rar");
-            //    StreamReader sr = new StreamReader(strFileName);
-            //    see = sr.ReadToEnd();
-            //    sr.Close();
-            //}
-
-            //catch
-            //{
-            //    return Content("Error|系统未注册，不能使用");
-            //}
-
-            ////T_SHO_ManagerSet regCode = new T_SHO_ManagerSetBLL().GetModel("LicenseCode");
-            ////if (regCode==null)
-            ////{
-            ////    return Content("Error|系统未注册，不能使用");
-            ////}
-
-            //if (see == null)
-            //{
-            //    return Content("Error|系统未注册，不能使用");
-            //}
-            //char[] aa="|".ToCharArray();
-            //string[] regInfos = see.Split(aa);
-            //DateTime licenseDate = Convert.ToDateTime(regInfos[1]);
-            //if (licenseDate < DateTime.Today)
-            //{
-            //    return Content("Error|注册码已过期");
-            //}
-            //string licenseCode = MD5Process.LicenseMD5_Date(hardId, licenseDate);
-            //if (licenseCode!=see)
-            //{
-            //    return Content("Error|注册码无效");
-            //}
-            ////return Content("Error|" + hardId + "|" + licenseCode);
+            
             #endregion
 
             string fname = Request["FName"];

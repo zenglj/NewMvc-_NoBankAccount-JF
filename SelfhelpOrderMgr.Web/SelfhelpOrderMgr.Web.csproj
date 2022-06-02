@@ -210,6 +210,7 @@
     <Compile Include="CommonHeler\DataTableToListHelper.cs" />
     <Compile Include="CommonHeler\ExcelRender.cs" />
     <Compile Include="CommonHeler\HardwareInfo.cs" />
+    <Compile Include="CommonHeler\LicenseHelper.cs" />
     <Compile Include="CommonHeler\MD5Process.cs" />
     <Compile Include="CommonHeler\WebServiceHelper.cs" />
     <Compile Include="CommonHeler\XMLSerilazerHelper.cs" />
@@ -263,6 +264,7 @@
     <Compile Include="Controllers\UserQueryController.cs" />
     <Compile Include="Controllers\VueTestController.cs" />
     <Compile Include="Controllers\WebServiceTestController.cs" />
+    <Compile Include="Filters\CheckLicenseCodeAttribute.cs" />
     <Compile Include="Filters\CustomExceptionFilterAttribute.cs" />
     <Compile Include="Filters\CustomActionFilterAttribute.cs" />
     <Compile Include="Global.asax.cs">

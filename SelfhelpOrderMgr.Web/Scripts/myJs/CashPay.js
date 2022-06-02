@@ -289,6 +289,7 @@ function btnSaveDetail() {
                             FCrimeCode: vcrd.FCrimeCode,
                             FCriminal: vcrd.FCriminal,
                             FAreaName: vcrd.FAreaName,
+                            Flag:vcrd.Flag,
                             Remark: vcrd.Remark
                         });
                     }                    
