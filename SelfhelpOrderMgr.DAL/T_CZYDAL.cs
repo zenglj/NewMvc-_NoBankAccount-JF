@@ -84,7 +84,10 @@ namespace SelfhelpOrderMgr.DAL
             strSql.Append(" FSTOCKCHK = @FSTOCKCHK , ");
             strSql.Append(" FINVCHK = @FINVCHK , ");
             strSql.Append(" rolecode = @rolecode , ");
-            strSql.Append(" FUserArea = @FUserArea  ");
+            strSql.Append(" FUserArea = @FUserArea,  ");
+            strSql.Append(" ErrCount = @ErrCount,  ");
+            strSql.Append(" LastLoginTime = @LastLoginTime,  ");
+            strSql.Append(" PwdUpdateTime = @PwdUpdateTime  ");
             strSql.Append(" where FCode=@FCode  ");
 
             SqlParameter[] parameters = {
@@ -96,14 +99,17 @@ namespace SelfhelpOrderMgr.DAL
                         new SqlParameter("@FUserChinaName", SqlDbType.VarChar,50) ,            
                         new SqlParameter("@FManagerCard", SqlDbType.VarChar,50) ,            
                         new SqlParameter("@FName", SqlDbType.VarChar,20) ,            
-                        new SqlParameter("@FPwd", SqlDbType.VarChar,20) ,            
+                        new SqlParameter("@FPwd", SqlDbType.VarChar,100) ,            
                         new SqlParameter("@FFlag", SqlDbType.Int,4) ,            
                         new SqlParameter("@FPRIVATE", SqlDbType.Int,4) ,            
                         new SqlParameter("@FSTOCKCHK", SqlDbType.Int,4) ,            
                         new SqlParameter("@FINVCHK", SqlDbType.Int,4) ,            
                         new SqlParameter("@rolecode", SqlDbType.VarChar,10) ,            
-                        new SqlParameter("@FUserArea", SqlDbType.VarChar,50)             
-              
+                        new SqlParameter("@FUserArea", SqlDbType.VarChar,50),
+                        new SqlParameter("@ErrCount", SqlDbType.Int,4),
+                        new SqlParameter("@LastLoginTime", SqlDbType.DateTime),
+                        new SqlParameter("@PwdUpdateTime", SqlDbType.DateTime)
+
             };
 
             parameters[0].Value = model.FCode;
@@ -121,6 +127,9 @@ namespace SelfhelpOrderMgr.DAL
             parameters[12].Value = model.FINVCHK;
             parameters[13].Value = model.rolecode;
             parameters[14].Value = model.FUserArea;
+            parameters[15].Value = model.ErrCount;
+            parameters[16].Value = model.LastLoginTime;
+            parameters[17].Value = model.PwdUpdateTime;
             int rows = SqlHelper.ExecuteSql(strSql.ToString(), parameters);
             if (rows > 0)
             {
@@ -167,7 +176,7 @@ namespace SelfhelpOrderMgr.DAL
         {
 
             StringBuilder strSql = new StringBuilder();
-            strSql.Append("select FCode, FRole, fauditflag, fBonusPost, ver, FUserChinaName, FManagerCard, FName, FPwd, FFlag, FPRIVATE, FSTOCKCHK, FINVCHK, rolecode, FUserArea  ");
+            strSql.Append("select FCode, FRole, fauditflag, fBonusPost, ver, FUserChinaName, FManagerCard, FName, FPwd, FFlag, FPRIVATE, FSTOCKCHK, FINVCHK, rolecode, FUserArea ,ErrCount,LastLoginTime,PwdUpdateTime ");
             strSql.Append("  from T_CZY ");
             strSql.Append(" where FCode=@FCode ");
             SqlParameter[] parameters = {
@@ -213,7 +222,18 @@ namespace SelfhelpOrderMgr.DAL
                 }
                 model.rolecode = ds.Tables[0].Rows[0]["rolecode"].ToString();
                 model.FUserArea = ds.Tables[0].Rows[0]["FUserArea"].ToString();
-
+                if (ds.Tables[0].Rows[0]["ErrCount"].ToString() != "")
+                {
+                    model.ErrCount = int.Parse(ds.Tables[0].Rows[0]["ErrCount"].ToString());
+                }
+                if (ds.Tables[0].Rows[0]["LastLoginTime"].ToString() != "")
+                {
+                    model.LastLoginTime = DateTime.Parse(ds.Tables[0].Rows[0]["LastLoginTime"].ToString());
+                }
+                if (ds.Tables[0].Rows[0]["PwdUpdateTime"].ToString() != "")
+                {
+                    model.PwdUpdateTime = DateTime.Parse(ds.Tables[0].Rows[0]["PwdUpdateTime"].ToString());
+                }
                 return model;
             }
             else
@@ -229,7 +249,7 @@ namespace SelfhelpOrderMgr.DAL
         public DataSet GetList(string strWhere)
         {
             StringBuilder strSql = new StringBuilder();
-            strSql.Append("select FCode, FRole, fauditflag, fBonusPost, ver, FUserChinaName, FManagerCard, FName, FPwd, FFlag, FPRIVATE, FSTOCKCHK, FINVCHK, rolecode, FUserArea  ");
+            strSql.Append("select FCode, FRole, fauditflag, fBonusPost, ver, FUserChinaName, FManagerCard, FName, FPwd, FFlag, FPRIVATE, FSTOCKCHK, FINVCHK, rolecode, FUserArea ,ErrCount,LastLoginTime,PwdUpdateTime ");
             strSql.Append(" FROM T_CZY ");
             if (strWhere.Trim() != "")
             {

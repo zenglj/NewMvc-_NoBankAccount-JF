@@ -16,7 +16,7 @@ using System.Web.Script.Serialization;
 
 namespace SelfhelpOrderMgr.Web.Controllers
 {
-
+    [MyLogActionFilterAttribute]
     public class BankATMController : Controller
     {
         JavaScriptSerializer jss = new JavaScriptSerializer();
@@ -467,7 +467,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
             return this.rs;
         }
 
-
+        
         /// <summary>
         /// 加钞
         /// </summary>

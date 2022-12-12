@@ -13,10 +13,12 @@ using System.IO;
 using System.Data;
 using System.Configuration;
 using System.Text;
-
+using SelfhelpOrderMgr.Web.Filters;
 
 namespace SelfhelpOrderMgr.Web.Controllers
 {
+    [LoginActionFilter]
+    [MyLogActionFilterAttribute]
     public class StockController : BaseController
     {
         //

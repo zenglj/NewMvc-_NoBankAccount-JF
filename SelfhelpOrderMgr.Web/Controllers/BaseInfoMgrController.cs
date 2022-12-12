@@ -1,7 +1,9 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SelfhelpOrderMgr.BLL;
+using SelfhelpOrderMgr.Common;
 using SelfhelpOrderMgr.Model;
+using SelfhelpOrderMgr.Web.Filters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +13,8 @@ using System.Web.Script.Serialization;
 
 namespace SelfhelpOrderMgr.Web.Controllers
 {
-
+    [LoginActionFilter]
+    [MyLogActionFilterAttribute]
     public class BaseInfoMgrController : BaseController
     {
         //
@@ -55,6 +58,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
             {
                 strRes = "OK|删除成功";
             }
+            Log4NetHelper.logger.Warn($"操作人员:{Session["loginUserName"].ToString()}|删除队别，编号：{strFcode}");
+
             return Content(strRes);
         }
 
@@ -83,6 +88,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 {
                     List<T_AREA> models = SetAreaInfo(ja,"Add");
 
+                    Log4NetHelper.logger.Info($"操作人员:{Session["loginUserName"].ToString()}|新增队别，编号：{ string.Join(",", models.Select(o=>o.FName).ToArray())}");
+
                     return Content("OK|" + jss.Serialize(models));
                 }
             }
@@ -99,6 +106,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 if (ja.Count > 0)
                 {
                     List<T_AREA> models = SetAreaInfo(ja,"Update");
+                    Log4NetHelper.logger.Warn($"操作人员:{Session["loginUserName"].ToString()}|修改队别，编号：{ string.Join(",", models.Select(o => o.FName).ToArray())}");
+
                     return Content("OK保存成功！");
                 }
             }
@@ -320,12 +329,14 @@ namespace SelfhelpOrderMgr.Web.Controllers
             return Content(jss.Serialize(supplyers));
         }
 
-        public ActionResult DeleleManagerSet()//删除供应商
+        public ActionResult DeleleManagerSet()//删除参数
         {
             string strRes = "Err|删除失败";
             string strFcode = Request["KeyName"];
             if (new T_SupplyerBLL().Delete(strFcode))
             {
+                Log4NetHelper.logger.Warn($"操作人员:{Session["loginUserName"].ToString()}|删除系统参数，KeyName：{strFcode}");
+
                 strRes = "OK|删除成功";
             }
             return Content(strRes);
@@ -373,6 +384,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 if (ja.Count > 0)
                 {
                     List<T_SHO_ManagerSet> models = SetManagerSetInfo(ja);
+                    Log4NetHelper.logger.Warn($"操作人员:{Session["loginUserName"].ToString()}|修改系统参数，KeyName：{string.Join(",", models.Select(o=>o.KeyName).ToArray())}");
+
                     return Content("OK保存成功！");
                 }
             }
@@ -462,6 +475,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
             }
             if (new T_SavetypeBLL().Delete(fcode, flag))
             {
+                Log4NetHelper.logger.Warn($"操作人员:{Session["loginUserName"].ToString()}|删除存取款类型,fcode：{fcode}");
+
                 strRes = "OK|删除成功";
             }
             return Content(strRes);
@@ -785,7 +800,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
 
 
-        public ActionResult DeleleChinaFestival()//删除消费日期
+        public ActionResult DeleleChinaFestival()//删除假日信息
         {
             string strRes = "Err|删除失败";
             string ID = Request["id"];
@@ -799,8 +814,11 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 return Content("Err|您传入的参数不正确");
             }
 
+            var cf = new T_CY_ChinaFestivalBLL().GetModel(id);
             if (new T_CY_ChinaFestivalBLL().Delete(id))
             {
+                Log4NetHelper.logger.Warn($"操作人员:{Session["loginUserName"].ToString()}|删除假日信息,fcode：{cf.Festival_Name}");
+
                 strRes = "OK|删除成功";
             }
             else

@@ -1,0 +1,194 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>总账清单</title>
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Content/buttons.css" rel="stylesheet" />
+    <link href="~/Content/PrintReportCss.css" rel="stylesheet" />
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="page-header ">
+            <h1 class="text-center">银行账户余额报表 <small>月报表</small></h1>
+            <div class="row">
+                <div class="col-sm-8">
+                    @if (ViewData["bal"] == null)
+                    {
+                        <div> <strong>2022-06-01期初余额:</strong> </div>
+                        <div><strong>2022-06-30期末余额:</strong></div>
+                    }
+                    else
+                    {
+                        List<SelfhelpOrderMgr.Model.T_Bank_DateBalance> bals = ViewData["bal"] as List<SelfhelpOrderMgr.Model.T_Bank_DateBalance>;
+                        int count = bals.Count-1;
+                        <div><strong>@bals[0].baldat.ToString("yyyy-MM-dd") 期初余额: @bals[0].bokbal</strong> </div>
+                        <div><strong>@bals[count].baldat.ToString("yyyy-MM-dd") 期末余额: @bals[count].avabal</strong></div>
+                    }
+
+                </div>
+
+            </div>
+        </div>
+        <div class="row">
+
+            <div class="col-sm-12">
+                @if (ViewData["dateInfo"] != null)
+                {
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th rowspan="2" class="active">序号</th>
+                                <th rowspan="2" class="text-center active">日期</th>
+                                <th colspan="5" class="text-center success">收入</th>
+                                <th colspan="5" class="text-center info">支出</th>
+                                <th rowspan="2" class="text-center active">期初</th>
+                                <th rowspan="2" class="text-center active">变动</th>
+                                <th rowspan="2" class="text-center active">期末</th>
+                                <th rowspan="2" class="text-center active">结果</th>
+                            </tr>
+                            <tr>
+                                <th class="text-center success">个账</th>
+                                <th class="text-center success">集账</th>
+                                <th class="text-center success">公账</th>
+                                <th class="text-center success">退账</th>
+                                <th class="text-center success">未分配</th>
+                                <th class="text-center info">个账</th>
+                                <th class="text-center info">集账</th>
+                                <th class="text-center info">公账</th>
+                                <th class="text-center info">退账</th>
+                                <th class="text-center info">未分配</th>
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (ViewData["dateInfo"] != null)
+                            {
+                                var ls = ViewData["dateInfo"] as List<SelfhelpOrderMgr.Web.Models.BankMonthReportModel>;
+
+                                decimal sgrDamount = 0;
+                                decimal sjtDamount = 0;
+                                decimal sdgDamount = 0;
+                                decimal sthDamount = 0;
+                                decimal swfpDamount = 0;
+                                decimal sgrCamount = 0;
+                                decimal sjtCamount = 0;
+                                decimal sdgCamount = 0;
+                                decimal sthCamount = 0;
+                                decimal swfpCamount = 0;
+
+                                decimal sbdAmount = 0;
+                                string strResult = "未知";
+                                decimal ceAmount = 0;
+                                int rowId = 1;
+                                foreach (var item in ls)
+                                {
+                                    sgrDamount += item.grDamount;
+                                    sjtDamount += item.jtDamount;
+                                    sdgDamount += item.dgDamount;
+                                    sthDamount += item.thDamount;
+                                    swfpDamount += item.wfpDamount;
+                                    sgrCamount += item.grCamount;
+                                    sjtCamount += item.jtCamount;
+                                    sdgCamount += item.dgCamount;
+                                    sthCamount += item.thCamount;
+                                    swfpCamount += item.wfpCamount;
+
+                                    decimal biandongAmount = 0;
+                                    biandongAmount = item.grDamount + item.jtDamount + item.dgDamount + item.thDamount + item.wfpDamount
+                                                    - item.grCamount - item.jtCamount - item.dgCamount - item.thCamount - item.wfpCamount;
+
+                                    sbdAmount += biandongAmount;
+
+                                    if (item.bokbal + biandongAmount == item.avabal)
+                                    {
+                                        strResult = "平账";
+                                    }
+                                    else
+                                    {
+                                        strResult = "差:" + (item.bokbal + biandongAmount - item.avabal);
+                                    }
+
+                            <tr>
+                                <td class="text-center">@rowId</td>
+                                <td class="text-center">@item.baldat</td>
+                                <td class="text-right success">@item.grDamount</td>
+                                <td class="text-right success">@item.jtDamount</td>
+                                <td class="text-right success">@item.dgDamount</td>
+                                <td class="text-right success">@item.thDamount</td>
+                                <td class="text-right success">@item.wfpDamount</td>
+                                <td class="text-right info">@item.grCamount</td>
+                                <td class="text-right info">@item.jtCamount</td>
+                                <td class="text-right info">@item.dgCamount</td>
+                                <td class="text-right info">@item.thCamount</td>
+                                <td class="text-right info">@item.wfpCamount</td>
+                                <td class="text-right">@item.bokbal</td>
+                                <td class="text-right">@biandongAmount</td>
+                                <td class="text-right">@item.avabal</td>
+                                <td class="text-right">@strResult</td>
+                            </tr>
+                                    rowId++;
+                                }
+
+                        <tr>
+                            <th>合计</th>
+                            <td></td>
+                            <td class="text-right">@sgrDamount</td>
+                            <td class="text-right">@sjtDamount</td>
+                            <td class="text-right">@sdgDamount</td>
+                            <td class="text-right">@sthDamount</td>
+                            <td class="text-right">@swfpDamount</td>
+                            <td class="text-right">@sgrCamount</td>
+                            <td class="text-right">@sjtCamount</td>
+                            <td class="text-right">@sdgCamount</td>
+                            <td class="text-right">@sthCamount</td>
+                            <td class="text-right">@swfpCamount</td>
+                            <td class="text-right"></td>
+                            <td class="text-right">@sbdAmount</td>
+                            <td class="text-right"></td>
+                        </tr>
+                            }
+
+
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>序号</th>
+                                <th>流水号</th>
+                                <th>对手单位</th>
+                                <th>对手账号</th>
+                                <th>收入</th>
+                                <th>支出</th>
+                                <th>日期</th>
+                                <th>时间</th>
+                                <th>标志</th>
+                                <th>类型</th>
+                                <th>备注</th>
+                            </tr>
+                        </thead>
+                        
+                    </table>
+                }
+            </div>
+            
+        </div>
+
+
+    </div>
+    <script src="~/Scripts/jquery-1.11.3.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <script src="~/Scripts/myJs/commonJs.js"></script>
+
+</body>
+</html>

@@ -87,10 +87,15 @@
     <Compile Include="DapperModel\BfUseListMgr.cs" />
     <Compile Include="DapperModel\T_Bank_CNAPS.cs" />
     <Compile Include="DapperModel\T_Bank_AtmDealList_Search.cs" />
+    <Compile Include="DapperModel\T_Bank_DateBalance_Search.cs" />
+    <Compile Include="DapperModel\T_Bank_DateBalance.cs" />
+    <Compile Include="DapperModel\T_SysOperationLog_Search.cs" />
     <Compile Include="DapperModel\T_Bank_PaymentDetail.cs" />
     <Compile Include="DapperModel\T_Bank_PayRecBase.cs" />
     <Compile Include="DapperModel\T_Bank_Rcv.cs" />
+    <Compile Include="DapperModel\T_Bank_TransDetail_ext.cs" />
     <Compile Include="DapperModel\T_Bank_TransDetail.cs" />
+    <Compile Include="DapperModel\T_Bank_TransType.cs" />
     <Compile Include="DapperModel\T_SysOperationLog.cs" />
     <Compile Include="DapperModel\T_Trans_BankAccount.cs" />
     <Compile Include="DapperModel\T_Trans_FeeList.cs" />

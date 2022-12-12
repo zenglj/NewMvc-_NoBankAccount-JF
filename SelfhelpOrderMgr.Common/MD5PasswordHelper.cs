@@ -129,6 +129,21 @@ namespace SelfhelpOrderMgr.Common
             }
         }
 
+
+        #region 密码加密存储
+
+        /// <summary>
+        /// 密码加密存储
+        /// </summary>
+        /// <param name="password"></param>
+        /// <returns></returns>
+        public static string GetMd5Password(string password)
+        {
+            string _rs = GetMD5(GetMD5(password));
+            return _rs;
+        }
+
+        #endregion
     }
 }
 

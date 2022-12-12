@@ -2,13 +2,16 @@
 using SelfhelpOrderMgr.Model;
 using SelfhelpOrderMgr.Web.Filters;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using System.Web.Security;
 
 namespace SelfhelpOrderMgr.Web.Controllers
 {
+    [LoginActionFilter]
     [CustomActionFilterAttribute]
     public class MainpanelController : Controller
     {
@@ -26,7 +29,6 @@ namespace SelfhelpOrderMgr.Web.Controllers
             string usercode = Session["loginUserCode"] == null ? string.Empty : Session["loginUserCode"].ToString();
             if (usercode == "")
             {
-                
                 usercode = new T_CZYBLL().GetModelList("FName='" + loginUserName + "'")[0].FCode;
             }
             if (usercode != "")
@@ -63,7 +65,23 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 ViewData["titleMset"] = null;
 
                 ViewData["LoginUserName"] = loginUserName;
-
+                ViewData["chaoshi"] = "";
+                var mset = new T_SHO_ManagerSetBLL().GetModel("PwdErrLoginCount");
+                if (mset!=null)
+                {
+                    try
+                    {
+                        var month = mset.MgrValue.Split((char)124)[2];
+                        if (czy.PwdUpdateTime.AddDays(Convert.ToInt32(month)) < DateTime.Now)
+                        {
+                            ViewData["chaoshi"] = "[密码已过期，请您及时修改]";
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        //throw;
+                    }
+                }
                 T_SHO_ManagerSet titleMset = new T_SHO_ManagerSetBLL().GetModel("back-stageMgrTitle");
                 if (titleMset != null)
                 {
@@ -75,9 +93,33 @@ namespace SelfhelpOrderMgr.Web.Controllers
         }
         public ActionResult ExitSystem()
         {
-            //Session["loginUserCode"] = null;
-            Session.Abandon();//退出系统，让Session失效
+
+            #region 单点登录
+            try
+            {
+                Hashtable singleOnline = (Hashtable)System.Web.HttpContext.Current.Application["Online"];
+                singleOnline.Remove(Session.SessionID);
+                System.Web.HttpContext.Current.Application.Lock();
+                System.Web.HttpContext.Current.Application["Online"] = singleOnline;
+                System.Web.HttpContext.Current.Application.UnLock();
+                Session.Abandon();
+            }
+            catch (Exception)
+            {
+
+            }
+            #endregion
+
+
+            FormsAuthentication.SignOut();
+            Session.Clear();
+            System.Web.HttpContext.Current.Session.RemoveAll();
             return Redirect("/Admin/Index");
+
+
+
+            //Session.Abandon();//退出系统，让Session失效
+            //return Redirect("/Admin/Index");
         }        
 	}
     public class subMenu

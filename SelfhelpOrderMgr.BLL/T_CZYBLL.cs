@@ -132,7 +132,18 @@ namespace SelfhelpOrderMgr.BLL
                     }
                     model.rolecode = dt.Rows[n]["rolecode"].ToString();
                     model.FUserArea = dt.Rows[n]["FUserArea"].ToString();
-
+                    if (dt.Rows[n]["ErrCount"].ToString() != "")
+                    {
+                        model.ErrCount = int.Parse(dt.Rows[n]["ErrCount"].ToString());
+                    }
+                    if (dt.Rows[n]["LastLoginTime"].ToString() != "")
+                    {
+                        model.LastLoginTime = DateTime.Parse(dt.Rows[n]["LastLoginTime"].ToString());
+                    }
+                    if (dt.Rows[n]["PwdUpdateTime"].ToString() != "")
+                    {
+                        model.PwdUpdateTime = DateTime.Parse(dt.Rows[n]["PwdUpdateTime"].ToString());
+                    }
 
                     modelList.Add(model);
                 }

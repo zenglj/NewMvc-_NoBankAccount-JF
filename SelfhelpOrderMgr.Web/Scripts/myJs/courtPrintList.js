@@ -54,6 +54,14 @@
                 window.open("/Infomgr/InfoListPrint?action=" + $("#action").val() + "&fCode=" + $("#fCrimeCode").val() + "&fName=" + $("#fCrimeName").val() + "&startDate=" + $("#fStartDate").datetimebox('getValue') + "&endDate=" + $("#fEndDate").datetimebox('getValue'));
             }
         }, '-', {
+                id: 'btnDown',
+                text: '下载报表',
+                iconCls: 'icon-save',
+                handler: function () {
+                    $('#btnDown').linkbutton('enable');
+                    window.open("/Infomgr/InfoListPrintSave?action=" + $("#action").val() + "&fCode=" + $("#fCrimeCode").val() + "&fName=" + $("#fCrimeName").val() + "&startDate=" + $("#fStartDate").datetimebox('getValue') + "&endDate=" + $("#fEndDate").datetimebox('getValue'));
+                }
+            }, '-',{
             id: 'btnExcel',
             text: 'Excel导出',
             iconCls: 'icon-save',

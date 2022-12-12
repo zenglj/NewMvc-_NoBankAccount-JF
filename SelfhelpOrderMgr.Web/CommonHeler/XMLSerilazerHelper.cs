@@ -7,7 +7,7 @@ using System.Xml.Serialization;
 
 namespace SelfhelpOrderMgr.Web.CommonHeler
 {
-    public class XMLSerilazerHelper
+    public partial class XMLSerilazerHelper
     {
         /// <summary>
         /// Object对象转成XML文件

@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Rotativa.Core.Options;
 using Rotativa.MVC;
 using SelfhelpOrderMgr.BLL;
 using SelfhelpOrderMgr.Common;
@@ -9,6 +10,7 @@ using SelfhelpOrderMgr.Web.Filters;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Transactions;
@@ -18,7 +20,9 @@ using System.Web.Script.Serialization;
 
 namespace SelfhelpOrderMgr.Web.Controllers
 {
+    [LoginActionFilter]
     [CustomActionFilterAttribute]
+    [MyLogActionFilterAttribute]
     public class InfomgrController : Controller
     {
         JavaScriptSerializer jss = new JavaScriptSerializer();
@@ -106,7 +110,33 @@ namespace SelfhelpOrderMgr.Web.Controllers
             return list;
         }
 
-        public  ActionResult InfoListPrint()
+        public  ActionResult InfoListPrintSave()
+        {
+
+            SetInfoListPrint();
+            //return View();
+
+            var filePath = Path.Combine(Server.MapPath("/DownLoad"), "Test.pdf");
+            ViewBag.Message = string.Format("Hello {0} to ASP.NET MVC!", "Giorgio III.");
+            return new ViewAsPdf("InfoListPrint", "Index")
+            {
+                FileName = "Test.pdf",
+                //PageSize = Size.A3,
+                //PageOrientation = Orientation.Landscape,
+                //PageMargins = { Left = 0, Right = 0 },
+                //SaveOnServerPath = filePath
+            };
+        }
+
+        public ActionResult InfoListPrint()
+        {
+            SetInfoListPrint();
+
+            return View();
+            //return new PartialViewAsPdf();
+        }
+
+        private void SetInfoListPrint()
         {
             string strStartDate = Request["startDate"];
             string strEndDate = Request["endDate"];
@@ -116,10 +146,10 @@ namespace SelfhelpOrderMgr.Web.Controllers
             DateTime endDate = Convert.ToDateTime(strEndDate);
             DateTime startDate = Convert.ToDateTime(strStartDate);
             xfsuminfo.Tongjiyueshu = Fun(endDate, startDate);
-            
+
             foreach (t_XFQueryList list in lists)
-            { 
-                switch(list.fcrimecode)
+            {
+                switch (list.fcrimecode)
                 {
                     case "累计消费":
                         {
@@ -143,7 +173,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         break;
                     case "超市购物":
                         {
-                            xfsuminfo.Chaoshigouwu = list.Cmoney;                            
+                            xfsuminfo.Chaoshigouwu = list.Cmoney;
                         }
                         break;
                     case "药品其他":
@@ -166,7 +196,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                             xfsuminfo.Jiaofajin = list.Cmoney;
                         }
                         break;
-                    
+
                     case "总收入":
                         {
                             xfsuminfo.Zongshouru = list.Cmoney;
@@ -180,25 +210,26 @@ namespace SelfhelpOrderMgr.Web.Controllers
                     case "劳动报酬":
                         {
                             xfsuminfo.Laodongbaochou = list.Cmoney;
-                            
+
                         }
                         break;
                     case "零用金":
                         {
                             xfsuminfo.Ningyongjin = list.Cmoney;
-                            
+
                         }
                         break;
                     case "账户余额":
                         {
                             xfsuminfo.Zhanghuzongyue = list.Cmoney;
-                            
+
                         }
                         break;
                     case "不可用金额":
                         {
                             xfsuminfo.BuKeYongMoney = list.Cmoney;
-                        }break;
+                        }
+                        break;
                     default:
                         break;
                 }
@@ -208,29 +239,27 @@ namespace SelfhelpOrderMgr.Web.Controllers
             ViewData["endDate"] = endDate;
             int days = 0;
             int Month = (endDate.Year - startDate.Year) * 12 + (endDate.Month - startDate.Month);
-            if (endDate.Day - startDate.Day <0)
+            if (endDate.Day - startDate.Day < 0)
             {
                 Month = Month - 1;
             }
-            if (endDate.Day - startDate.Day>=0)
+            if (endDate.Day - startDate.Day >= 0)
             {
                 days = endDate.Day - startDate.Day;
             }
             else
             {
-                days = 30+endDate.Day - startDate.Day;
+                days = 30 + endDate.Day - startDate.Day;
             }
             ViewData["Month"] = Month;
             if (days == 0)
             {
                 ViewData["days"] = "整";
-            }else
-            {
-                ViewData["days"] = days.ToString()+"天";
             }
-            
-            //return View();
-            return new PartialViewAsPdf();
+            else
+            {
+                ViewData["days"] = days.ToString() + "天";
+            }
         }
 
         public int Fun(DateTime endDate,DateTime datetime )
@@ -637,6 +666,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
 
             string rtnReustl = "OK|该犯之前就结算过了";
+            
             T_Criminal fuser = new T_CriminalBLL().GetModel(FCode);
             string FAreaCode = Request["FAreaCode"];
             string rtnJson = "";
@@ -725,7 +755,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
             }
             
             string sss = new T_TempLeavePrisonBLL().InsertBankProve(FCode,payMode);
-            rtnJson = rtnReustl;
+            rtnJson = rtnReustl+"|离监结算|"+ Newtonsoft.Json.JsonConvert.SerializeObject( new t_balanceListBLL().GetModelList($"FCrimeCode='{FCode}'").OrderByDescending(o=>o.seqno).FirstOrDefault());
             return Content(rtnJson);
         }
 
@@ -858,7 +888,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
             {
                 rs = new SettleService().RestoryInPrison(strFCode, (MoneyPayMode)payMode);               
                 ts.Complete();
-                Log4NetHelper.logger.Info("恢复离监人员为在押(将离监人员),操作员：" + Session["loginUserName"].ToString() + ",ID=" + criminal.FCode + ",用户名为：" + criminal.FName + "");
+                Log4NetHelper.logger.Warn("恢复离监人员为在押(将离监人员),操作员：" + Session["loginUserName"].ToString() + ",ID=" + criminal.FCode + ",用户名为：" + criminal.FName + "");
 
             }
             return Json(rs);
@@ -1261,10 +1291,13 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
 
 
-        public ActionResult NewPrintOutPrisonReport()
+        public ActionResult NewPrintOutPrisonReport(string FCode)
         {
-            string fcode = Request["FCode"];
-            ViewData["prove"] = "";
+            string ip = System.Web.HttpContext.Current.Request.UserHostAddress;
+            //string fcode = Request["FCode"];
+            string fcode = FCode;
+            ViewData["prove"] = "";            
+
             t_balanceList bal = new t_balanceListBLL().GetModelList("fcrimecode='" + fcode + "'").OrderByDescending(s => s.seqno).ToList()[0];
             string sss = new T_TempLeavePrisonBLL().InsertBankProve(fcode, bal.PayMode);
             List<t_BankProve> proves = new t_BankProveBLL().GetModelList("fcode='" + fcode + "'");
@@ -1279,6 +1312,40 @@ namespace SelfhelpOrderMgr.Web.Controllers
             {
                 prove.UnitName = mset.MgrName;
             }
+
+            if (bal.PrintCount > 1)
+            {
+                T_SHO_ManagerSet msetOnlyOne = new T_SHO_ManagerSetBLL().GetModel("settlementPrintOnlyOne");
+                if (msetOnlyOne != null && msetOnlyOne.MgrValue == "1")
+                {
+                    T_CZY czy = new T_CZYBLL().GetModel(Session["loginUserCode"].ToString());
+                    if (czy.FPRIVATE != 1)
+                    {
+
+                        T_SysOperationLog log1 = new T_SysOperationLog()
+                        {
+                            ControlName = "Infomgr",
+                            ActionName = "NewPrintOutPrisonReport",
+                            CrtDate = DateTime.Now,
+                            Remark = "禁止重复结算打印,IP:" + ip,
+                            ReqJson = fcode,
+                            RtnJson = Newtonsoft.Json.JsonConvert.SerializeObject(bal),
+                            UserCode = Session["loginUserName"].ToString()
+                        };
+                        new BaseDapperBLL().Insert<T_SysOperationLog>(log1);
+
+                        ViewData["prove"] = new t_BankProve() { 
+                        PrintCount=bal.PrintCount+1};
+                        //return Content("Err|该犯已经结算过，禁止重复结算打印单，请联系管理员");
+                        return View();
+                    }
+                }
+            }
+            
+
+            
+
+
             if (bal.PayMode == 2)
             {
                 T_Criminal_OutBankAccount acc = new BaseDapperBLL().GetModelFirst <T_Criminal_OutBankAccount, T_Criminal_OutBankAccount>(jss.Serialize( new { FCrimecode =fcode}));
@@ -1318,8 +1385,23 @@ namespace SelfhelpOrderMgr.Web.Controllers
             }
 
             new t_balanceListBLL().Update(bal);//更新打印数量
-            //return View();
-            return new PartialViewAsPdf();
+
+            
+            T_SysOperationLog log = new T_SysOperationLog()
+            {
+                ControlName = "Infomgr",
+                ActionName = "NewPrintOutPrisonReport",
+                CrtDate = DateTime.Now,
+                Remark = $"第{prove.PrintCount}次结算打印,IP:" + ip,
+                ReqJson = fcode,
+                RtnJson = Newtonsoft.Json.JsonConvert.SerializeObject(prove),
+                UserCode = Session["loginUserName"].ToString()
+            };
+            new BaseDapperBLL().Insert<T_SysOperationLog>(log);
+            Log4NetHelper.logger.Info($"第{prove.PrintCount}次结算打印,操作员：" + Session["loginUserName"].ToString() + ",登录时间=" + DateTime.Now.ToString() + ",结算信息：" + Newtonsoft.Json.JsonConvert.SerializeObject(prove) + "");
+
+            return View();
+            //return new PartialViewAsPdf();
         }
 
 
@@ -1330,14 +1412,18 @@ namespace SelfhelpOrderMgr.Web.Controllers
         #region 处遇类型管理
 
         [MyLogActionFilterAttribute]
-        public ActionResult DeleleCYType(string strId)//删除处遇类型
+        public ActionResult DeleleCYType(string FCode)//删除处遇类型
         {
             string strRes = "Err|删除失败";
             //string strId = Request["FCode"];
-            if (new T_CY_TYPEBLL().Delete(strId))
+
+            var cy = new T_CY_TYPEBLL().GetModel(FCode);
+            if (new T_CY_TYPEBLL().Delete(FCode))
             {
                 strRes = "OK|删除成功";
             }
+            Log4NetHelper.logger.Warn($"操作人员:{Session["loginUserName"].ToString()}|删除处遇类型,FName：{cy.FName}");
+
             return Content(strRes);
         }
 
@@ -1388,6 +1474,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
             if (ja.Count > 0)
             {
                 List<T_CY_TYPE> models = SetCYTypeInfo(ja);
+                Log4NetHelper.logger.Warn($"操作人员:{Session["loginUserName"].ToString()}|修改处遇类型,Json：{Newtonsoft.Json.JsonConvert.SerializeObject(models)}");
+
                 return Content("OK保存成功！");
             }
             else

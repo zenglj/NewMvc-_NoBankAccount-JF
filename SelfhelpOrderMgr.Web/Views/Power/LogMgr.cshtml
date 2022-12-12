@@ -1,0 +1,121 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>LogMgr</title>
+    @{Html.RenderPartial("~/Views/Shared/_PartialHeadPage.cshtml");}
+    <style type="text/css">
+        form {
+            margin: 0;
+            padding: 0;
+        }
+
+        .dv-table td {
+            border: 0;
+        }
+
+        .dv-table input {
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+
+    @*<h4>银行转账支付管理</h4>*@
+    <div class="easyui-tabs" style="width:100%;height:700px;">
+
+
+        <div title="日志管理" style="padding:10px;" class="easyui-layout">
+            <div data-options="region:'center',title:'系统记录'" style="padding:5px;height:300px;">
+                @*@{Html.RenderPartial("~/Views/Shared/_PartialXiaopiaoControl.cshtml");}*@
+
+                <table id="test" style="padding:5px;height:400px;"></table>
+
+            </div>
+
+            <div data-options="region:'east',title:'查询条件',split:true" style="width:300px;">
+                <div data-options="region:'north',title:'North Title',split:true" style="height:600px;">
+                    <form method="post" id="formVcrdSearch">
+                        <table>
+                            <tr>
+                                <th align="right">编号：</th>
+                                <td align="left">
+                                    <input class="easyui-numberbox" id="vcrdSearchId" name="Id"
+                                           data-options="min:0,precision:0" style="width:190px">
+                                </td>
+                            </tr>
+                            <tr>
+                                <th align="right">模块：</th>
+                                <td align="left">
+                                    <input id="vcrdSearchControl" name="ControlName" class="easyui-textbox" style="width:190px">
+                                </td>
+                            </tr>
+                            <tr>
+                                <th align="right">动作：</th>
+                                <td align="left">
+                                    <input id="vcrdSearchAction" name="ActionName" class="easyui-textbox" style="width:190px">
+                                </td>
+                            </tr>
+                            <tr>
+                                <th align="right">用户：</th>
+                                <td align="left">
+                                    <input id="vcrdSearchUserCode" name="UserCode" class="easyui-textbox" style="width:190px">
+                                </td>
+                            </tr>
+                            <tr>
+                                <th align="right">请求：</th>
+                                <td align="left">
+                                    <input id="vcrdSearchReqJson" name="ReqJson" class="easyui-textbox" style="width:190px">
+                                </td>
+                            </tr>
+                            <tr>
+                                <th align="right">结果：</th>
+                                <td align="left">
+                                    <input id="vcrdSearchRtnJson" name="RtnJson" class="easyui-textbox" style="width:190px">
+                                </td>
+                            </tr>
+                            <tr>
+                                <th align="right">开始时间：</th>
+                                <td align="left">
+                                    <input class="easyui-datetimebox" id="vcrdSearchCrtDate_Start" name="CrtDate_Start"
+                                           data-options="required:true,showSeconds:false" value="3/4/2010 00:00" style="width:190px">
+                                </td>
+                            </tr>
+                            <tr>
+                                <th align="right">结束时间：</th>
+                                <td align="left">
+                                    <input class="easyui-datetimebox" id="vcrdSearchCrtDate_End" name="CrtDate_End"
+                                           data-options="required:true,showSeconds:false" value="3/4/2010 23:59" style="width:190px">
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th align="right">备注：</th>
+                                <td align="left">
+                                    <input id="vcrdSearchRemark" name="Remark" class="easyui-textbox" style="width:190px;">
+                                </td>
+                            </tr>
+                            <tr>
+                                <th align="right"></th>
+                                <td align="right"><a id="btn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-search'" onclick="btnSearch()">查询</a><a id="A1" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-redo'" onclick="btnClear()">清空</a></td>
+                            </tr>
+                        </table>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+
+
+    </div>
+
+    <script src="~/Scripts/myJs/LodopFuncs.js"></script>
+    <script src="~/Scripts/EasyUI/jquery.easyui.datagrid-detailview.js"></script>
+    <script src="~/Scripts/myJs/LogMgr.js"></script>
+</body>
+</html>

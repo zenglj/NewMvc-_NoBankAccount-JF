@@ -10,6 +10,9 @@
     <meta name="viewport" content="width=device-width" />
     <title>NewPrintOutPrisonReport</title>
     <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+    @*<link href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.cs" rel="stylesheet" />*@
+
+    
 </head>
 <body>
     <div>
@@ -24,6 +27,7 @@
                         string strRemark = "特别提示:请仔细核对结算单上的收款人账号、姓名、开户行信息，如因信息错误导致无法汇款到账，刑释人员需本人到监狱补办结算领款手续！";
                         string strIdenNo = "_______________________________";
                         string strUnitName = "监狱";
+
                         SelfhelpOrderMgr.Model.t_BankProve prove = ViewData["prove"] as SelfhelpOrderMgr.Model.t_BankProve;
                         if (prove.PayMode == 0)
                         {
@@ -51,8 +55,13 @@
                         {
                             strUnitName = prove.UnitName;
                         }
+                        string strPrintTitle = "";
+                        if (prove.PrintCount > 1)
+                        {
+                            strPrintTitle = "第"+prove.PrintCount+"次补打";
+                        }
                         <div>
-                            <h3 class="text-center">罪犯离监账上余额领取申请报告</h3>
+                            <h3 class="text-center">罪犯离监账上余额领取申请报告<small>@strPrintTitle</small></h3>
 
                             <h3 class="text-left"><span>@strUnitName</span>财务科:</h3>
 
@@ -130,7 +139,7 @@
                         <br />
 
                         <div>
-                            <h3 class="text-center">消费一卡通结算凭证</h3>
+                            <h3 class="text-center">消费一卡通结算凭证<small>@strPrintTitle</small></h3>
 
                             <table>
                                 <tr style="height:20px;">

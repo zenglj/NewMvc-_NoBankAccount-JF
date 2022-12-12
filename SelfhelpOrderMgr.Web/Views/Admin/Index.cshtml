@@ -74,6 +74,15 @@
             <input id="vcrdCount" value="0" type="hidden" />
         }
 
+        @if (ViewData["vcrdCount"] != null)
+        {
+            <input id="payErrCount" value="@ViewData["payErrCount"]" type="hidden" />
+        }
+        else
+        {
+            <input id="payErrCount" value="0" type="hidden" />
+        }
+
     </div> <!-- /container -->
 
     
@@ -95,6 +104,10 @@
             
             if ($("#vcrdCount").val() > 0) {
                 alert("紧急情况,系统当前有" + $("#vcrdCount").val() + "条消费记录银行扣款不成功，请管理员及时处理！");
+            }
+
+            if ($("#payErrCount").val() > 0) {
+                alert("紧急情况,系统当前有" + $("#payErrCount").val() + "条[转账支付]不成功，请管理员及时处理！");
             }
         });
         function loginCheck() {

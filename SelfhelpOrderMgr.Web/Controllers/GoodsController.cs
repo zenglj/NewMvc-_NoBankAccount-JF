@@ -13,6 +13,8 @@ using System.Web.Script.Serialization;
 
 namespace SelfhelpOrderMgr.Web.Controllers
 {
+    [LoginActionFilter]
+    [MyLogActionFilterAttribute]
     public class GoodsController : BaseMenuController
     {
         //

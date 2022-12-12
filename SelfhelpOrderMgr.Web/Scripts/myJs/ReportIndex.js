@@ -115,6 +115,7 @@ function loadDetailTable() {
         url: '/Report/GetSearchVcrds/',
         sortName: 'seqno',
         sortOrder: 'asc',
+        showFooter:true,
         remoteSort: false,
         idField: 'seqno',
         pageSize: 10,
@@ -227,6 +228,10 @@ function loadDetailTable() {
                 }
             }
             
+        },
+        onLoadSuccess: function (data) {
+            $("#test").datagrid('resize');
+            $("#test").datagrid('reloadFooter', [{ FCriminal: '合计', DAmount :data.sum}])
         },
         pagination: true,
         rownumbers: true

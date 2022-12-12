@@ -1,5 +1,6 @@
 ﻿using SelfhelpOrderMgr.BLL;
 using SelfhelpOrderMgr.Model;
+using SelfhelpOrderMgr.Web.Filters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,6 +9,8 @@ using System.Web.Mvc;
 
 namespace SelfhelpOrderMgr.Web.Controllers
 {
+    [LoginActionFilter]
+    [MyLogActionFilterAttribute]
     public class GoodManagerController : Controller
     {
         //

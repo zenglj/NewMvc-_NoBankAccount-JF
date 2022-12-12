@@ -508,7 +508,7 @@ namespace SelfhelpOrderMgr.DAL
                 select GCode,sum(qty) qty from t_InvoiceDTL where invoiceNo in(" + strInvoices + @")
                 group by GCode) b
                 where T_GOODSSTOCKMAIN.GCode=b.GCode;");//加回库存量
-            strSql.Append(@"delete from t_InvoiceDtl where InvoiceNo in(" + strInvoices + ");");//删除消费明细
+            strSql.Append(@"update t_InvoiceDtl set Flag=0 where InvoiceNo in(" + strInvoices + ");");//删除消费明细
             strSql.Append(@"update t_Invoice set flag=0,remark=@crtby +',后台撤单'+'" + DateTime.Now.ToString() + "' where InvoiceNo in(" + strInvoices + ");");//删除消费主单
             strSql.Append(@"Update t_Sho_orderDTL set Flag=0 where orderId in(
                 select OrderId from t_Sho_order where InvoiceNo in(" + strInvoices + "));");//删除订单明细

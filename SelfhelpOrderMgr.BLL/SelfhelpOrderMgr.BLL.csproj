@@ -61,6 +61,7 @@
   <ItemGroup>
     <Compile Include="AC_SUBYRBLL.cs" />
     <Compile Include="DapperBLL\BankAtmService.cs" />
+    <Compile Include="DapperBLL\BankRcvServiceBLL.cs" />
     <Compile Include="DapperBLL\BaseDapperBLL.cs" />
     <Compile Include="DapperBLL\CommonQueryService.cs" />
     <Compile Include="DapperBLL\PayeeAccountService.cs" />

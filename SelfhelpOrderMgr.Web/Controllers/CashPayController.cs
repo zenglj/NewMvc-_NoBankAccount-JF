@@ -17,7 +17,9 @@ using System.Web.Script.Serialization;
 
 namespace SelfhelpOrderMgr.Web.Controllers
 {
+    [LoginActionFilter]
     [CustomActionFilterAttribute]
+    [MyLogActionFilterAttribute]
     public class CashPayController : Controller
     {
         //

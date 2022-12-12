@@ -63,7 +63,17 @@ $(function () {
 					{ field: 'RoleName', title: '角色', width: 100 },
                     { field: 'FRole', title: '角色号', width: 100 , hidden:true},
 					{ field: 'FPrivate', title: '管理员', width: 60 },
-                    { field: 'FManagerCard', title: '管理卡号', width: 60 }
+                    { field: 'FManagerCard', title: '管理卡号', width: 60 },
+                    {
+                        field: 'FFlag', title: '禁用', width: 200, sortable: true, //rowspan: 2,
+                        formatter: function (value, row, index) {
+                            if (row.FFlag=="1") {
+                                return "是"
+                            } else {
+                                return "否";
+                            }
+                        }
+                    }
         ]],
         onClickRow: function (rowIndex, rowData) {
             $("#FCode").val(rowData.FCode);

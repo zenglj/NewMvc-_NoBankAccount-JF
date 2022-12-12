@@ -19,7 +19,9 @@ using SelfhelpOrderMgr.Web.Filters;
 
 namespace SelfhelpOrderMgr.Web.Controllers
 {
+    [LoginActionFilter]
     [CustomActionFilterAttribute]
+    [MyLogActionFilterAttribute]
     public class LaobaoController : Controller
     {
         //

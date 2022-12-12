@@ -1,4 +1,5 @@
 ﻿using SelfhelpOrderMgr.BLL;
+using SelfhelpOrderMgr.Common;
 using SelfhelpOrderMgr.Model;
 using SelfhelpOrderMgr.Model.ExtModel;
 using SelfhelpOrderMgr.Web.Filters;
@@ -8,10 +9,15 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Script.Serialization;
+using System.Text.RegularExpressions;//正则表达式
+using SelfhelpOrderMgr.Web.CommonHeler;
+using Newtonsoft.Json;
 
 namespace SelfhelpOrderMgr.Web.Controllers
 {
+    [LoginActionFilter]
     [CustomActionFilterAttribute]
+    
     public class PowerController : Controller
     {
         #region 用户管理操作
@@ -80,18 +86,31 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
         //保存操作员用户
         [MyLogActionFilterAttribute]
-        public ActionResult SaveTree(string selectTree,string UserCode,string UserName,string UserPwd,string UserArea,string UserRole,string FManagerCard,int selectRadio,string FUserChinaName)
+        public ActionResult SaveTree(string selectTree,string UserCode,string UserName,string UserArea,string UserRole,string FManagerCard,int selectRadio,string FUserChinaName)
         {
             //string selectTree = Request["selectTree"].ToString();
             string strUserCode = UserCode;// Request["UserCode"].ToString();
             string strUserName = UserName;//Request["UserName"].ToString();
-            string strUserPwd = UserPwd;//Request["UserPwd"].ToString();
+            //string strUserPwd = UserPwd;//Request["UserPwd"].ToString();
+            string strUserPwd =Request["UserPwd"].ToString();
             string strUserArea = UserArea;//Request["UserArea"].ToString();
             string strUserRole = UserRole;//Request["UserRole"].ToString();
             //string FManagerCard = Request["FManagerCard"].ToString();
             int fprivate = selectRadio;// Request["selectRadio"] == null ? 0 : Convert.ToInt32(Request["selectRadio"]);
 
             //string FUserChinaName = Request["FUserChinaName"] == null ? "" : Request["FUserChinaName"];
+
+
+            #region 正则表达式验证密码
+            string regexCheckResult = RegexHelper.RegexPasswordCheck(strUserPwd);
+
+            if (!string.IsNullOrWhiteSpace(regexCheckResult))
+            {
+                return Content("Error."+regexCheckResult);
+            }
+
+            #endregion
+
 
             if (selectTree == "")
             {
@@ -151,7 +170,14 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
             op.FCode = strUserCode;
             op.FName = strUserName;
-            op.FPwd = strUserPwd;
+            if (strUserPwd.Length < 20)
+            {
+                op.FPwd = MD5ProcessHelper.GetMd5Password(strUserPwd);
+            }
+            else
+            {
+                op.FPwd = strUserPwd;
+            }
             op.FUserArea = strUserArea;
             t_TreeRole trl = new t_TreeRole();
             trl.RoleID = strUserRole == "" ? 0 : Convert.ToInt32(strUserRole);
@@ -170,11 +196,15 @@ namespace SelfhelpOrderMgr.Web.Controllers
             {
                 new T_CZYBLL().Update(op);
                 strRes = "Update";
+                Log4NetHelper.logger.Info("操作员：" + Session["loginUserName"].ToString() + ",修改了一个用户，ID=" + op.FCode + ",用户名为：" + op.FName);
+
             }
             else
             {
                 new T_CZYBLL().Add(op);
                 strRes = "Insert";
+                Log4NetHelper.logger.Info("操作员：" + Session["loginUserName"].ToString() + ",新增了一个用户，ID=" + op.FCode + ",用户名为：" + op.FName);
+
             }
 
             //接下来是保存用户权限区域,
@@ -220,7 +250,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                     if (bl ==true)
                     {
                         res = "删除成功";
-                        //Log4NetHelper.logger.Info("操作员：" + Session["loginUserName"].ToString() + ",删除了一个用户，ID=" + UserID + ",用户名为：" + UserName);
+                        Log4NetHelper.logger.Info("操作员：" + Session["loginUserName"].ToString() + ",删除了一个用户，ID=" + UserID + ",用户名为：" + UserName);
                     }
                 }
             }
@@ -288,6 +318,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
             return View();
         }
 
+        [MyLogActionFilterAttribute]
         //修改密码
         public ActionResult SavePassword()
         {
@@ -312,15 +343,29 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 result = "两次新密码不一致";
                 return Content(result);
             }
+
+
+            #region 正则表达式验证密码
+            string regexCheckResult = RegexHelper.RegexPasswordCheck(newPwd);
+
+            if (!string.IsNullOrWhiteSpace(regexCheckResult)){
+                return Content(regexCheckResult);
+            }
+
+            #endregion
+
+
+
             List<T_CZY> czys = new T_CZYBLL().GetModelList("FName='"+  userName +"'");
             if (czys.Count > 0)
             {
                 T_CZY czy = czys[0];
-                if (czy.FPwd == oldPwd)
+                if (czy.FPwd == oldPwd  || czy.FPwd == MD5ProcessHelper.GetMd5Password(oldPwd))
                 {
-                    czy.FPwd = newPwd;
+                    czy.FPwd = MD5ProcessHelper.GetMd5Password(newPwd); //密码加密存储
+                    czy.PwdUpdateTime = DateTime.Now;
                     new T_CZYBLL().Update(czy);
-                    result = "保存成功";
+                    result = "密码|保存成功";
                 }
                 else
                 {
@@ -344,9 +389,14 @@ namespace SelfhelpOrderMgr.Web.Controllers
             t_TreeMeun m1 = menus[0];
             if (m1.id.ToString() != null)
             {
+                //T_CZY czy = new T_CZYBLL().GetModel(LoginUserCode);
+                //List<Comment> list = GetTreeMenuList(m1, czy.FRole.ToString());//把目录树生成菜单树,并反回EasyUI的Tree
+                //JavaScriptSerializer jss = new JavaScriptSerializer();
+
                 T_CZY czy = new T_CZYBLL().GetModel(LoginUserCode);
-                List<Comment> list = GetTreeMenuList(m1, czy.FRole.ToString());//把目录树生成菜单树,并反回EasyUI的Tree
+                List<Comment> list = GetSysTreeMenuList(m1, czy.FRole.ToString());//把目录树生成菜单树,并反回EasyUI的Tree
                 JavaScriptSerializer jss = new JavaScriptSerializer();
+
                 string ddd = jss.Serialize(list);
                 Response.Write(ddd);
             }
@@ -533,13 +583,80 @@ namespace SelfhelpOrderMgr.Web.Controllers
             return list;
         }
 
-        //public ActionResult GetLevel()
-        //{
-        //    List<T_OutCommonsInfo> coms = (List<T_OutCommonsInfo>)new T_OutCommonsInfoBLL().GetTableByTypeName("审批流程");
-        //    JavaScriptSerializer jss = new JavaScriptSerializer();
-        //    return Content(jss.Serialize(coms));
-        //}
+
+
+        /// <summary>
+        /// 获取系统权限列表
+        /// </summary>
+        /// <param name="m1"></param>
+        /// <param name="RoleId"></param>
+        /// <returns></returns>
+        private List<Comment> GetSysTreeMenuList(t_TreeMeun m1, string RoleId="1")
+        {
+            List<Comment> list = new List<Comment>();
+            t_TreeMeun[] tms1 = new t_TreeMeunBLL().GetModelList($"FId={m1.id}" ).ToArray();
+
+            List<Comment> cren = new List<Comment>();
+            for (int i = 0; i < tms1.Count(); i++)
+            {
+                List<Comment> Subcren = new List<Comment>();
+                try
+                {
+                    t_TreeMeun[] tms2 = new t_TreeMeunBLL().GetModelList($"FId={tms1[i].id}").ToArray();
+
+                    for (int j = 0; j < tms2.Count(); j++)
+                    {
+                        if (null != tms2[j].Text)
+                        {
+                            List<attr> Latrr = new List<attr>();
+                            Latrr.Add(new attr() { url = tms2[j].URL });
+                            Subcren.Add(new Comment() { id = tms2[j].id, attributes = Latrr, text = tms2[j].Text });
+                        }
+                        else
+                        {
+                            Subcren.Add(new Comment() { id = tms2[j].id, text = tms2[j].Text });
+                        }
+                    }
+                    cren.Add(new Comment() { id = tms1[i].id, text = tms1[i].Text, iconCls = "icon-ok", children = Subcren, state = "open" });
+                }
+                catch { }
+            }
+            list.Add(new Comment() { id = m1.id, text = m1.Text, iconCls = "icon-ok", children = cren, state = "open" });
+            return list;
+        }
+
 
         #endregion
-	}
+
+
+        #region 日志查询
+
+        public ActionResult LogMgr()
+        {
+
+            return View();
+        }
+
+        public ActionResult GetLogInfoList(string strJsonWhere, int page = 1, int rows = 10, string sort = "Id", string order = "asc")
+        {
+            if (string.IsNullOrEmpty(strJsonWhere))
+            {
+                var sWhere = new { Id = 0 };
+                strJsonWhere = Newtonsoft.Json.JsonConvert.SerializeObject(sWhere);
+            }
+
+            PageResult<T_SysOperationLog> list = new BaseDapperBLL().GetPageList<T_SysOperationLog, T_SysOperationLog_Search>("Id", strJsonWhere, page, rows);
+
+            EasyUiPageResult<T_SysOperationLog> rs = new EasyUiPageResult<T_SysOperationLog>()
+            {
+                total = list.total,
+                rows = list.rows
+            };
+            return Content(JsonConvert.SerializeObject(rs));
+        }
+
+
+
+        #endregion
+    }
 }

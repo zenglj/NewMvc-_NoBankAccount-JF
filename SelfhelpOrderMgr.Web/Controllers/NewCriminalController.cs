@@ -2,6 +2,7 @@
 using NPOI.XSSF.UserModel;
 using SelfhelpOrderMgr.BLL;
 using SelfhelpOrderMgr.Model;
+using SelfhelpOrderMgr.Web.Filters;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,6 +14,8 @@ using System.Web.Script.Serialization;
 
 namespace SelfhelpOrderMgr.Web.Controllers
 {
+    [LoginActionFilter]
+    [MyLogActionFilterAttribute]
     public class NewCriminalController : LoginController
     {
         //

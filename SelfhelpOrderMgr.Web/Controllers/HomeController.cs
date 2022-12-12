@@ -614,6 +614,12 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         rtnInv.details = new T_InvoiceDTLBLL().GetModelList("InvoiceNo='" + invoices[i] + "'");
                     }
                     rtnInv.criminal = new T_CriminalBLL().GetCriminalXE_info(rtnInv.invoice.FCrimeCode, 1);
+                    //2022年改为到账户清单中统计余额
+                    T_Criminal_card crimeBalance= new T_CriminalBLL().GetInvoiceBalance(rtnInv.invoice.FCrimeCode, rtnInv.invoice.InvoiceNo);
+                    rtnInv.criminal.AmountAmoney = crimeBalance.AmountA;
+                    rtnInv.criminal.AmountBmoney = crimeBalance.AmountB;
+                    rtnInv.criminal.AmountCmoney = crimeBalance.AmountC;
+
                     rtnInvs.Add(rtnInv);
                 }
             }

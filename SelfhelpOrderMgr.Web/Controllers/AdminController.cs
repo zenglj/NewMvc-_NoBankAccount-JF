@@ -5,6 +5,7 @@ using SelfhelpOrderMgr.Web.CommonHeler;
 using SelfhelpOrderMgr.Web.Filter;
 using SelfhelpOrderMgr.Web.Filters;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
@@ -34,30 +35,57 @@ namespace SelfhelpOrderMgr.Web.Controllers
             {
                 ViewData["vcrdCount"] = dt.Rows[0][0];
             }
+
+
+            DataTable paytable = new CommTableInfoBLL().GetDataTable("select isnull(count(1),0) fcount from T_Bank_PaymentRecord where TranStatus=3 and AuditDate<'" + DateTime.Now.ToString() + "'");
+
+            if (dt == null)
+            {
+                ViewData["payErrCount"] = 0;
+            }
+            if (dt.Rows.Count > 0)
+            {
+                ViewData["payErrCount"] = paytable.Rows[0][0];
+            }
             return View();
         }
         
         //验证系统登录
 
         [CheckLicenseCodeAttribute]
+        [LoginPwdErrorFilterAttribute]
         public ActionResult LoginCheck()
         {
             #region 注册码验证
-            
+
+            #endregion
+
+            #region ip地址验证
+            string ipCheckResult=RegexHelper.RegexIpAddressCheck(IpAddressHelper.GetHostAddress());
+            if (!string.IsNullOrWhiteSpace(ipCheckResult))
+                return Content($"Error|{ipCheckResult}");
+
+            //string testIp = IpAddressHelper.GetHostAddress();
+            //string mac = IpAddressHelper.getHostMac(testIp);
+
             #endregion
 
             string fname = Request["FName"];
             string fpwd = Request["FPwd"];
             
             List<T_CZY> users = new T_CZYBLL().GetModelList("FName='" + fname + "' or FCode='" + fname + "'");
-            string status = "Error|用户不存在或是姓名不正确";
-            
+            string status = "Error|用户不存在或是密码不正确";
+            string ip = System.Web.HttpContext.Current.Request.UserHostAddress;
+
             if (users.Count > 0)
             {
                 T_CZY user = users[0];
-                if (user.FPwd == fpwd)
+                if (user.FFlag == 1)
+                {
+                    return Content("Error|该用户状态已禁用，无法登录");
+                }
+                if (user.FPwd == fpwd || user.FPwd== MD5ProcessHelper.GetMd5Password(fpwd))//明码和密码都支持
                 {                    
-                    string ip = System.Web.HttpContext.Current.Request.UserHostAddress;
                     Log4NetHelper.logger.Info("后台系统登录,操作员：" + user.FName + ",登录时间=" + DateTime.Now.ToString() + ",登录IP为：" + ip + "");
                     string strCookieLogin = "";
                     T_SHO_ManagerSet checkUserLoginModeMgr = new T_SHO_ManagerSetBLL().GetModel("CheckLoginSeccionOrCookie");
@@ -91,6 +119,11 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         Session["loginUserCode"] = user.FCode;
                         Session["loginUserName"] = user.FName;
                     }
+
+                    //单点登录登记
+                    LogInSingle(user.FName);
+
+                    //记录日志
                     T_SysOperationLog log = new T_SysOperationLog()
                     {
                         ControlName = "Home",
@@ -108,7 +141,38 @@ namespace SelfhelpOrderMgr.Web.Controllers
             
             return Content(status);
         }
-	}
+
+
+        /// <summary>
+        /// 单点登录 - 登录在线记录
+        /// </summary>
+        /// <param name="UserName">用户名</param>
+        private void LogInSingle(string UserName)
+        {
+            #region 单点登录 - 登录在线记录
+            try
+            {
+                Hashtable SingleOnline = (Hashtable)System.Web.HttpContext.Current.Application["Online"];
+                if (SingleOnline == null)
+                    SingleOnline = new Hashtable();
+                if (SingleOnline.ContainsKey(UserName))
+                {
+                    SingleOnline[UserName] = Session.SessionID;//记录唯一sessionid
+                }
+                else
+                    SingleOnline.Add(UserName, Session.SessionID);
+
+                System.Web.HttpContext.Current.Application.Lock();
+                System.Web.HttpContext.Current.Application["Online"] = SingleOnline;
+                System.Web.HttpContext.Current.Application.UnLock();
+            }
+            catch (Exception)
+            {
+
+            }
+            #endregion
+        }
+    }
 
     
 }

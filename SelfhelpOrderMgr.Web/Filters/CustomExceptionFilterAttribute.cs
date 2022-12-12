@@ -26,6 +26,11 @@ namespace SelfhelpOrderMgr.Web.Filters
 
         public void OnException(ExceptionContext context)
         {
+            //string controllerName = context.ActionDescriptor.ControllerDescriptor.ControllerName;
+            //string actionName = context.ActionDescriptor.ActionName;
+
+            string controllerName = context.RouteData.Values["controller"].ToString();
+            string actionName = context.RouteData.Values["action"].ToString();
             if (context.ExceptionHandled == false)
             {
                 context.Result = new JsonResult() { JsonRequestBehavior = JsonRequestBehavior.AllowGet , Data= new ResultInfo
@@ -34,7 +39,8 @@ namespace SelfhelpOrderMgr.Web.Filters
                     ReMsg = context.Exception.Message,
                     DataInfo = null
                 }};
-               
+
+                Log4NetHelper.logger.Error($"{controllerName}|{actionName}|{context.Exception.Message}");
                 //this._logger.LogError(context.Exception.Message);
             }
             context.ExceptionHandled = true;

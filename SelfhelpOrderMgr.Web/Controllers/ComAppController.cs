@@ -1,6 +1,7 @@
 ﻿using SelfhelpOrderMgr.BLL;
 using SelfhelpOrderMgr.Common;
 using SelfhelpOrderMgr.Model;
+using SelfhelpOrderMgr.Web.Filters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +12,7 @@ using System.Web.Script.Serialization;
 
 namespace SelfhelpOrderMgr.Web.Controllers
 {
+    [LoginActionFilter]
     public class ComAppController : Controller
     {
         //

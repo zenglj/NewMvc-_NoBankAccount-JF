@@ -6,6 +6,7 @@ using SelfhelpOrderMgr.Common;
 using SelfhelpOrderMgr.Model;
 using SelfhelpOrderMgr.Web.CommonHeler;
 using SelfhelpOrderMgr.Web.Filters;
+using SelfhelpOrderMgr.Web.Models;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -17,9 +18,11 @@ using System.Text;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Script.Serialization;
+using System.Xml;
 
 namespace SelfhelpOrderMgr.Web.Controllers
 {
+    [LoginActionFilter]
     [CustomActionFilterAttribute]
 
     public class BankRcvController : Controller
@@ -30,7 +33,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
         BaseDapperBLL _bll = new BaseDapperBLL();
         //
         // GET: /DepositList/
-        public ActionResult Index()
+        [MyLogActionFilterAttribute]
+        public ActionResult Index(int id=1)
         {
             StringBuilder strSql = new StringBuilder();
             strSql.Append(@"IF not EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[T_Bank_TransType]') AND type in (N'U'))
@@ -70,6 +74,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
             string sql = "select TransType as fcode,TypeName as fname from [T_Bank_TransType]";
             List<T_CommonTypeTab> _ts = new CommTableInfoBLL().GetList<T_CommonTypeTab>(sql, null).ToList();
             ViewData["types"] = _ts;
+            ViewData["id"] = id;
             return View();
         }
 
@@ -144,7 +149,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 rs.ReMsg = "成功";
                 rs.DataInfo = ls[0].FCode;
             }
-            else if(ls.Count > 1)
+            else if(ls.Count> 1)
             {
                 rs.Flag = false;
                 rs.ReMsg = "有重名的记录";
@@ -347,13 +352,13 @@ namespace SelfhelpOrderMgr.Web.Controllers
             if (!(rcv.ImportFlag ==null || rcv.ImportFlag==0))
             {
                 rs.Flag = false;
-                rs.ReMsg = "Err|记录的状态不是【否】，不能入账";
+                rs.ReMsg = "Err|记录的状态不是【否】，不能入账，请先设为个账";
                 return Content(jss.Serialize(rs));
             }
             string strForceText = "";
             if (checkFlag==1)
             {
-                if (rcv.RcvAmount >= 0)
+                if (rcv.RcvAmount>= 0)
                 {
                     if (!(rcv.Remark.Contains(fcrimename) || rcv.Remark.Contains(fcrimecode)))
                     {
@@ -510,6 +515,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
             return View();
         }
 
+
+
         /// <summary>
         /// 导出明细记录
         /// </summary>
@@ -554,6 +561,34 @@ namespace SelfhelpOrderMgr.Web.Controllers
             ExcelRender.RenderToExcel(dt, title, 4, strFileName, mul_lan, strCountTime);
             return Content("OK|" + strLoginName + "_BankRcvList.xls");
         }
+
+
+        public ActionResult DateBankReport(string strJsonWhere)
+        {
+            T_Bank_Rcv_Search search = null;
+            if (!string.IsNullOrWhiteSpace(strJsonWhere))
+            {
+                search = Newtonsoft.Json.JsonConvert.DeserializeObject<T_Bank_Rcv_Search>(strJsonWhere);
+            }
+            List<T_Bank_Rcv> sumList = new T_Bank_DepositListBLL().GetModelList<T_Bank_Rcv, T_Bank_Rcv_Search>(strJsonWhere, "Id", 10000);
+            ViewData["title"] = "中银结算卡存款明细报表";
+            if (search == null)
+            {
+                ViewData["startTime"] = "~";
+                ViewData["endTime"] = "~";
+            }
+            else
+            {
+                ViewData["startTime"] = search.CreateDate_Start.ToString();
+                ViewData["endTime"] = search.CreateDate_End.ToString();
+            }
+
+            ViewData["sumList"] = sumList;
+
+            return View();
+        }
+
+
 
         /// <summary>
         /// 月统计报表 期初 期间  期末
@@ -932,7 +967,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
             {
                 id = Convert.ToInt32(mset.MgrValue);
             }
-            if (Request.Files.Count > 0)
+            if (Request.Files.Count> 0)
             {
                 string strFBid = Request["excelBid"];
 
@@ -969,7 +1004,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                     //NPOI.SS.UserModel.Sheet
                     int rows = sheet.LastRowNum;
                     //int ErrNums = 0;
-                    if (rows < 1)
+                    if (rows <1)
                     {
                         return Content("Err|Excel表为空表,无数据!");
                     }
@@ -1096,7 +1131,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         decimal TransMoney = 0;
                         int iDirection = 1;
 
-                        for (int i = 1; i < rows; i++)
+                        for (int i = 1; i <rows; i++)
                         {
                             NPOI.SS.UserModel.IRow row = sheet.GetRow(i);
                             //int iType = row.GetCell(0).CellType;//文本是1，数字是0
@@ -1364,10 +1399,447 @@ namespace SelfhelpOrderMgr.Web.Controllers
         #endregion
 
 
-        public ActionResult BankDateReport()
+        public ActionResult BankDateReport(DateTime startDate)
         {
+            var setting = new ConfigHelper().GetYinQiSetting();
+            startDate = Convert.ToDateTime(startDate.ToShortDateString());
+            ResultInfo rs = this.GetDateBalance(startDate, startDate);
+            BaseDapperBLL bll = new BaseDapperBLL();
+            var json = new { actacn = setting.actacn, baldat = startDate };
+            T_Bank_DateBalance _bal = bll.GetModelFirst<T_Bank_DateBalance, T_Bank_DateBalance>( Newtonsoft.Json.JsonConvert.SerializeObject(json));
+            ViewData["bal"] = _bal;
+
+            var djson = new {  valdat = startDate };
+            List<T_Bank_TransDetail> _dtl= bll.GetModelList<T_Bank_TransDetail, T_Bank_TransDetail>(Newtonsoft.Json.JsonConvert.SerializeObject(djson),"Id asc",1000);
+
+            var rcvjson = new { CreateDate = startDate };
+            List<T_Bank_Rcv> rcv = bll.GetModelList<T_Bank_Rcv, T_Bank_Rcv>(Newtonsoft.Json.JsonConvert.SerializeObject(rcvjson), "Id asc", 1000);
+
+            var _s = _dtl.GroupBy(x => x.vchnum).Select(y => y.First()).ToList();
+            var transtype = bll.GetModelList<T_Bank_TransType, T_Bank_TransType>("", "Id asc", 1000);
+            for (int i = 0; i <_s.Count; i++)
+            {
+                var tp = _s[i].transtype;
+                if(_s[i].transtype=="10" || _s[i].transtype == "11")
+                {
+                    _s[i].txnamt = 0-_s[i].txnamt;
+                }
+                _s[i].transtype = transtype.Where(o => o.TransType.Equals(tp)).ToList().FirstOrDefault().TypeName;
+            }
+
+            ViewData["detail"] = _s;
+
+            var q1 = (from a in _s
+                      join b in rcv
+                      on a.vchnum equals b.VchNum into grp
+                      from g in grp.DefaultIfEmpty()
+                      orderby a.txndate,a.txntime,a.Id
+                      select new T_Bank_TransDetail_Ext {Id=a.Id, vchnum = a.vchnum, txnamt = a.txnamt, direction = a.direction, transtype= a.transtype
+                      ,valdat=a.valdat,fractnacntname=a.fractnacntname, fractnactacn = a.fractnactacn
+                      ,acctbal=a.acctbal,txndate=a.txndate,txntime=a.txntime,useinfo=a.useinfo
+                      , FName= (g == null ? "" : g.FName),FCrimeCode= (g == null ? "" : g.FCrimeCode), importFlag = (g == null ? 0 : g.ImportFlag) }
+                      ).ToList();
+
+            ViewData["detail"] = q1.OrderBy(o=>o.importFlag).ToList();
+
+            var dic1 = (from a in _s
+                        join b in rcv
+                        on a.vchnum equals b.VchNum into grp
+                        from g in grp.DefaultIfEmpty()
+                        select new { vchnum = a.vchnum, txnamt = a.txnamt, direction = a.direction, a.transtype, importFlag = (g == null ? 0 : g.ImportFlag) }
+                         )
+                         .GroupBy(m => new { m.importFlag,m.direction})
+                         .Select(k => new T_Bank_Rcv{ ImportFlag = k.Key.importFlag,direction=k.Key.direction, RcvAmount = k.Sum(i => i.txnamt) }).ToList();
+
+            ViewData["sumDic"] = dic1;
+
             return View();
         }
 
+
+        public ActionResult BankMonthReport(DateTime startDate,DateTime endDate)
+        {
+            var setting = new ConfigHelper().GetYinQiSetting();
+            startDate = Convert.ToDateTime(startDate.ToShortDateString());
+            ResultInfo rs = this.GetDateBalance(startDate, endDate);
+            BankRcvServiceBLL bll = new BankRcvServiceBLL();
+
+            //日余额清单
+            var json = new { actacn = setting.actacn, baldat_Start = startDate, baldat_End = endDate };
+            List<T_Bank_DateBalance> _bals = bll.GetModelList<T_Bank_DateBalance, T_Bank_DateBalance_Search>(Newtonsoft.Json.JsonConvert.SerializeObject(json), "baldat asc", 500);
+            ViewData["bal"] = _bals;
+
+            //分类统计报表
+            List<T_Bank_Rcv> _dtl = bll.GetDateClassStatistics(startDate
+                                            , endDate)
+                                            .ToList();
+
+            //创建月报表
+            List<BankMonthReportModel> _ls = new List<BankMonthReportModel>();
+
+            foreach (var item in _bals)
+            {
+                BankMonthReportModel row = new BankMonthReportModel();
+
+                decimal grDamount = 0;
+                decimal jtDamount=0;
+                decimal dgDamount=0; 
+                decimal thDamount = 0;
+                decimal wfpDamount = 0;
+                decimal grCamount = 0;
+                decimal jtCamount = 0;
+                decimal dgCamount = 0;
+                decimal thCamount = 0;
+                decimal wfpCamount = 0;
+
+                var ds = _dtl.Where(o => o.CreateDate == item.baldat)
+                    .ToList();
+                foreach (var r in ds)
+                {
+                    switch (r.ImportFlag)
+                    {
+                        case 1:
+                            {
+                                if (r.direction == 1)
+                                {
+                                    grDamount += r.RcvAmount;
+                                }
+                                else
+                                {
+                                    grCamount += r.RcvAmount;
+                                }
+                            }
+                            break;
+                        case 2:
+                            {
+                                if (r.direction == 1)
+                                {
+                                    dgDamount += r.RcvAmount;
+                                }
+                                else
+                                {
+                                    dgCamount += r.RcvAmount;
+                                }
+                            }
+                            break;
+                        case 3:
+                            {
+                                if (r.direction == 1)
+                                {
+                                    thDamount += r.RcvAmount;
+                                }
+                                else
+                                {
+                                    thCamount += r.RcvAmount;
+                                }
+                            }
+                            break;
+                        case 4:
+                            {
+                                if (r.direction == 1)
+                                {
+                                    jtDamount += r.RcvAmount;
+                                }
+                                else
+                                {
+                                    jtCamount += r.RcvAmount;
+                                }
+                            }
+                            break;
+                        default:
+                            {
+                                if (r.direction == 1)
+                                {
+                                    wfpDamount += r.RcvAmount;
+                                }
+                                else
+                                {
+                                    wfpCamount += r.RcvAmount;
+                                }
+                            }
+                            break;
+                    }
+                    
+                }
+
+                row.baldat =  item.baldat.ToString("yyyyMMdd");
+                row.bokbal = item.bokbal;
+                row.avabal = item.avabal;
+                //各项
+                row.grDamount = grDamount;
+                row.grCamount = grCamount;
+                row.dgDamount = dgDamount;
+                row.dgCamount = dgCamount;
+                row.jtDamount = jtDamount;
+                row.jtCamount = jtCamount;
+                row.thDamount = thDamount;
+                row.thCamount = thCamount;
+                row.wfpDamount = wfpDamount;
+                row.wfpCamount = wfpCamount;
+
+                _ls.Add(row);
+            }
+
+
+            ViewData["dateInfo"] = _ls.OrderBy(o=>o.baldat).ToList();
+
+            return View();
+        }
+
+
+        public ActionResult BankYearReport(DateTime startDate,DateTime endDate)
+        {
+            var setting = new ConfigHelper().GetYinQiSetting();
+            startDate = Convert.ToDateTime(startDate.ToShortDateString());
+            DateTime qstartDate = startDate;
+            DateTime qendDate = endDate;
+
+            
+
+            while (qendDate <= endDate&& qstartDate<= endDate)
+            {
+                if (qstartDate.AddMonths(6) < endDate)
+                {
+                    qendDate = startDate.AddMonths(6).AddDays(-1);
+                }
+                else
+                {
+                    qendDate = endDate;
+                }
+                ResultInfo rs = this.GetDateBalance(qstartDate, qendDate);
+                qstartDate = qendDate.AddDays(1);
+            }
+
+            
+
+            BankRcvServiceBLL bll = new BankRcvServiceBLL();
+
+            //日余额清单
+            var json = new { actacn = setting.actacn, baldat_Start = startDate, baldat_End = endDate };
+            List<T_Bank_DateBalance> _bals = bll.GetModelList<T_Bank_DateBalance, T_Bank_DateBalance_Search>(Newtonsoft.Json.JsonConvert.SerializeObject(json), "baldat asc", 500);
+            ViewData["bal"] = _bals;
+
+            //生成每月的期初余额和期末余额
+            List<BankMonthReportModel> mths = new List<BankMonthReportModel>();
+
+            var _ms = _bals.Select(o => o.baldat.ToString("yyyyMM")).Distinct();
+
+            foreach (var item in _ms)
+            {
+                BankMonthReportModel m = new BankMonthReportModel();
+                var tmths = _bals.Where(o => o.baldat.ToString("yyyyMM") == item).ToList();
+                m.baldat = item;
+                m.bokbal = tmths[0].bokbal;
+                m.avabal = tmths[tmths.Count - 1].avabal;
+                mths.Add(m);
+            }
+            //分类统计报表
+            List<T_Bank_Rcv> _dtl = bll.GetYearClassStatistics(startDate
+                                            , endDate)
+                                            .ToList();
+
+            //创建月报表
+            List<BankMonthReportModel> _ls = new List<BankMonthReportModel>();
+            string _ym = "";//初始化年月
+
+            foreach (var item in mths)
+            {
+                
+
+                BankMonthReportModel row = new BankMonthReportModel();
+
+                decimal grDamount = 0;
+                decimal jtDamount = 0;
+                decimal dgDamount = 0;
+                decimal thDamount = 0;
+                decimal wfpDamount = 0;
+                decimal grCamount = 0;
+                decimal jtCamount = 0;
+                decimal dgCamount = 0;
+                decimal thCamount = 0;
+                decimal wfpCamount = 0;
+
+
+                var ds = _dtl.Where(o => o.tnxdate == item.baldat).ToList();
+
+                foreach (var r in ds)
+                {
+                    switch (r.ImportFlag)
+                    {
+                        case 1:
+                            {
+                                if (r.direction == 1)
+                                {
+                                    grDamount += r.RcvAmount;
+                                }
+                                else
+                                {
+                                    grCamount += r.RcvAmount;
+                                }
+                            }
+                            break;
+                        case 2:
+                            {
+                                if (r.direction == 1)
+                                {
+                                    dgDamount += r.RcvAmount;
+                                }
+                                else
+                                {
+                                    dgCamount += r.RcvAmount;
+                                }
+                            }
+                            break;
+                        case 3:
+                            {
+                                if (r.direction == 1)
+                                {
+                                    thDamount += r.RcvAmount;
+                                }
+                                else
+                                {
+                                    thCamount += r.RcvAmount;
+                                }
+                            }
+                            break;
+                        case 4:
+                            {
+                                if (r.direction == 1)
+                                {
+                                    jtDamount += r.RcvAmount;
+                                }
+                                else
+                                {
+                                    jtCamount += r.RcvAmount;
+                                }
+                            }
+                            break;
+                        default:
+                            {
+                                if (r.direction == 1)
+                                {
+                                    wfpDamount += r.RcvAmount;
+                                }
+                                else
+                                {
+                                    wfpCamount += r.RcvAmount;
+                                }
+                            }
+                            break;
+                    }
+
+                }
+
+                row.baldat = item.baldat;
+                row.bokbal = item.bokbal;
+                row.avabal = item.avabal;
+                //各项
+                row.grDamount = grDamount;
+                row.grCamount = grCamount;
+                row.dgDamount = dgDamount;
+                row.dgCamount = dgCamount;
+                row.jtDamount = jtDamount;
+                row.jtCamount = jtCamount;
+                row.thDamount = thDamount;
+                row.thCamount = thCamount;
+                row.wfpDamount = wfpDamount;
+                row.wfpCamount = wfpCamount;
+
+                _ls.Add(row);
+            }
+
+
+            ViewData["dateInfo"] = _ls.OrderBy(o=>o.baldat).ToList();
+
+            return View();
+        }
+
+        public ResultInfo GetDateBalance(DateTime startDate,DateTime endDate)
+        {
+            ResultInfo rs = new ResultInfo();
+
+            
+
+            //获取银企直连配置参数
+            var setting = new ConfigHelper().GetYinQiSetting();
+            string strCommand = "b2e0012";
+            string xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+                    + "<bocb2e version = \"120\" locale = \"zh_CN\">"
+         + "<head>"
+             + "<termid>" + setting.termid + "</termid>"
+             + "<trnid>" + setting.trnid + "</trnid>"
+             + "<custid>" + setting.custid + "</custid>"
+             + "<cusopr>" + setting.cusopr + "</cusopr>"
+             + "<trncod>" + strCommand + "</trncod>"
+             + "<token>" + setting.token + "</token>"
+         + "</head>"
+         + "<trans>"
+             + "<trn-b2e0012-rq>"
+                 + "<b2e0012-rq>"
+                     + "<account>"
+                         + "<ibknum>" + setting.ibknum + "</ibknum>"
+                         + "<actacn>" + setting.actacn + "</actacn>"
+                     + "</account>"
+                     + "<datescope>"
+                         + "<from>" + startDate.ToString("yyyyMMdd") + "</from>"
+                         + "<to>" + endDate.ToString("yyyyMMdd") + "</to>"
+                     + "</datescope>"
+                 + "</b2e0012-rq>"
+             + "</trn-b2e0012-rq>"
+         + "</trans>"
+     + "</bocb2e>";
+            string _res = HttpHelper.HttpPostStr(setting.postServerUrl, xml);
+
+            _res = _res.Replace("utf-8", "UTF-8");
+            //替换增加一个<root></root>根目录
+            string subxml = _res.Replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", "");
+            string _tempXml = $"<?xml version=\"1.0\" encoding=\"UTF-8\" ?><root>{subxml}</root>";
+
+            //读取Xml文件转成Xml对象
+            StringReader reader = new StringReader(_tempXml);
+            XmlDocument xmlDoc = new XmlDocument();
+            xmlDoc.Load(reader);
+
+            //验证是否请求失败
+           var errxmls = xmlDoc.SelectSingleNode("//trn-b2eerror-rs");
+            if (errxmls !=null)
+            {
+                rs.ReMsg = errxmls.SelectSingleNode("status").SelectSingleNode("rspmsg").InnerText;
+                //return Content( errxmls.SelectSingleNode("status").SelectSingleNode("rspmsg").InnerText);
+                return rs;
+            }
+            //获取相应的【b2e0012-rs】结点数据
+            XmlNodeList xmls = xmlDoc.SelectNodes("//b2e0012-rs");
+
+            List<T_Bank_DateBalance> bals = new List<T_Bank_DateBalance>();
+            foreach (XmlNode w in xmls)
+            {
+                T_Bank_DateBalance bal = new T_Bank_DateBalance();
+                bal.rspcod= w.SelectSingleNode("status").SelectSingleNode("rspcod").InnerText;
+                bal.rspmsg = w.SelectSingleNode("status").SelectSingleNode("rspmsg").InnerText;
+                bal.ibknum = w.SelectSingleNode("account").SelectSingleNode("ibknum").InnerText;
+                bal.actacn = w.SelectSingleNode("account").SelectSingleNode("actacn").InnerText;
+                bal.curcde = w.SelectSingleNode("account").SelectSingleNode("curcde").InnerText;
+                bal.bokbal = Convert.ToDecimal( w.SelectSingleNode("balance").SelectSingleNode("bokbal").InnerText);
+                bal.avabal = Convert.ToDecimal(w.SelectSingleNode("balance").SelectSingleNode("avabal").InnerText);
+                bal.baldat = Convert.ToDateTime(w.SelectSingleNode("baldat").InnerText.Substring(0,4)+"-"+ w.SelectSingleNode("baldat").InnerText.Substring(4, 2) + "-" + w.SelectSingleNode("baldat").InnerText.Substring(6, 2));
+                bals.Add(bal);
+            }
+
+            foreach (var bal in bals)
+            {
+                var b = _bll.GetModelFirst<T_Bank_DateBalance, T_Bank_DateBalance>(Newtonsoft.Json.JsonConvert.SerializeObject(new { actacn = bal.actacn, baldat = bal.baldat }));
+                if (b == null)
+                {
+                    var _datebal = _bll.Insert<T_Bank_DateBalance>(bal);
+                }
+            }
+
+            rs.ReMsg="成功";
+            rs.Flag = true;
+            return rs;
+        }
+
+        
     }
 }

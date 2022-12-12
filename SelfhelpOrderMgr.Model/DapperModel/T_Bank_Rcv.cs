@@ -21,5 +21,8 @@ namespace SelfhelpOrderMgr.Model
         public DateTime CreateDate { get; set; }
         public string fractName { get; set; }
         public int direction { get; set; }
+        public string fractnactacn { get; set; }
+        public string fractnibkname { get; set; }
+        public string fractnibknum { get; set; }
     }
 }

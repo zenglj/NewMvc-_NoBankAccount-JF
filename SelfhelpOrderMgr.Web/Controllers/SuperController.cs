@@ -20,6 +20,7 @@ using SelfhelpOrderMgr.Web.Filters;
 
 namespace SelfhelpOrderMgr.Web.Controllers
 {
+    [MyLogActionFilterAttribute]
     public class SuperController : BaseController
     {
         //
@@ -684,15 +685,20 @@ namespace SelfhelpOrderMgr.Web.Controllers
             string FCode = Request["FCode"];
             string FCrtBy = Request["FCrtBy"];
             string TypeFlag = Request["TypeFlag"];
-
+            string Flag = Request["Flag"];
             string strWhere = "";
+
+            if (string.IsNullOrWhiteSpace(Flag))
+            {
+                Flag = "1";
+            }
             if (string.IsNullOrEmpty(strWhere) == false)
             {
-                strWhere = strWhere + " and Flag=1";
+                strWhere = strWhere + " and Flag='" + Flag + "'";
             }
             else
             {
-                strWhere = strWhere + " Flag=1";
+                strWhere = strWhere + " Flag='"+ Flag + "'";
             }
 
             if (string.IsNullOrEmpty(startTime) == true)
@@ -968,12 +974,30 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 return Content("Err|您选的消费单号已经有发送到银行的记录，不能撤消");
             }
 
+            //是否已经到第二个月，并且大于30天了
+            List<T_Invoice> dayInvs = new T_InvoiceBLL().GetModelList("Invoiceno in(" + strInvoices + ") and DATEADD(day,30, OrderDate)<getdate()");
+            if (dayInvs.Count > 0)
+            {
+                return Content("Err|您选的消费单超过30天不能撤单，不能撤消");
+            }
+
             //已经配货不能撤
             List<T_Invoice_outdtl> outdtls = new T_Invoice_outdtlBLL().GetModelList("Invoiceno in(" + strInvoices + ")");
             if (outdtls.Count > 0)
             {
                 return Content("Err|您选的消费单号已经有配货的记录，不能撤消");
             }
+
+
+            //离监人员不能撤单
+            List<T_Invoice> invs = new T_InvoiceBLL().GetModelList("Invoiceno in(" + strInvoices + ") and fcrimecode in(select fcode from t_criminal where isnull(fflag,0)=1)");
+            if (invs.Count > 0)
+            {
+                return Content($"Err|您选的消费单有{invs[0].FCriminal}等{invs.Count}条已离监，不能撤消");
+            }
+
+
+            
 
             string strLoginName = new T_CZYBLL().GetModel(Session["loginUserCode"].ToString()).FName;
 
@@ -2037,6 +2061,12 @@ namespace SelfhelpOrderMgr.Web.Controllers
                             rtnInv.details = new T_InvoiceDTLBLL().GetModelList("InvoiceNo='" + invoices[i] + "'");
                         }
                         rtnInv.criminal = new T_CriminalBLL().GetCriminalXE_info(rtnInv.invoice.FCrimeCode, 1);
+
+                        //2022年改为到账户清单中统计余额
+                        T_Criminal_card crimeBalance = new T_CriminalBLL().GetInvoiceBalance(rtnInv.invoice.FCrimeCode, rtnInv.invoice.InvoiceNo);
+                        rtnInv.invoice.FrealAreaName = $"消费余额:{crimeBalance.BankAmount}(接济款:{crimeBalance.AmountA},报酬:{crimeBalance.AmountB},留存:{crimeBalance.AmountC})";
+                        
+
                         rtnInvs.Add(rtnInv);
                     }
 
@@ -2068,6 +2098,12 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
             string startTime = Request["startTime"];
             string endTime = Request["endTime"];
+            string Flag = Request["Flag"];
+
+            if (string.IsNullOrWhiteSpace(Flag))
+            {
+                Flag = "1";
+            }
 
             StringBuilder strSql = new StringBuilder();
             switch (id)
@@ -2078,7 +2114,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         strSql.Append(" ,isnull(a.Remark,'') Remark,a.gtxm GTXM,abs(sum(a.qty* b.fifoflag)) FCount");
                         strSql.Append(" ,abs(sum(a.amount * b.fifoflag)) FMoney ");
                         //获取商品相关信息的子条件
-                        GetGoodSubWhere(GoodsType, GoodName, GoodGTXM, SpShortCode, strWhere, strSql, startTime, endTime);
+                        GetGoodSubWhere(GoodsType, GoodName, GoodGTXM, SpShortCode, strWhere, strSql, startTime, endTime,Flag);
                         strSql.Append(" group by b.FAreaName,a.SPShortCode,a.gname,isnull(a.Remark,''),a.gtxm");
                         strSql.Append(" order by b.FAreaName,a.SPShortCode ");
 
@@ -2089,7 +2125,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         strSql.Append(" ,isnull(a.Remark,'') Remark,a.gtxm GTXM,abs(sum(a.qty * b.fifoflag)) FCount");
                         strSql.Append(" ,abs(sum(a.amount * b.fifoflag)) FMoney ");
                         //获取商品相关信息的子条件
-                        GetGoodSubWhere(GoodsType, GoodName, GoodGTXM, SpShortCode, strWhere, strSql, startTime, endTime);
+                        GetGoodSubWhere(GoodsType, GoodName, GoodGTXM, SpShortCode, strWhere, strSql, startTime, endTime, Flag);
                         strSql.Append("group by b.FAreaName,isnull(RoomNo,''),a.SPShortCode,a.gname,isnull(a.Remark,''),a.gtxm");
                         strSql.Append(" order by b.FAreaName,a.SPShortCode,isnull(RoomNo,'') ");
                     } break;
@@ -2099,7 +2135,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         strSql.Append(" ,isnull(a.Remark,'') Remark,a.gtxm GTXM,abs(sum(a.qty * b.fifoflag)) FCount");
                         strSql.Append(" ,abs(sum(a.amount * b.fifoflag)) FMoney ");
                         //获取商品相关信息的子条件
-                        GetGoodSubWhere(GoodsType, GoodName, GoodGTXM, SpShortCode, strWhere, strSql, startTime, endTime);
+                        GetGoodSubWhere(GoodsType, GoodName, GoodGTXM, SpShortCode, strWhere, strSql, startTime, endTime, Flag);
                         strSql.Append(" group by a.SPShortCode,a.gname,isnull(a.Remark,''),a.gtxm");
                         strSql.Append(" order by a.SPShortCode,a.gname,isnull(a.Remark,''),a.gtxm");
                     } break;
@@ -2112,7 +2148,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                             ,sum(case when b.fifoflag=1 then -a.amount * b.fifoflag else 0 end) thMoney ");
                         
                         //获取商品相关信息的子条件
-                        GetGoodSubWhere(GoodsType, GoodName, GoodGTXM, SpShortCode, strWhere, strSql, startTime, endTime);
+                        GetGoodSubWhere(GoodsType, GoodName, GoodGTXM, SpShortCode, strWhere, strSql, startTime, endTime, Flag);
                         strSql.Append(" group by d.gtype,e.fname");
 
                     } break;
@@ -2123,7 +2159,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                                 convert(numeric(18,0),abs(sum( case when b.fifoflag=1 then  a.qty else 0 end))) thCount,abs(sum(case when b.fifoflag=1 then a.amount else 0 end)) thMoney ");
                         strSql.Append(",abs(sum(a.qty * b.fifoflag)) FCount,abs(sum(a.amount * b.fifoflag)) FMoney ");
                         //获取商品相关信息的子条件
-                        GetGoodSubWhere(GoodsType, GoodName, GoodGTXM, SpShortCode, strWhere, strSql, startTime, endTime,0);
+                        GetGoodSubWhere(GoodsType, GoodName, GoodGTXM, SpShortCode, strWhere, strSql, startTime, endTime, Flag, 0);
                         strSql.Append(" group by a.gname +'('+ isnull(d.GStandard,'') +')',a.gtxm,a.spshortcode,a.gdj ");
                         strSql.Append(" order by a.spshortcode,a.gname +'('+ isnull(d.GStandard,'') +')',a.gtxm,a.gdj ");
                     } break;
@@ -2132,7 +2168,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         strSql.Append("select a.invoiceno,a.fcrimecode,b.fcriminal,a.gname,a.gtxm,a.spshortcode,c.senddate,c.bankflag,a.gdj ");
                         strSql.Append(",abs(sum(a.qty * b.fifoflag)) FCount,abs(sum(a.amount * b.fifoflag)) FMoney ");
                         //获取商品相关信息的子条件
-                        GetGoodSubWhere(GoodsType, GoodName, GoodGTXM, SpShortCode, strWhere, strSql, startTime, endTime,1);
+                        GetGoodSubWhere(GoodsType, GoodName, GoodGTXM, SpShortCode, strWhere, strSql, startTime, endTime, Flag, 1);
 
                         strSql.Append(" group by a.invoiceno,a.fcrimecode,b.fcriminal,a.gname,a.gtxm,a.spshortcode,c.senddate,c.bankflag,a.gdj ");
                         strSql.Append(" order by c.bankflag,a.invoiceno,a.fcrimecode,b.fcriminal,a.gname,a.gtxm,a.spshortcode,c.senddate,a.gdj ");
@@ -2152,7 +2188,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         T_GoodsType gt = new T_GoodsTypeBLL().GetModel(GoodsType);
 
                         //获取商品相关信息的子条件
-                        GetGoodSubWhere(GoodsType, GoodName, GoodGTXM, SpShortCode, strWhere, strSql, startTime, endTime);
+                        GetGoodSubWhere(GoodsType, GoodName, GoodGTXM, SpShortCode, strWhere, strSql, startTime, endTime, Flag);
                         strSql.Append(" group by b.fareaCode,b.fareaName");
                         strSql.Append(" order by b.fareaCode");
 
@@ -2178,7 +2214,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                             strSql.Append(@",SUM(CASE WHEN a.GName = N'" + row["GName"].ToString() + "' THEN a.qty ELSE 0 END) AS '" + row["GName"].ToString() + "' ");
                         }
                         //获取商品相关信息的子条件
-                        GetGoodSubWhere(GoodsType, GoodName, GoodGTXM, SpShortCode, strWhere, strSql, startTime, endTime);
+                        GetGoodSubWhere(GoodsType, GoodName, GoodGTXM, SpShortCode, strWhere, strSql, startTime, endTime, Flag);
                         
 
                         DataTable dtCount = new CommTableInfoBLL().GetDataTable(strSql.ToString());
@@ -2192,7 +2228,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                             strSql.Append(@",SUM(CASE WHEN a.GName = N'" + row["GName"].ToString() + "' THEN a.amount ELSE 0 END) AS '" + row["GName"].ToString() + "' ");
                         }
                         //获取商品相关信息的子条件
-                        GetGoodSubWhere(GoodsType, GoodName, GoodGTXM, SpShortCode, strWhere, strSql, startTime, endTime);
+                        GetGoodSubWhere(GoodsType, GoodName, GoodGTXM, SpShortCode, strWhere, strSql, startTime, endTime, Flag);
                         
                         DataTable dtAmount = new CommTableInfoBLL().GetDataTable(strSql.ToString());
 
@@ -2290,6 +2326,12 @@ namespace SelfhelpOrderMgr.Web.Controllers
             string startTime = Request["startTime"];
             string endTime = Request["endTime"];
 
+            string Flag = Request["Flag"];
+            if (string.IsNullOrWhiteSpace(Flag))
+            {
+                Flag = "1";
+            }
+
             StringBuilder strSql = new StringBuilder();
             switch (id)
             {
@@ -2297,7 +2339,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                     {
                         strSql.Append("select distinct b.invoiceno");
                         //获取商品相关信息的子条件
-                        GetGoodSubWhere(GoodsType, GoodName, GoodGTXM, SpShortCode, strWhere, strSql, startTime, endTime);
+                        GetGoodSubWhere(GoodsType, GoodName, GoodGTXM, SpShortCode, strWhere, strSql, startTime, endTime, Flag);
 
 
                     } break;
@@ -2306,6 +2348,10 @@ namespace SelfhelpOrderMgr.Web.Controllers
             }
 
             List<T_Invoice> phds = new T_InvoiceBLL().GetModelList("Invoiceno in(" + strSql.ToString() + ")");
+
+            
+            
+            
             ViewData["phds"] = phds;
             ViewData["roomNoFlag"] = id.ToString();
             ViewData["startTime"] = startTime;
@@ -2315,7 +2361,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
         }
 
         //获取商品相关信息的子条件
-        private static void GetGoodSubWhere(string GoodsType, string GoodName, string GoodGTXM, string SpShortCode, string strWhere, StringBuilder strSql, string startDate, string endDate,int invListFlag=0)
+        private static void GetGoodSubWhere(string GoodsType, string GoodName, string GoodGTXM, string SpShortCode, string strWhere, StringBuilder strSql, string startDate, string endDate,string Flag, int invListFlag=0)
         {
             strSql.Append(" from t_invoicedtl a inner join (select * from t_invoice where " + strWhere + ") b  ");
             strSql.Append(" on a.invoiceno=b.invoiceno ");
@@ -2332,7 +2378,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
             strSql.Append(" on a.gtxm=d.gtxm ");
             strSql.Append(" left outer join t_goodstype e ");
             strSql.Append(" on d.gtype=e.fcode ");
-            strSql.Append(" where b.flag=1 ");            
+            strSql.Append(" where b.flag='"+ Flag +"' ");            
 
             if (string.IsNullOrEmpty(GoodGTXM) == false)
             {
@@ -2362,6 +2408,12 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
             string startTime = Request["startTime"];
             string endTime = Request["endTime"];
+
+            string Flag = Request["Flag"];
+            if (string.IsNullOrWhiteSpace(Flag))
+            {
+                Flag = "1";
+            }
 
             string strWhere = GetInvoicesSearchWhere(Session["loginUserCode"].ToString());
             StringBuilder strSql = new StringBuilder();
@@ -2397,7 +2449,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         strSql.Append(" ,isnull(a.Remark,'') 规格,a.gtxm 条码,d.GUnit 单位,a.gdj 单价,convert(numeric(18," + strPointNum + @"),abs(isnull(sum(a.qty * b.fifoflag),0))) 数量");
                         strSql.Append(" ,abs(sum(a.amount * b.fifoflag)) 金额 ");
                         //获取商品相关信息的子条件
-                        GetGoodSubWhere(GoodsType, GoodName, GoodGTXM, SpShortCode, strWhere, strSql, startTime, endTime,0);
+                        GetGoodSubWhere(GoodsType, GoodName, GoodGTXM, SpShortCode, strWhere, strSql, startTime, endTime, Flag, 0);
                         strSql.Append(" group by b.FAreaName,a.SPShortCode,a.gname,isnull(a.Remark,''),a.gtxm,d.GUnit,a.gdj ");
 
 
@@ -2453,7 +2505,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         strSql.Append(" ,case isnull(roomno,'') when '' then convert(numeric(18," + strPointNum + @"),abs(sum(a.qty * b.fifoflag)))  else 0 end as '未知号房'");
                         strSql.Append(" ,abs(sum(a.amount * b.fifoflag)) 金额 ");
                         //获取商品相关信息的子条件
-                        GetGoodSubWhere(GoodsType, GoodName, GoodGTXM, SpShortCode, strWhere, strSql, startTime, endTime);
+                        GetGoodSubWhere(GoodsType, GoodName, GoodGTXM, SpShortCode, strWhere, strSql, startTime, endTime, Flag);
                         strSql.Append("group by b.FAreaName,isnull(roomno,''),a.SPShortCode,a.gname,isnull(a.Remark,''),a.gtxm,d.GUnit,a.gdj ");
                         strSql.Append(") as t group by 队别, 货号,品名 , 规格, 单位, 单价  ");
                         strSql.Append(" order by 队别, 货号 ");
@@ -2471,7 +2523,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         strSql.Append(" ,isnull(a.Remark,'') 规格,a.gtxm 条码,d.GUnit 单位,a.gdj 单价,convert(numeric(18," + strPointNum + @"),abs(sum(a.qty * b.fifoflag))) 数量");
                         strSql.Append(" ,abs(sum(a.amount * b.fifoflag)) 金额 ");
                         //获取商品相关信息的子条件
-                        GetGoodSubWhere(GoodsType, GoodName, GoodGTXM, SpShortCode, strWhere, strSql, startTime, endTime);
+                        GetGoodSubWhere(GoodsType, GoodName, GoodGTXM, SpShortCode, strWhere, strSql, startTime, endTime, Flag);
                         strSql.Append(" group by a.SPShortCode,a.gname,isnull(a.Remark,''),a.gtxm,d.GUnit,a.gdj");
                         strSql.Append(" order by a.SPShortCode,a.gname,isnull(a.Remark,''),a.gtxm,d.GUnit,a.gdj");
                         DataTable dt = new CommTableInfoBLL().GetDataTable(strSql.ToString());
@@ -2494,7 +2546,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         strSql.Append(" ,'' Remark,'' GTXM,abs(sum(a.qty * b.fifoflag)) FCount");
                         strSql.Append(",abs(sum(a.amount * b.fifoflag)) FMoney  ");
                         //获取商品相关信息的子条件
-                        GetGoodSubWhere(GoodsType, GoodName, GoodGTXM, SpShortCode, strWhere, strSql, startTime, endTime);
+                        GetGoodSubWhere(GoodsType, GoodName, GoodGTXM, SpShortCode, strWhere, strSql, startTime, endTime, Flag);
                         strSql.Append(" and b.fifoflag=-1");
                         strSql.Append(" group by d.gtype,e.fname");
                         //strSql.Append(" order by d.gtype,sum(a.amount)desc,sum(a.qty) desc");
@@ -2505,7 +2557,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         strSql.Append(" ,'' Remark,'' GTXM,sum(a.qty * b.fifoflag) FCount");
                         strSql.Append(",sum(a.amount * b.fifoflag) FMoney  ");
                         //获取商品相关信息的子条件
-                        GetGoodSubWhere(GoodsType, GoodName, GoodGTXM, SpShortCode, strWhere, strSql, startTime, endTime);
+                        GetGoodSubWhere(GoodsType, GoodName, GoodGTXM, SpShortCode, strWhere, strSql, startTime, endTime, Flag);
                         strSql.Append(" and b.fifoflag=1");
                         strSql.Append(" group by d.gtype,e.fname");
                         //strSql.Append(" order by d.gtype,sum(a.amount)desc,sum(a.qty) desc");
@@ -2528,7 +2580,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                                 convert(numeric(18,0),abs(sum( case when b.fifoflag=1 then  a.qty else 0 end))) 退货量,abs(sum(case when b.fifoflag=1 then a.amount else 0 end)) 退货额 ");
                         strSql.Append(",convert(numeric(18," + strPointNum + @"),abs(sum(a.qty * b.fifoflag)))  实售量,abs(sum(a.amount * b.fifoflag))  实售额 ");
                         //获取商品相关信息的子条件
-                        GetGoodSubWhere(GoodsType, GoodName, GoodGTXM, SpShortCode, strWhere, strSql, startTime, endTime,0);
+                        GetGoodSubWhere(GoodsType, GoodName, GoodGTXM, SpShortCode, strWhere, strSql, startTime, endTime, Flag, 0);
                         strSql.Append(" group by a.gname +'('+ isnull(d.GStandard,'') +')',a.gtxm,a.spshortcode,a.gdj ");
                         strSql.Append(" order by a.spshortcode,a.gname +'('+ isnull(d.GStandard,'') +')',a.gtxm,a.gdj ");
                         DataTable dt = new CommTableInfoBLL().GetDataTable(strSql.ToString());
@@ -2543,7 +2595,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         strSql.Append("select a.invoiceno 流水号,a.fcrimecode 编号,b.fcriminal 姓名,a.gname 货名,a.gtxm 条码,a.spshortcode 店内码,c.senddate 回款日期,c.bankflag 回款状态,a.gdj 单价 ");
                         strSql.Append(",convert(numeric(18," + strPointNum + @"),abs(sum(a.qty * b.fifoflag)))  数量,abs(sum(a.amount * b.fifoflag))  金额 ");
                         //获取商品相关信息的子条件
-                        GetGoodSubWhere(GoodsType, GoodName, GoodGTXM, SpShortCode, strWhere, strSql, startTime, endTime,1);
+                        GetGoodSubWhere(GoodsType, GoodName, GoodGTXM, SpShortCode, strWhere, strSql, startTime, endTime, Flag, 1);
 
                         strSql.Append(" group by a.invoiceno,a.fcrimecode,b.fcriminal,a.gname,a.gtxm,a.spshortcode,c.senddate,c.bankflag,a.gdj ");
                         //strSql.Append(" order by c.bankflag,a.invoiceno,a.fcrimecode,b.fcriminal,a.gname,a.gtxm,a.spshortcode,c.senddate,a.gdj ");
@@ -2574,7 +2626,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         }
 
                         //获取商品相关信息的子条件
-                        GetGoodSubWhere(GoodsType, GoodName, GoodGTXM, SpShortCode, strWhere, strSql, startTime, endTime);
+                        GetGoodSubWhere(GoodsType, GoodName, GoodGTXM, SpShortCode, strWhere, strSql, startTime, endTime, Flag);
                         strSql.Append(" group by b.fareaName");
 
                         DataTable dt = new CommTableInfoBLL().GetDataTable(strSql.ToString());
@@ -2590,7 +2642,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         strSql.Append(" ,isnull(a.Remark,'') 规格,a.gtxm 条码,abs(sum(a.qty * b.fifoflag)) 数量");
                         strSql.Append(" ,abs(sum(a.amount * b.fifoflag)) 金额 ");
                         //获取商品相关信息的子条件
-                        GetGoodSubWhere(GoodsType, GoodName, GoodGTXM, SpShortCode, strWhere, strSql, startTime, endTime);
+                        GetGoodSubWhere(GoodsType, GoodName, GoodGTXM, SpShortCode, strWhere, strSql, startTime, endTime, Flag);
                         strSql.Append(" group by b.FAreaName,isnull(RoomNo,''),a.SPShortCode,a.gname,isnull(a.Remark,''),a.gtxm ");
                         strSql.Append(" order by b.FAreaName,isnull(RoomNo,''),a.SPShortCode ");
 
@@ -2623,12 +2675,17 @@ namespace SelfhelpOrderMgr.Web.Controllers
             string startTime = Request["startTime"];
             string endTime = Request["endTime"];
 
+            string Flag = Request["Flag"];
+            if (string.IsNullOrWhiteSpace("Flag"))
+            {
+                Flag = "1";
+            }
             string strWhere = GetInvoicesSearchWhere(Session["loginUserCode"].ToString());
             StringBuilder strSql = new StringBuilder();
 
             strSql.Append("select b.Invoiceno as 单号,b.FCriminal as 姓名,b.FCrimeCode as 编号,b.FAreaName 队别,b.Ptype as 消费类型,b.Amount 金额,b.OrderDate 日期,'' as 签名");
             //获取商品相关信息的子条件
-            GetGoodSubWhere(GoodsType, GoodName, GoodGTXM, SpShortCode, strWhere, strSql, startTime, endTime);
+            GetGoodSubWhere(GoodsType, GoodName, GoodGTXM, SpShortCode, strWhere, strSql, startTime, endTime, Flag);
             strSql.Append(" group by b.Invoiceno,b.FCriminal,b.FCrimeCode,b.FAreaName,b.Ptype,b.Amount,b.OrderDate");
 
 

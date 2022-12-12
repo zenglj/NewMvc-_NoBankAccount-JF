@@ -9,9 +9,12 @@ using SelfhelpOrderMgr.BLL;
 using System.Data;
 using SelfhelpOrderMgr.BLL.ExtBLL;
 using System.Text;
+using SelfhelpOrderMgr.Web.Filters;
 
 namespace SelfhelpOrderMgr.Web.Controllers
 {
+    [LoginActionFilter]
+    [MyLogActionFilterAttribute]
     public class BankRptController : BaseController
     {
         JavaScriptSerializer jss = new JavaScriptSerializer();

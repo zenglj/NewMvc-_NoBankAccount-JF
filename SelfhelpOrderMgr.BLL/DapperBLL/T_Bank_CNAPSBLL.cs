@@ -20,9 +20,22 @@ namespace SelfhelpOrderMgr.BLL
         {
             //string[] queryArr = queryArr.Split(" ");
             string str = "%" + string.Join("%",queryArr).ToString() + "%";
-            var strJson = jss.Serialize( new { BankOpenName = str });
+            string strJson = jss.Serialize( new { BankOpenName = str });
 
-            return this.dapperDal.GetPageList<T_Bank_CNAPS, T_Bank_CNAPS>("Id", strJson,1,10);
+            PageResult<T_Bank_CNAPS> pagelist= this.dapperDal.GetPageList<T_Bank_CNAPS, T_Bank_CNAPS>("Id", strJson,1,10);
+            if (pagelist.rows.Count<=0)
+            {
+                foreach (var item in queryArr)
+                {
+                    if (!string.IsNullOrWhiteSpace(item))
+                    {
+                        strJson = jss.Serialize(new { CNAPS = item });
+                        break;
+                    }
+                }
+                pagelist = this.dapperDal.GetPageList<T_Bank_CNAPS, T_Bank_CNAPS>("Id", strJson, 1, 10);
+            }
+            return pagelist;
         }
     }
 }

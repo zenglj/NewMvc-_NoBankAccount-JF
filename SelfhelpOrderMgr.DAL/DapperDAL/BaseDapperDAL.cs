@@ -650,7 +650,7 @@ namespace SelfhelpOrderMgr.DAL
                     }
                     else
                     {                        
-                        if (p.Name.EndsWith("Name") || p.Name.EndsWith("Remark"))
+                        if ( p.Name.EndsWith("Name") || p.Name.EndsWith("Remark") || p.Name.EndsWith("Json") )
                         {
                             string strlike = null;
                             if (p.GetValue(s) != null)

@@ -771,6 +771,17 @@ namespace SelfhelpOrderMgr.BLL
         }
 
         /// <summary>
+        /// 统计获取消费后的余额
+        /// </summary>
+        /// <param name="fcode"></param>
+        /// <param name="invoiceNo"></param>
+        /// <returns></returns>
+        public T_Criminal_card GetInvoiceBalance(string fcode, string invoiceNo)
+        {
+            return new T_CriminalDAL().GetInvoiceBalance(fcode, invoiceNo);
+        }
+
+        /// <summary>
         /// 扩展的犯人信息，包括队别名称，处遇名称，罪名
         /// </summary>
         /// <param name="page"></param>

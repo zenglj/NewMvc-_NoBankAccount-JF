@@ -30,15 +30,28 @@
             <a id="btnExcel_02" href="#" onclick="btnExcelNoFindCashReport()" class="easyui-linkbutton" data-options="iconCls:'icon-search'">未识别的记录</a>
             <input class="easyui-textbox" id="search_vchnum" data-options="iconCls:'icon-search'" style="width:150px">
             <a id="btnExcel_02" href="#" onclick="btnCheckVchnum()" class="easyui-linkbutton" data-options="iconCls:'icon-redo'">手动识别流水单</a>
-            <a id="btnPrint" href="#" onclick="btnExcelReportSave()" class="easyui-linkbutton" data-options="iconCls:'icon-save'">Excel月统计报表</a>
+            @*<a id="btnPrint" href="#" onclick="btnExcelReportSave()" class="easyui-linkbutton" data-options="iconCls:'icon-save'">Excel月统计报表</a>*@
+            <a href="javascript:void(0)" id="mb" class="easyui-menubutton"
+               data-options="menu:'#mm',iconCls:'icon-print'">打印报表</a>
+            <div id="mm" style="width:150px;">
+                <div data-options="iconCls:'icon-save'" onclick="btnExcelReportSave()">Excel月统计报表</div>
+                <div class="menu-sep"></div>
+                <div data-options="iconCls:'icon-man'" onclick="btnPrintBankDateReport()">银行日交易报表</div>
+                <div data-options="iconCls:'icon-redo'" onclick="btnPrintBankMonthReport()">银行月交易报表</div>
+                <div data-options="iconCls:'icon-man'" onclick="btnPrintBankYearReport()">银行年交易报表</div>
+
+            </div> <label>|</label>
             <form id="frmBankExcel" method="post" enctype="multipart/form-data">
                 <input type="file" id="FExcelFile" name="FExcelFile" formenctype="multipart/form-data" />
                 <a id="btnBankDetailSearch" href="#" onclick="btnExcelBankDtlSch()" class="easyui-linkbutton" data-options="iconCls:'icon-search'">银行记录筛选</a>
                 <a id="btnExcelOut" href="#" onclick="btnExcelOutBankTransList()" class="easyui-linkbutton" data-options="iconCls:'icon-save'">银行交易流水记录导出</a>
                 <a id="btnExcelOut" href="#" onclick="btnExcelOutBankDuizhang()" class="easyui-linkbutton" data-options="iconCls:'icon-redo'">对账明细导出</a>
             </form>
-            
+
             <label id="schSumMoney" style="float:right;font-size:1.2em;">查询结果总额: ____________</label>
+
+            <input id="userTypeId" type="hidden" value="@ViewData["id"].ToString()" />
+
             <div id="divAuditRec" style="display:none">
                 <form id="ffBankRecAudit">
                     <input type="hidden" id="addVchnum" name="vchnum" />
@@ -50,18 +63,14 @@
                         <option value="2">强制入账</option>
                     </select>
                     @*<a id="btn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-save'" onclick="btnAuditBankRec()">确认审核入账</a>*@
-
                     <a href="javascript:void(0)" id="mpSets" class="easyui-menubutton"
                        data-options="menu:'#mpList',iconCls:'icon-redo'">审核方式</a>
                     <div id="mpList" style="width:150px;">
                         <div data-options="iconCls:'icon-save'" onclick="btnAuditBankRec()">确认审核入账</div>
                         <div data-options="iconCls:'icon-redo'" onclick="btnReturnPersonalAccount()">网银对私退回</div>
                     </div>
-
                 </form>
-                
             </div>
-
 
         </div>
 
@@ -132,6 +141,7 @@
                                 <option value="0">否</option>
                                 <option value="2">公账</option>
                                 <option value="3">已退回</option>
+                                <option value="4">集体账</option>
                             </select>
                         </td>
                     </tr>

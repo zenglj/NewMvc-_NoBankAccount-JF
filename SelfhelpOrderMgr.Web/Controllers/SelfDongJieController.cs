@@ -1,6 +1,7 @@
 ﻿using SelfhelpOrderMgr.BLL;
 using SelfhelpOrderMgr.Common;
 using SelfhelpOrderMgr.Model;
+using SelfhelpOrderMgr.Web.Filters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +11,7 @@ using System.Web.Script.Serialization;
 
 namespace SelfhelpOrderMgr.Web.Controllers
 {
+    [MyLogActionFilterAttribute]
     public class SelfDongJieController : Controller
     {
         //自助冻结犯人的金额

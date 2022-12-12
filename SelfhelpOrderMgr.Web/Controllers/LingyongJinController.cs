@@ -18,6 +18,8 @@ using SelfhelpOrderMgr.Web.Filters;
 
 namespace SelfhelpOrderMgr.Web.Controllers
 {
+    [LoginActionFilter]
+    [MyLogActionFilterAttribute]
     public class LingyongJinController : BaseController
     {
         //

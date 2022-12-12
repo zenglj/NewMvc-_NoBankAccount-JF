@@ -1,0 +1,301 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>总账清单</title>
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Content/buttons.css" rel="stylesheet" />
+    <link href="~/Content/PrintReportCss.css" rel="stylesheet" />
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="page-header ">
+            <h1 class="text-center">银行账户余额报表 <small>日报表</small></h1>
+            <div class="row">
+                <div class="col-sm-8">
+                    @if (ViewData["bal"] == null)
+                    {
+                        <div> <strong>2022-06-06期初余额:</strong> </div>
+                        <div><strong>2022-06-06 23:59期末余额:</strong></div>
+                    }
+                    else
+                    {
+                        SelfhelpOrderMgr.Model.T_Bank_DateBalance bal = ViewData["bal"] as SelfhelpOrderMgr.Model.T_Bank_DateBalance;
+                        <div><strong>@bal.baldat.ToString("yyyy-MM-dd") 期初余额: @bal.bokbal</strong> </div>
+                        <div><strong>@bal.baldat.ToString("yyyy-MM-dd") 期末余额: @bal.avabal</strong></div>
+                    }
+
+                </div>
+
+            </div>
+        </div>
+        <div class="row">
+
+            <div class="col-sm-9">
+                @if (ViewData["detail"] != null)
+                {
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>序号</th>
+                                <th>流水号</th>
+                                <th>汇款账户</th>
+                                <th>收款人</th>
+                                <th>收入</th>
+                                <th>支出</th>
+                                <th>日期</th>
+                                <th>时间</th>
+                                <th>标志</th>
+                                <th>余额</th>
+                                <th>转账类型</th>
+                                <th>摘要备注</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (ViewData["detail"] != null)
+                            {
+                                var ls = ViewData["detail"] as List<SelfhelpOrderMgr.Model.T_Bank_TransDetail_Ext>;
+                                decimal sdamount = 0;
+                                decimal scamount = 0;
+                                int rowId = 1;
+                                foreach (var item in ls)
+                                {
+                                    string strFlag = "未分配";
+
+                                    decimal damount = 0;
+                                    decimal camount = 0;
+
+                                    switch (item.importFlag)
+                                    {
+                                        case 1:
+                                            {
+                                                strFlag = "个账";
+                                            }
+                                            break;
+                                        case 2:
+                                            {
+                                                strFlag = "公账";
+                                            }
+                                            break;
+                                        case 3:
+                                            {
+                                                strFlag = "退回";
+                                            }
+                                            break;
+                                        case 4:
+                                            {
+                                                strFlag = "集账";
+                                            }
+                                            break;
+                                        default:
+                                            {
+                                                strFlag = "否";
+                                            }
+                                            break;
+                                    }
+
+                                    if (item.direction == 1)
+                                    {
+                                        damount = item.txnamt;
+
+                                        sdamount = sdamount + damount;
+                                    }
+                                    else
+                                    {
+                                        camount = item.txnamt;
+
+                                        scamount = scamount + camount;
+                                    }
+                                    <tr>
+                                        <td class="text-center">@rowId</td>
+                                        <td>@item.vchnum</td>
+                                        <td>@item.fractnacntname</td>
+                                        <td>@item.FName</td>
+                                        <td>@damount</td>
+                                        <td>@camount</td>
+                                        <td>@item.txndate</td>
+                                        <td>@item.txntime</td>
+                                        <td>@strFlag</td>
+                                        <td>@item.acctbal</td>
+                                        <td>@item.transtype</td>
+                                        <td>@item.useinfo</td>
+                                    </tr>
+                                    rowId++;
+                                }
+
+                                <tr>
+                                    <th>合计</th>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td>@sdamount</td>
+                                    <td>@scamount</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                            }
+
+
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>序号</th>
+                                <th>流水号</th>
+                                <th>对手单位</th>
+                                <th>对手账号</th>
+                                <th>收入</th>
+                                <th>支出</th>
+                                <th>日期</th>
+                                <th>时间</th>
+                                <th>标志</th>
+                                <th>类型</th>
+                                <th>备注</th>
+                            </tr>
+                        </thead>
+                        
+                    </table>
+                }
+            </div>
+            <div class="col-sm-3">
+                <table class="table">
+                    <thead>
+                        <tr><th></th><th>收入</th><th>支出</th></tr>
+                    </thead>
+                    <tbody>
+                        @if (ViewData["sumDic"] != null)
+                        {
+                            var rs = ViewData["sumDic"] as List<SelfhelpOrderMgr.Model.T_Bank_Rcv>;
+                            decimal grDamout = 0;
+                            decimal grCamout = 0;
+                            decimal jtDamout = 0;
+                            decimal jtCamout = 0;
+                            decimal dgDamout = 0;
+                            decimal dgCamout = 0;
+                            decimal thDamout = 0;
+                            decimal thCamout = 0;
+                            decimal wfpDamout = 0;
+                            decimal wfpCamout = 0;
+                            decimal sDamout = 0;
+                            decimal sCamout = 0;
+                            decimal ceAmount = 0;
+                            foreach (var item in rs)
+                            {
+                                if (item.direction == 1)
+                                {
+                                    sDamout += item.RcvAmount;
+                                }
+                                else
+                                {
+                                    sCamout += item.RcvAmount;
+                                }
+
+                                switch (item.ImportFlag)
+                                {
+                                    case 1:
+                                        {
+                                            if (item.direction == 1)
+                                            {
+                                                grDamout += item.RcvAmount;
+                                            }
+                                            else
+                                            {
+                                                grCamout += item.RcvAmount;
+                                            }
+                                        }
+                                        break;
+                                    case 2:
+                                        {
+                                            if (item.direction == 1)
+                                            {
+                                                dgDamout += item.RcvAmount;
+                                            }
+                                            else
+                                            {
+                                                dgCamout += item.RcvAmount;
+                                            }
+                                        }
+                                        break;
+                                    case 3:
+                                        {
+                                            if (item.direction == 1)
+                                            {
+                                                thDamout += item.RcvAmount;
+                                            }
+                                            else
+                                            {
+                                                thCamout += item.RcvAmount;
+                                            }
+                                        }
+                                        break;
+                                    case 4:
+                                        {
+                                            if (item.direction == 1)
+                                            {
+                                                jtDamout += item.RcvAmount;
+                                            }
+                                            else
+                                            {
+                                                jtCamout += item.RcvAmount;
+                                            }
+                                        }
+                                        break;
+                                    default:
+                                        {
+                                            if (item.direction == 1)
+                                            {
+                                                wfpDamout += item.RcvAmount;
+                                            }
+                                            else
+                                            {
+                                                wfpCamout += item.RcvAmount;
+                                            }
+                                        }
+                                        break;
+                                }
+                            }
+                            <tr><th>个人入账：</th><td>@grDamout</td><td>@grCamout</td></tr>
+                            <tr><th>集体入账：</th><td>@jtDamout</td><td>@jtCamout</td></tr>
+                            <tr><th>对公入账：</th><td>@dgDamout</td><td>@dgCamout</td></tr>
+                            <tr><th>网银退回：</th><td>@thDamout</td><td>@thCamout</td></tr>
+                            <tr><th>未分配：</th><td>@wfpDamout</td><td>@wfpCamout</td></tr>
+                            <tr><th>汇总合计：</th><td>@sDamout</td><td>@sCamout</td></tr>
+                            SelfhelpOrderMgr.Model.T_Bank_DateBalance bal = ViewData["bal"] as SelfhelpOrderMgr.Model.T_Bank_DateBalance;
+                            ceAmount = bal.bokbal + sDamout - sCamout - bal.avabal;
+                            if (bal.bokbal + sDamout - sCamout == bal.avabal)
+                            {
+                                <tr><th>对账结果：</th><td>平账</td><td></td></tr>
+                            }
+                            else
+                            {
+                                <tr><th>对账结果：</th><td>差额</td><td>@ceAmount</td></tr>
+                            }
+                        }
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+
+    </div>
+    <script src="~/Scripts/jquery-1.11.3.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <script src="~/Scripts/myJs/commonJs.js"></script>
+
+</body>
+</html>

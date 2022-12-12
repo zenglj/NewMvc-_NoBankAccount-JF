@@ -9,7 +9,9 @@ using System.Web.Mvc;
 
 namespace SelfhelpOrderMgr.Web.Controllers
 {
+    [LoginActionFilter]
     [CustomActionFilterAttribute]
+    [MyLogActionFilterAttribute]
     public class BedMgrController : Controller
     {
         // GET: BedMgr

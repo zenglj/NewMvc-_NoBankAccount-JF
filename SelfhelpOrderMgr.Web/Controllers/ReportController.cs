@@ -1,6 +1,7 @@
 ﻿using Rotativa.MVC;
 using SelfhelpOrderMgr.BLL;
 using SelfhelpOrderMgr.Model;
+using SelfhelpOrderMgr.Web.Filters;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -12,6 +13,7 @@ using System.Web.Script.Serialization;
 
 namespace SelfhelpOrderMgr.Web.Controllers
 {
+    [LoginActionFilter]
     public class ReportController : BaseController
     {
         //
@@ -161,11 +163,14 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 row = Convert.ToInt32(strRow);
             }
             
-            listRows = new T_VcrdBLL().GetListCount(strWhere.ToString())[0];
+            var sm = new T_VcrdBLL().GetListCount(strWhere.ToString());
+
+            listRows = sm[0];
+
 
             List<T_Vcrd> vcrds = new T_VcrdBLL().GetPageList(page, row, strWhere, "CrtDate,FCrimeCode");
 
-            sss = "{\"total\":" + listRows.ToString() + ",\"rows\":" + jss.Serialize(vcrds) + "}";
+            sss = "{\"total\":" + listRows.ToString() + ",\"rows\":" + jss.Serialize(vcrds) + ",\"sum\":"+ sm[1] + "}";
             return Content(sss);
         }
 
@@ -389,9 +394,9 @@ namespace SelfhelpOrderMgr.Web.Controllers
             ViewData["crtby"] = crtby;
 
             ViewData["Dtype"] = CashTypes + "," + PayTypes;
-            //return View();
+            return View();
             //var model = new TestViewModel { DocTitle = id, DocContent = "This is a test with a partial view" };
-            return new PartialViewAsPdf();
+            //return new PartialViewAsPdf();//支持PDF打印输出
         }
 
         //Excel导出用户汇总总表

@@ -13,7 +13,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>SelfhelpOrderMgr.Web</RootNamespace>
     <AssemblyName>SelfhelpOrderMgr.Web</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <MvcBuildViews>false</MvcBuildViews>
     <UseIISExpress>true</UseIISExpress>
     <IISExpressSSLPort />
@@ -85,7 +85,13 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Data.Common, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Data.Common.4.3.0\lib\net451\System.Data.Common.dll</HintPath>
+    </Reference>
     <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data.SqlClient, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Data.SqlClient.4.8.3\lib\net451\System.Data.SqlClient.dll</HintPath>
+    </Reference>
     <Reference Include="System.Drawing" />
     <Reference Include="System.Management" />
     <Reference Include="System.Net.Http.Formatting, Version=5.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
@@ -213,12 +219,16 @@
     <Compile Include="CommonHeler\ActionResultInfo.cs" />
     <Compile Include="CommonHeler\BinarySerializerHelper.cs" />
     <Compile Include="CommonHeler\CommonClass.cs" />
+    <Compile Include="CommonHeler\ConfigHelper.cs" />
     <Compile Include="CommonHeler\DataTableToListHelper.cs" />
     <Compile Include="CommonHeler\ExcelRender.cs" />
     <Compile Include="CommonHeler\HardwareInfo.cs" />
+    <Compile Include="CommonHeler\HttpHelper.cs" />
     <Compile Include="CommonHeler\LicenseHelper.cs" />
     <Compile Include="CommonHeler\MD5Process.cs" />
+    <Compile Include="CommonHeler\RegexHelper.cs" />
     <Compile Include="CommonHeler\WebServiceHelper.cs" />
+    <Compile Include="CommonHeler\XMLSerilazerHelper_Ext.cs" />
     <Compile Include="CommonHeler\XMLSerilazerHelper.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\AdminController.cs" />
@@ -271,6 +281,9 @@
     <Compile Include="Controllers\VueTestController.cs" />
     <Compile Include="Controllers\WebServiceTestController.cs" />
     <Compile Include="Filters\CheckLicenseCodeAttribute.cs" />
+    <Compile Include="Filters\LoginActionFilter.cs" />
+    <Compile Include="Filters\LoginPwdErrorFilterAttribute.cs" />
+    <Compile Include="Filters\PowerCheckFilterAttribute.cs" />
     <Compile Include="Filters\CustomExceptionFilterAttribute.cs" />
     <Compile Include="Filters\CustomActionFilterAttribute.cs" />
     <Compile Include="Global.asax.cs">
@@ -281,7 +294,9 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Models\AccountViewModels.cs" />
+    <Compile Include="Models\BankMonthReportModel.cs" />
     <Compile Include="Models\IdentityModels.cs" />
+    <Compile Include="Models\XmlB2e0012.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
   </ItemGroup>
@@ -422,6 +437,8 @@
     <Content Include="Content\bootstrap.css.map" />
     <Content Include="JvdLicenseCode.rar" />
     <Fakes Include="Fakes\Ionic.Zip.fakes" />
+    <Content Include="Content\bootstrap-theme.min.css.map" />
+    <Content Include="Content\bootstrap.min.css.map" />
     <None Include="Properties\PublishProfiles\SelfOrderManager.pubxml" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\BootStrap_TreeGrid.js" />
@@ -830,6 +847,7 @@
     <Content Include="Scripts\jquery.validate.unobtrusive.min.js" />
     <Content Include="Scripts\jquery.wmuSlider.js" />
     <Content Include="Scripts\myJs\BankAtmMgrIndex.js" />
+    <Content Include="Scripts\myJs\LogMgr.js" />
     <Content Include="Scripts\myJs\BankSumReport.js" />
     <Content Include="Scripts\myJs\CriminalMgr.js" />
     <Content Include="Scripts\myJs\BankRcvIndex.js" />
@@ -1142,14 +1160,23 @@
     <Content Include="Views\Infomgr\PrintOutPrisonReport.cshtml" />
     <Content Include="Views\Infomgr\NewPrintOutPrisonReport_FZ.cshtml" />
     <Content Include="Views\BankATM\AtmCall.cshtml" />
-    <Content Include="Views\Infomgr\NewPrintOutPrisonReport.cshtml" />
+    <Content Include="Views\Infomgr\NewPrintOutPrisonReport_CSJY.cshtml" />
     <Content Include="Views\Infomgr\NewPrintOutPrisonReport - 通用.cshtml" />
     <Content Include="Views\BankRcv\PrintDetailList.cshtml" />
     <Content Include="Views\BankRcv\HttpTest.cshtml" />
     <Content Include="Views\BedMgr\Index.cshtml" />
+    <Content Include="Views\Infomgr\InfoListPrintSave.cshtml" />
+    <Content Include="Views\BankRcv\BankDateReport.cshtml" />
+    <Content Include="Views\BankRcv\BankMonthReport.cshtml" />
+    <Content Include="Views\BankRcv\BankYearReport.cshtml" />
+    <Content Include="Views\BankPayment\PrintPaymentReport.cshtml" />
+    <Content Include="Views\BankPayment\PrintPaymentMonthReport.cshtml" />
+    <Content Include="Views\Infomgr\NewPrintOutPrisonReport.cshtml" />
+    <Content Include="Views\Power\LogMgr.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="DownLoad\" />
     <Folder Include="Views\BaseMenu\" />
     <Folder Include="Views\Base\" />
     <Folder Include="Views\Login\" />

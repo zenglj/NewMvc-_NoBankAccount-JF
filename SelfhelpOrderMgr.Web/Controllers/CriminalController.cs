@@ -20,7 +20,9 @@ using SelfhelpOrderMgr.Web.Filters;
 
 namespace SelfhelpOrderMgr.Web.Controllers
 {
+    [LoginActionFilter]
     [CustomActionFilterAttribute]
+    [MyLogActionFilterAttribute]
     public class CriminalController : Controller
     {
         //
@@ -450,6 +452,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
                     criminal.FStatus2 = 0;
 
                     new T_CriminalBLL().Add(criminal, "");
+                    Log4NetHelper.logger.Info($"操作员:{strLoginName}|新增了一个服刑人员{criminal.FName}");
+
                     return Content("OK|" + jss.Serialize(criminal));
                 }
                 else
@@ -495,13 +499,17 @@ namespace SelfhelpOrderMgr.Web.Controllers
             }
             catch (Exception e)
             {
+                Log4NetHelper.logger.Error($"保存服刑人员信息错误：{e.Message}");
+
                 return Content("Err|" + e.Message);
             }
         }
 
         [MyLogActionFilterAttribute]
+        [PowerCheckFilterAttribute]//权限验证
         public ActionResult DelCriminal(string txtFCode)
         {
+                        
             //string txtFCode = Request["txtFCode"];
             if (string.IsNullOrEmpty(txtFCode))
             {
@@ -522,7 +530,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 //}
                 if (new T_CriminalBLL().Delete(txtFCode))
                 {
-                    Log4NetHelper.logger.Info("删除犯人信息,操作员：" + Session["loginUserName"].ToString() + ",ID=" + criminal.FCode + ",用户名为：" + criminal.FName + ",处遇为：" + criminal.FCYCode + ",队别名为：" + criminal.FAreaCode + "");
+                    Log4NetHelper.logger.Warn("删除犯人信息,操作员：" + Session["loginUserName"].ToString() + ",ID=" + criminal.FCode + ",用户名为：" + criminal.FName + ",处遇为：" + criminal.FCYCode + ",队别名为：" + criminal.FAreaCode + "");
 
                     return Content("OK|删除成功");
                 }
@@ -567,7 +575,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 criminal.fflag = 0;
                 if (new T_CriminalBLL().Update(criminal))
                 {
-                    Log4NetHelper.logger.Info("恢复离监人员为在押,操作员：" + Session["loginUserName"].ToString() + ",ID=" + criminal.FCode + ",用户名为：" + criminal.FName + "");
+                    Log4NetHelper.logger.Warn("恢复离监人员为在押,操作员：" + Session["loginUserName"].ToString() + ",ID=" + criminal.FCode + ",用户名为：" + criminal.FName + "");
                     return Content("OK|恢复成功，请刷新记录列表");
                 }
                 else
@@ -1848,7 +1856,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                     new CommTableInfoBLL().ExecSql("update t_Criminal set TP_YingYangCan_Money=0  where fcode='" + tplist.FCode + "'");
                 }
 
-                Log4NetHelper.logger.Info("删除营养餐特批记录,操作员：" + Session["loginUserName"].ToString() + ",ID=" + tplist.id + ",编号为：" + tplist.FCode + ",用户名为：" + tplist.FName + ",特批金额：" + tplist.TPMoney + ",特批原因为：" + tplist.Remark + "");
+                Log4NetHelper.logger.Warn("删除营养餐特批记录,操作员：" + Session["loginUserName"].ToString() + ",ID=" + tplist.id + ",编号为：" + tplist.FCode + ",用户名为：" + tplist.FName + ",特批金额：" + tplist.TPMoney + ",特批原因为：" + tplist.Remark + "");
 
                 return Content("OK|删除成功");
             }
@@ -2464,6 +2472,37 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 return base.Json(rs, JsonRequestBehavior.AllowGet);
             }
             return base.Json(new T_Bank_CardPoolBLL().BatchDistributeNewCard(), JsonRequestBehavior.AllowGet);
+        }
+
+        /// <summary>
+        /// 获取家属汇入银行卡号
+        /// </summary>
+        /// <param name="fcrimecode"></param>
+        /// <returns></returns>
+        public ActionResult GetUserBankCardList(string fcrimecode)
+        {
+            PageResult<T_Bank_Rcv> rs = new T_Bank_DepositListBLL().GetPageList<T_Bank_Rcv, T_Bank_Rcv>("id desc"
+                , Newtonsoft.Json.JsonConvert.SerializeObject(new { FCrimeCode = fcrimecode })
+                , 1, 10, "len(isnull(fractnactacn,''))>=12");
+
+            var _distrows = rs.rows.Select(o => new
+            {
+                fractName = o.fractName,
+                fractnactacn = o.fractnactacn,
+                fractnibkname = o.fractnibkname,
+                fractnibknum = o.fractnibknum
+            }).Distinct().Select(p=>new T_Bank_Rcv() {
+                fractName = p.fractName,
+                fractnactacn = p.fractnactacn,
+                fractnibkname = p.fractnibkname,
+                fractnibknum = p.fractnibknum
+            }).ToList();
+
+            rs.rows = _distrows;
+
+
+            return Json(rs);
+
         }
     }
 }

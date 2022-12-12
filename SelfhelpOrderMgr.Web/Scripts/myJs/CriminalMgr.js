@@ -238,6 +238,38 @@ function btnOutBankInfoEdit() {
     $("#FOutUserCode").textbox('setValue', row.FCode);
     $("#FOutFCrimeName").textbox('setValue', row.FName);
     GetOutBankInfo(row.FCode);//获取银行账户信息
+    $('#SelBankCard').combogrid({
+        panelWidth: 450,
+        value: '请选账户',
+        idField: 'fractName',
+        textField: 'fractName',
+        url: '/Criminal/GetUserBankCardList?fcrimecode=' + row.FCode,
+        columns: [[
+            { field: 'fractName', title: '账户名称', width: 80 },
+            { field: 'fractnactacn', title: '银行账号', width: 150 },
+            { field: 'fractnibkname', title: '开户行', width: 200 },
+            { field: 'fractnibknum', title: '联行号', width: 100 }
+        ]],
+        onSelect: function (index, data) {
+            if (data != undefined) {
+                //$("#UserNo").val(data.UserNo);
+                $("#OutBankCard").val(data.fractnactacn);
+                $("#BankUserName").val(data.fractName);
+                if (data.fractnibkname.includes('中国银行')) {
+                    $("#ccBankOrgName").combobox('setValue', '1');
+                } else {
+                    $("#ccBankOrgName").combobox('setValue', '0');
+
+                }
+                //$("#ccBankCNAPS").val(data.fractnibknum);
+                $('#ccBankCNAPS').combogrid('setValue', data.fractnibknum);
+                $("#OpeningBank").val(data.fractnibkname);
+
+
+            }
+        }
+    });
+
     $("#winOutBankInfo").window('open');
 }
 

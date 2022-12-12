@@ -1237,3 +1237,40 @@ function DeleteMenuBtn() {
 
 
 }
+
+
+
+function btnPrintPayMentReport(mode) {
+
+    var searchInfo = {
+        TranType: 1,
+        Amount: 200,
+        CrtDate_Start: '2020-05-01',
+        CrtDate_End: '2020-05-21'
+    };
+
+    var inpunts = $("#formPaySearch:input");
+    var json = {};
+    var message = [];
+    var strJson = "";
+    $("#formPaySearch table tr td span input").each(function (index, element) {   //element-当前的元素,也可使用this选择器
+        if (typeof $(this).attr("name") != "undefined" && $(this).val().replace(/^\s*|\s*$/g, "") != "" && typeof $(this).val() != "undefined") {
+            console.log($(this).attr("name") + ":" + $(this).val());
+            if (strJson == "") {
+                strJson = "\"" + $(this).attr("name") + "\":\"" + $(this).val() + "\"";
+            } else {
+                strJson = strJson + "," + "\"" + $(this).attr("name") + "\":\"" + $(this).val() + "\"";
+            }
+        }
+    });
+    strJson = "{" + strJson + "}";
+    console.log(strJson);
+
+    if (mode == 1) {
+        window.open("/BankPayment/PrintPayMentMonthReport/?strJsonWhere=" + strJson);
+    }
+    else {
+        window.open("/BankPayment/PrintPayMentReport/?strJsonWhere=" + strJson);
+    }
+}
+

@@ -186,6 +186,32 @@ namespace SelfhelpOrderMgr.DAL
 
         }
 
+        public T_Criminal_card GetInvoiceBalance(string fcode,string invoiceNo)
+        {
+
+            using (IDbConnection conn = new SqlConnection(SqlHelper.getConnstr()))
+            {
+
+                conn.Open();
+                StringBuilder strSql = new StringBuilder();
+                strSql.Append($"select top 1 * from T_Vcrd where flag=0 and fcrimecode=@fcrimecode and origid=@origid order by crtdate desc");
+
+                object parmUserInfo;
+                parmUserInfo = new { fcrimecode = fcode, origid = invoiceNo };
+                T_Vcrd vcrd=(T_Vcrd)conn.Query<T_Vcrd>(strSql.ToString(), parmUserInfo).FirstOrDefault();
+
+                string sql = @"select fcrimecode,sum(damount-camount) as BankAmount
+                                ,sum(case acctype when 0 then DAMOUNT-CAMOUNT else 0 end ) AmountA
+                                ,sum(case acctype when 1 then DAMOUNT-CAMOUNT else 0 end ) AmountB
+                                ,sum(case acctype when 2 then DAMOUNT-CAMOUNT else 0 end ) AmountC
+                                from T_Vcrd where flag=0 and fcrimecode=@fcrimecode and CRTDATE<= @crtdate
+                              group by fcrimecode";
+                object parmVcrdInfo;
+                parmVcrdInfo = new { fcrimecode = fcode, crtdate = vcrd.CrtDate };
+                return (T_Criminal_card)conn.Query<T_Criminal_card>(sql, parmVcrdInfo).FirstOrDefault();
+
+            }
+        }
         public List<T_Criminal> GetPageCriminalExtInfo(int page, int pageRow, string strWhere, string orderByField)
         {
             using (IDbConnection conn = new SqlConnection(SqlHelper.getConnstr()))

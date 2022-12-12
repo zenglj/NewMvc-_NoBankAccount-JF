@@ -458,6 +458,7 @@ function btnSearch() {
         FName: $("#FName").val(),
         FCrtBy: $("#FCrtBy").combobox('getValue'),
         TypeFlag: selTypeFlags,
+        Flag: $("#Flag").combobox('getValue'),
         GoodsType: $("#GoodsType").combobox('getValue'),
         GoodName: $("#GoodName").val(),
         GoodGTXM: $("#GoodGTXM").val(),
@@ -548,7 +549,8 @@ function getStrSearchWhere() {
     +"&areaName="+ $("#FAreaName").combobox('getText')
     +"&FCode="+ $("#FCode").numberbox('getValue')
     +"&FName="+ $("#FName").val()
-    +"&FCrtBy=" + $("#FCrtBy").combobox('getValue')
+        + "&FCrtBy=" + $("#FCrtBy").combobox('getValue')
+    + "&Flag=" + $("#Flag").combobox('getValue')
     + "&TypeFlag=" + selTypeFlags
     + "&GoodsType="+ $("#GoodsType").combobox('getValue')
     + "&GoodName="+ $("#GoodName").val()

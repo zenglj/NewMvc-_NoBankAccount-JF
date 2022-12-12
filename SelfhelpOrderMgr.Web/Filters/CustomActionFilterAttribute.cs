@@ -66,6 +66,7 @@ namespace SelfhelpOrderMgr.Web.Filters
 				Remark = "测试01"
 			};
 			new BaseDapperBLL().Insert<T_SysOperationLog>(i);
+			Log4NetHelper.logger.Info(Newtonsoft.Json.JsonConvert.SerializeObject(i));
 		}
 		private static void CheckLoginInfo(ActionExecutingContext context)
 		{
@@ -164,6 +165,9 @@ namespace SelfhelpOrderMgr.Web.Filters
 				Remark = actionRemarName
 			};
 			new BaseDapperBLL().Insert<T_SysOperationLog>(k);
+			Log4NetHelper.logger.Info($"{k.ControlName}|{k.ActionName}|{k.UserCode}|{k.Remark}|ReqJson:{k.ReqJson}");
+
+
 		}
 		public void OnActionExecuting(ActionExecutingContext context)
 		{
@@ -246,6 +250,8 @@ namespace SelfhelpOrderMgr.Web.Filters
 						Remark = "BankATM"
 					};
 					new BaseDapperBLL().Insert<T_SysOperationLog>(_model);
+					Log4NetHelper.logger.Info($"{_model.ControlName}|{_model.ActionName}|{_model.UserCode}|{_model.Remark}|ReqJson:{_model.ReqJson}");
+
 					context.Result = jr2;
 				}
 			}

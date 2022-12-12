@@ -22,7 +22,7 @@
             <hr />
             <div>
                 <table class="table table-striped table-bordered">
-                    <thead>                        
+                    <thead>
                         <tr><th colspan="2">编号</th><th>姓名</th><th colspan="2">日期</th><th>金额</th><th colspan="2">摘要</th></tr>
 
                     </thead>
@@ -32,19 +32,19 @@
                             //int i=1;
                             foreach (SelfhelpOrderMgr.Model.t_XFQueryList list in ViewData["lists"] as List<SelfhelpOrderMgr.Model.t_XFQueryList>)
                             {
-                                if(list.fname!="")
-                                { 
+                                if (list.fname != "")
+                                {
                                     <tr>
                                         <td colspan="2">@list.fcrimecode</td>
                                         <td>@list.fname</td>
-                                        <td colspan ="2">@list.CDate</td>
+                                        <td colspan="2">@list.CDate</td>
                                         <td>@list.Cmoney</td>
-                                        <td colspan ="2">@list.Dtype</td>
+                                        <td colspan="2">@list.Dtype</td>
                                     </tr>
                                 }
                             }
                         }
-                        
+
                         @if (ViewData["lists"] != null)
                         {
                             //int i=1;
@@ -58,50 +58,51 @@
                             }
                         }
 
-                        @if (ViewData["xfsuminfo"] != null) { 
-                            SelfhelpOrderMgr.Web.Controllers.xfSummaryInfo xf=ViewData["xfsuminfo"] as SelfhelpOrderMgr.Web.Controllers.xfSummaryInfo;
-                        <tr>
-                            <td>1、累计总消费</td>
-                            <td colspan="2">@xf.Leijizongxf (其中刚性消费 @xf.gxFood)</td>
-                            <td colspan="2">统计月数:@xf.Tongjiyueshu</td>
-                            <td colspan="2">自助选购等处遇消费(月平均):</td>
-                            <td>@xf.Yuejunxf</td>
-                        </tr>
-                        <tr>
-                            <td rowspan="2">其中</td>
-                            <td>衣服被褥:</td>
-                            <td>@xf.Yufubeizi</td>
-                            <td>自助选购物品消费:</td>
-                            <td>@xf.Chaoshigouwu</td>
-                            <td colspan="2">其他扣款:</td>
-                            <td>@xf.Yaopinqita</td>
-                        </tr>
-                        <tr>
-                            <td>营养餐:</td>
-                            <td>@xf.Xiaochao</td>
-                            <td>书刊报纸:</td>
-                            <td>@xf.Shukanbaozi</td>
-                            <td colspan="2">交罚金(总共):</td>
-                            <td>@xf.Jiaofajin</td>
-                        </tr>
-                        <tr>
-                            <td>2、总收入(中行):</td>
-                            <td>@xf.Zongshouru</td>
-                            <td>其中汇款:</td>
-                            <td>@xf.Huikuanshouru</td>
-                            <td>劳动报酬:</td>
-                            <td>@xf.Laodongbaochou</td>
-                            <td>零用金:</td>
-                            <td>@xf.Ningyongjin</td>
-                        </tr>
-                        <tr>
-                            <td>3、账户余额:</td>
-                            <td colspan="7">@xf.Zhanghuzongyue (其中劳动报酬不可用金额: @xf.BuKeYongMoney)</td>
-                        </tr>
-                        <tr>
-                            <td>备注:</td>
-                            <td colspan="7">日常总消费=超市购物消费（亲情电话）+衣服被褥</td>
-                        </tr>
+                        @if (ViewData["xfsuminfo"] != null)
+                        {
+                            SelfhelpOrderMgr.Web.Controllers.xfSummaryInfo xf = ViewData["xfsuminfo"] as SelfhelpOrderMgr.Web.Controllers.xfSummaryInfo;
+                            <tr>
+                                <td>1、累计总消费</td>
+                                <td colspan="2">@xf.Leijizongxf (其中刚性消费 @xf.gxFood)</td>
+                                <td colspan="2">统计月数:@xf.Tongjiyueshu</td>
+                                <td colspan="2">自助选购等处遇消费(月平均):</td>
+                                <td>@xf.Yuejunxf</td>
+                            </tr>
+                            <tr>
+                                <td rowspan="2">其中</td>
+                                <td>衣服被褥:</td>
+                                <td>@xf.Yufubeizi</td>
+                                <td>自助选购物品消费:</td>
+                                <td>@xf.Chaoshigouwu</td>
+                                <td colspan="2">其他扣款:</td>
+                                <td>@xf.Yaopinqita</td>
+                            </tr>
+                            <tr>
+                                <td>营养餐:</td>
+                                <td>@xf.Xiaochao</td>
+                                <td>书刊报纸:</td>
+                                <td>@xf.Shukanbaozi</td>
+                                <td colspan="2">交罚金(总共):</td>
+                                <td>@xf.Jiaofajin</td>
+                            </tr>
+                            <tr>
+                                <td>2、总收入(中行):</td>
+                                <td>@xf.Zongshouru</td>
+                                <td>其中汇款:</td>
+                                <td>@xf.Huikuanshouru</td>
+                                <td>劳动报酬:</td>
+                                <td>@xf.Laodongbaochou</td>
+                                <td>零用金:</td>
+                                <td>@xf.Ningyongjin</td>
+                            </tr>
+                            <tr>
+                                <td>3、账户余额:</td>
+                                <td colspan="7">@xf.Zhanghuzongyue (其中劳动报酬不可用金额: @xf.BuKeYongMoney)</td>
+                            </tr>
+                            <tr>
+                                <td>备注:</td>
+                                <td colspan="7">日常总消费=超市购物消费（亲情电话）+衣服被褥</td>
+                            </tr>
                         }
                     </tbody>
                 </table>

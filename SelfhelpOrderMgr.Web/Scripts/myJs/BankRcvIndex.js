@@ -164,6 +164,9 @@ function loadDetailTable() {
                     }
                 }
             },
+            { field: 'fractnactacn', title: '汇款账号', width: 100, sortable: true },
+            { field: 'fractnibkname', title: '汇款行', sortable: true, width: 100 },
+            { field: 'fractnibknum', title: '联行号', sortable: true, width: 100 },
             {
                 field: 'CreateDate', title: '导入日期', width: 100, sortable: true, formatter: function (value, row, index) {
                     if (row.CreateDate != null) {
@@ -185,7 +188,7 @@ function loadDetailTable() {
                         return '';
                     }
                 }
-            },
+            },            
             {
                 field: 'Opration', title: '操作', width: 100, sortable: true, formatter: function (value, row, index) {
                     if (row.ImportFlag == 0) {
@@ -233,10 +236,15 @@ function SetAuditDiv(row) {
     if (row.ImportFlag == 1) {
         $("#divAuditRec").hide();
     } else {
-        $("#addVchnum").val(row.VchNum);
-        $("#divAuditRec").show();
-        $('#addFCrimeName').textbox('setValue','');
-        $('#addFCrimeCode').numberbox('setValue','');
+        if ($("#userTypeId").val() == "1") {
+            $("#addVchnum").val(row.VchNum);
+            $("#divAuditRec").show();
+            $('#addFCrimeName').textbox('setValue', '');
+            $('#addFCrimeCode').numberbox('setValue', '');
+        } else {
+            $("#divAuditRec").hide();
+        }
+        
     }
 }
 
@@ -475,6 +483,33 @@ function btnExcelReportSave() {
         }
     });
 }
+
+
+function btnPrintBankDateReport() {
+
+    //$.post("/BankRcv/BankDateReport/", { "startTime": $("#SearchCreateDate_Start").datetimebox('getValue'), "endTime": $("#SearchCreateDate_End").datetimebox('getValue') }, function (data, status) {
+    //    if (status != "success") {
+    //        return false;
+    //    } else {
+    //        var words = data.split("|");
+    //        if (words[0] == "OK") {
+    //            window.open("/Upload/" + words[1]);
+    //        }
+    //    }
+    //});
+
+    window.open("/BankRcv/BankDateReport/?startDate=" + $("#SearchCreateDate_Start").datetimebox('getValue'));
+}
+
+
+function btnPrintBankMonthReport() {
+    window.open("/BankRcv/BankMonthReport/?startDate=" + $("#SearchCreateDate_Start").datetimebox('getValue') + "&endDate="+ $("#SearchCreateDate_End").datetimebox('getValue'));
+}
+
+function btnPrintBankYearReport() {
+    window.open("/BankRcv/BankYearReport/?startDate=" + $("#SearchCreateDate_Start").datetimebox('getValue') + "&endDate=" + $("#SearchCreateDate_End").datetimebox('getValue'));
+}
+
 
 function btnExcelOutBankTransList() {
     $.post("/BankRcv/ExcelOutBankTransList/", { "startTime": $("#SearchCreateDate_Start").datetimebox('getValue'), "endTime": $("#SearchCreateDate_End").datetimebox('getValue') }, function (data, status) {

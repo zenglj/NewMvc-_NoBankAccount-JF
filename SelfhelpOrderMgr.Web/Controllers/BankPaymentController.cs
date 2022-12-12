@@ -14,6 +14,7 @@ using System.Web.Script.Serialization;
 
 namespace SelfhelpOrderMgr.Web.Controllers
 {
+    [LoginActionFilter]
     [CustomActionFilterAttribute]
     [MyLogActionFilterAttribute]
     public class BankPaymentController : Controller
@@ -26,7 +27,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
         //
         // GET: /BankPayment/
-        public ActionResult Index()
+        public ActionResult Index(int id=1)
         {
             ViewData["areas"] = new T_AREABLL().GetModelList("");
 
@@ -59,6 +60,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
             var paytypes = _bllPay.GetModelList<T_Trans_FeeList, T_Trans_BankAccount>("{}", "Id", 100)
                 .Select(p=>p.TypeName).ToList();
             ViewData["paytypes"] = paytypes;
+            ViewData["id"] = id;
 
             return View();
         }
@@ -509,6 +511,27 @@ SELECT  [Id]
 
             ExcelRender.RenderToExcel(dt, title, 6, strFileName, mul_lan, strCountTime);
             return Content("OK|" + strLoginName + "_BankVcrdPayList.xls");
+        }
+
+
+        public ActionResult PrintPaymentReport(string strJsonWhere)
+        {
+
+            List<ViewPaymentRecordExtend> res = _bllPay.GetModelList<ViewPaymentRecordExtend, ViewPaymentRecordExt_Search>(strJsonWhere, "Id asc", 10000);
+
+            ViewData["res"] = res;
+            return View();
+        }
+
+        public ActionResult PrintPaymentMonthReport(string strJsonWhere)
+        {
+
+            List<ViewPaymentRecordExtend> res = _bllPay.GetModelList<ViewPaymentRecordExtend, ViewPaymentRecordExt_Search>(strJsonWhere, "Id asc", 10000);
+
+            ViewData["res"] = res.GroupBy(o=>new { o.TranType,o.TranStatus,o.PayMode, FCrimeName = o.Crtdate.ToString("yyyyMM"), FCrimeCode= o.TranDate==null?"":((DateTime)o.TranDate).ToString("yyyyMM")})
+                         .Select(k => new ViewPaymentRecordExtend { TranStatus= k.Key.TranStatus, TranType = k.Key.TranType, PayMode = k.Key.PayMode, FCrimeCode = k.Key.FCrimeCode,FCrimeName=k.Key.FCrimeName, Amount = k.Sum(i => i.Amount), TranMoney = k.Sum(i => i.TranMoney) }).ToList();
+            ;
+            return View();
         }
     }
 }
