@@ -14,6 +14,28 @@ namespace SelfhelpOrderMgr.BLL
 
 
         #region 基本增删改查
+
+
+
+        public T Query<T>(string strWhere) where T : BaseModel
+        {
+            return dapperDal.Query<T>(strWhere);
+        }
+
+        public T QueryModel<T>(string fieldName, string whereValue)
+        {
+            return dapperDal.QueryModel<T>(fieldName, whereValue);
+        }
+        public List<T> QueryList<T>(string strWhere) where T : BaseModel
+        {
+            return dapperDal.QueryList<T>(strWhere);
+        }
+
+        public List<T> QueryList<T>(string sqlStr, object parameter = null)
+        {
+            return dapperDal.QueryList<T>(sqlStr, parameter);
+        }
+
         public T Insert<T>(T t) where T : BaseModel
         {
             return dapperDal.Insert<T>(t);

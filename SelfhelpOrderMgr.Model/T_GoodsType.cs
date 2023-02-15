@@ -5,7 +5,7 @@ using System.Data;
 namespace SelfhelpOrderMgr.Model
 {
     //T_GoodsType
-    public class T_GoodsType
+    public class T_GoodsType:BaseModel
     {
 
         /// <summary>
@@ -99,6 +99,8 @@ namespace SelfhelpOrderMgr.Model
             set { _ctrlmode = value; }
         }
 
+        //使用类型 增加UseType区分消费类型 0表示超市消费,1表示积分消费
+        public int UseType { get; set; }
     }
 }
 

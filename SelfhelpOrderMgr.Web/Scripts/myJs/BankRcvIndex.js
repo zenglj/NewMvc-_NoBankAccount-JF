@@ -292,15 +292,15 @@ function btnAuditBankRec() {
 //网银退回个人账户
 function btnReturnPersonalAccount() {
     if ($('#addFCrimeCode').val() == "") {
-        $.message.alert("罪犯编号不能为空");
+        $.message.alert("提示","罪犯编号不能为空");
         return false;
     }
     if ($('#addFCrimeName').val() == "") {
-        $.message.alert("罪犯姓名不能为空");
+        $.message.alert("提示","罪犯姓名不能为空");
         return false;
     }
     if ($('#addFRemark').val() == "") {
-        $.message.alert("备注信息不能为空");
+        $.message.alert("提示","备注信息不能为空");
         return false;
     }
     $('#ffBankRecAudit').form({
@@ -332,6 +332,44 @@ function btnReturnPersonalAccount() {
     // submit the form    
     $('#ffBankRecAudit').submit();
 }
+
+
+//原路退回
+function btnReturnToBack() {
+
+    if ($('#addFRemark').val() == "") {
+        $.message.alert("提示", "备注信息不能为空");
+        return false;
+    }
+    $('#ffBankRecAudit').form({
+        url: "/BankRcv/SetListForReturnToBack",//设置为退回个人账户
+        onSubmit: function () {
+            // do some check    
+            // return false to prevent submit;    
+        },
+        success: function (data) {
+            var rs = $.parseJSON(data);
+
+            if (rs.Flag == true) {
+                var mainRow = $('#test').datagrid('getSelected');
+                var idx = $('#test').datagrid('getRowIndex', mainRow);
+                var bouns = rs.DataInfo;
+                $('#test').datagrid('updateRow', {
+                    index: idx,
+                    row: {
+                        Remark: bouns.Remark,
+                        ImportFlag: bouns.ImportFlag
+                    }
+                });
+            }
+
+            alert(rs.ReMsg)
+        }
+    });
+    // submit the form    
+    $('#ffBankRecAudit').submit();
+}
+
 
 function btnSearch() {
     var searchInfo = {

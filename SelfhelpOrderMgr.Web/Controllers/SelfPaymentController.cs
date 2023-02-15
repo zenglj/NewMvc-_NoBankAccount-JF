@@ -11,7 +11,7 @@ using System.Web.Script.Serialization;
 
 namespace SelfhelpOrderMgr.Web.Controllers
 {
-    [MyLogActionFilterAttribute]
+    //[MyLogActionFilterAttribute]
     public class SelfPaymentController : Controller
     {
         JavaScriptSerializer jss = new JavaScriptSerializer();

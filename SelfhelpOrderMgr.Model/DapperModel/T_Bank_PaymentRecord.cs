@@ -25,5 +25,13 @@ namespace SelfhelpOrderMgr.Model
         public string BankResultInfo {get;set;}
         public string WithdrawalPassword { get; set; }
         public int PwdErrCount { get; set; }//密码输错次数
+
+
+        public string OutBankCard { get; set; }
+        public string BankUserName { get; set; }
+        public string BankOrgName { get; set; }
+        public string BankCNAPS { get; set; }
+        public string OpeningBank { get; set; }
+        public string OutBankRemark { get; set; }
     }
 }

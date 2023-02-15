@@ -15,6 +15,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Transactions;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Script.Serialization;
@@ -388,6 +389,129 @@ namespace SelfhelpOrderMgr.Web.Controllers
             }
             rs.ReMsg = _s;
             rs.DataInfo = new T_Bank_DepositListBLL().GetModelFirst<T_Bank_Rcv, T_Bank_Rcv_Search>(jss.Serialize(search)); ;
+
+            return Content(jss.Serialize(rs));
+            //return Content(jss.Serialize(rs));
+        }
+
+
+        /// <summary>
+        /// 设置为原路退回
+        /// </summary>
+        /// <param name="remark"></param>
+        /// <param name="vchnum"></param>
+        /// <param name="checkFlag"></param>
+        /// <returns></returns>
+        public ActionResult SetListForReturnToBack(string remark, string vchnum, int checkFlag = 1)
+        {
+            ResultInfo rs = new ResultInfo()
+            {
+                Flag = false,
+                ReMsg = "失败",
+                DataInfo = null
+            };
+
+            T_Bank_Rcv rcv = _bll.QueryModel<T_Bank_Rcv>("Vchnum", vchnum);
+            if (rcv.ImportFlag != 0)
+            {
+                rs.Flag = false;
+                rs.ReMsg = "记录的状态必须为未入账，即为“否”";
+                return Content(jss.Serialize(rs));
+            }
+            if (string.IsNullOrWhiteSpace(rcv.fractnactacn))
+            {
+                rs.Flag = false;
+                rs.ReMsg = "汇款原账户不能为空";
+                return Content(jss.Serialize(rs));
+            }
+
+            if (string.IsNullOrWhiteSpace(rcv.fractName))
+            {
+                rs.Flag = false;
+                rs.ReMsg = "汇款人姓名不能为空";
+                return Content(jss.Serialize(rs));
+            }
+            if (string.IsNullOrWhiteSpace(rcv.fractnibkname))
+            {
+                rs.Flag = false;
+                rs.ReMsg = "汇款人银行网点不能为空";
+                return Content(jss.Serialize(rs));
+            }
+            if (string.IsNullOrWhiteSpace(rcv.fractnibknum))
+            {
+                rs.Flag = false;
+                rs.ReMsg = "汇款人联行号不能为空";
+                return Content(jss.Serialize(rs));
+            }
+            //var search = new { OrigId = vchnum };
+
+            T_Vcrd _vcrd = new T_VcrdBLL().GetModelList($"OrigId='{vchnum}'").FirstOrDefault();
+            if (_vcrd != null)
+            {
+                rs.Flag = false;
+                rs.ReMsg = "已经入账到个人中银结算卡账户了，不能退款";
+                return Content(jss.Serialize(rs));
+            }
+
+            string _desc = Session["loginUserName"].ToString() + "_" + $"原路退回：{remark}";
+            rcv.Remark = _desc;
+            rcv.ImportFlag = 5;//5表示原路退回个人
+
+            var ls = _bll.QueryList<T_Bank_PaymentRecord>($"FCrimeCode like '原退:%{rcv.VchNum}'");
+            if (ls.Count > 0)
+            {
+                rs.Flag = false;
+                rs.ReMsg = "该记录已经办理了退款，不能重复退回";
+                return Content(jss.Serialize(rs));
+            }
+
+            using (TransactionScope ts = new TransactionScope())
+            {
+                T_Bank_PaymentRecord prd = new T_Bank_PaymentRecord()
+                {
+                    FCrimeCode = $"原退:{rcv.VchNum}",
+                    TranType = 0,
+                    PayMode = 2,
+                    Amount = rcv.RcvAmount,
+                    ToBankId = 0,
+                    AuditFlag = 0,
+                    AuditBy = "",
+                    AuditDate = null,
+                    TranMoney = rcv.RcvAmount,
+                    PurposeInfo = _desc,
+                    TranDate = null,
+                    TranStatus = 0,
+                    Crtdate = DateTime.Now,
+                    ReturnTime = null,
+                    BankObssid = null,
+                    BankResultInfo = "",
+                    WithdrawalPassword = "",
+                    PwdErrCount = 0,
+                    OutBankCard = rcv.fractnactacn,
+                    BankUserName = rcv.fractName,
+                    BankOrgName = rcv.fractnibkname.StartsWith("中国银行") == true ? "1" : "0",
+                    OutBankRemark = "原路退回",
+                    OpeningBank = rcv.fractnibkname,
+                    BankCNAPS = rcv.fractnibknum
+
+                };
+
+                new T_Bank_DepositListBLL().Insert(prd);
+
+                if (new T_Bank_DepositListBLL().Update(rcv))
+                {
+                    rs.Flag = true;
+                    rs.ReMsg = "设置成功";
+                }
+                else
+                {
+                    rs.Flag = false;
+                    rs.ReMsg = "设置失败";
+                }
+                ts.Complete();
+            }
+
+            rs.DataInfo = rcv;
 
             return Content(jss.Serialize(rs));
             //return Content(jss.Serialize(rs));

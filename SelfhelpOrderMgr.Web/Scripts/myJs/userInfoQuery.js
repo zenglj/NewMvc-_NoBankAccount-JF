@@ -36,7 +36,7 @@ function btnQueryUserInfo(e, saleSort) {
 
 function QueryUserInfo(cardNo) {
     $("#lblInfo").html(cardNo);
-    $.post("/UserQuery/QueryUserInfo", { "FCardCode": cardNo, "checkFlag": "1" }, function (data, status) {
+    $.post("/UserQuery/QueryUserInfo", { "FCardCode": cardNo, "checkFlag": "1", "startDate": $("#startDate").val(), "endDate": $("#endDate").val()}, function (data, status) {
         if ("success" != status) {
             return false;
         } else {

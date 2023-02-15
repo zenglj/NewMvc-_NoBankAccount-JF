@@ -1,9 +1,7 @@
-﻿
-using SelfhelpOrderMgr.BLL;
+﻿using SelfhelpOrderMgr.BLL;
 using SelfhelpOrderMgr.Model;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Data;
 using System.Linq;
 using System.Web;
@@ -12,26 +10,14 @@ using System.Web.Script.Serialization;
 
 namespace SelfhelpOrderMgr.Web.Controllers
 {
-    public class ShoppingController : LoginController
+    public class JfShoppingController : Controller
     {
         JavaScriptSerializer jss = new JavaScriptSerializer();
         private int loginSaleId = 1;
         string strLoginUserName = "";
+        // GET: JfShopping
         public ActionResult Index(int id = 1)//默认1是超市消费
         {
-            //取消原来有在管理表设定的模式，改用在T_Sho_SaleType表设定
-            //if (id == 1)
-            //{
-            //    T_SHO_ManagerSet mgrset = new T_SHO_ManagerSetBLL().GetModel("ShoppingFlag");
-            //    if (mgrset != null)
-            //    {
-            //        if (mgrset.MgrValue == "0")
-            //        {
-            //            return View("StopShoppingNotice");
-            //        }
-            //    }
-            //}
-
 
             int saleTypeId = id;
             loginSaleId = id;
@@ -50,10 +36,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 {
                     //如果今天没有在列表里，就说明不能消费，则转到停止消费页面
                     int saledayFlag = new T_SHO_SaleDayListBLL().SaleDayExists(saleTypeId, DateTime.Today);
-                    //if (!saledayFlag)
-                    //{
-                    //    return View("StopShoppingNotice");
-                    //}
+
                     switch (saledayFlag)
                     {
                         case 0:
@@ -85,20 +68,10 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
             ViewData["ptype"] = saletype.PType;
             ViewData["saleTypeId"] = saleTypeId;
-            List<T_GoodsType> types = (List<T_GoodsType>)new T_GoodsTypeBLL().GetListOfIEnumerable("SaleTypeId=" + id.ToString() + "");
+            List<T_GoodsType> types = (List<T_GoodsType>)new T_GoodsTypeBLL().GetListOfIEnumerable("SaleTypeId=" + id.ToString() + " and UseType=1");
             ViewData["types"] = types;
             string strTypes = "";
-            //foreach (T_GoodsType type in types)
-            //{
-            //    if (strTypes == "")
-            //    {
-            //        strTypes = "'"+type.Fcode+"'";
-            //    }
-            //    else
-            //    {
-            //        strTypes = strTypes+",'" + type.Fcode + "'";
-            //    }
-            //}
+
             if (types.Count > 0)
             {
                 var f = from s in types
@@ -135,20 +108,6 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
             return View();
 
-        }
-
-        public ActionResult About()
-        {
-            ViewBag.Message = "Your application description page.";
-
-            return View();
-        }
-
-        public ActionResult Contact()
-        {
-            ViewBag.Message = "Your contact page.";
-
-            return View();
         }
 
         //获取用户IC卡信息
@@ -1166,16 +1125,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
                     List<T_SHO_SaleType> saleTypes = new T_SHO_SaleTypeBLL().GetModelList("PType='" + invoice.PType + "'");
                     T_Criminal criminal = new T_CriminalBLL().GetCriminalXE_info(fcrimecode, saleTypes[0].ID);
                     List<T_InvoiceDTL> details = new T_InvoiceDTLBLL().GetModelList("InvoiceNo='" + invoice.InvoiceNo + "'");
-                    //rtns.OrderId = orderId;
-                    //rtns.CrimeCode = criminal.FCode;
-                    //rtns.CrimeName = criminal.FName;
-                    //rtns.AreaName = criminal.FAreaName;
-                    //rtns.OrderMoney = order.FAmount;
-                    //rtns.AmountA = criminal.AmountAmoney;
-                    //rtns.AmountB = criminal.AmountBmoney;
-                    //rtns.AmountC = criminal.AmountCmoney;
-                    //rtns.PayDate = DateTime.Now.ToShortDateString();
-                    //rtns.Lists = details;
+
+
                     rtns.details = details;
                     rtns.invoice = invoice;
                     rtns.criminal = criminal;
@@ -1271,4 +1222,3 @@ namespace SelfhelpOrderMgr.Web.Controllers
         }
     }
 }
-    

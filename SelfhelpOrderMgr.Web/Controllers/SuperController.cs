@@ -888,9 +888,9 @@ namespace SelfhelpOrderMgr.Web.Controllers
                     string sql = "select gtxm,count(qty) as qty from t_invoiceDtl where Remark like '%"+ models[0].INVOICENO + "%' group by GTXM";
                     var _rs=new CommTableInfoBLL().GetList<T_InvoiceDTL>(sql, null);
 
-                    var _ms = models.GroupBy(o => o.GTXM).Select(g => new { key = g.Key, value = g.Count() }).ToList();
+                    var _ms = models.GroupBy(o => o.GTXM).Select(g => new { key = g.Key, value = g.Sum(p=>p.QTY) }).ToList();
 
-                    var _ds = dtls.GroupBy(o => o.GTXM).Select(g => new { key = g.Key, value = g.Count() }).ToList();
+                    var _ds = dtls.GroupBy(o => o.GTXM).Select(g => new { key = g.Key, value = g.Sum(p => p.QTY) }).ToList();
 
                     foreach (var item in _ms)
                     {

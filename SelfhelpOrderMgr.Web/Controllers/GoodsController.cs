@@ -13,8 +13,8 @@ using System.Web.Script.Serialization;
 
 namespace SelfhelpOrderMgr.Web.Controllers
 {
-    [LoginActionFilter]
-    [MyLogActionFilterAttribute]
+    //[LoginActionFilter]
+    //[MyLogActionFilterAttribute]
     public class GoodsController : BaseMenuController
     {
         //
@@ -58,7 +58,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
 
         #region 商品调价申请
-
+        [MyLogActionFilterAttribute]
         //商品调价申请
         public ActionResult PriceChangeIndex(int id = 1)
         {
@@ -83,7 +83,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
             return View();
         }
-
+        [MyLogActionFilterAttribute]
         public ActionResult GetChangeList()
         {
             string strWhere = GetChangeListWhere();
@@ -355,6 +355,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
         }
 
         //保存提交审核
+        [MyLogActionFilterAttribute]
         public ActionResult btnSubmitAduit()
         {
             string seqnos = Request["seqnos"];

@@ -11,7 +11,7 @@ using System.Web.Script.Serialization;
 
 namespace SelfhelpOrderMgr.Web.Controllers
 {
-    [MyLogActionFilterAttribute]
+    //[MyLogActionFilterAttribute]
     public class SelfDongJieController : Controller
     {
         //自助冻结犯人的金额

@@ -44,6 +44,9 @@ namespace SelfhelpOrderMgr.Web.Controllers
         public ActionResult QueryUserInfo()
         {
             string fcardCode = Request["FCardCode"];
+
+            string startDate = Request["startDate"];
+            string endDate = Request["endDate"];
             string ip = System.Web.HttpContext.Current.Request.UserHostAddress;
             string status = "Error|查询失败";
             if (fcardCode.Length != 10)
@@ -69,7 +72,11 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 criminal.BankCardNo = "******************";
             }
             
-            List<T_Vcrd> vcrds = new T_VcrdBLL().GetModelList(100,"flag=0 and fcrimecode='" + criminal.FCode + "' and crtdate>='"+ DateTime.Now.AddMonths(-3).ToShortDateString() +"'and crtdate<'"+ DateTime.Now.AddDays(1).ToShortDateString() +"'"," CrtDate desc");
+            string vcrdWhere = "flag=0 and fcrimecode='" + criminal.FCode + "' and crtdate>='" + DateTime.Now.AddMonths(-3).ToShortDateString() + "'and crtdate<'" + DateTime.Now.AddDays(1).ToShortDateString() + "'";
+            if(!(string.IsNullOrWhiteSpace( startDate) && string.IsNullOrWhiteSpace( endDate))){
+                vcrdWhere = "flag=0 and fcrimecode='" + criminal.FCode + "' and crtdate>='" + startDate + "'and crtdate<'" + Convert.ToDateTime(endDate).AddDays(1).ToShortDateString() + "'";
+            }
+            List<T_Vcrd> vcrds = new T_VcrdBLL().GetModelList(200, vcrdWhere, " CrtDate desc");
             rtnQueryUserInfo userinfo = new rtnQueryUserInfo();
             userinfo.UserInfo = criminal;
             userinfo.UserCard = cards[0];

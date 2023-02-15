@@ -6,13 +6,108 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Web;
+using System.Web.Script.Serialization;
 
 namespace SelfhelpOrderMgr.DAL
 {
     public  class BaseDapperDAL
     {
+        JavaScriptSerializer jss = new JavaScriptSerializer();
+        public T Query<T>(string strWhere)
+        {
+            using (SqlConnection conn = new SqlConnection(SqlHelper.getConnstr()))
+            {
+                Type type = typeof(T);
+                string sql = $"select * from {type.Name} ";
+                if (!string.IsNullOrWhiteSpace(strWhere))
+                {
+                    sql = sql + "where " + strWhere;
+                }
+                var list = SqlMapper.Query<T>(conn, sql).AsList<T>();//这里的【0】可以去掉，因为我这个只是返回一条记录，实际使用可以根据情况返回数组
+                if (list.Count > 0)
+                {
+                    return list[0];
+                }
+                else
+                {
+                    return default(T);
+                }
+            }
+        }
 
-        public  T Insert<T>(T t) where T:BaseModel
+        /// <summary>
+        /// 查询Model
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="fieldName"></param>
+        /// <param name="whereValue"></param>
+        /// <returns></returns>
+        public T QueryModel<T>(string fieldName, string whereValue)
+        {
+            using (SqlConnection conn = new SqlConnection(SqlHelper.getConnstr()))
+            {
+                Type type = typeof(T);
+                string sql = $"select * from {type.Name} where {fieldName}=@{fieldName}";
+
+                string strObj = "{\"" + fieldName + "\":\"" + whereValue + "\"}";
+
+                object obj = jss.DeserializeObject(strObj);
+
+                var list = SqlMapper.Query<T>(conn, sql, obj).AsList<T>();//这里的【0】可以去掉，因为我这个只是返回一条记录，实际使用可以根据情况返回数组
+                if (list.Count > 0)
+                {
+                    return list[0];
+                }
+                else
+                {
+                    return default(T);
+                }
+            }
+        }
+
+        public List<T> QueryList<T>(string strWhere)
+        {
+            using (SqlConnection conn = new SqlConnection(SqlHelper.getConnstr()))
+            {
+                Type type = typeof(T);
+                string sql = $"select * from {type.Name} ";
+                if (!string.IsNullOrWhiteSpace(strWhere))
+                {
+                    sql = sql + "where " + strWhere;
+                }
+
+                var list = SqlMapper.Query<T>(conn, sql).AsList<T>();//这里的【0】可以去掉，因为我这个只是返回一条记录，实际使用可以根据情况返回数组
+                return list;
+            }
+        }
+
+        public List<T> QueryList<T>(string sqlStr, object parameter = null)
+        {
+            using (IDbConnection conn = new SqlConnection(SqlHelper.getConnstr()))
+            {
+                return conn.Query<T>(sqlStr, parameter).ToList();
+            }
+        }
+        public T QueryBySql<T>(string sql)
+        {
+            using (SqlConnection conn = new SqlConnection(SqlHelper.getConnstr()))
+            {
+
+                var list = SqlMapper.Query<T>(conn, sql).AsList<T>();//这里的【0】可以去掉，因为我这个只是返回一条记录，实际使用可以根据情况返回数组
+                if (list.Count > 0)
+                {
+                    return list[0];
+                }
+                else
+                {
+                    return default(T);
+                }
+            }
+        }
+
+
+
+        public T Insert<T>(T t) where T:BaseModel
         {
             using (SqlConnection conn = new SqlConnection(SqlHelper.getConnstr()))
             {

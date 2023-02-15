@@ -12,7 +12,7 @@ using System.Web.Script.Serialization;
 
 namespace SelfhelpOrderMgr.Web.Controllers
 {
-    [LoginActionFilter]
+    //[LoginActionFilter]
     public class ComAppController : Controller
     {
         //

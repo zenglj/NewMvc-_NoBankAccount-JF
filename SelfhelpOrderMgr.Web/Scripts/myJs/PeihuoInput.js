@@ -500,9 +500,11 @@ function LoadPeihuoDetail() {
             //loadInvDetailTable();
             //$('#invDetails').datagrid('loadData', { total: 0, rows: [] });
             var rows = $('#invDetails').datagrid('getRows');
-            for (var i = rows.length-1; i >=0; i--) {
-                var idx = $('#invDetails').datagrid('getRowIndex', rows[i]);
-                $('#invDetails').datagrid('deleteRow', idx);
+            if (rows != null) {
+                for (var i = rows.length - 1; i >= 0; i--) {
+                    var idx = $('#invDetails').datagrid('getRowIndex', rows[i]);
+                    $('#invDetails').datagrid('deleteRow', idx);
+                }
             }
             $("#wselOutId").val(row.fsn);
             $("#winCustList").window('open');

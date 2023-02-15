@@ -254,6 +254,7 @@
     <Compile Include="Controllers\GoodsController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\InfomgrController.cs" />
+    <Compile Include="Controllers\JfShoppingController.cs" />
     <Compile Include="Controllers\LaobaoController.cs" />
     <Compile Include="Controllers\LBExcelCheckController.cs" />
     <Compile Include="Controllers\LingyongJinController.cs" />
@@ -296,6 +297,7 @@
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\BankMonthReportModel.cs" />
     <Compile Include="Models\IdentityModels.cs" />
+    <Compile Include="Models\ShoppingEntity.cs" />
     <Compile Include="Models\XmlB2e0012.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
@@ -1173,6 +1175,7 @@
     <Content Include="Views\BankPayment\PrintPaymentMonthReport.cshtml" />
     <Content Include="Views\Infomgr\NewPrintOutPrisonReport.cshtml" />
     <Content Include="Views\Power\LogMgr.cshtml" />
+    <Content Include="Views\JfShopping\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

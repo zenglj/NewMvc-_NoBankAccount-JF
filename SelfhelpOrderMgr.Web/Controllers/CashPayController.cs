@@ -444,7 +444,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 {
                     case 0:
                         {
-                            if (vcrd.DAmount > card.AmountA)
+                            if (vcrd.DAmount > card.AmountA && vcrd.Flag == 0)
                             {
                                 return Content("Err|A账户资金已经被消费，余额不足，不能删除");
                             }
@@ -452,7 +452,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         break;
                     case 1:
                         {
-                            if (vcrd.DAmount > card.AmountB)
+                            if (vcrd.DAmount > card.AmountB && vcrd.Flag == 0)
                             {
                                 return Content("Err|B账户资金已经被消费，余额不足，不能删除");
                             }
@@ -460,7 +460,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         break;
                     case 2:
                         {
-                            if (vcrd.DAmount > card.AmountC)
+                            if (vcrd.DAmount > card.AmountC && vcrd.Flag==0)
                             {
                                 return Content("Err|C账户资金已经被消费，余额不足，不能删除");
                             }

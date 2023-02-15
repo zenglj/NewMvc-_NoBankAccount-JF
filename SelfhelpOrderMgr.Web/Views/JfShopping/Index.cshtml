@@ -1,0 +1,528 @@
+﻿@{
+    ViewBag.Title = "自助购物";
+}
+
+<!-- Bootstrap -->
+<style type="text/css">
+    <!--
+    .MoneyFontColor {
+        color: #FF4400;
+    }
+    -->
+</style>
+<div id="Head_Top">
+
+    <h1 id="topInfo" class="text-center">@ViewData["ptype"],欢迎您选购本站商品！</h1>
+
+    <h3 class="text-center"><small>这些商品是监狱或省局规定的目录产品，所有商品都是来自正规渠道,并与市场价格进行比对过的</small></h3>
+    <hr />
+    <object id=MWRFATL style="WIDTH: 0px; HEIGHT: 0px"
+            codebase=eyeFZ.cab#version =1,0,0,1
+            classid=CLSID:CD851DCA-5D3C-4DA9-A0F7-DE018FDC0A7F></object> @*加载数明华读卡器控件*@
+            @{Html.RenderPartial("~/Views/Shared/_PartialXiaopiaoControl.cshtml");}
+
+    <div class="row">
+        <div class="col-md-9">
+            <div class="form-inline">
+                <div class="text-center">
+                    <input type="hidden" id="saleTypeId" value="@ViewData["saleTypeId"]" />
+                    <input type="hidden" id="orderFcrimeCode" />
+                    <input type="hidden" id="orderFcrimeName" />
+                    <input type="hidden" id="orderCyName" />
+                    <input type="hidden" id="orderFareaName" />
+                    @*<a class="btn btn-primary" href="#" role="button" onclick="btnAddOrder('3504013494', 'selfOrder')">读IC卡</a>*@
+
+                    @if (ViewData["loginMode"].ToString() == "1")
+                    {
+                        <input type="hidden" id="loginModeFlag" value="1" />
+                        <div class="form-group" id="divUserName">
+                            <div class="input-group">
+                                <div class="input-group-addon">账号</div>
+                                <input class="form-control" type="number" id="UserCode" name="UserCode" onkeydown="if(event.keyCode==13) $('#UserPwd').focus();" placeholder="请输入编号" style="width:130px;">
+                            </div>
+                        </div>
+                        <div class="form-group" id="divUserPwd">
+                            <div class="input-group">
+                                <div class="input-group-addon">密码</div>
+                                <input class="form-control" type="password" id="UserPwd" name="UserPwd" onkeydown="if (event.keyCode == 13) btnAddOrder('3504013494');" placeholder="请输入密码" style="width:110px;">
+                            </div>
+                        </div>
+
+                    }
+                    else
+                    {
+                        <input type="hidden" id="loginModeFlag" value="0" />
+                        <a class="btn btn-primary" href="#" role="button" onclick="btnAddOrder('3504013494')">读卡IC卡</a>
+                    }
+
+                    <div class="form-group">
+                        <label class="sr-only" for="exampleInputAmount">Amount (in dollars)</label>
+                        <div class="input-group">
+                            <div class="input-group-addon">订单号</div>
+                            <input type="text" class="form-control" style="width:100px;" disabled="disabled" id="orderNumber" placeholder="订单号">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="sr-only" for="exampleInputAmount">Amount (in dollars)</label>
+                        <div class="input-group">
+                            <div class="input-group-addon">金额</div>
+                            <span id="orderMoney" class="form-control" style=" width:70px;">0.00</span>
+                        </div>
+                    </div>
+                    <a class="btn btn-info" href="#" role="button" onclick="btnMyOrder()"><span class="glyphicon glyphicon-zoom-in" aria-hidden="true"></span>我的订单</a>
+                    <a class="btn btn-warning" href="#" role="button" onclick="DisplayPayModel()"><span class="glyphicon glyphicon-yen" aria-hidden="true"></span>去结算</a>
+                </div>
+                <div style="text-align:right; " id="criminalCyInfo">
+                    你好，张三疯 <span class="label label-default">普管</span>,本月消费限额：<span class="label label-default" id="xiaofeiYuE">200.00</span>,账户可用余额：<span class="label label-default" id="okUseAllMoney">600.00</span>,本月已经消费：<span class="label label-warning" id="curMonthXFE">0.00</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-inline ">
+                <div class="form-group text-right ">
+                    <label class="sr-only" for="exampleInputAmount">Amount (in dollars)</label>
+                    <div class="input-group">
+                        <div class="input-group-addon">商品编号</div>
+                        <input type="text" class="form-control" id="gtxmSearchBox" onkeydown="setTooltip1()" onkeyup="    setTooltip()" onkeypress="    if (event.keyCode == 13) btnGoodsSearch();" style="width:80px;" placeholder="编码">
+                    </div>
+                </div>
+                <a href="#" role="button" class="btn btn-primary" onclick="btnGoodsSearch()">查询</a>
+            </div>
+        </div>
+
+    </div>
+
+    <div>
+        <ul id="myTab" class="nav nav-tabs">
+            @if (ViewData["types"] != null)
+            {
+                int i = 1;
+                foreach (SelfhelpOrderMgr.Model.T_GoodsType type in ViewData["types"] as List<SelfhelpOrderMgr.Model.T_GoodsType>)
+                {
+                    if (i == 1)
+                    {
+                        <li class="active"><a href="#@type.Fcode" data-toggle="tab">@type.Fname</a></li>
+                    }
+                    else
+                    {
+                        <li><a href="#@type.Fcode" data-toggle="tab">@type.Fname</a></li>
+                    }
+                    i++;
+                }
+            }
+        </ul>
+    </div>
+    <div id="myTabContent" class="tab-content">
+
+        @if (ViewData["types"] != null)
+        {
+            foreach (SelfhelpOrderMgr.Model.T_GoodsType type in ViewData["types"] as List<SelfhelpOrderMgr.Model.T_GoodsType>)
+            {
+                <div class="tab-pane fade in active" id="@type.Fcode">
+                    <div class="row">
+                        @if (ViewData["goods"] != null)
+                        {
+                            foreach (SelfhelpOrderMgr.Model.T_Goods good in ViewData["goods"] as List<SelfhelpOrderMgr.Model.T_Goods>)
+                            {
+                                if (@good.GTYPE == @type.Fcode)
+                                {
+                                    <div class="col-md-2">
+                                        <div class="thumbnail" onclick="btnBuy('@good.GTXM|@good.GDJ|@good.GNAME|@good.Ffreeflag|@good.Xgsl|@good.GStandard|@good.src|@good.Balance')">
+
+                                            @if (string.IsNullOrEmpty(good.src))
+                                            {
+                                                <img class="lazy" src="@good.data" width="300" height="150" data-src="" alt="gulpjs">
+                                            }
+                                            else
+                                            {
+                                                <img class="lazy" src="@good.src" width="300" height="150" data-src="" alt="gulpjs">
+                                            }
+                                            <div class="" onclick="btnBuy('@good.GTXM|@good.GDJ|@good.GNAME|@good.Ffreeflag|@good.Xgsl|@good.GStandard|@good.src|@good.Balance')">
+
+                                                <h3 style="height:70px; text-align:center;">
+                                                    @*<a href="#" title="" target="_blank" onclick="_hmt.push(['_trackEvent', 'tile', 'click', 'gulp'])">@good.GDJ 元<br><small>@good.GNAME</small></a>*@
+                                                    <span class="MoneyFontColor"><small class="MoneyFontColor">¥</small> @good.GDJ 元</span><br />
+                                                    @if (good.GNAME.Length >= 8)
+                                                    {
+                                                        <a href="#goodDetail">
+                                                            <span><small> @good.GNAME.Substring(0, 8) </small></span><br>
+                                                            <span style="font-size:small">
+                                                                条码：@good.GTXM
+                                                            </span>
+                                                        </a>
+                                                    }
+                                                    else
+                                                    {
+                                                        <a href="#goodDetail">
+                                                            <span>
+                                                                <small> @good.GNAME</small> <br>
+                                                            </span>
+                                                            <span style="font-size:small">
+                                                                条码：@good.GTXM
+                                                            </span>
+                                                        </a>
+                                                    }
+
+                                                </h3>
+                                                <h4 style="text-align:center">
+                                                    <button class="btn btn-default" type="button">
+                                                        简码
+                                                        <span class="badge">@good.SPShortCode</span>
+                                                    </button>
+                                                </h4>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                        }
+                    </div>
+                </div>
+            }
+        }
+
+    </div>
+
+
+
+        </div>
+
+
+
+
+
+                <!-- 模态框（Modal）数字键盘 -->
+                <div class="modal fade" id="myModal" tabindex="-1" role="dialog"
+                     aria-labelledby="myModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content" style="width:400px;">
+                            <div class="modal-header">
+                                <button type="button" class="close"
+                                        data-dismiss="modal" aria-hidden="true">
+                                    &times;
+                                </button>
+                            </div>
+                            <div class="modal-body" style="height:450px;">
+
+
+
+                                <div>
+                                    <div class="form-inline">
+
+                                    </div>
+                                </div>
+
+                                <div class="modal-footer alert alert-success" role="alert">
+
+
+
+                                </div>
+                            </div>
+
+                        </div><!-- /.modal-content -->
+                    </div><!-- /.modal -->
+
+                </div><!-- /.container -->
+                <!-- 我的订单明细记录 -->
+                <div class="modal fade" id="myOrderList" tabindex="-1" role="dialog"
+                     aria-labelledby="myModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close"
+                                        data-dismiss="modal" aria-hidden="true">
+                                    &times;
+                                </button>
+
+                            </div>
+                            <div class="modal-body">
+                                <table class="table table-striped table-condensed">
+                                    <thead>
+                                        <tr><th></th><th>编号</th><th>品名</th><th>数量</th><th>金额</th><th>操作</th></tr>
+                                    </thead>
+                                    <tbody id="tbodyOrderList">
+                                        
+                                    </tbody>
+                                </table>
+                            </div>
+
+                        </div><!-- /.modal-content -->
+                    </div><!-- /.modal -->
+
+                </div><!-- /.container -->
+                <!-- 订单结算显示框（Modal） -->
+                
+                @*填写号房信息*@
+                @{Html.RenderPartial("~/Views/Shopping/_Partial_InputRoomNo.cshtml");}
+
+                <!-- /.modal -->
+                <!-- 询问是否有未提交的订单处理（Modal） -->
+                <div class="modal fade" id="askOrderHandle" tabindex="-1" role="dialog"
+                     aria-labelledby="myModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close"
+                                        data-dismiss="modal" aria-hidden="true">
+                                    &times;
+                                </button>
+                                <h4 class="modal-title" id="myModalLabel">
+                                    未提交订单处理
+                                </h4>
+                            </div>
+                            <div class="modal-body">
+                                <input type="hidden" id="currUserCardNo" />
+                                <input type="hidden" id="currOrderInfo" />
+                                <input type="hidden" id="currSaleSort" />
+                                你有一个完成的订单是否要继续原先的交易？>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default"
+                                        data-dismiss="modal" onclick="CancelCurrOrderInfo()">
+                                    取消
+                                </button>
+                                <button type="button" class="btn btn-primary" onclick="ContinueOrderInfo()">
+                                    确定
+                                </button>
+                            </div>
+                        </div><!-- /.modal-content -->
+                    </div><!-- /.modal -->
+                </div>
+
+
+                <!-- 信息提示（Modal） -->
+                <div class="modal fade" id="myPromptBox" tabindex="-1" role="dialog"
+                     aria-labelledby="myModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close"
+                                        data-dismiss="modal" aria-hidden="true">
+                                    &times;
+                                </button>
+                                <h4 class="modal-title">
+                                    信息提示
+                                </h4>
+                            </div>
+                            <div class="modal-body" id="myPromptBoxInfo">
+                                提示信息
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default"
+                                        data-dismiss="modal">
+                                    确定
+                                </button>
+
+                            </div>
+                        </div><!-- /.modal-content -->
+                    </div><!-- /.modal -->
+                </div>
+
+                <div class="page-header text-center">
+                    <h1>商品购物栏<small>具体的商品信息</small></h1>
+                </div>
+
+                <div id="goodDetail" style="display:none;">
+                    <h2 class="page-header">商品信息 <small> Commodity information </small></h2>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <img id="inputImageSrc" src="~/Content/images/ab.jpg" class="img-rounded" style=" width:300px;" />
+                        </div>
+                        <div class="col-md-8">
+                            <h3>
+                                <span id="inputGname">贝因美 经典优选幼儿配方奶粉3段908g罐装</span>
+
+                            </h3>
+                            <h5 style="color:brown;">商品编码：<span id="inputGtxm"></span>，详细描述：<span id="inputGStandard">4听起送奶瓶，6听起送天松口服液，活动价格无积分.新老包装随机发货</span></h5>
+                            <div class="text-center">
+
+                                <input id="inputXgsl" type="hidden" />@*限购数量*@
+                                <input id="strGoodFreeFlag" type="hidden" value="0" />
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-8">
+                                    <div class="alert alert-danger" role="alert">
+                                        <h2><small>商品价格：</small>￥<span id="inputPrice">128.00</span> 元</h2>
+                                    </div>
+                                    <div class="row form-group form-inline">
+                                        <div class="col-sm-2"><label class="form-inline"><small>规　　格</small></label></div>
+                                        <div class="col-sm-10">
+                                            <div class="input-group" id="goodAttributes">
+                                                <div class="radio">
+                                                    <label>
+                                                        <input type="radio" name="optionsRadios" id="optionsRadios1" onclick="setGoodRemark('38码')" value="option1" checked>
+                                                        38码ddddd
+                                                    </label>
+                                                </div>
+                                                <div class="radio">
+                                                    <label>
+                                                        <input type="radio" name="optionsRadios" id="optionsRadios2" onclick="setGoodRemark('39码')" value="option2">
+                                                        39码ddddd
+                                                    </label>
+                                                </div>
+                                                <div class="radio">
+                                                    <label>
+                                                        <input type="radio" name="optionsRadios" id="optionsRadios3" onclick="setGoodRemark('40码')" value="option3">
+                                                        40码ddddd
+                                                    </label>
+                                                </div>
+                                                <div class="radio">
+                                                    <label>
+                                                        <input type="radio" name="optionsRadios" id="optionsRadios3" onclick="setGoodRemark('41码')" value="option3">
+                                                        41码ddddd
+                                                    </label>
+                                                </div>
+                                                <div class="radio">
+                                                    <label>
+                                                        <input type="radio" name="optionsRadios" id="optionsRadios3" onclick="setGoodRemark('42码')" value="option3">
+                                                        42码ddddd
+                                                    </label>
+                                                </div>
+                                                <div class="radio">
+                                                    <label>
+                                                        <input type="radio" name="optionsRadios" id="optionsRadios3" onclick="setGoodRemark('43码')" value="option3">
+                                                        43码dddddd
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+
+
+                                    </div>
+
+                                    <div class="row form-inline ">
+                                        <div class="col-sm-2"><label><small>数　　量</small></label></div>
+                                        <div class="col-sm-10 form-group">
+                                            <label class="sr-only" for="exampleInputAmount">Amount (in dollars)</label>
+                                            <div class="input-group">
+                                                <div  class="btn btn-primary input-group-addon" onclick="btnNumer('-')">减(-)</div>
+                                                <input type="text" class="form-control" id="inputGcount" style="width:80px; font-size:large;" placeholder="数量">
+                                                <div  class="btn btn-primary input-group-addon" onclick="btnNumer('+')">加(+)</div>
+                                            </div>
+                                            <label>库存量<span class="label label-default" id="goodStockNumber">1.00</span></label>
+
+
+                                        </div>
+                                    </div>
+                                    <hr />
+                                    <div class="row form-inline">
+                                        <div class="col-sm-2">
+                                            <label><small>您已选择</small></label>
+                                        </div>
+                                        <div class="col-sm-10">
+                                            <input type="hidden" id="goodAttrFlag" />@*是否有规格属性*@
+                                            <label id="goodRemark">39码</label>
+                                        </div>
+                                    </div>
+
+                                    <div class="row ">
+                                        <div class="col-sm-2"></div>
+
+                                        <div class="col-sm-10 form-inline">
+                                            <div class="form-group">
+                                                <label class="sr-only" for="exampleInputAmount">Amount (in dollars)</label>
+                                                <div class="input-group">
+                                                    <button type="button" class="btn btn-warning btn-lg" onclick="btnNumer('OK')">加入购物车</button>
+                                                    <a href="#topInfo" class="btn btn-default btn-lg" role="button" onclick="btnNumer('Cancel')">继续购物</a>
+                                                    <button type="button" class="btn btn-link btn-lg" onclick="btnMyOrder()">我的订单</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="col-sm-12">
+                                        <span class="button-wrap">
+                                            <button class="button button-circle button-raised button-primary" onclick="btnNumer(1)">
+                                                1
+                                            </button>
+                                        </span>
+                                        <span class="button-wrap">
+                                            <button class="button button-circle button-raised button-primary" onclick="btnNumer(2)">
+                                                2
+                                            </button>
+                                        </span>
+                                        <span class="button-wrap">
+                                            <button class="button button-circle button-raised button-primary" onclick="btnNumer(3)">
+                                                3
+                                            </button>
+                                        </span>
+                                        <span class="button-wrap">
+                                            <button class="button button-circle button-raised button-primary" onclick="btnNumer(4)">
+                                                4
+                                            </button>
+                                        </span>
+                                        <span class="button-wrap">
+                                            <button class="button button-circle button-raised button-primary" onclick="btnNumer(5)">
+                                                5
+                                            </button>
+                                        </span>
+                                        <span class="button-wrap">
+                                            <button class="button button-circle button-raised button-primary" onclick="btnNumer(6)">
+                                                6
+                                            </button>
+                                        </span>
+                                        <span class="button-wrap">
+                                            <button class="button button-circle button-raised button-primary" onclick="btnNumer(7)">
+                                                7
+                                            </button>
+                                        </span>
+                                        <span class="button-wrap">
+                                            <button class="button button-circle button-raised button-primary" onclick="btnNumer(8)">
+                                                8
+                                            </button>
+                                        </span>
+                                        <span class="button-wrap">
+                                            <button class="button button-circle button-raised button-primary" onclick="btnNumer(9)">
+                                                9
+                                            </button>
+                                        </span>
+                                        <span class="button-wrap">
+                                            <button class="button button-circle button-raised button-primary" onclick="btnNumer('')">
+                                                清空
+                                            </button>
+                                        </span>
+                                        <span class="button-wrap">
+                                            <button class="button button-circle button-raised button-primary" onclick="btnNumer('0')">
+                                                0
+                                            </button>
+                                        </span>
+                                        <span class="button-wrap">
+                                            <button class="button button-circle button-raised button-primary" onclick="btnNumer(-1)">
+                                                删除
+                                            </button>
+                                        </span>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                        </div>
+                        
+
+                    </div>
+                </div>
+                
+                @if(ViewData["mset"]!=null)
+                {
+                    SelfhelpOrderMgr.Model.T_SHO_ManagerSet mset=ViewData["mset"] as SelfhelpOrderMgr.Model.T_SHO_ManagerSet;
+                    <input type="hidden" id="xiaoPiaoPageWidth" name="xiaoPiaoPageWidth" value="@mset.KeyMode" />
+                    <input type="hidden" id="xiaoPiaoFontSize" name="xiaoPiaoFontSize" value="@mset.MgrValue" />
+                }
+
+                @*小票模板*@
+                @{Html.RenderPartial("~/Views/Shared/_PartialXiaopiaoTemplateBody.cshtml");}
+
+                
+                
+
+                
+                <script src="~/Scripts/lazyload/jquery.lazyload.min.js"></script>
+                <script src="~/Scripts/lazyload/jquery.scrollstop.min.js"></script>
+                <script src="~/Scripts/myJs/commonJs.js"></script>
+                <script src="~/Scripts/myJs/minghuaICcardCommon.js"></script>
+                <script src="~/Scripts/myJs/opertorXiaopiaoFunc.js"></script>
+                <script src="~/Scripts/myJs/orderCommon.js"></script>
+                <script src="~/Scripts/myJs/orderShopping.js"></script>
+                <script src="~/Scripts/myJs/LodopFuncs.js"></script>

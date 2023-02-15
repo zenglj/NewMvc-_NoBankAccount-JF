@@ -68,6 +68,7 @@
                     <div id="mpList" style="width:150px;">
                         <div data-options="iconCls:'icon-save'" onclick="btnAuditBankRec()">确认审核入账</div>
                         <div data-options="iconCls:'icon-redo'" onclick="btnReturnPersonalAccount()">网银对私退回</div>
+                        <div data-options="iconCls:'icon-undo'" onclick="btnReturnToBack()">原路退回</div>
                     </div>
                 </form>
             </div>
@@ -140,8 +141,9 @@
                                 <option value="1">已入账</option>
                                 <option value="0">否</option>
                                 <option value="2">公账</option>
-                                <option value="3">已退回</option>
+                                <option value="3">网银退回</option>
                                 <option value="4">集体账</option>
+                                <option value="5">原路退回</option>
                             </select>
                         </td>
                     </tr>
@@ -169,7 +171,12 @@
                             <input id="SearchRemark" name="Remark" class="easyui-textbox" style="width:190px">
                         </td>
                     </tr>
-
+                    <tr>
+                        <th align="right">错误信息：</th>
+                        <td align="left">
+                            <input id="SearchError" name="Error" class="easyui-textbox" style="width:190px">
+                        </td>
+                    </tr>
                     <tr>
                         <th align="right">导入起日：</th>
                         <td align="left">

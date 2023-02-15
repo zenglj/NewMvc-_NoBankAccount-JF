@@ -1,7 +1,7 @@
 ﻿using System;
 namespace SelfhelpOrderMgr.Model
 {
-	public class T_Criminal_card : BaseModel
+	public class T_Criminal_card :BaseModel
 	{
 		private int _seqno;
 		private string _fcrimecode;
@@ -27,6 +27,7 @@ namespace SelfhelpOrderMgr.Model
 		private int _unregflag;
 		private string _secondarybankcard;
 		private int _secondarycardflag;
+		private int _accpoints;
 		public int seqno
 		{
 			get
@@ -289,6 +290,18 @@ namespace SelfhelpOrderMgr.Model
 			set
 			{
 				this._secondarycardflag = value;
+			}
+		}
+
+		public int AccPoints
+		{
+			get
+			{
+				return this._accpoints;
+			}
+			set
+			{
+				this._accpoints = value;
 			}
 		}
 	}
