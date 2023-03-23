@@ -172,13 +172,13 @@ function loadDetailTable() {
             { field: 'CrtBy', title: '操作员', width: 100, sortable: true },
             { field: 'FCheckFlag', title: '审核标志', width: 100, sortable: true, formatter: function (value, row, index) {
                 if (row.DAmount != 0) {
-                    if (row.FCheckFlag = 0) {
+                    if (row.CheckFlag == 0) {
                         return "未审";
                     } else {
                         return "已审";
                     }
                 } else {
-                    if (row.FCheckFlag = -1) {
+                    if (row.CheckFlag == -1) {
                         return "未审";
                     } else {
                         return "已审";

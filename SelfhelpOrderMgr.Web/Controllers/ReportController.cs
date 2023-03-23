@@ -162,17 +162,25 @@ namespace SelfhelpOrderMgr.Web.Controllers
             {
                 row = Convert.ToInt32(strRow);
             }
-            
-            var sm = new T_VcrdBLL().GetListCount(strWhere.ToString());
+
+            //var sm = new T_VcrdBLL().GetListCount(strWhere.ToString());
+            var sm = new BaseDapperBLL().QueryList<decimal>("select isnull( count(1),0) from t_Vcrd where " + strWhere, paramSchVcrds);
+            var dm = new BaseDapperBLL().QueryList<decimal>("select isnull( sum(damount-camount) ,0) from t_Vcrd where " + strWhere, paramSchVcrds);
+
+
 
             listRows = sm[0];
 
 
-            List<T_Vcrd> vcrds = new T_VcrdBLL().GetPageList(page, row, strWhere, "CrtDate,FCrimeCode");
+            //List<T_Vcrd> vcrds = new T_VcrdBLL().GetPageList(page, row, strWhere, "CrtDate,FCrimeCode");
 
-            sss = "{\"total\":" + listRows.ToString() + ",\"rows\":" + jss.Serialize(vcrds) + ",\"sum\":"+ sm[1] + "}";
+            List<T_Vcrd> vcrds = new BaseDapperBLL().QueryList<T_Vcrd>("select * from t_Vcrd where " + strWhere, page, row,  "CrtDate asc,FCrimeCode asc" ,paramSchVcrds);
+
+            sss = "{\"total\":" + listRows.ToString() + ",\"rows\":" + jss.Serialize(vcrds) + ",\"sum\":"+ dm[0].ToString() + "}";
             return Content(sss);
         }
+        
+
 
         //将Request参数传入GetSearchWhere函数，并生成查询条件
         private string SetRequestSearchWhere(string LoginCode,int id=1)
@@ -203,10 +211,123 @@ namespace SelfhelpOrderMgr.Web.Controllers
         }
 
         //生成Vcrd查询条件
-        private static string GetSearchWhere(string LoginCode, ref string startTime, ref string endTime, string areaName, string FName, string FCode, string CrtBy, string CriminalFlag, string CashTypes, string PayTypes, string AccTypes, string BankFlags, string FRemark, string FFlags,string CheckFlag,string CardTypeFlag, int id=1)
+        private object paramSchVcrds=null;//查询参数
+        private void SetParamSchVcrds(object param)
         {
-            //string strWhere = "Flag=0 ";
-            string strWhere = "Flag in("+ FFlags+") ";
+            this.paramSchVcrds = param;
+        }
+        private string GetSearchWhere(string LoginCode, ref string startTime, ref string endTime, string areaName, string FName, string FCode, string CrtBy, string CriminalFlag, string CashTypes, string PayTypes, string AccTypes, string BankFlags, string FRemark, string FFlags,string CheckFlag,string CardTypeFlag, int id=1)
+        {
+            ////string strWhere = "Flag=0 ";
+            //string strWhere = "Flag in("+ FFlags+") ";
+            //if (string.IsNullOrEmpty(startTime) == false)
+            //{
+            //    DateTime sdt = Convert.ToDateTime(startTime);
+            //    startTime = sdt.Year.ToString() + "-" + sdt.Month.ToString() + "-" + sdt.Day.ToString() + " 00:00:00";
+            //}
+            //if (string.IsNullOrEmpty(endTime) == false)
+            //{
+            //    DateTime edt = Convert.ToDateTime(endTime);
+            //    endTime = edt.Year.ToString() + "-" + edt.Month.ToString() + "-" + edt.Day.ToString() + " 23:59:00";
+            //}
+
+            //if (string.IsNullOrEmpty(startTime) == false)
+            //{
+            //    if (id != 26)
+            //    {
+            //        strWhere = strWhere + " and  CrtDate>='" + startTime + "'";
+            //    }                
+            //}
+            //if (string.IsNullOrEmpty(startTime) == false)
+            //{
+            //    strWhere = strWhere + " and  CrtDate<'" + endTime + "'";
+            //}
+
+            //if (string.IsNullOrEmpty(areaName) == false)
+            //{
+            //    if (areaName != "请选择队别")
+            //    {
+            //        //strWhere = strWhere + " and FAreaName='" + areaName + "'";
+            //        strWhere = strWhere + @" and fcrimecode in( select fcode from t_Criminal 
+            //            where FAreaCode in(select fcode from t_area where fcode='"+ areaName +@"' or fid in(
+            //            select id from t_area where fcode='" + areaName + "')))";
+            //    }
+            //}
+            //if (string.IsNullOrEmpty(FName) == false)
+            //{
+            //    strWhere = strWhere + " and FCriminal like '%" + FName + "%'";
+            //}
+            //if (string.IsNullOrEmpty(FCode) == false)
+            //{
+            //    strWhere = strWhere + " and FCrimeCode='" + FCode + "'";
+            //}
+            //if (string.IsNullOrEmpty(CrtBy) == false)
+            //{
+            //    strWhere = strWhere + " and CrtBy='" + CrtBy + "'";
+            //}
+            //string savePays = "";
+            //if (string.IsNullOrEmpty(CashTypes) == false)
+            //{
+            //    savePays = CashTypes;
+            //}
+            //if (string.IsNullOrEmpty(PayTypes) == false)
+            //{
+            //    if (savePays == "")
+            //    {
+            //        savePays = PayTypes;
+            //    }
+            //    else
+            //    {
+            //        savePays = savePays + "," + PayTypes;
+            //    }
+
+            //}
+            //if (!string.IsNullOrWhiteSpace(CheckFlag))
+            //{
+            //    strWhere = strWhere + " and isnull(checkflag,0)= " + CheckFlag + "";
+            //}
+            //if (string.IsNullOrEmpty(savePays) == false)
+            //{
+            //    strWhere = strWhere + " and Dtype in (" + savePays + ")";
+            //}
+
+            //if (string.IsNullOrEmpty(AccTypes) == false)
+            //{
+            //    strWhere = strWhere + " and AccType in (" + AccTypes + ")";
+            //}
+
+            //if (string.IsNullOrEmpty(BankFlags) == false)
+            //{
+            //    strWhere = strWhere + " and isnull(BankFlag,0) in (" + BankFlags + ")";
+            //}
+            //if (string.IsNullOrEmpty(CriminalFlag) == false)
+            //{
+            //    strWhere = strWhere + " and FCrimeCode in ( Select FCode from T_Criminal where isnull(FFlag,0)=" + CriminalFlag + ")";
+            //}
+            //if (string.IsNullOrEmpty(FRemark) == false)
+            //{
+            //    strWhere = strWhere + " and Remark like '%" + FRemark + "%' ";
+            //}
+            ////烛光卡状态
+            //if (!string.IsNullOrWhiteSpace(CardTypeFlag))
+            //{
+            //    strWhere = strWhere + @" and fcrimecode in( select fcrimecode from t_Criminal_Card 
+            //            where (case when isnull(Bankaccno,'')<>'' then 1 else 0 end )='"+CardTypeFlag+"')";
+            //}
+
+            ////验证用户的队别,如果设定了Vcrd验证用户队别，则要查看是否有相应的队别权限下的犯人才可以查询到
+            //T_SHO_ManagerSet mset = new T_SHO_ManagerSetBLL().GetModel("VcrdCheckUserManagerAarea");
+            //if (mset != null)
+            //{
+            //    if (mset.MgrValue == "1")
+            //    {
+            //        strWhere = strWhere + " and FCrimeCode in ( Select FCode from T_Criminal where FAreaCode in ( select fareaCode from t_czy_area where fflag=2 and fcode='" + LoginCode + "'))";
+            //    }
+            //}
+
+            //使用Dapper参数化查询（三） IN 查询
+            //https://www.cnblogs.com/shuaimeng/p/14281745.html
+            string strWhere = "Flag in( SELECT value FROM Split(@FFlags,',')) ";
             if (string.IsNullOrEmpty(startTime) == false)
             {
                 DateTime sdt = Convert.ToDateTime(startTime);
@@ -222,12 +343,12 @@ namespace SelfhelpOrderMgr.Web.Controllers
             {
                 if (id != 26)
                 {
-                    strWhere = strWhere + " and  CrtDate>='" + startTime + "'";
-                }                
+                    strWhere = strWhere + " and  CrtDate>=@startTime ";
+                }
             }
             if (string.IsNullOrEmpty(startTime) == false)
             {
-                strWhere = strWhere + " and  CrtDate<'" + endTime + "'";
+                strWhere = strWhere + " and  CrtDate<@endTime ";
             }
 
             if (string.IsNullOrEmpty(areaName) == false)
@@ -236,26 +357,27 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 {
                     //strWhere = strWhere + " and FAreaName='" + areaName + "'";
                     strWhere = strWhere + @" and fcrimecode in( select fcode from t_Criminal 
-                        where FAreaCode in(select fcode from t_area where fcode='"+ areaName +@"' or fid in(
-                        select id from t_area where fcode='" + areaName + "')))";
+                        where FAreaCode in(select fcode from t_area where fcode=@areaName or fid in(
+                        select id from t_area where fcode=@areaName)))";
                 }
             }
             if (string.IsNullOrEmpty(FName) == false)
             {
-                strWhere = strWhere + " and FCriminal like '%" + FName + "%'";
+                strWhere = strWhere + " and FCriminal like '%'+ @FName +'%'";
             }
             if (string.IsNullOrEmpty(FCode) == false)
             {
-                strWhere = strWhere + " and FCrimeCode='" + FCode + "'";
+                strWhere = strWhere + " and FCrimeCode=@FCode ";
             }
             if (string.IsNullOrEmpty(CrtBy) == false)
             {
-                strWhere = strWhere + " and CrtBy='" + CrtBy + "'";
+                strWhere = strWhere + " and CrtBy=@CrtBy";
             }
             string savePays = "";
             if (string.IsNullOrEmpty(CashTypes) == false)
             {
                 savePays = CashTypes;
+                savePays = savePays.Replace("'", "");
             }
             if (string.IsNullOrEmpty(PayTypes) == false)
             {
@@ -266,26 +388,28 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 else
                 {
                     savePays = savePays + "," + PayTypes;
+                    
                 }
-
+                //savePays = savePays + ",";
+                savePays = savePays.Replace("'", "");
             }
             if (!string.IsNullOrWhiteSpace(CheckFlag))
             {
-                strWhere = strWhere + " and isnull(checkflag,0)= " + CheckFlag + "";
+                strWhere = strWhere + " and isnull(checkflag,0)= @CheckFlag";
             }
             if (string.IsNullOrEmpty(savePays) == false)
             {
-                strWhere = strWhere + " and Dtype in (" + savePays + ")";
+                strWhere = strWhere + " and Dtype in ( SELECT value FROM Split(@savePays,','))";
             }
 
             if (string.IsNullOrEmpty(AccTypes) == false)
             {
-                strWhere = strWhere + " and AccType in (" + AccTypes + ")";
+                strWhere = strWhere + " and AccType in (SELECT value FROM Split(@AccTypes,',') )";
             }
 
             if (string.IsNullOrEmpty(BankFlags) == false)
             {
-                strWhere = strWhere + " and isnull(BankFlag,0) in (" + BankFlags + ")";
+                strWhere = strWhere + " and isnull(BankFlag,0) in ( SELECT value FROM Split(@BankFlags,',') )";
             }
             if (string.IsNullOrEmpty(CriminalFlag) == false)
             {
@@ -293,13 +417,13 @@ namespace SelfhelpOrderMgr.Web.Controllers
             }
             if (string.IsNullOrEmpty(FRemark) == false)
             {
-                strWhere = strWhere + " and Remark like '%" + FRemark + "%' ";
+                strWhere = strWhere + " and Remark like '%'+ @FRemark +'%' ";
             }
             //烛光卡状态
             if (!string.IsNullOrWhiteSpace(CardTypeFlag))
             {
                 strWhere = strWhere + @" and fcrimecode in( select fcrimecode from t_Criminal_Card 
-                        where (case when isnull(Bankaccno,'')<>'' then 1 else 0 end )='"+CardTypeFlag+"')";
+                        where (case when isnull(Bankaccno,'')<>'' then 1 else 0 end )=@CardTypeFlag)";
             }
 
             //验证用户的队别,如果设定了Vcrd验证用户队别，则要查看是否有相应的队别权限下的犯人才可以查询到
@@ -308,12 +432,14 @@ namespace SelfhelpOrderMgr.Web.Controllers
             {
                 if (mset.MgrValue == "1")
                 {
-                    strWhere = strWhere + " and FCrimeCode in ( Select FCode from T_Criminal where FAreaCode in ( select fareaCode from t_czy_area where fflag=2 and fcode='" + LoginCode + "'))";
+                    strWhere = strWhere + " and FCrimeCode in ( Select FCode from T_Criminal where FAreaCode in ( select fareaCode from t_czy_area where fflag=2 and fcode=@LoginCode))";
                 }
             }
+
+            object param = new { LoginCode = LoginCode, startTime = startTime, endTime = endTime, areaName = areaName, FName = FName, FCode = FCode, CrtBy = CrtBy, CriminalFlag = CriminalFlag, CashTypes = CashTypes, PayTypes = PayTypes, savePays= savePays, AccTypes = AccTypes, BankFlags = BankFlags, FRemark = FRemark, FFlags = FFlags, CheckFlag = CheckFlag, CardTypeFlag = CardTypeFlag, id = id };
+            this.SetParamSchVcrds(param);
             return strWhere;
         }
-
         //打印用户汇总总表
         public ActionResult PrintCriminalSumOrder(int id=1)
         {
@@ -352,11 +478,13 @@ namespace SelfhelpOrderMgr.Web.Controllers
             List<T_Vcrd> vcrds;
             if (param != null)
             {
-                vcrds = new CommTableInfoBLL().GetList<T_Vcrd>(strSql.ToString(), param).ToList();
+                //vcrds = new CommTableInfoBLL().GetList<T_Vcrd>(strSql.ToString(), param).ToList();
+                vcrds = new CommTableInfoBLL().GetList<T_Vcrd>(strSql.ToString(), this.paramSchVcrds).ToList();
+
             }
             else
             {
-                vcrds = new T_VcrdBLL().CustomerQuery(strSql.ToString());
+                vcrds = new T_VcrdBLL().CustomerQuery(strSql.ToString(),this.paramSchVcrds);
             }
             
 
@@ -369,7 +497,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
             T_Vcrd shangqiJinE = new T_Vcrd();
             if (string.IsNullOrEmpty(startTime)==false)
             {
-                shangqiJinE = new T_VcrdBLL().CustomerQuery("Select '上期结存' DType,sum(DAmount-CAmount) DAmount from t_vcrd where flag=0 and not (fcrimecode is null) and crtdate<'"+ startTime +"'")[0];
+                shangqiJinE = new T_VcrdBLL().CustomerQuery("Select '上期结存' DType,sum(DAmount-CAmount) DAmount from t_vcrd where flag=0 and not (fcrimecode is null) and crtdate<'"+ startTime +"'", this.paramSchVcrds)[0];
             }
             else
             {
@@ -434,11 +562,11 @@ namespace SelfhelpOrderMgr.Web.Controllers
             DataTable dt ;
             if (param != null)
             {
-                dt = new CommTableInfoBLL().GetDataTable(strSql.ToString(),param);
+                dt = new CommTableInfoBLL().GetDataTable(strSql.ToString(),this.paramSchVcrds);
             }
             else
             {
-                dt = new CommTableInfoBLL().GetDataTable(strSql.ToString());
+                dt = new CommTableInfoBLL().GetDataTable(strSql.ToString(), this.paramSchVcrds);
             }
             
             

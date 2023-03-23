@@ -465,8 +465,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 return Content(jss.Serialize(rs));
             }
 
-            using (TransactionScope ts = new TransactionScope())
-            {
+            //using (TransactionScope ts = new TransactionScope())
+            //{
                 T_Bank_PaymentRecord prd = new T_Bank_PaymentRecord()
                 {
                     FCrimeCode = $"原退:{rcv.VchNum}",
@@ -508,8 +508,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
                     rs.Flag = false;
                     rs.ReMsg = "设置失败";
                 }
-                ts.Complete();
-            }
+            //    ts.Complete();
+            //}
 
             rs.DataInfo = rcv;
 

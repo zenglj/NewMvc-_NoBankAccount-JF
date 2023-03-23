@@ -30,6 +30,7 @@
                                 <th>序号</th>
                                 <th>狱号</th>
                                 <th>姓名</th>
+                                <th>监区</th>
                                 <th>结算日期</th>
                                 <th style="width:6%">方式</th>
                                 <th>结算金额</th>
@@ -153,6 +154,7 @@
                                 <td class="text-center">@rowId</td>
                                 <td>@item.FCrimeCode</td>
                                 <td>@item.FCrimeName</td>
+                                <td>@item.FAreaName</td>
                                 <td>@item.Crtdate.ToString("yyyyMMdd")</td>
                                 <td>@strPaymode</td>
                                 <td>@item.Amount</td>
@@ -170,6 +172,7 @@
 
                         <tr>
                             <th>合计</th>
+                            <td></td>
                             <td></td>
                             <td></td>
                             <td></td>

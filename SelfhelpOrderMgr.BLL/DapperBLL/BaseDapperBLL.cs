@@ -35,7 +35,12 @@ namespace SelfhelpOrderMgr.BLL
         {
             return dapperDal.QueryList<T>(sqlStr, parameter);
         }
+        public List<T> QueryList<T>(string sqlStr, int page, int pageSize, string orderField = "Id asc", object parameter = null)
+        {
+            return dapperDal.QueryList<T>(sqlStr, page, pageSize, orderField, parameter);
+        }
 
+        
         public T Insert<T>(T t) where T : BaseModel
         {
             return dapperDal.Insert<T>(t);

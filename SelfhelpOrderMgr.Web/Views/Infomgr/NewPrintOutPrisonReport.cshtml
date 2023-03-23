@@ -58,7 +58,7 @@
                         string strPrintTitle = "";
                         if (prove.PrintCount > 1)
                         {
-                            strPrintTitle = "第"+prove.PrintCount+"次补打";
+                            strPrintTitle = "第" + prove.PrintCount + "次补打";
                         }
                         <div>
                             <h3 class="text-center">罪犯离监账上余额领取申请报告<small>@strPrintTitle</small></h3>
@@ -81,7 +81,7 @@
                                 }
                                 else
                                 {
-                                <span>,将通过<strong><u>@strPayMode</u></strong>方式支取全部金额。</span>
+                                    <span>,将通过<strong><u>@strPayMode</u></strong>方式支取全部金额。</span>
                                 }
                             </p>
                             <p>　　<strong>本人对以上信息的准确性负责，如因此产生的一切经济法律责任，由本人自行承担。</strong></p>
@@ -117,16 +117,14 @@
                                     <td></td>
                                 </tr>
                                 <tr style="height:20px;">
-                                    <td style="width:150px;">财务审核</td>
+                                    <td style="width:150px;">审核</td>
                                     <td></td>
-                                    <td style="width:150px;">会计审核</td>
+                                    <td style="width:150px;">复核</td>
                                     <td></td>
                                 </tr>
                                 <tr style="height:20px;">
                                     <td style="width:150px;">监狱分管业务领导审核</td>
-                                    <td ></td>
-                                    <td style="width:150px;">监狱分管财务领导审核</td>
-                                    <td ></td>
+                                    <td colspan="3"></td>
 
                                 </tr>
 
@@ -185,15 +183,31 @@
 
                                 </tr>
                                 <tr>
-                                    <th colspan="6"><p>备注:该服刑人员一卡通已结算清，结算金额通过转账方式支付，已收回IC卡</p></th>
-                                </tr>
-                            </table>
+                                    <th colspan="6">
+                                        @if (prove != null)
+                                        {
+                                            string strRemarkInfo = "备注:该服刑人员一卡通余额:" + prove.CardMoney + "元，已通过【" + strPayMode + "】结清并收回IC卡";
+                                            if (prove.PayMode == 1)
+                                            {
+                                                strRemarkInfo = "备注:您的一卡通余额:" + prove.CardMoney + "元,已通过【" + strPayMode + "】结清，请在释放当日持IC卡到本监内的ATM上取结余款，取款密码是:" + prove.WithdrawalPassword + ",请妥善保管避免泄露及丢失。";
+                                            }
+                                            else if (prove.PayMode == 2)
+                                            {
+                                                strRemarkInfo = "备注:您的一卡通余额:" + prove.CardMoney + "元,已通过【" + strPayMode + "】结清，余额将汇到您指定的银行账户：" + prove.OutBankCard + "(" + prove.BankUserName + "),开户行:" + prove.OpeningBank;
+
+                                            }
+                                                                            
+                                            <p>@strRemarkInfo</p>
+                                        }</th>
+                                    </table>
                             <table>
                                 <tr><td style="width:500px;">罪犯：</td><td>经办人：</td></tr>
                             </table>
 
 
                         </div>
+
+
                     }
                 </div>
                 <div class="col-md-2"></div>

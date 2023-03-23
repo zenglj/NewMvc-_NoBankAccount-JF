@@ -590,12 +590,12 @@ namespace SelfhelpOrderMgr.DAL
         /// </summary>
         /// <param name="strSql"></param>
         /// <returns></returns>
-        public List<T_Vcrd> CustomerQuery(string strSql)
+        public List<T_Vcrd> CustomerQuery(string strSql,object paramInfo)
         {
             using (IDbConnection conn = new SqlConnection(SqlHelper.getConnstr()))
             {
                 conn.Open();
-                List<T_Vcrd> vcrds = (List<T_Vcrd>)conn.Query<T_Vcrd>(strSql);
+                List<T_Vcrd> vcrds = (List<T_Vcrd>)conn.Query<T_Vcrd>(strSql, paramInfo);
                 return vcrds;
             }
         }

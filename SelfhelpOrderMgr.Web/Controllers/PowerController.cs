@@ -46,6 +46,11 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
             //加载操作员用户信息
             List<T_CZY> czys = (List<T_CZY>)new T_CZYBLL().GetModelList("");
+            for (int i = 0; i < czys.Count; i++)
+            {
+                czys[i].FPwd = "**********";
+            }
+
             ViewData["czys"] = czys;
 
             //加载监区信息
@@ -58,6 +63,10 @@ namespace SelfhelpOrderMgr.Web.Controllers
             //加载操作员用户信息
             List<T_CZY> czys = (List<T_CZY>)new T_CZYBLL().GetModelList("");
             //ViewData["czys"] = czys;
+            for (int i = 0; i < czys.Count; i++)
+            {
+                czys[i].FPwd = "**********";
+            }
             JavaScriptSerializer jss = new JavaScriptSerializer();
             return Content(jss.Serialize(czys));
 
@@ -100,16 +109,28 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
             //string FUserChinaName = Request["FUserChinaName"] == null ? "" : Request["FUserChinaName"];
 
-
-            #region 正则表达式验证密码
-            string regexCheckResult = RegexHelper.RegexPasswordCheck(strUserPwd);
-
-            if (!string.IsNullOrWhiteSpace(regexCheckResult))
+            string decPwd = strUserPwd;
+            if (strUserPwd != "**********")
             {
-                return Content("Error."+regexCheckResult);
+
+                #region 正则表达式验证密码
+                string regexResult = RegexHelper.RegexPasswordCheck(strUserPwd);
+                if (!string.IsNullOrWhiteSpace(regexResult))
+                {
+                    return Content($"Err|{regexResult}");
+                }
+                #endregion
             }
 
-            #endregion
+            //#region 正则表达式验证密码
+            //string regexCheckResult = RegexHelper.RegexPasswordCheck(strUserPwd);
+
+            //if (!string.IsNullOrWhiteSpace(regexCheckResult))
+            //{
+            //    return Content("Error."+regexCheckResult);
+            //}
+
+            //#endregion
 
 
             if (selectTree == "")
@@ -170,14 +191,21 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
             op.FCode = strUserCode;
             op.FName = strUserName;
-            if (strUserPwd.Length < 20)
+
+            //不为"**********"才修改
+            if (strUserPwd != "**********")
             {
-                op.FPwd = MD5ProcessHelper.GetMd5Password(strUserPwd);
+                if (strUserPwd.Length < 20)
+                {
+                    op.FPwd = MD5ProcessHelper.GetMd5Password(strUserPwd);
+                }
+                else
+                {
+                    op.FPwd = strUserPwd;
+                }
             }
-            else
-            {
-                op.FPwd = strUserPwd;
-            }
+
+                
             op.FUserArea = strUserArea;
             t_TreeRole trl = new t_TreeRole();
             trl.RoleID = strUserRole == "" ? 0 : Convert.ToInt32(strUserRole);

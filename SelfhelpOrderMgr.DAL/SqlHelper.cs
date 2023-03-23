@@ -66,8 +66,9 @@ namespace SelfhelpOrderMgr.DAL
                 {
                     cmd.CommandText = sql;
                     cmd.Parameters.AddRange(Paramters);
-                    return cmd.ExecuteNonQuery();
-
+                    var ss= cmd.ExecuteNonQuery();
+                    cmd.Parameters.Clear();
+                    return ss;
                 }
             }
         }
@@ -88,7 +89,9 @@ namespace SelfhelpOrderMgr.DAL
                 {
                     cmd.CommandText = sql;
                     cmd.Parameters.AddRange(Paramters);
-                    return cmd.ExecuteScalar();
+                    var ss= cmd.ExecuteScalar();
+                    cmd.Parameters.Clear();
+                    return ss;
                 }
             }
         }
@@ -112,6 +115,7 @@ namespace SelfhelpOrderMgr.DAL
                     SqlDataAdapter dp = new SqlDataAdapter(cmd);
                     DataSet ds = new DataSet();
                     dp.Fill(ds);
+                    cmd.Parameters.Clear();
                     return ds.Tables[0];
                 }
             }
@@ -134,8 +138,9 @@ namespace SelfhelpOrderMgr.DAL
                 {
                     cmd.CommandText = sql;
                     cmd.Parameters.AddRange(Paramters);
-                    return cmd.ExecuteNonQuery();
-
+                    var ss= cmd.ExecuteNonQuery();
+                    cmd.Parameters.Clear();
+                    return ss;
                 }
             }
         }
@@ -156,7 +161,9 @@ namespace SelfhelpOrderMgr.DAL
                 {
                     cmd.CommandText = sql;
                     cmd.Parameters.AddRange(Paramters);
-                    return cmd.ExecuteScalar();
+                    var ss= cmd.ExecuteScalar();
+                    cmd.Parameters.Clear();
+                    return ss;
                 }
             }
         }
@@ -175,11 +182,13 @@ namespace SelfhelpOrderMgr.DAL
                 conn.Open();
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
+                    //cmd.Parameters.Clear();
                     cmd.CommandText = sql;
                     cmd.Parameters.AddRange(Paramters);
                     SqlDataAdapter dp = new SqlDataAdapter(cmd);
                     DataSet ds = new DataSet();
                     dp.Fill(ds);
+                    cmd.Parameters.Clear();
                     return ds;
                 }
             }
@@ -202,6 +211,7 @@ namespace SelfhelpOrderMgr.DAL
                     cmd.CommandText = sql;
                     cmd.Parameters.AddRange(Paramters);
                     object i= cmd.ExecuteScalar();
+                    cmd.Parameters.Clear();
                     return Convert.ToInt32(i) > 0;
                 }
             }

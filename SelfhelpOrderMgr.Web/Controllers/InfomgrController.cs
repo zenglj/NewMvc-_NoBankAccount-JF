@@ -98,7 +98,10 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
             if ("" == strFCrimeCode)
             {
-                List<T_Criminal> czys = new T_CriminalBLL().GetModelList("fname='" + strFCrimeName + "'");
+                //List<T_Criminal> czys = new T_CriminalBLL().GetModelList("fname='" + strFCrimeName + "'");
+
+                List<T_Criminal> czys = new BaseDapperBLL().QueryList<T_Criminal>("select * from t_Criminal where FName=@FName",new { FName = strFCrimeName });
+
                 if (czys.Count > 0)
                 {
                     strFCrimeCode = czys[0].FCode;
@@ -581,12 +584,20 @@ namespace SelfhelpOrderMgr.Web.Controllers
             
             //string strLoginName = new T_CZYBLL().GetModel(Session["loginUserCode"].ToString()).FName;
             string userCode = Session["loginUserCode"].ToString();
-            List<T_Criminal> criminals = (List<T_Criminal>)new T_CriminalBLL().GetPageListOfIEnumerable(page, pageSize, "isnull(fflag,0)=0 and fareacode in(select fareacode from t_czy_area where fcode='" + userCode + "' and fflag=2)" + strWhere);
+            //List<T_Criminal> criminals = (List<T_Criminal>)new T_CriminalBLL().GetPageListOfIEnumerable(page, pageSize, "isnull(fflag,0)=0 and fareacode in(select fareacode from t_czy_area where fcode='" + userCode + "' and fflag=2)" + strWhere);
+            List<T_Criminal> criminals = new BaseDapperBLL().QueryList<T_Criminal>(
+                @"select * from t_Criminal where  isnull(fflag,0)=0 
+                  and fareacode in(select fareacode from t_czy_area where fcode=@userCode and fflag=2)" + strWhere
+                , page, pageSize, "FCode Asc"
+                , new { FName = FName, FCode = FCode, FAreaCode = FAreaCode, userCode = userCode });
             ViewData["criminals"] = criminals;
 
 
-            List<T_Criminal> rowList = new T_CriminalBLL().GetModelList("isnull(fflag,0)=0 and fareacode in(select fareacode from t_czy_area where fcode='" + userCode + "' and fflag=2)" + strWhere);
-
+            //List<T_Criminal> rowList = new T_CriminalBLL().GetModelList("isnull(fflag,0)=0 and fareacode in(select fareacode from t_czy_area where fcode='" + userCode + "' and fflag=2)" + strWhere);
+            List<T_Criminal> rowList = new BaseDapperBLL().QueryList<T_Criminal>(
+                @"select * from t_Criminal where  isnull(fflag,0)=0 
+                  and fareacode in(select fareacode from t_czy_area where fcode=@userCode and fflag=2)" + strWhere
+                , new { FName = FName, FCode = FCode, FAreaCode = FAreaCode, userCode = userCode });
             string sss = "{\"total\":" + rowList.Count.ToString() + ",\"rows\":" + jss.Serialize(criminals) + "}";
             return Content(sss); 
         }
@@ -594,7 +605,9 @@ namespace SelfhelpOrderMgr.Web.Controllers
         public ActionResult GetCardList()//获取卡号信息
         {
             string FCrimeCode = Request["FCrimeCode"];
-            List<T_ICCARD_LIST> cards = new T_ICCARD_LISTBLL().GetModelList("FCrimeCode='" + FCrimeCode + "'");
+            //List<T_ICCARD_LIST> cards = new T_ICCARD_LISTBLL().GetModelList("FCrimeCode='" + FCrimeCode + "'");
+            List<T_ICCARD_LIST> cards = new BaseDapperBLL().QueryList<T_ICCARD_LIST>("select * from T_ICCARD_LIST where FCrimeCode=@FCrimeCode" ,new { FCrimeCode = FCrimeCode });
+
             return Content(jss.Serialize(cards));
         }
 

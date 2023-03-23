@@ -11,6 +11,7 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Text;
 using System.Web;
 using System.Web.Mvc;
 
@@ -72,8 +73,12 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
             string fname = Request["FName"];
             string fpwd = Request["FPwd"];
-            
-            List<T_CZY> users = new T_CZYBLL().GetModelList("FName='" + fname + "' or FCode='" + fname + "'");
+
+            string decPwd = Encoding.UTF8.GetString(Convert.FromBase64String(fpwd));
+
+            //List<T_CZY> users = new T_CZYBLL().GetModelList("FName='" + fname + "' or FCode='" + fname + "'");
+            List<T_CZY> users = new BaseDapperBLL().QueryList<T_CZY>("select * from t_czy where FName=@FName  or FCode=@FCode", new { FName = fname, FCode = fname });
+
             string status = "Error|用户不存在或是密码不正确";
             string ip = System.Web.HttpContext.Current.Request.UserHostAddress;
 
@@ -84,7 +89,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 {
                     return Content("Error|该用户状态已禁用，无法登录");
                 }
-                if (user.FPwd == fpwd || user.FPwd== MD5ProcessHelper.GetMd5Password(fpwd))//明码和密码都支持
+                if (user.FPwd == decPwd || user.FPwd== MD5ProcessHelper.GetMd5Password(decPwd))//明码和密码都支持
                 {                    
                     Log4NetHelper.logger.Info("后台系统登录,操作员：" + user.FName + ",登录时间=" + DateTime.Now.ToString() + ",登录IP为：" + ip + "");
                     string strCookieLogin = "";

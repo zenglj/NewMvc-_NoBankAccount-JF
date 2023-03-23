@@ -20,9 +20,9 @@
             <a class="navbar-brand" href="/Home/Index">狱内消费一卡通管理系统</a>
             <ul class="nav navbar-nav">
                 <li class="active"><a href="#">系统登录 <span class="sr-only">(current)</span></a></li>
-                <li class="active"><a href="/RegMgr" >注册 <span class="sr-only">(current)</span></a></li>
+                <li class="active"><a href="/RegMgr">注册 <span class="sr-only">(current)</span></a></li>
             </ul>
-</div>
+        </div>
     </nav>
 
     <h1>　</h1>
@@ -84,24 +84,20 @@
         }
 
     </div> <!-- /container -->
-
-    
-
-    
-
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="~/Scripts/jquery-1.11.3.min.js"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
- 
+
     <script src="~/Scripts/bootstrap.min.js"></script>
     <script src="~/Scripts/messenger.min.js"></script>
+    <script src="~/Scripts/myJs/commonJs.js"></script>
     <script type="text/javascript">
         $(function () {
-            
+
             $('#myAlert').on('closed.bs.alert', function () {
                 // do something…
             });
-            
+
             if ($("#vcrdCount").val() > 0) {
                 alert("紧急情况,系统当前有" + $("#vcrdCount").val() + "条消费记录银行扣款不成功，请管理员及时处理！");
             }
@@ -111,7 +107,8 @@
             }
         });
         function loginCheck() {
-            $.post('/Admin/LoginCheck', { "FName": $('#FName').val(), "FPwd": $('#FPwd').val() },
+            var pwdBase64 = base64encode($('#FPwd').val());
+            $.post('/Admin/LoginCheck', { "FName": $('#FName').val(), "FPwd": pwdBase64 },
                 function (data, status) {
                     if ('success' != status) {
                         return false;
@@ -129,7 +126,7 @@
                 });
         }
 
-        
+
     </script>
 </body>
 </html>

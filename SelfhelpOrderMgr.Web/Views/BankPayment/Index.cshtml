@@ -223,7 +223,23 @@
                     }
                     else
                     {
-                        <table id="tbPay" class="easyui-datagrid" style="width:100%;height:260px" toolbar=></table>
+                        <table id="tbPay" class="easyui-datagrid" style="width:100%;height:260px" toolbar="#toolBarPay_11"></table>
+                        <div id="toolBarPay_11" style="padding:5px;height:auto;color:">
+                            <div style="margin-bottom:5px">
+                                
+                                <a href="javascript:void(0)" id="mb" class="easyui-menubutton"
+                                   data-options="menu:'#mmp',iconCls:'icon-print'">打印报表</a>
+                                <div id="mmp" style="width:150px;">
+                                    <div class="menu-sep"></div>
+                                    <div onclick="btnExcelSave()">Excel导出</div>
+                                    <div onclick="btnExcelSaveDetail()">Excel导出主单明细</div>
+                                    <div data-options="iconCls:'icon-man'" onclick="btnPrintPayMentReport(0)">明细报表</div>
+                                    <div data-options="iconCls:'icon-redo'" onclick="btnPrintPayMentReport(1)">月统计报表</div>
+
+                                </div> <label>|</label>
+
+                            </div>
+                        </div>
                     }
 
 

@@ -61,9 +61,9 @@ namespace SelfhelpOrderMgr.BLL
         /// </summary>
         /// <param name="strSql"></param>
         /// <returns></returns>
-        public List<T_Vcrd> CustomerQuery(string strSql)
+        public List<T_Vcrd> CustomerQuery(string strSql, object paramInfo)
         {
-            return dal.CustomerQuery(strSql);
+            return dal.CustomerQuery(strSql,paramInfo);
         }
 
         public bool ChangeVcrdListType(string invoiceNo, string dtype,int subTypeFlag)

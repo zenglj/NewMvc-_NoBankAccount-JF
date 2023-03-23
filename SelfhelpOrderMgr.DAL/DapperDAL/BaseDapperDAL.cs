@@ -88,6 +88,20 @@ namespace SelfhelpOrderMgr.DAL
                 return conn.Query<T>(sqlStr, parameter).ToList();
             }
         }
+        public List<T> QueryList<T>(string sqlStr, int page, int pageSize, string orderField = "Id asc", object parameter = null)
+        {
+            using (IDbConnection conn = new SqlConnection(SqlHelper.getConnstr()))
+            {
+                int startRow = 1;
+                int endRow = 1;
+                startRow = 1 + (page - 1) * pageSize;
+                endRow = page * pageSize;
+                string sql = @"select * from
+                    (select ROW_NUMBER() over(order by " + orderField + ") as rowNumber,* from (" + sqlStr + ") b ) as t where t.rowNumber>=" + startRow.ToString() + " and t.rowNumber<=" + endRow.ToString();
+                return conn.Query<T>(sql, parameter).ToList();
+            }
+        }
+
         public T QueryBySql<T>(string sql)
         {
             using (SqlConnection conn = new SqlConnection(SqlHelper.getConnstr()))
