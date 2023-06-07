@@ -44,7 +44,6 @@
       <HintPath>..\packages\BouncyCastle.1.8.9\lib\BouncyCastle.Crypto.dll</HintPath>
     </Reference>
     <Reference Include="log4net, Version=2.0.7.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\log4net.2.0.7\lib\net45-full\log4net.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
@@ -85,6 +84,7 @@
     <Compile Include="CustomExtend\AttributeExtend.cs" />
     <Compile Include="CustomExtend\CustomEnumToList.cs" />
     <Compile Include="Des3PasswordHelper.cs" />
+    <Compile Include="HttpHelper.cs" />
     <Compile Include="IpAddressHelper.cs" />
     <Compile Include="JsonHelper.cs" />
     <Compile Include="Log4NetHelper.cs" />

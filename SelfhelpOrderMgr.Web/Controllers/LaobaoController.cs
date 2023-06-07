@@ -843,11 +843,45 @@ namespace SelfhelpOrderMgr.Web.Controllers
                     //ExcelRender.RenderToExcel(dt, strFileName);
                     ExcelRender.RenderToExcel(dt, "劳动报酬录入金额", 6, strFileName);
                 }
-                
+                else if (excelModel_Id == 4)//仓山监
+                {
+                    //DataTable dt = new T_BONUSBLL().GetDtlDataTableByBid(strFBid);
+                    DataTable dt = new CommTableInfoBLL().GetDataTable(@"select  ROW_NUMBER() OVER (ORDER BY 编号) AS 序号,* from (SELECT     a.FCRIMECODE AS 编号, a.fcriminal AS 姓名, b.BankAccNo AS 银行卡号, a.AmountB AS 劳酬金额, a.AmountA AS 留存金额, (a.AmountA+a.AmountB+a.AmountC) AS 总录金额, a.BID as 主单号
+                        FROM dbo.T_BONUSDTL AS a INNER JOIN
+                      dbo.T_Criminal_card AS b ON a.FCRIMECODE = b.fcrimecode) b where [主单号]='" + strFBid + @"' ");
+                    string strFileName = new CommonClass().GB2312ToUTF8(strFBid + "_LaobaoList.xls");
+                    strFileName = Server.MapPath("~/Upload/" + strFileName); ;
+                    //ExcelRender.RenderToExcel(dt, context, strFileName);
+                    //ExcelRender.RenderToExcel(dt, strFileName);
+                    ExcelRender.RenderToExcel(dt, "劳动报酬录入金额", 6, strFileName);
+                }
+
             }
             
             
             return Content("OK|"+strFBid + "_LaobaoList.xls");
+        }
+
+
+        public ActionResult ExcelOutMainSum()//Excel导出成功记录
+        {
+
+            string bids = Request["bids"];
+
+            
+
+            //DataTable dt = new T_BONUSBLL().GetDtlDataTableByBid(strFBid);
+            DataTable dt = new CommTableInfoBLL().GetDataTable(@"select  ROW_NUMBER() OVER (ORDER BY 队别代号) AS 序号,* from (SELECT [BID] as 单号,[FAREAName] 队别,[cnt] as 数量,[fAMOUNT] as 金额,[Crtby] as 操作员,[crtdt] as 建档日期 
+	  ,[Fdbcheckdate] as 入账日期
+	  ,[Remark] as 备注,FAREACODE as 队别代号
+  FROM [dbo].[T_BONUS] where Bid in ( SELECT value FROM Split(@FFlags,','))) b ", new { FFlags = bids });
+            string strFileName = new CommonClass().GB2312ToUTF8( "_LaobaoListSum.xls");
+            strFileName = Server.MapPath("~/Upload/" + strFileName); ;
+            //ExcelRender.RenderToExcel(dt, context, strFileName);
+            //ExcelRender.RenderToExcel(dt, strFileName);
+            ExcelRender.RenderToExcel(dt, "劳动报酬汇总单",  strFileName);
+
+            return Content("OK|" + "_LaobaoListSum.xls");
         }
 
         public ActionResult ErrorListOutport()//Excel导出失败记录
@@ -2094,7 +2128,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
             }
         }
 
-
+        
         public ActionResult PrintReportList()//打印报表
         {
             string strbid = Request["bid"];
@@ -2116,6 +2150,17 @@ namespace SelfhelpOrderMgr.Web.Controllers
             return View();
         }
 
+        public ActionResult PrintReportTotalList()//打印报表
+        {
+            string strbid = Request["bids"];
+            //List<T_BONUS> lists = new T_BONUSBLL().GetModelList("bid in ("+ strbid + ")");
+            List<T_BONUS> lists = new BaseDapperBLL().QueryList<T_BONUS>("select *from t_bonus where bid in (SELECT value FROM Split(@FFlags,','))", new { FFlags = strbid });
+
+            ViewData["lists"] = lists;
+
+            
+            return View();
+        }
 
         //批量生成劳报记录
         public ActionResult CreateAreaList()

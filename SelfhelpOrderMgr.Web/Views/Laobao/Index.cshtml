@@ -156,7 +156,7 @@
                         <a href="#" id="btnUndoSubmit" class="easyui-linkbutton" iconcls="icon-undo" plain="true" onclick="undoSubmitAction('undoSubmit')">退回中队</a>
 
                         @*<a href="#" id="btnDbCheck" class="easyui-linkbutton" iconcls="icon-reload" plain="true" onclick="DbCheckMain()">财务复核</a><label>|</label>
-                        <a href="#" id="btnUndoAudit" class="easyui-linkbutton" iconcls="icon-undo" plain="true" onclick="undoSubmitAction('undoAudit')">退回审核</a><label>|</label>*@
+                <a href="#" id="btnUndoAudit" class="easyui-linkbutton" iconcls="icon-undo" plain="true" onclick="undoSubmitAction('undoAudit')">退回审核</a><label>|</label>*@
                     }
                     else if (id == 3)
                     {
@@ -211,18 +211,29 @@
                         <a href="#" id="btnSubmit" class="easyui-linkbutton" iconcls="icon-ok" plain="true" onclick="SubmitMain()">确认提交</a><label>|</label>
                         <a href="#" id="btnDel" class="easyui-linkbutton" iconcls="icon-cancel" plain="true" onclick="DeleteMain()">删除主单</a><label>|</label>
                     }
-                    
+
                 }
-                <a href="#" id="btnPrint" class="easyui-linkbutton" iconcls="icon-print" plain="true" onclick="PrintMain()">打印列表</a><label>|</label>
-                <a href="#" id="btnExcel" class="easyui-linkbutton" iconcls="icon-redo" plain="true" onclick="ExcelMain()">Excel导出</a><label>|</label>
+                @*<a href="#" id="btnPrint" class="easyui-linkbutton" iconcls="icon-print" plain="true" onclick="PrintMain()">打印列表</a><label>|</label>
+                <a href="#" id="btnPrint" class="easyui-linkbutton" iconcls="icon-print" plain="true" onclick="PrintMainOrder()">总单打印</a><label>|</label>*@
+
+                <a href="javascript:void(0)" id="mpSets" class="easyui-menubutton"
+                   data-options="menu:'#mpList',iconCls:'icon-print'">打印导出</a>
+                <div id="mpList" style="width:150px;">
+                    <div data-options="iconCls:'icon-search'" onclick="PrintMain()">打印清单表</div>
+                    <div data-options="iconCls:'icon-print'" onclick="PrintMainOrder()">打印总单</div>
+                    <div data-options="iconCls:'icon-save'" onclick="ExcelMain()">导出清单</div>
+                    <div data-options="iconCls:'icon-sum'" onclick="ExcelMainOrder()">导出总单</div>
+                </div>
+
+                @*<a href="#" id="btnExcel" class="easyui-linkbutton" iconcls="icon-redo" plain="true" onclick="ExcelMain()">Excel导出</a><label>|</label>*@
 
                 <a href="#" id="ddts" title="This is the tooltip message." class="easyui-tooltip">状态提示</a>
                 | <label>目标审批人</label>
                 <select id="TargetUser" name="TargetUser" class="easyui-combobox">
-                    <option value="" selected="selected"  >请选择</option>
+                    <option value="" selected="selected">请选择</option>
                     @if (ViewData["czies"] != null)
                     {
-                        foreach (var item in ViewData["czies"] as List<SelfhelpOrderMgr.Model.T_CZY> )
+                        foreach (var item in ViewData["czies"] as List<SelfhelpOrderMgr.Model.T_CZY>)
                         {
                             <option value="@item.FName">@item.FUserChinaName</option>
                         }

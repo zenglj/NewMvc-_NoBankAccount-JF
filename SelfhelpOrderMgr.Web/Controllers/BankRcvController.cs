@@ -231,7 +231,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
             {
                 string sql = @"select ROW_NUMBER() OVER (ORDER BY c.[CreateDate]) AS Id,* from (
                                 select
-                                      fractnactacn as  [CardNo]
+                                      a.fractnactacn as  [CardNo]
                                       ,a.[VchNum]
                                       ,txnamt as [RcvAmount]
                                       ,a.[transtype]
@@ -248,7 +248,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                                     from t_bank_transDetail a left outer join t_bank_rcv b
                                     on a.vchnum = b.VchNum
                                     where a.valdat between @CreateDate_Start and @CreateDate_End and a.transtype = 22
-                                    group by fractnactacn ,a.[VchNum] ,txnamt ,a.[transtype]
+                                    group by a.fractnactacn ,a.[VchNum] ,txnamt ,a.[transtype]
                                       ,txndate ,vouchnum  ,furinfo ,isnull(b.FcrimeCode, '')
                                       ,isnull(b.FName, '')  ,isnull(b.Error, '') ,isnull(b.ImportFlag, 0)
                                       ,valdat , fractnacntname ,a.[direction]) C";
@@ -650,24 +650,31 @@ namespace SelfhelpOrderMgr.Web.Controllers
         {
             string strLoginName = this.GetUserLoginName();
             string strWhere = new T_Bank_DepositListBLL().GetParamString<T_Bank_Rcv, T_Bank_Rcv_Search>(strJsonWhere);
-            
+
+            T_Bank_Rcv_Search s = Newtonsoft.Json.JsonConvert.DeserializeObject<T_Bank_Rcv_Search>(strJsonWhere);
 
             StringBuilder strSql= new StringBuilder();
             bool mul_lan = false;
             string title="中银结算卡存款记录";
-            strSql.Append(@"select [Id]
-                  ,[CardNo] as 银行卡号
+            strSql.Append(@"SELECT a.[Id]
+                  ,[direction] as 来往标志
+	              ,[FcrimeCode] as 犯人编号
+                  ,[FName] as 犯人姓名
+                  ,[CardNo] as 收款银行卡号
                   ,[VchNum] as 流水号
-	              ,[fractName] as 汇款人
                   ,[RcvAmount] as 汇款金额
+                  ,b.[TypeName] as 转账类型 
                   ,[tnxdate] as 流水日期
                   ,[Remark] as 备注
-	              ,[CreateDate] as 导入日期
-                  ,[FcrimeCode] as 犯人编号
-                  ,[FName] as 犯人姓名
-                  ,[Error] as 错误信息
-                  ,[ImportFlag] 导入标志
-	              from T_bank_Rcv 
+                  ,[ImportFlag] as 导入标志
+                  ,[CreateDate] as 导入日期
+                  ,[Error] as 错误信息     
+                  ,[fractName] as 汇款人      
+                  ,[fractnactacn] as 汇款账号
+                  ,[fractnibkname] as 银行名称
+                  ,[fractnibknum] as 联行号
+              FROM [dbo].[T_bank_Rcv] a left outer join T_Bank_TransType b
+              on a.transtype=b.TransType
              ");
             if (string.IsNullOrWhiteSpace(strWhere) == false)
             {
@@ -676,13 +683,13 @@ namespace SelfhelpOrderMgr.Web.Controllers
             
             string startTime = Request["startTime"];
             string endTime = Request["endTime"];
-            string strCountTime = string.Format("统计期间:{0}--{1}", startTime, endTime);
+            string strCountTime = string.Format("统计期间:{0}--{1}", s.CreateDate_Start, s.CreateDate_End);
 
             DataTable dt = new CommTableInfoBLL().GetDataTable(strSql.ToString());
             string strFileName = new CommonClass().GB2312ToUTF8(strLoginName + "_BankRcvList.xls");
             strFileName = Server.MapPath("~/Upload/" + strFileName); ;
 
-            ExcelRender.RenderToExcel(dt, title, 4, strFileName, mul_lan, strCountTime);
+            ExcelRender.RenderToExcel(dt, title, 6, strFileName, mul_lan, strCountTime);
             return Content("OK|" + strLoginName + "_BankRcvList.xls");
         }
 
@@ -1964,6 +1971,100 @@ namespace SelfhelpOrderMgr.Web.Controllers
             return rs;
         }
 
-        
+        public ResultInfo GetDateBankDetail(DateTime startDate, DateTime endDate)
+        {
+            ResultInfo rs = new ResultInfo();
+
+
+
+            //获取银企直连配置参数
+            var setting = new ConfigHelper().GetYinQiSetting();
+            string strCommand = "b2e0509";
+
+            int iStepNum = 50;
+            int iStartNum = 1;
+            int iEndNum = 50;
+            string xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+   + "<bocb2e version = \"120\" locale = \"zh_CN\">"
+        +"<head>"
+             + "<termid>" + setting.termid + "</termid>"
+             + "<trnid>" + setting.trnid + "</trnid>"
+             + "<custid>" + setting.custid + "</custid>"
+             + "<cusopr>" + setting.cusopr + "</cusopr>"
+             + "<trncod>" + strCommand + "</trncod>"
+             + "<token>" + setting.token + "</token>"
+        +"</head>"
+        + "<trans>"
+            + "<trn-b2e0509-rq>"
+                + "<b2e0509-rq>"
+                    + "<ibknum>" + setting.ibknum + "</ibknum>"
+                    + "<actacn>" + setting.actacn + "</actacn>"
+                    + "<type>2019</type>"
+                    + "<datescope>"
+                         + "<from>" + startDate.ToString("yyyyMMdd") + "</from>"
+                         + "<to>" + endDate.ToString("yyyyMMdd") + "</to>"
+                    + "</datescope>"
+                    + "<amountscope>"
+                        + "<from>0<from/>"
+                        + "<to>100000000000</to>"
+                    + "</amountscope>"
+                    + "<begnum>"+ iStartNum.ToString() +"</begnum>"
+                    + "<recnum>" + iEndNum.ToString() + "</recnum>"
+                    + "<direction>2</direction>"
+                + "</b2e0509-rq>"
+            + "</trn-b2e0509-rq>"
+        + "</trans>"
+    + "</bocb2e>";
+            string _res = HttpHelper.HttpPostStr(setting.postServerUrl, xml);
+
+            _res = _res.Replace("utf-8", "UTF-8");
+            //替换增加一个<root></root>根目录
+            string subxml = _res.Replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", "");
+            string _tempXml = $"<?xml version=\"1.0\" encoding=\"UTF-8\" ?><root>{subxml}</root>";
+
+            //读取Xml文件转成Xml对象
+            StringReader reader = new StringReader(_tempXml);
+            XmlDocument xmlDoc = new XmlDocument();
+            xmlDoc.Load(reader);
+
+            //验证是否请求失败
+            var errxmls = xmlDoc.SelectSingleNode("//trn-b2eerror-rs");
+            if (errxmls != null)
+            {
+                rs.ReMsg = errxmls.SelectSingleNode("status").SelectSingleNode("rspmsg").InnerText;
+                //return Content( errxmls.SelectSingleNode("status").SelectSingleNode("rspmsg").InnerText);
+                return rs;
+            }
+            //获取相应的【b2e0509-rs】结点数据
+            XmlNodeList xmls = xmlDoc.SelectNodes("//b2e0509-rs");
+
+            List<T_Bank_DateBalance> bals = new List<T_Bank_DateBalance>();
+            foreach (XmlNode w in xmls)
+            {
+                T_Bank_DateBalance bal = new T_Bank_DateBalance();
+                bal.rspcod = w.SelectSingleNode("status").SelectSingleNode("rspcod").InnerText;//B001,成功；B002,成功，未完；B003，交易数为0；
+                bal.rspmsg = w.SelectSingleNode("status").SelectSingleNode("rspmsg").InnerText;
+                bal.ibknum = w.SelectSingleNode("account").SelectSingleNode("ibknum").InnerText;
+                bal.actacn = w.SelectSingleNode("account").SelectSingleNode("actacn").InnerText;
+                bal.curcde = w.SelectSingleNode("account").SelectSingleNode("curcde").InnerText;
+                bal.bokbal = Convert.ToDecimal(w.SelectSingleNode("balance").SelectSingleNode("bokbal").InnerText);
+                bal.avabal = Convert.ToDecimal(w.SelectSingleNode("balance").SelectSingleNode("avabal").InnerText);
+                bal.baldat = Convert.ToDateTime(w.SelectSingleNode("baldat").InnerText.Substring(0, 4) + "-" + w.SelectSingleNode("baldat").InnerText.Substring(4, 2) + "-" + w.SelectSingleNode("baldat").InnerText.Substring(6, 2));
+                bals.Add(bal);
+            }
+
+            foreach (var bal in bals)
+            {
+                var b = _bll.GetModelFirst<T_Bank_DateBalance, T_Bank_DateBalance>(Newtonsoft.Json.JsonConvert.SerializeObject(new { actacn = bal.actacn, baldat = bal.baldat }));
+                if (b == null)
+                {
+                    var _datebal = _bll.Insert<T_Bank_DateBalance>(bal);
+                }
+            }
+
+            rs.ReMsg = "成功";
+            rs.Flag = true;
+            return rs;
+        }
     }
 }

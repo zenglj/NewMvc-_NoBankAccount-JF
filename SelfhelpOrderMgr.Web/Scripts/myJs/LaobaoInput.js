@@ -927,12 +927,35 @@ function UndoOrder(bid, idx) {
 function PrintMain() {
     //$('#btnprint').linkbutton('enable');
     var row = $("#mainOrderTable").datagrid("getSelected");
+    if (row == null || row == undefined) {
+        $.messager.alert("提示", "请选择一条记录");
+        return false;
+    }
     window.open("/Laobao/PrintReportList?bid=" + row.BID);
+}
+
+function PrintMainOrder() {
+    //$('#btnprint').linkbutton('enable');
+    var rows = $("#mainOrderTable").datagrid("getRows");
+    console.log(rows);
+    var bids = '';
+    for (var i = 0; i < rows.length; i++) {
+        if (bids == '') {
+            bids = "" + rows[i].BID + "";
+        } else {
+            bids = bids+"," + rows[i].BID + "";
+        }
+    }
+    window.open("/Laobao/PrintReportTotalList?bids=" + bids);
 }
 
 //Excel导出主单
 function ExcelMain(id) {
     var row = $("#mainOrderTable").datagrid("getSelected");
+    if (row == null || row == undefined) {
+        $.messager.alert("提示", "请选择一条记录");
+        return false;
+    }
     $("#action").val("ExcelOut");    
     $("#FBidExcel").val(row.BID);
     id = $("#PowerId").val();
@@ -940,6 +963,39 @@ function ExcelMain(id) {
         url: "/Laobao/ExcelOut/"+id,
         onSubmit: function () {
                         
+        },
+        success: function (data) {
+            var words = data.split("|");
+            if (words[0] == "OK") {
+                window.open("/Upload/" + words[1]);
+            }
+            else {
+                $.messager.alert("提示", data);
+            }
+        }
+    });
+    $('#ffExcel').submit();
+}
+
+
+//Excel导出总单
+function ExcelMainOrder() {
+    
+    $("#action").val("ExcelOut");
+    var rows = $("#mainOrderTable").datagrid("getRows");
+    console.log(rows);
+    var bids = '';
+    for (var i = 0; i < rows.length; i++) {
+        if (bids == '') {
+            bids = "" + rows[i].BID + "";
+        } else {
+            bids = bids + "," + rows[i].BID + "";
+        }
+    }
+    $('#ffExcel').form({
+        url: "/Laobao/ExcelOutMainSum/?bids=" +  bids,
+        onSubmit: function () {
+
         },
         success: function (data) {
             var words = data.split("|");

@@ -1,0 +1,85 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>PrintReportList</title>
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Content/site.min.css" rel="stylesheet" />
+    <link href="~/Content/bootstrap-theme.css" rel="stylesheet" />
+    <script src="~/Scripts/jquery-1.11.3.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <link href="~/Content/PrintReportCss.css" rel="stylesheet" />
+    <style type="text/css">
+        /*打印分页*/
+        .pPage {
+            page-break-after: always;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <div class="container">
+            <h3 class="text-center">劳报酬总表 <small>队别发放列表</small></h3>
+
+            @if (ViewData["lists"] != null)
+            {
+                List<SelfhelpOrderMgr.Model.T_BONUS> lists = ViewData["lists"] as List<SelfhelpOrderMgr.Model.T_BONUS>;
+                int i = 1;
+                int j = 1;
+                int jcount = lists.Count;
+                int iRow = 1;
+                int pageCount = 45;
+                decimal sumMoney = 0;
+                decimal sumCount = 0;
+                <div class="row pPage">
+                    <div class="col-md-12">
+
+                        <table class="contentFontSizeMicrSmall table table-striped table-bordered" style=" line-height:10px; ">
+                            <thead>
+                                <tr>
+                                    <th style="width:120px;" class="text-center">单号</th>
+                                    <th style="width:100px;" class="text-center">月份</th>
+                                    <th style="width:80px;" class="text-center">监区</th>
+                                    <th style="width:120px;" class="text-center">发放人员</th>
+                                    <th style="width:120px;" class="text-center">入账日期</th>
+                                    <th style="width:120px;" class="text-center">人数</th>
+                                    <th style="width:120px;" class="text-center">总金额</th>
+                                    <th style="width:300px;" class="text-center">备注</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (SelfhelpOrderMgr.Model.T_BONUS item in lists)
+                                {
+                                    <tr><td>@iRow : @item.BID</td><td>@item.udate.ToString("yyyy-MM")</td><td>@item.fareaName</td><td>@item.Crtby</td><td>@item.Fdbcheckdate.ToString("yyyy-MM-dd")</td><td class="text-right">@item.cnt</td><td class="text-right">@item.fAMOUNT</td><td>@item.Remark</td></tr>
+                                    iRow++;
+                                    sumMoney = sumMoney + item.fAMOUNT;
+                                    sumCount = sumCount + item.cnt;
+
+                                }
+
+                                <tr><th>合计</th><th></th><th></th><th></th><th></th><td  class="text-right">人数:@sumCount</td><td  class="text-right">金额:@sumMoney</td><th></th></tr>
+
+                            </tbody>
+                        </table>
+                        <div class="row">
+                            <div class="col-sm-6">经办人:</div>
+                            <div class="col-sm-6">监区领导:</div>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            
+        </div>
+
+
+
+    </div>
+</body>
+</html>

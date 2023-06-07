@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.21005.1
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31515.178
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SelfhelpOrderMgr.Web", "SelfhelpOrderMgr.Web\SelfhelpOrderMgr.Web.csproj", "{87317A41-92B4-4FFF-B450-CD79128E91A6}"
 EndProject
@@ -14,6 +14,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SelfhelpOrderMgr.Common", "SelfhelpOrderMgr.Common\SelfhelpOrderMgr.Common.csproj", "{BB3714BD-1096-40FC-A045-E92BED1985EE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SelfhelpOrderMgr.SocketService", "SelfhelpOrderMgr.SocketService\SelfhelpOrderMgr.SocketService.csproj", "{788F11D7-394F-4331-84AC-527110C3E375}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SelfhelpOrderMgr.YuZhengJieKou", "SelfhelpOrderMgr.YuZhengJieKou\SelfhelpOrderMgr.YuZhengJieKou.csproj", "{CA66A5C3-3C20-4A03-845A-A6D005B61583}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,8 +47,15 @@ Global
 		{788F11D7-394F-4331-84AC-527110C3E375}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{788F11D7-394F-4331-84AC-527110C3E375}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{788F11D7-394F-4331-84AC-527110C3E375}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CA66A5C3-3C20-4A03-845A-A6D005B61583}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CA66A5C3-3C20-4A03-845A-A6D005B61583}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CA66A5C3-3C20-4A03-845A-A6D005B61583}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CA66A5C3-3C20-4A03-845A-A6D005B61583}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2C856DDE-6948-43B2-92CE-FF1349E1F5C9}
 	EndGlobalSection
 EndGlobal

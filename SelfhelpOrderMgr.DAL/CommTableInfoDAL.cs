@@ -9,6 +9,8 @@ using SelfhelpOrderMgr.Model;
 using System.Text;
 using Dapper;
 using System.Reflection;
+using SelfhelpOrderMgr.Common;
+
 namespace SelfhelpOrderMgr.DAL
 {
     public class CommTableInfoDAL
@@ -212,8 +214,11 @@ namespace SelfhelpOrderMgr.DAL
             {
                 return SqlHelper.ExecuteSql(Sql);
             }
-            catch
+            catch(Exception e)
             {
+                string ss = e.Message;
+                Console.WriteLine(ss);
+                Log4NetHelper.logger.Error(ss);
                 return 0;
             }            
         }

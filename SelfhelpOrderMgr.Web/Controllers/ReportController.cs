@@ -488,10 +488,6 @@ namespace SelfhelpOrderMgr.Web.Controllers
             }
             
 
-            
-
-           
-
             //上期结存金额
 
             T_Vcrd shangqiJinE = new T_Vcrd();

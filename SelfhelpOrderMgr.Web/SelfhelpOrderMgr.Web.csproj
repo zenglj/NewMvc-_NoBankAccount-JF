@@ -52,7 +52,6 @@
       <HintPath>..\packages\Ionic.Zip.1.9.1.8\lib\Ionic.Zip.dll</HintPath>
     </Reference>
     <Reference Include="log4net, Version=2.0.7.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\log4net.2.0.7\lib\net45-full\log4net.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
@@ -223,7 +222,6 @@
     <Compile Include="CommonHeler\DataTableToListHelper.cs" />
     <Compile Include="CommonHeler\ExcelRender.cs" />
     <Compile Include="CommonHeler\HardwareInfo.cs" />
-    <Compile Include="CommonHeler\HttpHelper.cs" />
     <Compile Include="CommonHeler\LicenseHelper.cs" />
     <Compile Include="CommonHeler\MD5Process.cs" />
     <Compile Include="CommonHeler\RegexHelper.cs" />
@@ -1176,6 +1174,8 @@
     <Content Include="Views\Infomgr\NewPrintOutPrisonReport.cshtml" />
     <Content Include="Views\Power\LogMgr.cshtml" />
     <Content Include="Views\JfShopping\Index.cshtml" />
+    <Content Include="Views\Laobao\CSJY_PrintReportList.cshtml" />
+    <Content Include="Views\Laobao\PrintReportTotalList.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
