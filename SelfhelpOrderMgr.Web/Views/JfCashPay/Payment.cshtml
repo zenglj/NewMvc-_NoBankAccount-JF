@@ -1,0 +1,131 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Payment</title>
+    @{Html.RenderPartial("~/Views/Shared/_PartialHeadPage.cshtml");}
+</head>
+<body class="easyui-layout">
+    <div data-options="region:'east',iconCls:'icon-reload',title:'查询栏',split:true" style="width:250px;">
+        <table>
+            <tr>
+                <th>编号:</th>
+                <td><input type="text" id="selFCode" name="selFCode" /></td>
+            </tr>
+            <tr>
+                <th>姓名:</th>
+                <td><input type="text" id="selFName" name="selFName" /></td>
+            </tr>
+            <tr>
+                <th>队别:</th>
+                <td>
+                    <select id="selArea" name="selArea" class="easyui-combobox" style="width:150px;">
+                        <option value="">==请选择==</option>
+                        @if (ViewData["areas"] != null)
+                        {
+                            foreach (SelfhelpOrderMgr.Model.T_AREA area in ViewData["areas"] as List<SelfhelpOrderMgr.Model.T_AREA>)
+                            {
+                                <option value="@area.FCode">@area.FName</option>
+                            }
+                        }
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <th>状态:</th>
+                <td>
+                    <select id="selFFlag" name="selFFlag" class="easyui-combobox" style="width:150px;">
+                        <option value="">==请选择==</option>
+                        <option value="0">正常</option>
+                        <option value="1">离监</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td></td>
+                <td style="text-align:right">
+                    <a id="btn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-search'" onclick="btnSearchUser()">查询</a>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div data-options="region:'center',title:'人员信息'" style="padding:5px;background:#eee;">
+        <div id="layoutPanel" class="easyui-layout" style="height:450px;">
+            <div data-options="region:'north'" style="height:200px;">
+                <table id="test" style="height:180px">
+                    @*<thead>
+                            <tr>
+                                <th data-options="field:'FCode',width:100">编号</th>
+                                <th data-options="field:'FName',width:100">姓名</th>
+                                <th data-options="field:'FAreaName',width:100">监区</th>
+                                <th data-options="field:'FFlag',width:100">状态</th>
+                                <th data-options="field:'CardCode',width:100">IC卡号</th>
+                                <th data-options="field:'AmountA',width:100">汇款金额</th>
+                                <th data-options="field:'AmountB',width:100">报酬金额</th>
+                                <th data-options="field:'AmountC',width:100">留存金额</th>
+                                <th data-options="field:'AllMoney',width:100">总金额</th>
+                                <th data-options="field:'BankAccNo',width:200">银行卡号</th>
+                            </tr>
+                        </thead>*@
+                </table>
+            </div>
+            <div data-options="region:'center',title:'存款记录'" style="padding:5px;background:#eee;">
+                <div>
+                    <form>
+                        <table>
+                            <tr>
+                                <th>编号</th>
+                                <td>
+                                    <input type="hidden" id="txtFFlag" name="txtFFlag" />
+                                    <input type="text" id="txtFCode" name="txtFCode" style="width:100px;" onkeydown="if (event.keyCode == 13) noNumbers();" />
+                                </td>
+                                <th>姓名</th>
+                                <td><input type="text" id="txtFName" name="txtFName" style="width:100px;" /></td>
+                                <th>类型</th>
+                                <td>
+                                    <select id="txtType" name="txtType" class="easyui-combobox">
+                                        <option value="">==请选择==</option>
+                                        @if (ViewData["saveTypes"] != null)
+                                        {
+                                            foreach (SelfhelpOrderMgr.Model.T_Savetype saveType in ViewData["saveTypes"] as List<SelfhelpOrderMgr.Model.T_Savetype>)
+                                            {
+                                                <option value="@saveType.fcode">@saveType.fname</option>
+                                            }
+                                        }
+                                    </select>
+                                </td>
+
+                                <th>金额</th>
+                                <td><input type="text" id="txtMoney" name="txtMoney" class="easyui-numberbox" style="width:100px;" data-options="min:0,precision:2" /></td>
+                            </tr>
+                            <tr>
+                                <th>申请人</th>
+                                <td><input type="text" id="txtApply" name="txtApply" style="width:100px;" /></td>
+                                <th>备注</th>
+                                <td colspan="7"><input type="text" id="txtRemark" name="txtRemark" style="width:360px;" /></td>
+                                <td>
+                                    <a id="btnsave" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-save'" onclick="btnSaveDetail()">保存</a>
+                                    <a id="btnprint" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-print'">打印</a>
+                                </td>
+                                <td>
+                                    <a id="btndel" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-no'">删除记录</a>
+                                </td>
+                            </tr>
+                        </table>
+                    </form>
+
+                </div>
+                <div>
+                    <table id="detail" class="easyui-datagrid"></table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="~/Scripts/myJs/JfCashPay.js"></script>
+</body>
+</html>

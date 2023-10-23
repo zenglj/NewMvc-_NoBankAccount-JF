@@ -201,12 +201,13 @@ namespace SelfhelpOrderMgr.Web.Controllers
             string FFlags = Request["FFlags"];//记录的有效状态值
             string CheckFlag = Request["CheckFlag"]; //审核标志
             string CardTypeFlag = Request["CardTypeFlag"];//烛光卡表示
+            string PayMode = Request["PayMode"];//支付款方式
             if (string.IsNullOrEmpty(FFlags)==true)
             {
                 FFlags = "0";
             }
 
-            string strWhere = GetSearchWhere(LoginCode, ref startTime, ref endTime, areaName, FName, FCode, CrtBy, CriminalFlag, CashTypes, PayTypes, AccTypes, BankFlags, FRemark, FFlags, CheckFlag, CardTypeFlag, id);
+            string strWhere = GetSearchWhere(LoginCode, ref startTime, ref endTime, areaName, FName, FCode, CrtBy, CriminalFlag, CashTypes, PayTypes, AccTypes, BankFlags, FRemark, FFlags, CheckFlag, CardTypeFlag,PayMode, id);
             return strWhere;
         }
 
@@ -216,7 +217,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
         {
             this.paramSchVcrds = param;
         }
-        private string GetSearchWhere(string LoginCode, ref string startTime, ref string endTime, string areaName, string FName, string FCode, string CrtBy, string CriminalFlag, string CashTypes, string PayTypes, string AccTypes, string BankFlags, string FRemark, string FFlags,string CheckFlag,string CardTypeFlag, int id=1)
+        private string GetSearchWhere(string LoginCode, ref string startTime, ref string endTime, string areaName, string FName, string FCode, string CrtBy, string CriminalFlag, string CashTypes, string PayTypes, string AccTypes, string BankFlags, string FRemark, string FFlags,string CheckFlag,string CardTypeFlag, string PayMode, int id=1)
         {
             ////string strWhere = "Flag=0 ";
             //string strWhere = "Flag in("+ FFlags+") ";
@@ -426,6 +427,12 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         where (case when isnull(Bankaccno,'')<>'' then 1 else 0 end )=@CardTypeFlag)";
             }
 
+            //20230716新增 PayMode 字段查询
+            if (string.IsNullOrEmpty(PayMode) == false)
+            {
+                strWhere = strWhere + " and PayMode = @PayMode ";
+            }
+
             //验证用户的队别,如果设定了Vcrd验证用户队别，则要查看是否有相应的队别权限下的犯人才可以查询到
             T_SHO_ManagerSet mset = new T_SHO_ManagerSetBLL().GetModel("VcrdCheckUserManagerAarea");
             if (mset != null)
@@ -436,7 +443,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 }
             }
 
-            object param = new { LoginCode = LoginCode, startTime = startTime, endTime = endTime, areaName = areaName, FName = FName, FCode = FCode, CrtBy = CrtBy, CriminalFlag = CriminalFlag, CashTypes = CashTypes, PayTypes = PayTypes, savePays= savePays, AccTypes = AccTypes, BankFlags = BankFlags, FRemark = FRemark, FFlags = FFlags, CheckFlag = CheckFlag, CardTypeFlag = CardTypeFlag, id = id };
+            object param = new { LoginCode = LoginCode, startTime = startTime, endTime = endTime, areaName = areaName, FName = FName, FCode = FCode, CrtBy = CrtBy, CriminalFlag = CriminalFlag, CashTypes = CashTypes, PayTypes = PayTypes, savePays= savePays, AccTypes = AccTypes, BankFlags = BankFlags, FRemark = FRemark, FFlags = FFlags, CheckFlag = CheckFlag, CardTypeFlag = CardTypeFlag,PayMode=PayMode, id = id };
             this.SetParamSchVcrds(param);
             return strWhere;
         }
@@ -672,12 +679,14 @@ namespace SelfhelpOrderMgr.Web.Controllers
                     {
                         if(intFlag==0)
                         {
-                            strSql.Append("select FCrimeCode,FCriminal,b.FAreaName,Sum(Damount) Damount,Sum(Camount) Camount,b.Remark from T_VCrd a" +
+                            //队别名称改回从Vcrd取
+                            strSql.Append("select FCrimeCode,FCriminal,a.FAreaName,Sum(Damount) Damount,Sum(Camount) Camount,b.Remark from T_VCrd a" +
                                 ",(Select FCode ,FAreaName=(select fname from t_area where fcode=e.FAreaCode),case when isnull(e.fflag,0)=1 then '离监' when isnull(e.fflag,0)=2 then '保外' else '在押' end as Remark from T_Criminal e ) b   ");
 
                         }else
                         {
-                            strSql.Append("select FCrimeCode 编号,FCriminal 姓名,b.FAreaName 队别,Sum(Damount) 收入,Sum(Camount) 支出,Sum(Damount-Camount) 余额,b.Remark 备注 from T_VCrd a" +
+                            //队别名称改回从Vcrd取
+                            strSql.Append("select FCrimeCode 编号,FCriminal 姓名,a.FAreaName 队别,Sum(Damount) 收入,Sum(Camount) 支出,Sum(Damount-Camount) 余额,b.Remark 备注 from T_VCrd a" +
                                 ",(Select FCode ,FAreaName=(select fname from t_area where fcode=e.FAreaCode),case when isnull(e.fflag,0)=1 then '离监' when isnull(e.fflag,0)=2 then '保外' else '在押' end as Remark from T_Criminal e ) b  ");
                         }
                         strSql.Append(" Where a.fcrimecode=b.FCode and " + strWhere);
@@ -1008,7 +1017,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         title = "存取类型个人汇总单";
                         //mul_lan = true;//设定为多栏打印
                     } break;
-                case 25:
+                case 25://出监结算统计报表
                     {
                         
                         if (intFlag == 0)

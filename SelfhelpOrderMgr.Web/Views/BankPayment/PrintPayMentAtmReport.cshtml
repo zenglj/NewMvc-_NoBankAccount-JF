@@ -1,0 +1,277 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>总账清单</title>
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Content/buttons.css" rel="stylesheet" />
+    <link href="~/Content/PrintReportCss.css" rel="stylesheet" />
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="page-header ">
+            <h1 class="text-center">离监结算款支付方式对账表 <small>分类统计报表</small></h1>
+
+        </div>
+        <div class="row">
+            @if (ViewData["customTimeArea"] != null)
+            {
+                SelfhelpOrderMgr.Web.Models.CustomTimeArea cs = ViewData["customTimeArea"] as SelfhelpOrderMgr.Web.Models.CustomTimeArea;
+                <div class="col-sm-4"><strong>统计日期：</strong>@cs.CrtDate_Start.ToString("yyyy-MM-dd HH:mm:ss") 至 @cs.CrtDate_End.ToString("yyyy-MM-dd HH:mm:ss")</div>
+                <div class="col-sm-5"></div>
+                <div class="col-sm-3"><strong>打印日期:</strong>@DateTime.Now.ToString("yyyy-MM-dd")</div>
+            }
+
+
+        </div>
+
+        <div class="row">
+
+            <div class="col-sm-12">
+                @if (ViewData["res"] != null)
+                {
+                    var res = ViewData["res"] as List<SelfhelpOrderMgr.Model.ViewPaymentRecordExtend>;
+                    var gp = res.GroupBy(x => new { x.PayMode })
+                .Select(g => new
+                {
+                    PayMode = g.Key.PayMode,
+                    Amount = g.Sum(t => t.Amount),
+                    TranMoney = g.Sum(t => t.TranMoney),
+                    CeAmount = g.Sum(t => (t.Amount - t.TranMoney))
+                }).ToList();
+
+
+                    <table class="table table-bordered">
+                        <thead>
+                            @foreach (var item in gp)
+                            {
+                                string strPayMode = "[现金]";
+                                if(item.PayMode == 1)
+                                {
+                                    strPayMode = "[ATM机]";
+                                }
+                                else if(item.PayMode == 2)
+                                {
+                                    strPayMode = "[转账]";
+                                }
+                            <tr style="font-size:large">
+                                <th>汇总</th>
+                                <th>@strPayMode</th>
+                                <th colspan="2">取款合计：</th>
+                                <td>@res.Sum(o => o.TranMoney)</td>
+                                <th colspan="2">零钞合计：</th>
+                                <td>@res.Sum(o => (o.Amount - o.TranMoney))</td>
+                                <th colspan="2">支付总合计：</th>
+                                <td>@res.Sum(o => o.Amount)</td>
+                                <td colspan="4"></td>
+                            </tr>
+                            }
+
+
+                            <tr>
+                                <th>明细</th>
+                                <th>取款日期</th>
+                                <th>狱号</th>
+                                <th>姓名</th>
+                                <th>监区</th>
+                                <th style="width:6%">方式</th>
+                                <th>取款整钱</th>
+                                <th style="width:7%">支付零钱</th>
+                                <th>结算金额</th>
+                                <th>结果</th>
+                                <th style="width:5%">类型</th>
+                                <th style="width:6%">审核人</th>
+                                <th>结算日期</th>
+                                <th>摘要备注</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (ViewData["res"] != null)
+                            {
+                                var ls = ViewData["res"] as List<SelfhelpOrderMgr.Model.ViewPaymentRecordExtend>;
+
+                                decimal sAmount = 0;
+                                decimal sTranMoney = 0;
+                                decimal ceAmount = 0;
+                                decimal sCeAmount = 0;
+                                int rowId = 1;
+                                foreach (var item in ls)
+                                {
+                                    string strFlag = "未分配";
+
+                                    string strPaymode = "转账支付";
+
+                                    string strTrantype = "现金";
+
+                                    ceAmount = item.Amount - item.TranMoney;
+
+                                    sAmount += item.Amount;
+                                    sTranMoney += item.TranMoney;
+                                    sCeAmount += ceAmount;
+
+                                    switch (item.TranStatus)
+                                    {
+                                        case 1:
+                                            {
+                                                strFlag = "发送中";
+                                            }
+                                            break;
+                                        case 2:
+                                            {
+                                                strFlag = "成功";
+                                            }
+                                            break;
+                                        case 3:
+                                            {
+                                                strFlag = "支付失败";
+                                            }
+                                            break;
+                                        case 4:
+                                            {
+                                                strFlag = "已复位";
+                                            }
+                                            break;
+                                        case 5:
+                                            {
+                                                strFlag = "已退回";
+                                            }
+                                            break;
+                                        default:
+                                            {
+                                                strFlag = "未处理";
+                                            }
+                                            break;
+                                    }
+
+
+                                    switch (item.PayMode)
+                                    {
+                                        case 0:
+                                            {
+                                                strPaymode = "现金";
+                                            }
+                                            break;
+                                        case 1:
+                                            {
+                                                strPaymode = "ATM机";
+                                            }
+                                            break;
+                                        case 2:
+                                            {
+                                                strPaymode = "转账";
+                                            }
+                                            break;
+                                        default:
+                                            {
+                                                strPaymode = "未知";
+                                            }
+                                            break;
+                                    }
+
+
+                                    switch (item.TranType)
+                                    {
+                                        case 0:
+                                            {
+                                                strTrantype = "对私";
+                                            }
+                                            break;
+                                        case 1:
+                                            {
+                                                strTrantype = "对公";
+                                            }
+                                            break;
+                                        default:
+                                            {
+                                                strPaymode = "未知";
+                                            }
+                                            break;
+                                    }
+                                    <tr>
+                                        <td class="text-center">@rowId</td>
+                                        <td>@(item.TranDate==null?"":((DateTime)item.TranDate).ToString("yyyyMMdd"))</td>
+
+                                        <td>@item.FCrimeCode</td>
+                                        <td>@item.FCrimeName</td>
+                                        <td>@item.FAreaName</td>
+
+                                        <td>@strPaymode</td>
+                                        <td>@item.TranMoney</td>
+                                        <td>@ceAmount</td>
+                                        <td>@item.Amount</td>
+                                        <td>@strFlag</td>
+
+                                        <td>@strTrantype</td>
+
+                                        <td>@item.AuditBy</td>
+                                        <td>@item.Crtdate.ToString("yyyyMMdd")</td>
+                                        <td>@item.BankResultInfo</td>
+                                    </tr>
+                                    rowId++;
+                                }
+
+                                <tr>
+                                    <th>合计</th>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+
+                                    <td>@sTranMoney</td>
+                                    <td>@sCeAmount</td>
+                                    <td>@sAmount</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                            }
+
+
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>序号</th>
+                                <th>流水号</th>
+                                <th>对手单位</th>
+                                <th>对手账号</th>
+                                <th>收入</th>
+                                <th>支出</th>
+                                <th>日期</th>
+                                <th>时间</th>
+                                <th>标志</th>
+                                <th>类型</th>
+                                <th>备注</th>
+                            </tr>
+                        </thead>
+
+                    </table>
+                }
+            </div>
+            <div class="col-sm-2">
+
+            </div>
+        </div>
+
+
+    </div>
+    <script src="~/Scripts/jquery-1.11.3.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <script src="~/Scripts/myJs/commonJs.js"></script>
+
+</body>
+</html>

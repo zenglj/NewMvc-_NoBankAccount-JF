@@ -17,8 +17,8 @@ namespace SelfhelpOrderMgr.DAL
             strSql.Append(" fcode = @fcode and  ");
             strSql.Append(" typeflag = @typeflag  ");
             SqlParameter[] parameters = {
-					new SqlParameter("@fcode", SqlDbType.Int,4),
-					new SqlParameter("@typeflag", SqlDbType.Int,4)			};
+                    new SqlParameter("@fcode", SqlDbType.Int,4),
+                    new SqlParameter("@typeflag", SqlDbType.Int,4)          };
             parameters[0].Value = fcode;
             parameters[1].Value = typeflag;
 
@@ -34,20 +34,21 @@ namespace SelfhelpOrderMgr.DAL
         {
             StringBuilder strSql = new StringBuilder();
             strSql.Append("insert into T_Savetype(");
-            strSql.Append("fcode,fname,typeflag,PLXE_Flag,ZZKK_Flag,AccType,FuShuFlag");
+            strSql.Append("fcode,fname,typeflag,PLXE_Flag,ZZKK_Flag,AccType,FuShuFlag,UseType");
             strSql.Append(") values (");
-            strSql.Append("@fcode,@fname,@typeflag,@PLXE_Flag,@ZZKK_Flag,@AccType,@FuShuFlag");
+            strSql.Append("@fcode,@fname,@typeflag,@PLXE_Flag,@ZZKK_Flag,@AccType,@FuShuFlag,@UseType");
             strSql.Append(") ");
 
             SqlParameter[] parameters = {
-			            new SqlParameter("@fcode", SqlDbType.Int,4) ,            
-                        new SqlParameter("@fname", SqlDbType.VarChar,20) ,            
-                        new SqlParameter("@typeflag", SqlDbType.Int,4) ,            
-                        new SqlParameter("@PLXE_Flag", SqlDbType.Int,4) ,            
-                        new SqlParameter("@ZZKK_Flag", SqlDbType.Int,4) ,            
-                        new SqlParameter("@AccType", SqlDbType.Int,4) ,            
-                        new SqlParameter("@FuShuFlag", SqlDbType.Int,4)             
-              
+                        new SqlParameter("@fcode", SqlDbType.Int,4) ,
+                        new SqlParameter("@fname", SqlDbType.VarChar,20) ,
+                        new SqlParameter("@typeflag", SqlDbType.Int,4) ,
+                        new SqlParameter("@PLXE_Flag", SqlDbType.Int,4) ,
+                        new SqlParameter("@ZZKK_Flag", SqlDbType.Int,4) ,
+                        new SqlParameter("@AccType", SqlDbType.Int,4) ,
+                        new SqlParameter("@FuShuFlag", SqlDbType.Int,4) ,
+                        new SqlParameter("@UseType", SqlDbType.Int,4)
+
             };
 
             parameters[0].Value = model.fcode;
@@ -57,6 +58,7 @@ namespace SelfhelpOrderMgr.DAL
             parameters[4].Value = model.ZZKK_Flag;
             parameters[5].Value = model.AccType;
             parameters[6].Value = model.FuShuFlag;
+            parameters[7].Value = model.UseType;
             SqlHelper.ExecuteSql(strSql.ToString(), parameters);
 
         }
@@ -76,18 +78,20 @@ namespace SelfhelpOrderMgr.DAL
             strSql.Append(" PLXE_Flag = @PLXE_Flag , ");
             strSql.Append(" ZZKK_Flag = @ZZKK_Flag , ");
             strSql.Append(" AccType = @AccType , ");
-            strSql.Append(" FuShuFlag = @FuShuFlag  ");
+            strSql.Append(" FuShuFlag = @FuShuFlag,  ");
+            strSql.Append(" UseType = @UseType  ");
             strSql.Append(" where fcode=@fcode and typeflag=@typeflag  ");
 
             SqlParameter[] parameters = {
-			            new SqlParameter("@fcode", SqlDbType.Int,4) ,            
-                        new SqlParameter("@fname", SqlDbType.VarChar,20) ,            
-                        new SqlParameter("@typeflag", SqlDbType.Int,4) ,            
-                        new SqlParameter("@PLXE_Flag", SqlDbType.Int,4) ,            
-                        new SqlParameter("@ZZKK_Flag", SqlDbType.Int,4) ,            
-                        new SqlParameter("@AccType", SqlDbType.Int,4) ,            
-                        new SqlParameter("@FuShuFlag", SqlDbType.Int,4)             
-              
+                        new SqlParameter("@fcode", SqlDbType.Int,4) ,
+                        new SqlParameter("@fname", SqlDbType.VarChar,20) ,
+                        new SqlParameter("@typeflag", SqlDbType.Int,4) ,
+                        new SqlParameter("@PLXE_Flag", SqlDbType.Int,4) ,
+                        new SqlParameter("@ZZKK_Flag", SqlDbType.Int,4) ,
+                        new SqlParameter("@AccType", SqlDbType.Int,4) ,
+                        new SqlParameter("@FuShuFlag", SqlDbType.Int,4),
+                        new SqlParameter("@UseType", SqlDbType.Int,4)
+
             };
 
             parameters[0].Value = model.fcode;
@@ -97,6 +101,7 @@ namespace SelfhelpOrderMgr.DAL
             parameters[4].Value = model.ZZKK_Flag;
             parameters[5].Value = model.AccType;
             parameters[6].Value = model.FuShuFlag;
+            parameters[7].Value = model.UseType;
             int rows = SqlHelper.ExecuteSql(strSql.ToString(), parameters);
             if (rows > 0)
             {
@@ -119,8 +124,8 @@ namespace SelfhelpOrderMgr.DAL
             strSql.Append("delete from T_Savetype ");
             strSql.Append(" where fcode=@fcode and typeflag=@typeflag ");
             SqlParameter[] parameters = {
-					new SqlParameter("@fcode", SqlDbType.Int,4),
-					new SqlParameter("@typeflag", SqlDbType.Int,4)			};
+                    new SqlParameter("@fcode", SqlDbType.Int,4),
+                    new SqlParameter("@typeflag", SqlDbType.Int,4)          };
             parameters[0].Value = fcode;
             parameters[1].Value = typeflag;
 
@@ -145,12 +150,12 @@ namespace SelfhelpOrderMgr.DAL
         {
 
             StringBuilder strSql = new StringBuilder();
-            strSql.Append("select fcode, fname, typeflag, PLXE_Flag, ZZKK_Flag, AccType, FuShuFlag  ");
+            strSql.Append("select fcode, fname, typeflag, PLXE_Flag, ZZKK_Flag, AccType, FuShuFlag,UseType  ");
             strSql.Append("  from T_Savetype ");
             strSql.Append(" where fcode=@fcode and typeflag=@typeflag ");
             SqlParameter[] parameters = {
-					new SqlParameter("@fcode", SqlDbType.Int,4),
-					new SqlParameter("@typeflag", SqlDbType.Int,4)			};
+                    new SqlParameter("@fcode", SqlDbType.Int,4),
+                    new SqlParameter("@typeflag", SqlDbType.Int,4)          };
             parameters[0].Value = fcode;
             parameters[1].Value = typeflag;
 
@@ -184,6 +189,10 @@ namespace SelfhelpOrderMgr.DAL
                 if (ds.Tables[0].Rows[0]["FuShuFlag"].ToString() != "")
                 {
                     model.FuShuFlag = int.Parse(ds.Tables[0].Rows[0]["FuShuFlag"].ToString());
+                }
+                if (ds.Tables[0].Rows[0]["UseType"].ToString() != "")
+                {
+                    model.UseType = int.Parse(ds.Tables[0].Rows[0]["UseType"].ToString());
                 }
 
                 return model;

@@ -75,8 +75,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AC_SUBYRDAL.cs" />
+    <Compile Include="DapperDAL\BaochouMgrDapperDAL.cs" />
     <Compile Include="DapperDAL\BaseDapperDAL.cs" />
     <Compile Include="DapperDAL\BankRcvServiceDAL.cs" />
+    <Compile Include="DapperDAL\JifenMgrDao.cs" />
     <Compile Include="DapperDAL\SettleDao.cs" />
     <Compile Include="DapperDAL\T_Bank_CNAPSDAL.cs" />
     <Compile Include="DapperDAL\BedInfomationDAL.cs" />

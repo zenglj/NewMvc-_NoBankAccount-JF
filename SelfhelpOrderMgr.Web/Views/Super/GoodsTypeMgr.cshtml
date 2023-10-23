@@ -14,6 +14,7 @@
 <body class="easyui-layout">
     <div data-options="region:'center',title:'商品管理',split:true" style="padding:5px;">
         <div style="height:300px;">
+            <input type="hidden" id="UseTypeId" value="@ViewData["UseTypeId"]" />
             <input type="hidden" id="typeName" />
             <table id="test" class="easyui-datagrid" toolbar="#tb"></table>
 

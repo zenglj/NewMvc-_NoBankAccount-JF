@@ -3,6 +3,7 @@ using SelfhelpOrderMgr.BLL;
 using SelfhelpOrderMgr.Common.CustomExtend;
 using SelfhelpOrderMgr.Model;
 using SelfhelpOrderMgr.Web.Filters;
+using SelfhelpOrderMgr.Web.Models;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -77,7 +78,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
             EasyUiPageResult<ViewPaymentRecordExtend> rs = new EasyUiPageResult<ViewPaymentRecordExtend>()
             {
                 total = list.total,
-                rows = list.rows
+                rows = list.rows,
+                sum=list.rows.Sum(o=>o.TranMoney)
             };
             return Content(jss.Serialize(rs));
         }
@@ -141,6 +143,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 rs.rows=new List<T_Vcrd>();
             }
 
+            //sss = "{\"total\":" + listRows.ToString() + ",\"rows\":" + jss.Serialize(vcrds) + ",\"sum\":" + dm[0].ToString() + "}";
+            //return Content(sss);
             return Content(jss.Serialize(rs));
         }
 
@@ -534,5 +538,28 @@ SELECT  [Id]
             ;
             return View();
         }
+
+        /// <summary>
+        /// ATM机对账报表
+        /// </summary>
+        /// <param name="strJsonWhere"></param>
+        /// <returns></returns>
+        public ActionResult PrintPayMentAtmReport(string strJsonWhere)
+        {
+
+            List<ViewPaymentRecordExtend> res = _bllPay.GetModelList<ViewPaymentRecordExtend, ViewPaymentRecordExt_Search>(strJsonWhere, "Id asc", 10000);
+
+            //ViewData["res"] = res.GroupBy(o => new { o.TranType, o.TranStatus, o.PayMode, FCrimeName = o.Crtdate.ToString("yyyyMM"), FCrimeCode = o.TranDate == null ? "" : ((DateTime)o.TranDate).ToString("yyyyMM") })
+            //             .Select(k => new ViewPaymentRecordExtend { TranStatus = k.Key.TranStatus, TranType = k.Key.TranType, PayMode = k.Key.PayMode, FCrimeCode = k.Key.FCrimeCode, FCrimeName = k.Key.FCrimeName, Amount = k.Sum(i => i.Amount), TranMoney = k.Sum(i => i.TranMoney) }).ToList();
+
+            CustomTimeArea customTimeArea = Newtonsoft.Json.JsonConvert.DeserializeObject<CustomTimeArea>(strJsonWhere);
+
+            ViewData["customTimeArea"] = customTimeArea;
+            ViewData["res"] = res.Where(o => (o.TranStatus == 2 || o.TranStatus == 1)).ToList();
+            return View();
+        }
+        
     }
+
+    
 }

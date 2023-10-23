@@ -23,14 +23,24 @@ namespace SelfhelpOrderMgr.Web.Controllers
     [MyLogActionFilterAttribute]
     public class SuperController : BaseController
     {
-        //
+        BaseDapperBLL _baseDapperBLL = new BaseDapperBLL();
         // GET: /Super/
 
         JavaScriptSerializer jss = new JavaScriptSerializer();
         public ActionResult Index(int id = 1)
         {
+            T_SHO_SaleType saletype = _baseDapperBLL.GetModel<T_SHO_SaleType>(id);
+
             //商品类别
-            List<T_GoodsType> goodtypes = new T_GoodsTypeBLL().GetModelList("");
+            List<T_GoodsType> goodtypes;
+            if (saletype.PType.Contains("积分"))
+            {
+                goodtypes = _baseDapperBLL.QueryList<T_GoodsType>("select * from t_goodsType where UseType =1", null);
+            }
+            else
+            {
+                goodtypes = _baseDapperBLL.QueryList<T_GoodsType>("select * from t_goodsType where UseType in(0,2)", null);
+            }
             ViewData["goodtypes"] = goodtypes;
 
             //商家
@@ -163,7 +173,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
         public ActionResult GetGoodsType()
         {
-            List<T_GoodsType> gtypes = new T_GoodsTypeBLL().GetModelList("");
+            List<T_GoodsType> gtypes = _baseDapperBLL.GetModelList<T_GoodsType>("", "Id asc", 200);
             //JavaScriptSerializer jss = new JavaScriptSerializer();
             string sss = jss.Serialize(gtypes);
             return Content(sss);
@@ -196,7 +206,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                     string savePath = Server.MapPath("~/Content/GoodsImages/" + fname);
                     f.SaveAs(savePath);
                     src = "/Content/GoodsImages/" + fname;
-                }                
+                }
             }
             T_SHO_ManagerSet mgrSet = new T_SHO_ManagerSetBLL().GetModel("ImgDRGS");//商品导入模式
 
@@ -239,7 +249,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 good.ModBy = "";
                 good.Moddt = DateTime.Now.ToShortDateString();
                 good.GCODE = new T_SEQNOBLL().GetSeqTypeNo("G");
-                good.XgMode = Convert.ToInt32( gXgMode );
+                good.XgMode = Convert.ToInt32(gXgMode);
                 good.ACTIVE = "Y";
                 good.gjm = "";
 
@@ -268,7 +278,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 if (src != "")
                 {
                     good.src = src;
-                }else
+                }
+                else
                 {
                     good.src = "/Content/GoodsImages/" + SPShortCode + "." + mset.MgrValue;
                 }
@@ -327,7 +338,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                     if (goodPriceMset.MgrValue != "1")
                     {
                         good.GDJ = Convert.ToDecimal(gDJ);
-                    }                    
+                    }
                 }
 
 
@@ -360,7 +371,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                     Log4NetHelper.logger.Info("保存更新商品信息,操作员：" + strLoginName + ",更新前，商品编码:" + oldGood.GCODE + ",商品名称=" + oldGood.GNAME + ",商品条码:" + oldGood.GTXM + ",商品店内码:" + oldGood.SPShortCode + ",商品价格:" + oldGood.GDJ.ToString() + ",商品类别:" + oldGood.GTYPE + ",非限额标志:" + oldGood.Ffreeflag.ToString());
                     Log4NetHelper.logger.Info("保存更新商品信息,操作员：" + strLoginName + ",更新后，商品编码:" + good.GCODE + ",商品名称=" + good.GNAME + ",商品条码:" + good.GTXM + ",商品店内码:" + good.SPShortCode + ",商品价格:" + good.GDJ.ToString() + ",商品类别:" + good.GTYPE + ",非限额标志:" + good.Ffreeflag.ToString());
 
-                    
+
                 }
 
             }
@@ -580,7 +591,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
             {
                 return Content("Error|操作员不能为空");
             }
-            if (czy.FPRIVATE !=1)
+            if (czy.FPRIVATE != 1)
             {
                 return Content("Error|要删除商品，请与管理员联系");
             }
@@ -598,7 +609,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
         }
 
-        public ActionResult customerPrint(int id=1)
+        public ActionResult customerPrint(int id = 1)
         {
             string startTime = Request["startTime"];
             string endTime = Request["endTime"];
@@ -618,10 +629,10 @@ namespace SelfhelpOrderMgr.Web.Controllers
             ViewData["areas"] = areas;
 
             //打印消费记录单时，需要存取两类信息
-            List<T_SHO_SaleType> saleTypes = new T_SHO_SaleTypeBLL().GetModelList("");
+            List<T_SHO_SaleType> saleTypes = new T_SHO_SaleTypeBLL().GetModelList("not PType like '%积分%'");
             ViewData["saleTypes"] = saleTypes;
 
-            List<T_GoodsType> goodsTypes = new T_GoodsTypeBLL().GetModelList("");
+            List<T_GoodsType> goodsTypes = _baseDapperBLL.QueryList<T_GoodsType>("select * from t_goodstype where UseType in(0,2) ", null);
             ViewData["goodsTypes"] = goodsTypes;
 
             DataTable dt = new CommTableInfoBLL().GetDataTable("select distinct CrtBy from t_vcrd where dtype in(select PType from t_sho_SaleType)");
@@ -669,7 +680,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
             listRows = new T_InvoiceBLL().GetListCount(strWhere.ToString())[0];
 
-            List<T_Invoice> invoices = new T_InvoiceBLL().GetPageList(page, row, strWhere,startTime,endTime, "FAreaCode,RoomNo,FCriminal");
+            List<T_Invoice> invoices = new T_InvoiceBLL().GetPageList(page, row, strWhere, startTime, endTime, "FAreaCode,RoomNo,FCriminal");
 
             sss = "{\"total\":" + listRows.ToString() + ",\"rows\":" + jss.Serialize(invoices) + "}";
             return Content(sss);
@@ -698,7 +709,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
             }
             else
             {
-                strWhere = strWhere + " Flag='"+ Flag + "'";
+                strWhere = strWhere + " Flag='" + Flag + "'";
             }
 
             if (string.IsNullOrEmpty(startTime) == true)
@@ -719,7 +730,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
             {
                 strWhere = strWhere + " OrderDate between '" + startTime + "' and '" + endTime + "'";
             }
-            
+
 
             if (string.IsNullOrEmpty(FCode) == false)
             {
@@ -745,7 +756,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
             {
                 areaName = "";
             }
-            
+
             //2019-04-15由于运行太慢会超时去掉
             //            List<T_AREA> areas = new T_AREABLL().GetModelList("fname in( select fname from t_area where fname='" + areaName + @"' or fid in(
             //                                    select id from t_area where fname='" + areaName + "'))");
@@ -793,7 +804,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         }
                         else
                         {
-                            strFareaCode =strFareaCode+ ",'" + area.FCode + "'";
+                            strFareaCode = strFareaCode + ",'" + area.FCode + "'";
                         }
                     }
 
@@ -803,10 +814,10 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 //2019-04-15由于运行太慢会超时改为等于
                 //strWhere = strWhere + @" and fareaCode in(" + strFareaCode + ")  ";
             }
-            
-            
-            
-            
+
+
+
+
 
 
             //验证用户的队别,如果设定了Vcrd验证用户队别，则要查看是否有相应的队别权限下的犯人才可以查询到
@@ -819,7 +830,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
             //    }
             //}
             return strWhere;
-            
+
         }
 
         public ActionResult GetInvoices()
@@ -858,7 +869,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
             {
                 return Content("Err|消费主单号不能为空");
             }
-            List<T_InvoiceDTL> dtls = new T_InvoiceDTLBLL().GetModelList("InvoiceNo='"+ invoiceNo +"'");
+            List<T_InvoiceDTL> dtls = new T_InvoiceDTLBLL().GetModelList("InvoiceNo='" + invoiceNo + "'");
             return Content("OK|" + jss.Serialize(dtls));
         }
 
@@ -884,11 +895,11 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 {
                     List<T_InvoiceDTL> models = SetTuihuoDetail(ja, "Add");
                     //判断退货数量 对应的消费主单：INV210400007120
-                    List<T_InvoiceDTL> dtls = new T_InvoiceDTLBLL().GetModelList("InvoiceNo='"+ models[0].INVOICENO +"'");
-                    string sql = "select gtxm,count(qty) as qty from t_invoiceDtl where Remark like '%"+ models[0].INVOICENO + "%' group by GTXM";
-                    var _rs=new CommTableInfoBLL().GetList<T_InvoiceDTL>(sql, null);
+                    List<T_InvoiceDTL> dtls = new T_InvoiceDTLBLL().GetModelList("InvoiceNo='" + models[0].INVOICENO + "'");
+                    string sql = "select gtxm,count(qty) as qty from t_invoiceDtl where Remark like '%" + models[0].INVOICENO + "%' group by GTXM";
+                    var _rs = new CommTableInfoBLL().GetList<T_InvoiceDTL>(sql, null);
 
-                    var _ms = models.GroupBy(o => o.GTXM).Select(g => new { key = g.Key, value = g.Sum(p=>p.QTY) }).ToList();
+                    var _ms = models.GroupBy(o => o.GTXM).Select(g => new { key = g.Key, value = g.Sum(p => p.QTY) }).ToList();
 
                     var _ds = dtls.GroupBy(o => o.GTXM).Select(g => new { key = g.Key, value = g.Sum(p => p.QTY) }).ToList();
 
@@ -905,7 +916,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                             var _r = _rs.Where(o => o.GTXM == item.key).FirstOrDefault();
                             if (_r != null)
                             {
-                                if(_r.QTY+ item.value> orderCount)
+                                if (_r.QTY + item.value > orderCount)
                                 {
                                     return Content($"Err|有历史退货，条码：{item.key}超过原购物数量{orderCount}，不能退货");
                                 }
@@ -932,14 +943,14 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 model.SPShortCode = o["SPShortCode"].ToString();
                 model.GTXM = o["GTXM"].ToString();
                 model.GCODE = o["GCODE"].ToString();
-                model.GDJ = Convert.ToDecimal( o["GDJ"].ToString());
+                model.GDJ = Convert.ToDecimal(o["GDJ"].ToString());
                 model.GNAME = o["GNAME"].ToString();
-                model.AMOUNT = Convert.ToDecimal( o["AMOUNT"].ToString());
+                model.AMOUNT = Convert.ToDecimal(o["AMOUNT"].ToString());
                 model.QTY = Convert.ToDecimal(o["QTY"].ToString());
                 model.INVOICENO = o["INVOICENO"].ToString();
                 DataTable dt = new CommTableInfoBLL().GetDataTable(string.Format("select top 1 ftzsp_typeflag from t_invoiceDtl where invoiceno='{0}' and gtxm='{1}'", o["INVOICENO"].ToString(), o["GTXM"].ToString()));
-                model.FTZSP_TypeFlag = Convert.ToInt16( dt.Rows[0][0].ToString());
-                models.Add(model);                
+                model.FTZSP_TypeFlag = Convert.ToInt16(dt.Rows[0][0].ToString());
+                models.Add(model);
             }
 
             return models;
@@ -997,7 +1008,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
             }
 
 
-            
+
 
             string strLoginName = new T_CZYBLL().GetModel(Session["loginUserCode"].ToString()).FName;
 
@@ -1013,6 +1024,84 @@ namespace SelfhelpOrderMgr.Web.Controllers
             }
         }
 
+        /// <summary>
+        /// 整单批量退货
+        /// </summary>
+        /// <param name="Invoices"></param>
+        /// <returns></returns>
+        [MyLogActionFilterAttribute]
+        public ActionResult SalesOrderAllReturn(string Invoices)
+        {
+            string strInvoices = Invoices;// Request["Invoices"];
+
+            if (string.IsNullOrEmpty(strInvoices))
+            {
+                return Content("Err|消费单号不能为空");
+            }
+            strInvoices = strInvoices.Replace("|", "','");
+            strInvoices = "'" + strInvoices + "'";
+
+            T_CZY czy = new T_CZYBLL().GetModel(Session["loginUserCode"].ToString());
+            if (czy == null)
+            {
+                return Content("Err|操作员账户不能为空,请用管理员登录");
+            }
+            if (czy.FPRIVATE != 1)
+            {
+                return Content("Err|不是管理员不能删除,请用管理员登录");
+            }
+
+            //已经发送到银行不能撤
+            //List<T_JF_Vcrd> vcrds = _jifenMgrService.QueryList<T_JF_Vcrd>("flag=0 and isnull(bankflag,0)>=1 and Origid in(" + strInvoices + ")");
+            //if (vcrds.Count > 0)
+            //{
+            //    return Content("Err|您选的消费单号已经有发送到银行的记录，不能撤消");
+            //}
+
+            //是否已经到第二个月，并且大于30天了
+            List<T_Invoice> dayInvs = new T_InvoiceBLL().GetModelList("Invoiceno in(" + strInvoices + ") and DATEADD(day,30, OrderDate)<getdate()");
+            if (dayInvs.Count > 0)
+            {
+                return Content("Err|您选的消费单超过30天不能撤单，不能撤消");
+            }
+
+            ////已经配货不能撤
+            //List<T_Invoice_outdtl> outdtls = new T_Invoice_outdtlBLL().GetModelList("Invoiceno in(" + strInvoices + ")");
+            //if (outdtls.Count > 0)
+            //{
+            //    return Content("Err|您选的消费单号已经有配货的记录，不能撤消");
+            //}
+
+
+            //离监人员不能撤单
+            List<T_Invoice> invs = new T_InvoiceBLL().GetModelList("Invoiceno in(" + strInvoices + ") and fcrimecode in(select fcode from t_criminal where isnull(fflag,0)=1)");
+            if (invs.Count > 0)
+            {
+                return Content($"Err|您选的消费单有{invs[0].FCriminal}等{invs.Count}条已离监，不能撤消");
+            }
+
+            //判断是否已经退单过
+            List<T_Invoice> rtns = new T_InvoiceBLL().GetModelList("Invoiceno in(" + strInvoices + ") and remark like '%退货%'");
+            if (rtns.Count > 0)
+            {
+                return Content($"Err|您选的消费单有{rtns[0].FCriminal}等{rtns.Count}条已退货，不能重复退货");
+            }
+
+
+
+            string strLoginName = new T_CZYBLL().GetModel(Session["loginUserCode"].ToString()).FName;
+
+            //开始撤单
+
+            if (new T_InvoiceBLL().ReturnInvoiceOrder(strInvoices, strLoginName))
+            {
+                return Content("OK.退货成功！");
+            }
+            else
+            {
+                return Content("Err.对不起，退货失败！");
+            }
+        }
         public ActionResult testPrint()
         {
             return View();
@@ -1065,7 +1154,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
         public ActionResult XianEGoodsMgr()//限额商品管理
         {
             //商品类别
-            List<T_GoodsType> goodtypes = new T_GoodsTypeBLL().GetModelList("");
+            List<T_GoodsType> goodtypes = _baseDapperBLL.GetModelList<T_GoodsType>("", "Id asc", 200);
+
             ViewData["goodtypes"] = goodtypes;
 
             //商品状态
@@ -1317,9 +1407,9 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         {
                             if (mySet.MgrValue == "1")
                             {
-                                new CommTableInfoBLL().ExecSql("update t_goods set active='N'");
+                                new CommTableInfoBLL().ExecSql($"update t_goods set active='N' from t_goodstype a,t_goods b where a.fcode=b.gtype and a.SaleTypeId={id}");
                             }
-                        } 
+                        }
                         #endregion
 
                         for (int i = 1; i <= rows; i++)
@@ -1376,10 +1466,11 @@ namespace SelfhelpOrderMgr.Web.Controllers
                             {
                                 GPrice = Convert.ToString(row.GetCell(6).NumericCellValue);
                             }
-                            catch {
+                            catch
+                            {
                                 GPrice = Convert.ToString(row.GetCell(6).StringCellValue);
                             }
-                            
+
                             string FFreeFlag = "";  //是否限额
                             try
                             {
@@ -1445,19 +1536,22 @@ namespace SelfhelpOrderMgr.Web.Controllers
                             {
                                 try
                                 {
-                                    strGtype = new T_GoodsTypeBLL().GetModelList("FName='" + GType + "'")[0].Fcode;
+
+                                    strGtype = _baseDapperBLL.GetModelList<T_GoodsType>(jss.Serialize(new { Fname = GType }), "Id asc", 200)[0].Fcode;
                                 }
                                 catch
                                 {
                                     T_GoodsType gt = new T_GoodsType();
                                     T_SEQNO seqModel = new T_SEQNO();
-                                    if(new T_SEQNOBLL().GetModelList("SeqType='GT'").Count>0){
+                                    if (new T_SEQNOBLL().GetModelList("SeqType='GT'").Count > 0)
+                                    {
                                         seqModel = new T_SEQNOBLL().GetModelList("SeqType='GT'")[0];
                                     }
-                                    else{
-                                        seqModel.SEQNO=0;
+                                    else
+                                    {
+                                        seqModel.SEQNO = 0;
                                     }
-                                    
+
 
                                     seqModel.SEQNO++;
                                     new T_SEQNOBLL().Update(seqModel);
@@ -1467,7 +1561,15 @@ namespace SelfhelpOrderMgr.Web.Controllers
                                     gt.SaleTypeId = id;
                                     gt.FTypeCode = "";
                                     gt.LevelNo = 2;
-                                    new T_GoodsTypeBLL().Add(gt);
+                                    if (GType.Contains("积分"))
+                                    {
+                                        gt.UseType = 1;
+                                    }
+                                    else
+                                    {
+                                        gt.UseType = 0;
+                                    }
+                                    _baseDapperBLL.Insert<T_GoodsType>(gt);
                                     strGtype = gt.Fcode;
                                 }
                             }
@@ -1478,20 +1580,21 @@ namespace SelfhelpOrderMgr.Web.Controllers
                             if (Active != "N")
                             {
                                 model.ACTIVE = "Y";
-                            }else
+                            }
+                            else
                             {
                                 model.ACTIVE = "N";
                             }
 
                             if (FFreeFlag == "1")
                             {
-                                model.Ffreeflag =1;
+                                model.Ffreeflag = 1;
                             }
                             else
                             {
                                 model.Ffreeflag = 0;
                             }
-                            
+
                             if (mgrSet.KeyMode == 1)
                             {
                                 model.src = "/Content/GoodsImages/" + GName + "." + mgrSet.MgrValue;
@@ -1504,7 +1607,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                             }
                             tmpSpShortCode = model.SPShortCode;//先保留备份
                             model.SPShortCode = SPShortCode;//商品简码
-                            
+
 
                             if (chkModel == null)
                             {//增加一条记录
@@ -1669,10 +1772,12 @@ namespace SelfhelpOrderMgr.Web.Controllers
         }
 
         #region 商品类型管理
-        public ActionResult GoodsTypeMgr()//商品类别管理
+        public ActionResult GoodsTypeMgr(int id = 0)//商品类别管理
         {
+            ViewData["UseTypeId"] = id;
             //商品类别
-            List<T_GoodsType> goodtypes = new T_GoodsTypeBLL().GetModelList("");
+            List<T_GoodsType> goodtypes = _baseDapperBLL.GetModelList<T_GoodsType>("", "Id asc", 200);
+
             ViewData["goodtypes"] = goodtypes;
 
             //消费类型
@@ -1682,12 +1787,13 @@ namespace SelfhelpOrderMgr.Web.Controllers
             return View("GoodsTypeMgr");
         }
 
-        public ActionResult GetGoodsTypeMgr()//获取商品类别管理
+        public ActionResult GetGoodsTypeMgr(int id = 0)//获取商品类别管理
         {
             //商品类别
-            List<T_GoodsType> goodtypes = new T_GoodsTypeBLL().GetModelList("");
+            List<T_GoodsType> goodtypes = _baseDapperBLL.GetModelList<T_GoodsType>(jss.Serialize(new { UseType = id }), "Id asc", 200);
+
             //ViewData["goodtypes"] = goodtypes;
-            JavaScriptSerializer jss = new JavaScriptSerializer();
+            //JavaScriptSerializer jss = new JavaScriptSerializer();
 
             return Content(jss.Serialize(goodtypes));
         }
@@ -1741,7 +1847,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
             return Content("");
         }
 
-        private static List<T_GoodsType> SetGoodsTypeInfo(JArray ja)
+
+        private List<T_GoodsType> SetGoodsTypeInfo(JArray ja)
         {
             T_GoodsType model = new T_GoodsType();
             foreach (JObject o in ja)
@@ -1780,12 +1887,25 @@ namespace SelfhelpOrderMgr.Web.Controllers
                     model.CtrlMode = Convert.ToInt32(o["CtrlMode"].ToString());
                 }
 
+                //使用类型
+                if (o["UseType"].ToString() == "")
+                {
+                    model.UseType = 0;
+                }
+                else
+                {
+                    model.UseType = Convert.ToInt32(o["UseType"].ToString());
+                }
+
                 model.LevelNo = 2;
                 model.FTypeCode = "";
-                T_GoodsType m = new T_GoodsTypeBLL().GetModel(model.Fcode);
+                //T_GoodsType m = _baseDapperBLL.GetModelFirst<T_GoodsType>("{\"Fcode\"=\""+ model.Fcode +"\"}");
+                T_GoodsType m = _baseDapperBLL.QueryModel<T_GoodsType>("Fcode", model.Fcode);
+
                 if (m != null)
                 {
-                    bool b = new T_GoodsTypeBLL().Update(model);
+                    model.Id = Convert.ToInt32(o["Id"].ToString());
+                    bool b = _baseDapperBLL.Update(model);
                 }
                 else
                 {
@@ -1795,18 +1915,18 @@ namespace SelfhelpOrderMgr.Web.Controllers
                     new T_SEQNOBLL().Update(seqno);
 
                     model.Fcode = "GT" + seqno.SEQNO.ToString();
-                    new T_GoodsTypeBLL().Add(model);
+                    _baseDapperBLL.Insert(model);
                 }
             }
-            List<T_GoodsType> models = new T_GoodsTypeBLL().GetModelList("");
+            List<T_GoodsType> models = _baseDapperBLL.GetModelList<T_GoodsType>("", "Id asc", 200);
             return models;
         }
-
         public ActionResult DeleleGoodsType()//删除商品类型
         {
             string strRes = "Err|删除失败";
             string strFcode = Request["Fcode"];
-            if (new T_GoodsTypeBLL().Delete(strFcode))
+            var model = _baseDapperBLL.GetModelFirst<T_GoodsType>(jss.Serialize(new { Fcode = strFcode }));
+            if (_baseDapperBLL.Delete<T_GoodsType>(model.Id))
             {
                 strRes = "OK|删除成功";
             }
@@ -1887,7 +2007,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 model = new T_SHO_SaleType();
                 if (o["ID"].ToString() != "")
                 {
-                    model.ID = Convert.ToInt32(o["ID"].ToString());
+                    model.Id = Convert.ToInt32(o["ID"].ToString());
                 }
 
                 model.PType = o["PType"].ToString();
@@ -1897,7 +2017,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 model.ShoppingFlag = Convert.ToInt32(o["ShoppingFlag"].ToString());
                 model.Remark = o["Remark"].ToString();
                 model.Fifoflag = Convert.ToInt32(o["Fifoflag"].ToString());
-                T_SHO_SaleType m = new T_SHO_SaleTypeBLL().GetModel(model.ID);
+                T_SHO_SaleType m = new T_SHO_SaleTypeBLL().GetModel(model.Id);
                 if (m != null)
                 {
                     bool b = new T_SHO_SaleTypeBLL().Update(model);
@@ -2065,7 +2185,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         //2022年改为到账户清单中统计余额
                         T_Criminal_card crimeBalance = new T_CriminalBLL().GetInvoiceBalance(rtnInv.invoice.FCrimeCode, rtnInv.invoice.InvoiceNo);
                         rtnInv.invoice.FrealAreaName = $"消费余额:{crimeBalance.BankAmount}(接济款:{crimeBalance.AmountA},报酬:{crimeBalance.AmountB},留存:{crimeBalance.AmountC})";
-                        
+
 
                         rtnInvs.Add(rtnInv);
                     }
@@ -2114,11 +2234,12 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         strSql.Append(" ,isnull(a.Remark,'') Remark,a.gtxm GTXM,abs(sum(a.qty* b.fifoflag)) FCount");
                         strSql.Append(" ,abs(sum(a.amount * b.fifoflag)) FMoney ");
                         //获取商品相关信息的子条件
-                        GetGoodSubWhere(GoodsType, GoodName, GoodGTXM, SpShortCode, strWhere, strSql, startTime, endTime,Flag);
+                        GetGoodSubWhere(GoodsType, GoodName, GoodGTXM, SpShortCode, strWhere, strSql, startTime, endTime, Flag);
                         strSql.Append(" group by b.FAreaName,a.SPShortCode,a.gname,isnull(a.Remark,''),a.gtxm");
                         strSql.Append(" order by b.FAreaName,a.SPShortCode ");
 
-                    } break;
+                    }
+                    break;
                 case 1:
                     {
                         strSql.Append("select b.FAreaName FAreaName,isnull(RoomNo,'')  RoomNo,a.SPShortCode SPShortCode,a.gname GName");
@@ -2128,7 +2249,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         GetGoodSubWhere(GoodsType, GoodName, GoodGTXM, SpShortCode, strWhere, strSql, startTime, endTime, Flag);
                         strSql.Append("group by b.FAreaName,isnull(RoomNo,''),a.SPShortCode,a.gname,isnull(a.Remark,''),a.gtxm");
                         strSql.Append(" order by b.FAreaName,a.SPShortCode,isnull(RoomNo,'') ");
-                    } break;
+                    }
+                    break;
                 case 2:
                     {
                         strSql.Append("select '' FAreaName,a.SPShortCode SPShortCode,a.gname GName");
@@ -2138,7 +2260,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         GetGoodSubWhere(GoodsType, GoodName, GoodGTXM, SpShortCode, strWhere, strSql, startTime, endTime, Flag);
                         strSql.Append(" group by a.SPShortCode,a.gname,isnull(a.Remark,''),a.gtxm");
                         strSql.Append(" order by a.SPShortCode,a.gname,isnull(a.Remark,''),a.gtxm");
-                    } break;
+                    }
+                    break;
                 case 3:
                     {
                         strSql.Append(@" select '' FAreaName,d.gtype SPShortCode,e.fname GName ,'' Remark,'' GTXM
@@ -2146,12 +2269,13 @@ namespace SelfhelpOrderMgr.Web.Controllers
                             ,sum(case when b.fifoflag=-1 then -a.amount * b.fifoflag else 0 end) FMoney
                             ,sum(case when b.fifoflag=1 then -a.qty * b.fifoflag else 0 end) thCount
                             ,sum(case when b.fifoflag=1 then -a.amount * b.fifoflag else 0 end) thMoney ");
-                        
+
                         //获取商品相关信息的子条件
                         GetGoodSubWhere(GoodsType, GoodName, GoodGTXM, SpShortCode, strWhere, strSql, startTime, endTime, Flag);
                         strSql.Append(" group by d.gtype,e.fname");
 
-                    } break;
+                    }
+                    break;
                 case 4:
                     {
                         strSql.Append("select a.gtxm,a.spshortcode,a.gname +'('+ isnull(d.GStandard,'') +')' as gname,a.gdj ");
@@ -2162,7 +2286,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         GetGoodSubWhere(GoodsType, GoodName, GoodGTXM, SpShortCode, strWhere, strSql, startTime, endTime, Flag, 0);
                         strSql.Append(" group by a.gname +'('+ isnull(d.GStandard,'') +')',a.gtxm,a.spshortcode,a.gdj ");
                         strSql.Append(" order by a.spshortcode,a.gname +'('+ isnull(d.GStandard,'') +')',a.gtxm,a.gdj ");
-                    } break;
+                    }
+                    break;
                 case 5:
                     {
                         strSql.Append("select a.invoiceno,a.fcrimecode,b.fcriminal,a.gname,a.gtxm,a.spshortcode,c.senddate,c.bankflag,a.gdj ");
@@ -2172,7 +2297,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
                         strSql.Append(" group by a.invoiceno,a.fcrimecode,b.fcriminal,a.gname,a.gtxm,a.spshortcode,c.senddate,c.bankflag,a.gdj ");
                         strSql.Append(" order by c.bankflag,a.invoiceno,a.fcrimecode,b.fcriminal,a.gname,a.gtxm,a.spshortcode,c.senddate,a.gdj ");
-                    } break;
+                    }
+                    break;
                 case 6:
                     {
                         if (string.IsNullOrEmpty(GoodsType))
@@ -2185,26 +2311,28 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         {
                             strSql.Append(@",SUM(CASE WHEN a.GName = N'" + row["GName"].ToString() + "' THEN a.qty ELSE 0 END) AS '" + row["GName"].ToString() + "' ");
                         }
-                        T_GoodsType gt = new T_GoodsTypeBLL().GetModel(GoodsType);
+                        T_GoodsType gt = _baseDapperBLL.GetModelFirst<T_GoodsType>(jss.Serialize(new { Fcode = GoodsType }));
+
+                        //T_GoodsType gt = new T_GoodsTypeBLL().GetModel(GoodsType);
 
                         //获取商品相关信息的子条件
                         GetGoodSubWhere(GoodsType, GoodName, GoodGTXM, SpShortCode, strWhere, strSql, startTime, endTime, Flag);
                         strSql.Append(" group by b.fareaCode,b.fareaName");
                         strSql.Append(" order by b.fareaCode");
 
-                        DataTable dt =new CommTableInfoBLL().GetDataTable(strSql.ToString());
-                        
+                        DataTable dt = new CommTableInfoBLL().GetDataTable(strSql.ToString());
+
                         DataRow rowGdj = dt.NewRow();
                         rowGdj[0] = "";
                         rowGdj[1] = "单价元/份";
-                        for (int i = 0; i < dtGoodNames.Rows.Count;i++ )
+                        for (int i = 0; i < dtGoodNames.Rows.Count; i++)
                         {
                             //rowGStandard[i + 1] = dtGoodNames.Rows[i]["GStandard"];
                             rowGdj[i + 2] = dtGoodNames.Rows[i]["GDJ"];
                         }
 
                         dt.Rows.InsertAt(rowGdj, 0);
-                        
+
 
 
                         strSql = new StringBuilder();
@@ -2215,11 +2343,11 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         }
                         //获取商品相关信息的子条件
                         GetGoodSubWhere(GoodsType, GoodName, GoodGTXM, SpShortCode, strWhere, strSql, startTime, endTime, Flag);
-                        
+
 
                         DataTable dtCount = new CommTableInfoBLL().GetDataTable(strSql.ToString());
 
-                        dt.ImportRow (dtCount.Rows[0]);
+                        dt.ImportRow(dtCount.Rows[0]);
 
                         strSql = new StringBuilder();
                         strSql.Append(@"select '' as fareaName,'合计(金额)' as 队别 ");
@@ -2229,13 +2357,13 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         }
                         //获取商品相关信息的子条件
                         GetGoodSubWhere(GoodsType, GoodName, GoodGTXM, SpShortCode, strWhere, strSql, startTime, endTime, Flag);
-                        
+
                         DataTable dtAmount = new CommTableInfoBLL().GetDataTable(strSql.ToString());
 
                         dt.ImportRow(dtAmount.Rows[0]);
 
 
-                        
+
                         //把合计数改为文本
                         DataTable rstDt = UpdateDataTable(dt);
 
@@ -2294,7 +2422,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 rowNew[0] = row[0];
                 rowNew[1] = row[1];
                 //修改记录值
-                for (int i = 2; i < argDataTable.Columns.Count;i++ )
+                for (int i = 2; i < argDataTable.Columns.Count; i++)
                 {
                     if (Convert.ToDecimal(row[i]) == Convert.ToDecimal(Convert.ToInt32(row[i])))
                     {
@@ -2302,9 +2430,9 @@ namespace SelfhelpOrderMgr.Web.Controllers
                     }
                     else
                     {
-                        rowNew[i] =(row[i]).ToString();
+                        rowNew[i] = (row[i]).ToString();
                     }
-                    
+
 
                 }
 
@@ -2342,16 +2470,17 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         GetGoodSubWhere(GoodsType, GoodName, GoodGTXM, SpShortCode, strWhere, strSql, startTime, endTime, Flag);
 
 
-                    } break;
+                    }
+                    break;
                 default:
                     return Content("Err|您传入错误的参数");
             }
 
             List<T_Invoice> phds = new T_InvoiceBLL().GetModelList("Invoiceno in(" + strSql.ToString() + ")");
 
-            
-            
-            
+
+
+
             ViewData["phds"] = phds;
             ViewData["roomNoFlag"] = id.ToString();
             ViewData["startTime"] = startTime;
@@ -2361,7 +2490,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
         }
 
         //获取商品相关信息的子条件
-        private static void GetGoodSubWhere(string GoodsType, string GoodName, string GoodGTXM, string SpShortCode, string strWhere, StringBuilder strSql, string startDate, string endDate,string Flag, int invListFlag=0)
+        private static void GetGoodSubWhere(string GoodsType, string GoodName, string GoodGTXM, string SpShortCode, string strWhere, StringBuilder strSql, string startDate, string endDate, string Flag, int invListFlag = 0)
         {
             strSql.Append(" from t_invoicedtl a inner join (select * from t_invoice where " + strWhere + ") b  ");
             strSql.Append(" on a.invoiceno=b.invoiceno ");
@@ -2373,12 +2502,12 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 strSql.Append(" ) c ");
                 strSql.Append(" on a.invoiceno=c.origid");
             }
-            
+
             strSql.Append(" left join t_goods d ");
             strSql.Append(" on a.gtxm=d.gtxm ");
             strSql.Append(" left outer join t_goodstype e ");
             strSql.Append(" on d.gtype=e.fcode ");
-            strSql.Append(" where b.flag='"+ Flag +"' ");            
+            strSql.Append(" where b.flag='" + Flag + "' ");
 
             if (string.IsNullOrEmpty(GoodGTXM) == false)
             {
@@ -2614,11 +2743,11 @@ namespace SelfhelpOrderMgr.Web.Controllers
                     }
                 case 6:
                     {
-                        if(string.IsNullOrEmpty( GoodsType))
+                        if (string.IsNullOrEmpty(GoodsType))
                         {
                             return Content("Error|您选择的商品类型不能为空");
                         }
-                        DataTable dtGoodNames= new CommTableInfoBLL().GetDataTable("select GName from t_goods where GType='"+ GoodsType +"'");
+                        DataTable dtGoodNames = new CommTableInfoBLL().GetDataTable("select GName from t_goods where GType='" + GoodsType + "'");
                         strSql.Append(@"select b.fareaName as 队别 ");
                         foreach (DataRow row in dtGoodNames.Rows)
                         {

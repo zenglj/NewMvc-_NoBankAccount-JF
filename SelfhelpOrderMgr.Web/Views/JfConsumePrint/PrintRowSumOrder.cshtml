@@ -1,0 +1,88 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>打印消费商品汇总单</title>
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Content/PrintReportCss.css" rel="stylesheet" />
+</head>
+<body>
+    <div>
+        <div class="page-header text-center">
+                <h1>_____年___月 @ViewData["GoodsType"].ToString() 安排表(订购表)</h1>
+                <div>统计区间: @ViewData["startTime"].ToString() 至 @ViewData["endTime"].ToString()</div>
+
+
+        </div>
+        <div class="row">
+            <div class="col-sm-1"></div>
+            <div class="col-sm-10">
+                <table class="table table-condensed table-striped table-bordered contentFontSize text-center">
+
+                    @if (ViewData["dt"] != null)
+                    {
+                        System.Data.DataTable dt = ViewData["dt"] as System.Data.DataTable;
+                        <thead>
+                            <tr class="text-center">
+                                <th>产品名称</th>
+                                @foreach (System.Data.DataColumn col in dt.Columns)
+                                {
+                                    if (col.Caption == "队别")
+                                    {
+                                        //<th>@col.Caption</th>
+                                    }else if (col.Caption == "fareaCode")
+                                    {
+                                        //<th>@col.Caption</th>
+                                    }
+                                    else
+                                    {
+                                        <th>@col.Caption</th>
+                                    }
+                                }
+                            </tr>
+                            
+                            
+                        </thead>
+                        <tbody>
+                            @foreach (System.Data.DataRow row in dt.Rows)
+                            {
+                                <tr>
+
+                                    @for (int i = 0; i < dt.Columns.Count; i++)
+                                    {
+                                        if (i == 1)
+                                        {
+                                            <th>@row[i]</th>
+                                        }
+                                        else if ((i> 1))
+                                        {
+                                            <td>@row[i]</td>
+                                        }
+                                        
+                                    }
+                                </tr>
+                            }
+                            
+
+                        </tbody>
+                    }
+                </table>
+                <div class="row">
+                    <div class="col-md-6">分监区领导：</div>
+                    <div class="col-md-6">责任民警：</div>
+                </div>
+
+            </div>
+            <div class="col-sm-1"></div>
+
+        </div>
+    </div>
+    <script src="~/Scripts/jquery-1.11.3.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+</body>
+</html>

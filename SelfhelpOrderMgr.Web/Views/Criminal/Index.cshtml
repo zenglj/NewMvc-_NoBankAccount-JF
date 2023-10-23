@@ -62,7 +62,15 @@
                 <div id="mpList" style="width:150px;">
                     <div data-options="iconCls:'icon-reload'" onclick="btnBatchDistributionBankCard()">批量分配银行结算账户</div>
                     <div data-options="iconCls:'icon-save',plain:true" onclick="btnOutBankInfoEdit()">离监收款账户</div>
-                    <div data-options="iconCls:'icon-add',plain:true" onclick="btnTP_YingYangCan()">领导特批营养费</div>
+                    @if (ViewData["id"] != null)
+                    {
+                        int? id = ViewData["id"] as int?;
+                        if (id == 2)
+                        {
+                            <div data-options="iconCls:'icon-add',plain:true" onclick="btnTP_YingYangCan()">领导特批营养费</div>
+                        }
+                    }
+
                     <div data-options="iconCls:'icon-remove',plain:true" onclick="btnRSB_Koukuan()">扣入监/所款</div>
                 </div>
 

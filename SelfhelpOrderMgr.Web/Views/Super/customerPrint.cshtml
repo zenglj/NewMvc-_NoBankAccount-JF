@@ -63,19 +63,23 @@
                 </div>
                 <a href="#" id="btnCancelInvoiceOrder" class="easyui-linkbutton" iconcls="icon-undo" plain="true" onclick="CancelInvoiceOrder()">撤消订单</a><label>|</label>
 
+                <a href="#" id="btnSalesOrderReturn" class="easyui-linkbutton" iconcls="icon-redo" plain="true" onclick="SalesOrderReturn()">消费部分退货</a><label>|</label>
+                <a href="#" id="btnSalesOrderReturn" class="easyui-linkbutton" iconcls="icon-reload" plain="true" onclick="SalesOrderAllReturn()">批量整单退货</a><label>|</label>
 
 
             </div>
-            @if (ViewData["operatorId"] != null)
+            @*@if (ViewData["operatorId"] != null)
             {
                 if (ViewData["operatorId"].ToString() == "2")
                 {
                     <div>
-                        <a href="#" id="btnSalesOrderReturn" class="easyui-linkbutton" iconcls="icon-redo" plain="true" onclick="SalesOrderReturn()">消费退货</a><label>|</label>
+                        <a href="#" id="btnSalesOrderReturn" class="easyui-linkbutton" iconcls="icon-redo" plain="true" onclick="SalesOrderReturn()">消费部分退货</a><label>|</label>
+                        <a href="#" id="btnSalesOrderReturn" class="easyui-linkbutton" iconcls="icon-reload" plain="true" onclick="SalesOrderAllReturn()">批量整单退货</a><label>|</label>
+
                     </div>
                 }
-            }
-            
+            }*@
+
         </div>
 
         <div id="template"></div>

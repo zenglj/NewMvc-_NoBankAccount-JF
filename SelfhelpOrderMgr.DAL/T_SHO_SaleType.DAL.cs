@@ -10,15 +10,15 @@ namespace SelfhelpOrderMgr.DAL
     public partial class T_SHO_SaleTypeDAL
     {
 
-        public bool Exists(int ID)
+        public bool Exists(int Id)
         {
             StringBuilder strSql = new StringBuilder();
             strSql.Append("select count(1) from T_SHO_SaleType");
             strSql.Append(" where ");
-            strSql.Append(" ID = @ID  ");
+            strSql.Append(" Id = @Id  ");
             SqlParameter[] parameters = {
-					new SqlParameter("@ID", SqlDbType.Int,4)			};
-            parameters[0].Value = ID;
+                    new SqlParameter("@Id", SqlDbType.Int,4)            };
+            parameters[0].Value = Id;
 
             return SqlHelper.Exists(strSql.ToString(), parameters);
         }
@@ -32,24 +32,26 @@ namespace SelfhelpOrderMgr.DAL
         {
             StringBuilder strSql = new StringBuilder();
             strSql.Append("insert into T_SHO_SaleType(");
-            strSql.Append("ID,PType,TypeFlagId,CanconsumeAccount,FirstPaymentAccount,ShoppingFlag,Remark,Fifoflag");
+            strSql.Append("Id,PType,TypeFlagId,CanconsumeAccount,FirstPaymentAccount,ShoppingFlag,Remark,Fifoflag,UseType,ControlName");
             strSql.Append(") values (");
-            strSql.Append("@ID,@PType,@TypeFlagId,@CanconsumeAccount,@FirstPaymentAccount,@ShoppingFlag,@Remark,@Fifoflag");
+            strSql.Append("@Id,@PType,@TypeFlagId,@CanconsumeAccount,@FirstPaymentAccount,@ShoppingFlag,@Remark,@Fifoflag,@UseType,@ControlName");
             strSql.Append(") ");
 
             SqlParameter[] parameters = {
-			            new SqlParameter("@ID", SqlDbType.Int,4) ,            
-                        new SqlParameter("@PType", SqlDbType.VarChar,50) ,            
-                        new SqlParameter("@TypeFlagId", SqlDbType.Int,4) ,            
-                        new SqlParameter("@CanconsumeAccount", SqlDbType.Int,4) ,            
-                        new SqlParameter("@FirstPaymentAccount", SqlDbType.Int,4) ,            
-                        new SqlParameter("@ShoppingFlag", SqlDbType.Int,4) ,            
-                        new SqlParameter("@Remark", SqlDbType.VarChar,200) ,            
-                        new SqlParameter("@Fifoflag", SqlDbType.Int,4)             
-              
+                        new SqlParameter("@Id", SqlDbType.Int,4) ,
+                        new SqlParameter("@PType", SqlDbType.VarChar,50) ,
+                        new SqlParameter("@TypeFlagId", SqlDbType.Int,4) ,
+                        new SqlParameter("@CanconsumeAccount", SqlDbType.Int,4) ,
+                        new SqlParameter("@FirstPaymentAccount", SqlDbType.Int,4) ,
+                        new SqlParameter("@ShoppingFlag", SqlDbType.Int,4) ,
+                        new SqlParameter("@Remark", SqlDbType.VarChar,200) ,
+                        new SqlParameter("@Fifoflag", SqlDbType.Int,4),
+                        new SqlParameter("@UseType", SqlDbType.Int,4),
+                        new SqlParameter("@ControlName", SqlDbType.VarChar,50)
+
             };
 
-            parameters[0].Value = model.ID;
+            parameters[0].Value = model.Id;
             parameters[1].Value = model.PType;
             parameters[2].Value = model.TypeFlagId;
             parameters[3].Value = model.CanconsumeAccount;
@@ -57,6 +59,8 @@ namespace SelfhelpOrderMgr.DAL
             parameters[5].Value = model.ShoppingFlag;
             parameters[6].Value = model.Remark;
             parameters[7].Value = model.Fifoflag;
+            parameters[8].Value = model.UseType;
+            parameters[9].Value = model.ControlName;
             SqlHelper.ExecuteSql(strSql.ToString(), parameters);
 
         }
@@ -70,29 +74,33 @@ namespace SelfhelpOrderMgr.DAL
             StringBuilder strSql = new StringBuilder();
             strSql.Append("update T_SHO_SaleType set ");
 
-            strSql.Append(" ID = @ID , ");
+            strSql.Append(" Id = @Id , ");
             strSql.Append(" PType = @PType , ");
             strSql.Append(" TypeFlagId = @TypeFlagId , ");
             strSql.Append(" CanconsumeAccount = @CanconsumeAccount , ");
             strSql.Append(" FirstPaymentAccount = @FirstPaymentAccount , ");
             strSql.Append(" ShoppingFlag = @ShoppingFlag , ");
             strSql.Append(" Remark = @Remark , ");
-            strSql.Append(" Fifoflag = @Fifoflag  ");
-            strSql.Append(" where ID=@ID  ");
+            strSql.Append(" Fifoflag = @Fifoflag,  ");
+            strSql.Append(" UseType = @UseType,  ");
+            strSql.Append(" ControlName = @ControlName  ");
+            strSql.Append(" where Id=@Id  ");
 
             SqlParameter[] parameters = {
-			            new SqlParameter("@ID", SqlDbType.Int,4) ,            
-                        new SqlParameter("@PType", SqlDbType.VarChar,50) ,            
-                        new SqlParameter("@TypeFlagId", SqlDbType.Int,4) ,            
-                        new SqlParameter("@CanconsumeAccount", SqlDbType.Int,4) ,            
-                        new SqlParameter("@FirstPaymentAccount", SqlDbType.Int,4) ,            
-                        new SqlParameter("@ShoppingFlag", SqlDbType.Int,4) ,            
-                        new SqlParameter("@Remark", SqlDbType.VarChar,200) ,            
-                        new SqlParameter("@Fifoflag", SqlDbType.Int,4)             
-              
+                        new SqlParameter("@Id", SqlDbType.Int,4) ,
+                        new SqlParameter("@PType", SqlDbType.VarChar,50) ,
+                        new SqlParameter("@TypeFlagId", SqlDbType.Int,4) ,
+                        new SqlParameter("@CanconsumeAccount", SqlDbType.Int,4) ,
+                        new SqlParameter("@FirstPaymentAccount", SqlDbType.Int,4) ,
+                        new SqlParameter("@ShoppingFlag", SqlDbType.Int,4) ,
+                        new SqlParameter("@Remark", SqlDbType.VarChar,200) ,
+                        new SqlParameter("@Fifoflag", SqlDbType.Int,4),
+                        new SqlParameter("@UseType", SqlDbType.Int,4),
+                        new SqlParameter("@ControlName", SqlDbType.VarChar,50)
+
             };
 
-            parameters[0].Value = model.ID;
+            parameters[0].Value = model.Id;
             parameters[1].Value = model.PType;
             parameters[2].Value = model.TypeFlagId;
             parameters[3].Value = model.CanconsumeAccount;
@@ -100,6 +108,7 @@ namespace SelfhelpOrderMgr.DAL
             parameters[5].Value = model.ShoppingFlag;
             parameters[6].Value = model.Remark;
             parameters[7].Value = model.Fifoflag;
+            parameters[8].Value = model.ControlName;
             int rows = SqlHelper.ExecuteSql(strSql.ToString(), parameters);
             if (rows > 0)
             {
@@ -115,15 +124,15 @@ namespace SelfhelpOrderMgr.DAL
         /// <summary>
         /// 删除一条数据
         /// </summary>
-        public bool Delete(int ID)
+        public bool Delete(int Id)
         {
 
             StringBuilder strSql = new StringBuilder();
             strSql.Append("delete from T_SHO_SaleType ");
-            strSql.Append(" where ID=@ID ");
+            strSql.Append(" where Id=@Id ");
             SqlParameter[] parameters = {
-					new SqlParameter("@ID", SqlDbType.Int,4)			};
-            parameters[0].Value = ID;
+                    new SqlParameter("@Id", SqlDbType.Int,4)            };
+            parameters[0].Value = Id;
 
 
             int rows = SqlHelper.ExecuteSql(strSql.ToString(), parameters);
@@ -142,16 +151,16 @@ namespace SelfhelpOrderMgr.DAL
         /// <summary>
         /// 得到一个对象实体
         /// </summary>
-        public SelfhelpOrderMgr.Model.T_SHO_SaleType GetModel(int ID)
+        public SelfhelpOrderMgr.Model.T_SHO_SaleType GetModel(int Id)
         {
 
             StringBuilder strSql = new StringBuilder();
-            strSql.Append("select ID, PType, TypeFlagId, CanconsumeAccount, FirstPaymentAccount, ShoppingFlag, Remark, Fifoflag  ");
+            strSql.Append("select Id, PType, TypeFlagId, CanconsumeAccount, FirstPaymentAccount, ShoppingFlag, Remark, Fifoflag ,UseType,ControlName");
             strSql.Append("  from T_SHO_SaleType ");
-            strSql.Append(" where ID=@ID ");
+            strSql.Append(" where Id=@Id ");
             SqlParameter[] parameters = {
-					new SqlParameter("@ID", SqlDbType.Int,4)			};
-            parameters[0].Value = ID;
+                    new SqlParameter("@Id", SqlDbType.Int,4)            };
+            parameters[0].Value = Id;
 
 
             SelfhelpOrderMgr.Model.T_SHO_SaleType model = new SelfhelpOrderMgr.Model.T_SHO_SaleType();
@@ -159,9 +168,9 @@ namespace SelfhelpOrderMgr.DAL
 
             if (ds.Tables[0].Rows.Count > 0)
             {
-                if (ds.Tables[0].Rows[0]["ID"].ToString() != "")
+                if (ds.Tables[0].Rows[0]["Id"].ToString() != "")
                 {
-                    model.ID = int.Parse(ds.Tables[0].Rows[0]["ID"].ToString());
+                    model.Id = int.Parse(ds.Tables[0].Rows[0]["Id"].ToString());
                 }
                 model.PType = ds.Tables[0].Rows[0]["PType"].ToString();
                 if (ds.Tables[0].Rows[0]["TypeFlagId"].ToString() != "")
@@ -185,6 +194,14 @@ namespace SelfhelpOrderMgr.DAL
                 {
                     model.Fifoflag = int.Parse(ds.Tables[0].Rows[0]["Fifoflag"].ToString());
                 }
+
+                if (ds.Tables[0].Rows[0]["UseType"].ToString() != "")
+                {
+                    model.UseType = int.Parse(ds.Tables[0].Rows[0]["UseType"].ToString());
+                }
+
+                model.ControlName = ds.Tables[0].Rows[0]["ControlName"].ToString();
+
 
                 return model;
             }

@@ -15,7 +15,7 @@ namespace SelfhelpOrderMgr.DAL
         /// <summary>
         /// 增加一条数据
         /// </summary>
-        public void Add(SelfhelpOrderMgr.Model.T_Criminal model,string param)
+        public void Add(SelfhelpOrderMgr.Model.T_Criminal model, string param)
         {
             StringBuilder strSql = new StringBuilder();
             strSql.Append("insert into T_Criminal(");
@@ -25,24 +25,24 @@ namespace SelfhelpOrderMgr.DAL
             strSql.Append(") ");
 
             SqlParameter[] parameters = {
-			            new SqlParameter("@FCode", SqlDbType.VarChar,20) ,            
-                        new SqlParameter("@FName", SqlDbType.VarChar,50) ,            
-                        new SqlParameter("@FIdenNo", SqlDbType.VarChar,20) , 
-                        new SqlParameter("@FSex", SqlDbType.VarChar,8) ,            
-                        new SqlParameter("@FAddr", SqlDbType.VarChar,128) ,            
-                        new SqlParameter("@FCrimeCode", SqlDbType.VarChar,8) ,            
-                        new SqlParameter("@FCYCode", SqlDbType.VarChar,3) ,            
-                        new SqlParameter("@FTerm", SqlDbType.VarChar,20) ,            
-                        new SqlParameter("@FInDate", SqlDbType.DateTime) ,            
-                        new SqlParameter("@FOuDate", SqlDbType.DateTime) ,            
-                        new SqlParameter("@FAreaCode", SqlDbType.VarChar,3) , 
-                        new SqlParameter("@FDesc", SqlDbType.VarChar,100) ,   
-                        new SqlParameter("@FCZY", SqlDbType.VarChar,20) ,            
-                        new SqlParameter("@fflag", SqlDbType.Int,4) ,            
-                        new SqlParameter("@flimitflag", SqlDbType.Int,4) ,            
-                        new SqlParameter("@flimitamt", SqlDbType.Decimal,5) ,            
-                        new SqlParameter("@Frealareacode", SqlDbType.VarChar,20)    
-              
+                        new SqlParameter("@FCode", SqlDbType.VarChar,20) ,
+                        new SqlParameter("@FName", SqlDbType.VarChar,50) ,
+                        new SqlParameter("@FIdenNo", SqlDbType.VarChar,20) ,
+                        new SqlParameter("@FSex", SqlDbType.VarChar,8) ,
+                        new SqlParameter("@FAddr", SqlDbType.VarChar,128) ,
+                        new SqlParameter("@FCrimeCode", SqlDbType.VarChar,8) ,
+                        new SqlParameter("@FCYCode", SqlDbType.VarChar,3) ,
+                        new SqlParameter("@FTerm", SqlDbType.VarChar,20) ,
+                        new SqlParameter("@FInDate", SqlDbType.DateTime) ,
+                        new SqlParameter("@FOuDate", SqlDbType.DateTime) ,
+                        new SqlParameter("@FAreaCode", SqlDbType.VarChar,3) ,
+                        new SqlParameter("@FDesc", SqlDbType.VarChar,100) ,
+                        new SqlParameter("@FCZY", SqlDbType.VarChar,20) ,
+                        new SqlParameter("@fflag", SqlDbType.Int,4) ,
+                        new SqlParameter("@flimitflag", SqlDbType.Int,4) ,
+                        new SqlParameter("@flimitamt", SqlDbType.Decimal,5) ,
+                        new SqlParameter("@Frealareacode", SqlDbType.VarChar,20)
+
             };
 
             parameters[0].Value = model.FCode;
@@ -70,7 +70,7 @@ namespace SelfhelpOrderMgr.DAL
         /// <summary>
         /// 更新一条数据
         /// </summary>
-        public bool Update(SelfhelpOrderMgr.Model.T_Criminal model,string param)
+        public bool Update(SelfhelpOrderMgr.Model.T_Criminal model, string param)
         {
             StringBuilder strSql = new StringBuilder();
             strSql.Append("update T_Criminal set ");
@@ -95,24 +95,24 @@ namespace SelfhelpOrderMgr.DAL
             strSql.Append(" where FCode=@FCode  ");
 
             SqlParameter[] parameters = {
-			            new SqlParameter("@FCode", SqlDbType.VarChar,20) ,            
-                        new SqlParameter("@FName", SqlDbType.VarChar,50) ,            
-                        new SqlParameter("@FIdenNo", SqlDbType.VarChar,20) ,            
-                        new SqlParameter("@FSex", SqlDbType.VarChar,8) ,            
-                        new SqlParameter("@FAddr", SqlDbType.VarChar,128) ,            
-                        new SqlParameter("@FCrimeCode", SqlDbType.VarChar,8) ,            
-                        new SqlParameter("@FCYCode", SqlDbType.VarChar,3) ,            
-                        new SqlParameter("@FTerm", SqlDbType.VarChar,20) ,            
-                        new SqlParameter("@FInDate", SqlDbType.DateTime) ,            
-                        new SqlParameter("@FOuDate", SqlDbType.DateTime) ,            
-                        new SqlParameter("@FAreaCode", SqlDbType.VarChar,3) ,            
-                        new SqlParameter("@FDesc", SqlDbType.VarChar,100) ,            
-                        new SqlParameter("@FCZY", SqlDbType.VarChar,20) ,            
-                        new SqlParameter("@fflag", SqlDbType.Int,4) ,            
-                        new SqlParameter("@flimitflag", SqlDbType.Int,4) ,            
-                        new SqlParameter("@flimitamt", SqlDbType.Decimal,5) ,            
-                        new SqlParameter("@Frealareacode", SqlDbType.VarChar,20)    
-              
+                        new SqlParameter("@FCode", SqlDbType.VarChar,20) ,
+                        new SqlParameter("@FName", SqlDbType.VarChar,50) ,
+                        new SqlParameter("@FIdenNo", SqlDbType.VarChar,20) ,
+                        new SqlParameter("@FSex", SqlDbType.VarChar,8) ,
+                        new SqlParameter("@FAddr", SqlDbType.VarChar,128) ,
+                        new SqlParameter("@FCrimeCode", SqlDbType.VarChar,8) ,
+                        new SqlParameter("@FCYCode", SqlDbType.VarChar,3) ,
+                        new SqlParameter("@FTerm", SqlDbType.VarChar,20) ,
+                        new SqlParameter("@FInDate", SqlDbType.DateTime) ,
+                        new SqlParameter("@FOuDate", SqlDbType.DateTime) ,
+                        new SqlParameter("@FAreaCode", SqlDbType.VarChar,3) ,
+                        new SqlParameter("@FDesc", SqlDbType.VarChar,100) ,
+                        new SqlParameter("@FCZY", SqlDbType.VarChar,20) ,
+                        new SqlParameter("@fflag", SqlDbType.Int,4) ,
+                        new SqlParameter("@flimitflag", SqlDbType.Int,4) ,
+                        new SqlParameter("@flimitamt", SqlDbType.Decimal,5) ,
+                        new SqlParameter("@Frealareacode", SqlDbType.VarChar,20)
+
             };
 
             parameters[0].Value = model.FCode;
@@ -142,7 +142,7 @@ namespace SelfhelpOrderMgr.DAL
                 return false;
             }
         }
-		
+
         public IEnumerable<T_Criminal> GetPageListOfIEnumerable(int page, int pageRow, string strWhere)
         {
             using (IDbConnection conn = new SqlConnection(SqlHelper.getConnstr()))
@@ -164,7 +164,7 @@ namespace SelfhelpOrderMgr.DAL
             }
         }
 
-        public DataTable GetCrimeBySearch( string fcode, string fname, string areaname, string usercode)
+        public DataTable GetCrimeBySearch(string fcode, string fname, string areaname, string usercode)
         {
             string strSql = @"select * 
                             from t_criminal a,T_Area b,T_Cy_Type c 
@@ -182,11 +182,11 @@ namespace SelfhelpOrderMgr.DAL
                 strSql = strSql + " and b.fname='" + areaname + "'";
             }
             strSql = strSql + " and a.fareacode in(select fareacode from dbo.t_czy_area where fflag=2 and fcode='" + usercode + "')";
-            return SqlHelper.Query( strSql).Tables[0];
+            return SqlHelper.Query(strSql).Tables[0];
 
         }
 
-        public T_Criminal_card GetInvoiceBalance(string fcode,string invoiceNo)
+        public T_Criminal_card GetInvoiceBalance(string fcode, string invoiceNo)
         {
 
             using (IDbConnection conn = new SqlConnection(SqlHelper.getConnstr()))
@@ -198,7 +198,7 @@ namespace SelfhelpOrderMgr.DAL
 
                 object parmUserInfo;
                 parmUserInfo = new { fcrimecode = fcode, origid = invoiceNo };
-                T_Vcrd vcrd=(T_Vcrd)conn.Query<T_Vcrd>(strSql.ToString(), parmUserInfo).FirstOrDefault();
+                T_Vcrd vcrd = (T_Vcrd)conn.Query<T_Vcrd>(strSql.ToString(), parmUserInfo).FirstOrDefault();
 
                 string sql = @"select fcrimecode,sum(damount-camount) as BankAmount
                                 ,sum(case acctype when 0 then DAMOUNT-CAMOUNT else 0 end ) AmountA
@@ -278,11 +278,11 @@ namespace SelfhelpOrderMgr.DAL
                 StringBuilder strSql = new StringBuilder();
                 strSql.Append("select * from ( ");
                 strSql.Append("select ROW_NUMBER() OVER (ORDER BY fcode) AS RowNumber,* from ( ");
-                strSql.Append("select a.fcode FCode,a.fname FName,b.fName FAreaName,a.FAreaCode FAreaCode,isnull(a.fflag,0) FFlag,c.CardCodea CardCode,c.AmountA AmountA,c.AmountB AmountB,c.AmountC AmountC,(c.AmountA+c.AmountB+c.AmountC) AllMoney,c.BankAccNo BankAccNo ");
+                strSql.Append("select a.fcode FCode,a.fname FName,b.fName FAreaName,a.FAreaCode FAreaCode,isnull(a.fflag,0) FFlag,c.CardCodea CardCode,c.AmountA AmountA,c.AmountB AmountB,c.AmountC AmountC,(c.AmountA+c.AmountB+c.AmountC) AllMoney,c.BankAccNo BankAccNo,c.AccPoints AccPoints ");
                 strSql.Append("from t_criminal a left outer join t_area b on a.fareacode=b.fcode ");
                 strSql.Append(" left outer join t_criminal_card c on a.fcode=c.fcrimecode  ");
                 strSql.Append(") d ");
-                if (string.IsNullOrEmpty(strWhere)==false)
+                if (string.IsNullOrEmpty(strWhere) == false)
                 {
                     strSql.Append("where " + strWhere);
                 }
@@ -290,17 +290,17 @@ namespace SelfhelpOrderMgr.DAL
                 strSql.Append(" where RowNumber>=@startNumber and RowNumber<=@endNumber");
                 object parmUserInfo;
                 parmUserInfo = new { startNumber = startNumber, endNumber = endNumber };
-                return (List<T_UserInfoExt>)conn.Query<T_UserInfoExt>(strSql.ToString(),parmUserInfo);
+                return (List<T_UserInfoExt>)conn.Query<T_UserInfoExt>(strSql.ToString(), parmUserInfo);
             }
         }
         public List<T_UserInfoExt> GetUserInfo(string strWhere)
         {
             using (IDbConnection conn = new SqlConnection(SqlHelper.getConnstr()))
-            {                
+            {
                 conn.Open();
                 StringBuilder strSql = new StringBuilder();
                 strSql.Append("select * from ( ");
-                strSql.Append("select a.fcode FCode,a.fname FName,b.fName FAreaName,isnull(a.fflag,0) FFlag,c.CardCodea CardCode,c.AmountA AmountA,c.AmountB AmountB,c.AmountC AmountC,(c.AmountA+c.AmountB+c.AmountC) AllMoney,c.BankAccNo BankAccNo ");
+                strSql.Append("select a.fcode FCode,a.fname FName,b.fName FAreaName,isnull(a.fflag,0) FFlag,c.CardCodea CardCode,c.AmountA AmountA,c.AmountB AmountB,c.AmountC AmountC,(c.AmountA+c.AmountB+c.AmountC) AllMoney,c.BankAccNo BankAccNo ,c.AccPoints as AccPoints ");
                 strSql.Append("from t_criminal a,t_area b,t_criminal_card c ");
                 strSql.Append("where a.fareacode=b.fcode and a.fcode=c.fcrimecode ");
                 strSql.Append(") d ");
@@ -315,7 +315,7 @@ namespace SelfhelpOrderMgr.DAL
         {
             StringBuilder strSql = new StringBuilder();
             strSql.Append("select isnull(count(*),0) fcount from ( ");
-            strSql.Append("select a.fcode FCode,a.fname FName,b.fName FAreaName,a.FareaCode,isnull(a.fflag,0) FFlag,c.CardCodea CardCode,c.AmountA AmountA,c.AmountB AmountB,c.AmountC AmountC,(c.AmountA+c.AmountB+c.AmountC) AllMoney,c.BankAccNo BankAccNo ");
+            strSql.Append("select a.fcode FCode,a.fname FName,b.fName FAreaName,a.FareaCode,isnull(a.fflag,0) FFlag,c.CardCodea CardCode,c.AmountA AmountA,c.AmountB AmountB,c.AmountC AmountC,(c.AmountA+c.AmountB+c.AmountC) AllMoney,c.BankAccNo BankAccNo ,c.AccPoints as AccPoints ");
             strSql.Append("from t_criminal a left outer join t_area b on a.fareacode=b.fcode ");
             strSql.Append(" left outer join t_criminal_card c on a.fcode=c.fcrimecode  ");
             strSql.Append(") d ");
@@ -327,7 +327,8 @@ namespace SelfhelpOrderMgr.DAL
 
         }
 
-        public string PLExcelImport(string crtby,int modeId){
+        public string PLExcelImport(string crtby, int modeId)
+        {
             string rtnStr = "Err|更新失败,未执入数据处理";
             using (IDbConnection conn = new SqlConnection(SqlHelper.getConnstr()))
             {
@@ -353,8 +354,9 @@ namespace SelfhelpOrderMgr.DAL
                             i = 0;
                             i = conn.Execute(strSql.ToString());
                             rtnStr = rtnStr + ",插入记录 " + i.ToString() + "条";
-                        
-                        }break;
+
+                        }
+                        break;
                     case 1: //福州监狱模板：编号，姓名，性别，地址，罪行，处遇级别，刑期，入监时间，出监时间，队别，身份证号，备注
                         {
                             strSql.Append(@"Update T_Criminal set FName=d.FName,FSex=d.FSex,FAreaCode=d.FAreaCode,FCYCode=d.FCYCode,FIdenNo=d.FIdenNo,FDesc=d.FDesc,FInDate=d.FInDate,FOuDate=d.FOuDate,FTerm=d.FTerm,FAddr=d.FAddr,FCrimeCode=d.FCrimeCode from (
@@ -399,12 +401,12 @@ namespace SelfhelpOrderMgr.DAL
                     default:
                         break;
                 }
-                
-                
+
+
                 strSql = new StringBuilder();
                 strSql.Append(@"drop table T_Criminal_MyTmp;");
                 i = conn.Execute(strSql.ToString());
-                return rtnStr;                
+                return rtnStr;
             }
         }
 
@@ -422,13 +424,13 @@ namespace SelfhelpOrderMgr.DAL
                 i = conn.Execute(strSql.ToString());
                 rtnStr = "OK|更新记录 " + i.ToString() + "条";
 
-                strSql = new StringBuilder(); 
+                strSql = new StringBuilder();
                 strSql.Append(@"delete  from T_Criminal_TPList where [EffectiveDate]=dateadd(month, datediff(month, 0, dateadd(month, 1, getdate())), -1) 
                     and fcode in(select fcode from T_Criminal_TmpMoney);");
                 i = 0;
                 i = conn.Execute(strSql.ToString());
 
-                strSql = new StringBuilder();                
+                strSql = new StringBuilder();
                 strSql.Append(@"insert into dbo.T_Criminal_TPList (
                     [FCode],[FName],[TPMoney],[CrtBy],[CrtDate],[EffectiveDate]
                     ,[FifoFlag],[Remark],[SrcFileName],[DelBy],[DelDate],[MoneyUseFlag])
@@ -447,8 +449,8 @@ namespace SelfhelpOrderMgr.DAL
             }
         }
 
-        public string Rsb_KouKuan(string fcrimecode, string crtby,decimal rsb_money)
-        { 
+        public string Rsb_KouKuan(string fcrimecode, string crtby, decimal rsb_money)
+        {
             string rtnStr = "";
             using (IDbConnection conn = new SqlConnection(SqlHelper.getConnstr()))
             {
@@ -461,9 +463,9 @@ namespace SelfhelpOrderMgr.DAL
                 //注意 parems.Add("@res",ParameterDirection.Output);//这样写返回值可能会出错，切记！！！
                 SqlMapper.Execute(conn, "P_Rsb_Insert_KouKuan", parems, null, null, CommandType.StoredProcedure);
                 rtnStr = parems.Get<string>("@result");//获取数据库输出的值
-                return rtnStr; 
+                return rtnStr;
             }
-            
+
         }
     }
 }

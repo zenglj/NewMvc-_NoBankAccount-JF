@@ -1,0 +1,216 @@
+﻿@{
+    ViewBag.Title = "医药消费";
+}
+
+
+
+
+@{Html.RenderPartial("~/Views/Shared/_PartialXiaopiaoControl.cshtml");}
+<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+  <script src="//cdn.bootcss.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+  <script src="//cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+
+<h1>欢迎进入购药模块，这里您可以进行快速下单！</h1>
+<object id=MWRFATL style="WIDTH: 0px; HEIGHT: 0px"
+        codebase=eyeFZ.cab#version =1,0,0,1
+        classid=CLSID:CD851DCA-5D3C-4DA9-A0F7-DE018FDC0A7F></object> @*加载数明华读卡器控件*@
+        <div class="form-inline">
+            <div style=" width: 800px; text-align:right;">
+                <input type="hidden" id="orderFcrimeCode" />
+                <input type="hidden" id="orderFcrimeName" />
+                <input type="hidden" id="orderCyName" />
+                <input type="hidden" id="orderFareaName" />
+                <a class="btn btn-primary" href="#" role="button" onclick="btnAddOrder('3504013494')">读卡IC卡</a>
+                <div class="form-group">
+                    <label class="sr-only" for="exampleInputAmount">Amount (in dollars)</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" style="width:100px" id="orderNumber" placeholder="订单号">
+                    </div>
+                </div>
+                @*<a class="btn btn-default" href="#" role="button" onclick="btnMyOrder()">我的订单</a>*@
+                <span id="orderMoney" class="label label-warning" style=" width:200px;">0.00</span>
+                <!-- 按钮触发模态框 -->
+                @*<a class="btn btn-warning" href="#" role="button" onclick="PayCheckSubmit('3506019745')">结算确认</a>*@
+
+                <button class="btn btn-warning" onclick="DisplayPayModel()">
+                    结算确认
+                </button>
+            </div>
+            <div style="text-align:right; " id="criminalCyInfo">
+                你好，张三疯 <span class="label label-default">普管</span>,可消费金额：<span class="label label-default" id="xiaofeiYuE">200.00</span>,账户总余额：<span class="label label-default" id="okUseAllMoney">600.00</span>
+            </div>
+        </div>
+
+        <div class="form-inline">
+            <div class="form-group">
+                <label class="sr-only" for="inputGtxm">Amount (in dollars)</label>
+                <div class="input-group">
+                    <div class="input-group-addon">条码</div>
+                    <input type="text" class="form-control" id="inputGtxm" onkeydown="if(event.keyCode==13) gtxmEnter();" placeholder="条码">
+
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="input-group">
+                    <div class="input-group-addon">品名</div>
+                    <input type="text" class="form-control" id="inputGname" placeholder="品名">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="sr-only" for="exampleInputAmount">Amount (in dollars)</label>
+                <div class="input-group">
+                    <div class="input-group-addon">数量</div>
+                    <input type="text" class="form-control" style="width:80px" id="inputGcount" onkeydown="if (event.keyCode == 13) gcountEnter();" placeholder="数量">
+                </div>
+            </div>
+            <input type="hidden" id="inputPrice" />
+            <input type="hidden" id="inputXgsl" />@*限购数量*@
+            <input type="hidden" id="goodStockNumber" />
+            <input type="hidden" id="strGoodFreeFlag">
+            <div class="form-group">
+                <a class="btn btn-primary" href="#" role="button" onclick="gcountEnter()">确认</a>
+            </div>
+            <div class="alert alert-danger" role="alert" id="lblInfo">...</div>
+
+        </div>
+
+        <div>
+            <table class="table table-striped">
+                <thead>
+                    <tr><th>条码</th><th>品名</th><th>单价</th><th>数量</th><th>金额</th><th>限额标志</th><th>操作</th></tr>
+                </thead>
+                <tbody id="tbodyOrderList">
+                    <tr><td>11111</td><td>鹏遥二维失遥</td><td>1.00</td><td>1</td><td>1.00</td><td><input type="checkbox"></td><td>操作</td></tr>
+                </tbody>
+
+            </table>
+        </div>
+
+
+
+
+        <!-- 订单结算显示框（Modal） -->
+        <div class="modal fade" id="myOrderInfo" tabindex="-1" role="dialog"
+             aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content" style=" width:300px;">
+                    <div class="modal-header">
+                        <button type="button" class="close"
+                                data-dismiss="modal" aria-hidden="true">
+                            &times;
+                        </button>
+                        <h4 class="modal-title" id="myModalLabel">
+                            结算信息
+                        </h4>
+                    </div>
+                    <div class="modal-body" id="orderPayInfo">
+                        <table class="table table-striped">
+                            <tr>
+                                <th>消费单号</th>
+                                <td id="submitOrderNumber"></td>
+                            </tr>
+                            <tr>
+                                <th>用户姓名</th>
+                                <td id="submitFCrimeName"></td>
+                            </tr>
+                            <tr>
+                                <th>所在监区</th>
+                                <td id="submitAreaName"></td>
+                            </tr>
+                            <tr>
+                                <th>消费金额</th>
+                                <td><h2><span class="label label-primary" id="submitMoney">0.00</span></h2></td>
+                            </tr>
+
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default"
+                                data-dismiss="modal">
+                            关闭
+                        </button>
+                        <button type="button" class="btn btn-primary" onclick="PayCheckSubmit()">
+                            确认提交
+                        </button>
+                    </div>
+                </div><!-- /.modal-content -->
+            </div>
+        </div>
+        <!-- /.modal -->
+        <!-- 询问是否有未提交的订单处理（Modal） -->
+        <div class="modal fade" id="askOrderHandle" tabindex="-1" role="dialog"
+             aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close"
+                                data-dismiss="modal" aria-hidden="true">
+                            &times;
+                        </button>
+                        <h4 class="modal-title" id="myModalLabel">
+                            未提交订单处理
+                        </h4>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" id="currUserCardNo" />
+                        <input type="hidden" id="currOrderInfo" />
+                        <input type="hidden" id="currSaleSort" />
+                        你有一个完成的订单是否要继续原先的交易？>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default"
+                                data-dismiss="modal" onclick="CancelCurrOrderInfo()">
+                            取消
+                        </button>
+                        <button type="button" class="btn btn-primary" onclick="ContinueOrderInfo()">
+                            确定
+                        </button>
+                    </div>
+                </div><!-- /.modal-content -->
+            </div><!-- /.modal -->
+        </div>
+
+        <!-- 信息提示（Modal） -->
+        <div class="modal fade" id="myPromptBox" tabindex="-1" role="dialog"
+             aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close"
+                                data-dismiss="modal" aria-hidden="true">
+                            &times;
+                        </button>
+                        <h4 class="modal-title">
+                            信息提示
+                        </h4>
+                    </div>
+                    <div class="modal-body" id="myPromptBoxInfo">
+                        提示信息
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default"
+                                data-dismiss="modal">
+                            确定
+                        </button>
+
+                    </div>
+                </div><!-- /.modal-content -->
+            </div><!-- /.modal -->
+        </div>
+
+        @*小票模板*@
+        @{Html.RenderPartial("~/Views/Shared/_PartialXiaopiaoTemplateBody.cshtml");}
+
+
+
+        <script src="~/Scripts/myJs/minghuaICcardCommon.js"></script>
+        <script src="~/Scripts/myJs/commonJs.js"></script>
+        <script src="~/Scripts/myJs/opertorXiaopiaoFunc.js"></script>
+        <script src="~/Scripts/myJs/orderCommon.js"></script>
+        <script src="~/Scripts/myJs/orderSales.js"></script>
+        <script src="~/Scripts/myJs/LodopFuncs.js"></script>
+
+

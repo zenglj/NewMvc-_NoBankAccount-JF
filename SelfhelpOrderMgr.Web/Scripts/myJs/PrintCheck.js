@@ -21,7 +21,7 @@ function printCheck() {
                                 if ($("#SaleMode").val() == "Sales") {
                                     window.location.href = "/Sales/Index/" + $("#saleTypeId").val() + "";
                                 } else {
-                                    window.location.href = "/Shopping/Index/" + $("#saleTypeId").val() + "";
+                                    window.location.href = "/" + $("#SaleMode").val() +"/Index/" + $("#saleTypeId").val() + "";
                                 }
                             }
                         } else {
@@ -84,7 +84,7 @@ function UserLoginCheck() {
                                 if ($("#SaleMode").val() == "Sales") {
                                     window.location.href = "/Sales/Index/" + $("#saleTypeId").val() + "";
                                 } else {
-                                    window.location.href = "/Shopping/Index/" + $("#saleTypeId").val() + "";
+                                    window.location.href = "/" + $("#SaleMode").val() +"/Index/" + $("#saleTypeId").val() + "";
                                 }
                             }
                         } else {

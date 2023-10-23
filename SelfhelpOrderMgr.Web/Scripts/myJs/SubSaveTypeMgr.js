@@ -55,6 +55,9 @@ $(function () {
 
     var FlagTypes = [{ "value": "0", "text": "否" }, { "value": "1", "text": "是" }];
 
+    var useTypes = [{ "value": "0", "text": "购物系统" }, { "value": "1", "text": "积分系统" }];
+
+
     //消费类型
     function unitformatter(value, rowData, rowIndex) {
         if (value == 0) {
@@ -87,6 +90,15 @@ $(function () {
         }
     }
 
+
+    function useTypesFormatter(value, rowData, rowIndex) {
+
+        for (var i = 0; i < useTypes.length; i++) {
+            if (useTypes[i].value == value) {
+                return useTypes[i].text;
+            }
+        }
+    }
 
     var selectAccountName = [{ "value": "0", "text": "存款账户" }, { "value": "1", "text": "报酬账户" }, { "value": "2", "text": "留存账户" }];
 
@@ -125,7 +137,7 @@ $(function () {
         autoRowHeight: false,
         striped: true,
         collapsible: true,
-        url: '/BaseInfoMgr/GetSaveTypeMgr',
+        url: '/BaseInfoMgr/GetSaveTypeMgr/' + $("#useTypeId").val(),
         sortName: 'typeflag',
         sortOrder: 'asc',
         remoteSort: false,
@@ -151,8 +163,11 @@ $(function () {
                         field: 'FuShuFlag', width: 60, title: '负数透支', formatter: fushuFlagFormatter, editor: { type: 'combobox', options: { data: fushuFlag, valueField: "value", textField: "text" } }
                     },
                     {
-                        field: 'AccType', width: 60, title: '资金账户', formatter: selectAccountNameformatter, editor: { type: 'combobox', options: { data: selectAccountName, valueField: "value", textField: "text" } }
-                    }]]
+                        field: 'AccType', width: 60, sortable: true, title: '资金账户', formatter: selectAccountNameformatter, editor: { type: 'combobox', options: { data: selectAccountName, valueField: "value", textField: "text" } }
+            },
+            {
+                field: 'UseType', width: 60, sortable: true, title: '使用类型', formatter: useTypesFormatter, editor: { type: 'combobox', options: { data: useTypes, valueField: "value", textField: "text" } }
+            }]]
     });
     
     $('#editWindows').window({

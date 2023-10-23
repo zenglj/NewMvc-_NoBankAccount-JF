@@ -28,13 +28,16 @@ $(function () {
     }
 
 
-    
+
 
 
     var shoppingFlag = [{ "value": "0", "text": "关闭" }, { "value": "1", "text": "开启" }];
 
     var fifoFlag = [{ "value": "-1", "text": "扣款" }, { "value": "1", "text": "存款" }];
 
+    var usetype = [{ "value": "0", "text": "购物系统" }, { "value": "1", "text": "积分系统" }];
+
+    var controlName = [{ "value": "Shopping", "text": "Shopping" }, { "value": "JfShopping", "text": "JfShopping" }];
 
 
     function shoppingFormatter(value, rowData, rowIndex) {
@@ -58,7 +61,29 @@ $(function () {
             }
         }
     }
-    
+
+    function useTypeFormatter(value, rowData, rowIndex) {
+        //if (value == 0) {
+        //    return;
+        //}
+        for (var i = 0; i < usetype.length; i++) {
+            if (usetype[i].value == value) {
+                return usetype[i].text;
+            }
+        }
+    }
+
+    function controlNameFormatter(value, rowData, rowIndex) {
+        //if (value == 0) {
+        //    return;
+        //}
+        for (var i = 0; i < controlName.length; i++) {
+            if (controlName[i].value == value) {
+                return controlName[i].text;
+            }
+        }
+    }
+
 
     $('#dg').datagrid({
         url: 'datagrid_data.json',
@@ -71,7 +96,7 @@ $(function () {
 
 
 
-    
+
     //用户列表清单
     $('#test').datagrid({
         //title: '用户列表',
@@ -84,35 +109,39 @@ $(function () {
         striped: true,
         collapsible: true,
         url: '/Super/GetSaleTypesMgr',
-        sortName: 'ID',
+        sortName: 'Id',
         sortOrder: 'asc',
         remoteSort: false,
         singleSelect: true,
-        idField: 'ID',
+        idField: 'Id',
         pageSize: 10,
         pageList: [10, 20],
         pagination: true,
         columns: [[
-                    { field: 'ck', checkbox: true },
-                    { field: 'ID', width: 50, sortable: true, title: '编号', editor: 'numberbox' },
-                    { field: 'PType', width: 50, sortable: true, title: '消费类型', editor: 'text' },
-                    { field: 'TypeFlagId', width: 50, sortable: true, title: '科目Id', editor: 'numberbox' },
-                    {
-                        field: 'CanconsumeAccount', width: 60, title: '消费账户', formatter: consumeformatter, editor: { type: 'combobox', options: { data: consumeAccount, valueField: "value", textField: "text" } }
-                    },
-                    {
-                        field: 'FirstPaymentAccount', width: 60, title: '优先账户', formatter: paymentformatter, editor: { type: 'combobox', options: { data: paymentAccount, valueField: "value", textField: "text" } }
-                    },
-                    {
-                        field: 'ShoppingFlag', width: 60, title: '消费状态', formatter: shoppingFormatter, editor: { type: 'combobox', options: { data: shoppingFlag, valueField: "value", textField: "text" } }
-                    },
+            { field: 'ck', checkbox: true },
+            { field: 'Id', width: 50, sortable: true, title: '编号', editor: 'numberbox' },
+            { field: 'PType', width: 50, sortable: true, title: '消费类型', editor: 'text' },
+            { field: 'TypeFlagId', width: 50, sortable: true, title: '科目Id', editor: 'numberbox' },
+            {
+                field: 'CanconsumeAccount', width: 60, title: '消费账户', formatter: consumeformatter, editor: { type: 'combobox', options: { data: consumeAccount, valueField: "value", textField: "text" } }
+            },
+            {
+                field: 'FirstPaymentAccount', width: 60, title: '优先账户', formatter: paymentformatter, editor: { type: 'combobox', options: { data: paymentAccount, valueField: "value", textField: "text" } }
+            },
+            {
+                field: 'ShoppingFlag', width: 60, title: '消费状态', formatter: shoppingFormatter, editor: { type: 'combobox', options: { data: shoppingFlag, valueField: "value", textField: "text" } }
+            },
 
-                    { field: 'Remark', width: 80, title: '备注', editor: 'text' },
-                    {
-                        field: 'Fifoflag', width: 60, title: '存/取', formatter: fifoflagFormatter, editor: { type: 'combobox', options: { data: fifoFlag, valueField: "value", textField: "text" } }
-                    }]]
+            { field: 'Remark', width: 80, title: '备注', editor: 'text' },
+            {
+                field: 'Fifoflag', width: 60, title: '存/取', formatter: fifoflagFormatter, editor: { type: 'combobox', options: { data: fifoFlag, valueField: "value", textField: "text" } }
+            }, {
+                field: 'UseType', width: 60, title: '使用模式', formatter: useTypeFormatter, editor: { type: 'combobox', options: { data: usetype, valueField: "value", textField: "text" } }
+            }, {
+                field: 'ControlName', width: 60, title: '控制器名', formatter: controlNameFormatter, editor: { type: 'combobox', options: { data: controlName, valueField: "value", textField: "text" } }
+            },]]
     });
-    
+
     //$('#editWindows').window({
     //    modal: true,
     //    closed: true
@@ -183,13 +212,13 @@ $(function () {
 var $dg = $("#test");
 
 //批量保存数据
-function BatchSaveDg(){
+function BatchSaveDg() {
     endEdit();
     if ($dg.datagrid('getChanges').length) {
         var inserted = $dg.datagrid('getChanges', "inserted");
         var deleted = $dg.datagrid('getChanges', "deleted");
         var updated = $dg.datagrid('getChanges', "updated");
-                         
+
         var effectRow = new Object();
         if (inserted.length) {
             effectRow["inserted"] = JSON.stringify(inserted);
@@ -200,24 +229,23 @@ function BatchSaveDg(){
         if (updated.length) {
             effectRow["updated"] = JSON.stringify(updated);
         }
- 
+
         $.post("/Super/SaveSaleTypeList", effectRow,
             function (data, status) {
                 if ("success" != status) {
                     return false;
                 }
-                else{
+                else {
                     var words = data.split("|");
                     if (words[0] == "OK") {
                         UpdateDGInfo(words[1]);
                         $dg.datagrid('acceptChanges');
                         $.messager.alert("提示", "保存成功！");
                     }
-                    else
-                    {
+                    else {
                         $.messager.alert("提示", data);
                     }
-                }                
+                }
             });
     }
 }
@@ -232,8 +260,7 @@ function endEdit() {
 
 //更新DataGrid记录信息
 
-function UpdateDGInfo(word)
-{
+function UpdateDGInfo(word) {
     var invs = $.parseJSON(word);
     //清空现有记录
     var item = $('#test').datagrid('getRows');
@@ -282,7 +309,7 @@ function FilterSearch() {
         , "FGoodsName": $('#FGoodsName').val()
         , "FGoodsGTXM": $('#FGoodsGTXM').val()
     });
-    
+
     //$.post("/Super/GetXEGoodTypeList", {
     //    "typeName": $('#FGoodsType').combobox('getText')
     //    , "FAreaInfo": $('#FAreaInfo').combobox('getValue')
@@ -296,13 +323,12 @@ function FilterSearch() {
     //            UpdateDGInfo(data);
     //        }
     //    });
-    
+
 }
 
 
 //添加类别商品信息
-function AddTypeGoods()
-{
+function AddTypeGoods() {
     $('#test').datagrid('appendRow', {
         ID: '0',
         PType: "",
@@ -319,7 +345,7 @@ function AddTypeGoods()
 function DeleteTypeInfoById() {
     $.messager.confirm('确认', '您确认想要删除记录吗？', function (r) {
         if (r) {
-            var row = $('#test').datagrid('getSelected');            
+            var row = $('#test').datagrid('getSelected');
             if (row != null) {
                 $.post("/Super/DeleleSaleType", { "ID": row.ID }
                     , function (data, status) {
@@ -335,8 +361,8 @@ function DeleteTypeInfoById() {
                             }
                         }
                     });
-                
+
             }
         }
-    });    
+    });
 }

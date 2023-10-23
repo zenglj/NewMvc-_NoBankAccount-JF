@@ -212,7 +212,7 @@ namespace SelfhelpOrderMgr.BLL
                     }
                     model.DType = dt.Rows[n]["DType"].ToString();
                     model.Depositer = dt.Rows[n]["Depositer"].ToString();
-
+                    model.PayMode = int.Parse( dt.Rows[n]["PayMode"].ToString());
 
                     modelList.Add(model);
                 }

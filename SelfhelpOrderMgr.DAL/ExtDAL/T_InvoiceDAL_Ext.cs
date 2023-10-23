@@ -544,6 +544,114 @@ namespace SelfhelpOrderMgr.DAL
             }
         }
 
+
+        /// <summary>
+        /// 订单全部退货
+        /// </summary>
+        /// <param name="strInvoices"></param>
+        /// <param name="crtby"></param>
+        /// <returns></returns>
+        public bool ReturnInvoiceOrder(string strInvoices, string crtby)
+        {
+
+            StringBuilder strSql = new StringBuilder();
+
+
+            //退货主单
+            strSql.Append(@"insert into [T_Invoice] ([INVOICENO],[cardcode],[fcrimecode],[amount],[OrderDate]
+                  ,[PayDATE],[PTYPE],[Flag],[REMARK],[servamount],[crtby],[crtdate]
+                  ,[fsn],[fareacode],[fareaName],[fcriminal],[Frealareacode]
+                  ,[FrealAreaName],[TYPEFLAG],[CardType],[AmountA],[AmountB]
+                  ,[fifoflag],[FreeAmountA],[FreeAmountB],[checkflag],[RoomNo]
+                  ,[OrderId],[FTZSP_Money],[printCount],[OrderStatus],[UserCyDesc])
+            SELECT 'TH'+[INVOICENO] as [INVOICENO],[cardcode],[fcrimecode],[amount],getdate() as [OrderDate]
+                  ,[PayDATE],'消费退货' as [PTYPE],[Flag],@CrtBy + ',批量退货,原单'+[INVOICENO]+'.'+[REMARK] as [REMARK],[servamount],@CrtBy as [crtby],getdate() as [crtdate]
+                  ,[fsn],[fareacode],[fareaName],[fcriminal],[Frealareacode]
+                  ,[FrealAreaName],11 as [TYPEFLAG],[CardType],[AmountA],[AmountB]
+                  ,1 as [fifoflag],[FreeAmountA],[FreeAmountB],[checkflag],[RoomNo]
+                  ,[OrderId],[FTZSP_Money],0 as [printCount],[OrderStatus],[UserCyDesc]
+              FROM [dbo].[T_Invoice]
+              where INVOICENO in(" + strInvoices + ");");
+            //退货明细
+            strSql.Append(@"insert into [T_InvoiceDTL] ([INVOICENO],[GCODE],[GNAME],[OrderDate],[PayDATE],[Flag]
+                    ,[GDJ],[QTY],[AMOUNT],[servamount],[GTXM],[fcrimecode]
+                    ,[GORGDJ],[GORGAMT],[StockSeqno],[typeflag],[cardtype]
+                    ,[AmountA],[AmountB],[fifoflag],[backqty],[freeflag]
+                    ,[Remark],[SPShortCode],[FTZSP_TypeFlag])
+            SELECT 'TH'+[INVOICENO] as [INVOICENO],[GCODE],[GNAME],getdate() as [OrderDate],[PayDATE],[Flag]
+                    ,[GDJ],[QTY],[AMOUNT],[servamount],[GTXM],[fcrimecode]
+                    ,[GORGDJ],[GORGAMT],[StockSeqno],11 as [typeflag],[cardtype]
+                    ,[AmountA],[AmountB],1 as [fifoflag],[QTY] as [backqty],[freeflag]
+                    ,'对应的消费主单：'+[INVOICENO]  as [Remark],[SPShortCode],[FTZSP_TypeFlag]
+                FROM [dbo].[T_InvoiceDTL]
+                where INVOICENO in(" + strInvoices + ");");
+
+
+            strSql.Append(@"INSERT INTO [T_Stock] ([StockId],[InOutDate],[FLAG],[StockType],[CrtBy],[Crtdt],
+                        [CHECKFLAG],[CHECKBY],[CheckDt],[Remark],[invoiceno],[stockflag],[InOutFlag])
+                        select 'S'+InvoiceNo as [StockId],getdate()[InOutDate],[FLAG],'消费退货' as [StockType],@CrtBy as [CrtBy],getdate() as [Crtdt],
+                        1 as [CHECKFLAG],@CrtBy as [CHECKBY],getdate() [CheckDt],'对应的消费主单：'+INVOICENO as [Remark],'TH'+InvoiceNo as[invoiceno],
+                        6 as [stockflag],-1 as [InOutFlag] from T_Invoice where InvoiceNo in(" + strInvoices + ");");
+
+            strSql.Append(@"INSERT INTO [T_StockDTL]
+	                    ([StockId],[GCODE],[GTXM],[GCOUNT],[GDJ],[flag],[stockflag],[InOutFlag],[Remark])
+                    select 'S'+InvoiceNo as [StockId],[GCODE],[GTXM],QTY as [GCOUNT],[GDJ],[flag],6 as[stockflag],1 as [InOutFlag],'对应的消费主单：'+INVOICENO as  [Remark]
+                    from [T_InvoiceDTL] where INVOICENO in(" + strInvoices + ");");
+
+
+            strSql.Append(@"update T_GOODSSTOCKMAIN set BALANCE=BALANCE+b.qty from (
+                select GCode,sum(qty) qty from t_InvoiceDTL where invoiceNo in(" + strInvoices + @")
+                group by GCode) b
+                where T_GOODSSTOCKMAIN.GCode=b.GCode;");//加回库存量
+
+            //Vcrd A 账户
+            strSql.Append(@"insert into T_Vcrd(VOUNO,cardcode,fcrimecode,DAMOUNT,CAMOUNT,crtBy,CRTDATE,DTYPE,DEPOSITER
+                    ,REMARK,flag,fareacode,fareaName,fcriminal,Frealareacode,FrealAreaName,ptype,udate,origid,cardtype
+                    ,TYPEFLAG,acctype,Bankflag,checkflag,checkby,pc,curUserAmount
+                    ,curAllAmount,PayAuditFlag,[FinancePayFlag],[BankInterfaceFlag])
+                    select 'V'+InvoiceNo as VOUNO,cardcode,fcrimecode,amountA as DAMOUNT,0 as CAMOUNT,@CrtBy as CrtBy,CRTDATE
+                    ,'积分退货' as DTYPE,'' as DEPOSITER,REMARK,flag,fareacode,fareaName,fcriminal,Frealareacode,FrealAreaName
+                    ,ptype,getdate() as udate,'TH' + [InvoiceNo] as origid,cardtype,TYPEFLAG,0 as acctype,0 as Bankflag,checkflag
+                    ,@CrtBy as checkby,0 as pc,0 as curUserAmount,0 as curAllAmount,0 as PayAuditFlag,0 as [FinancePayFlag],0 as [BankInterfaceFlag] 
+                    from T_Invoice where AmountA<>0 and  INVOICENO in(" + strInvoices + ");");
+            //Vcrd B 账户
+            strSql.Append(@"insert into T_Vcrd(VOUNO,cardcode,fcrimecode,DAMOUNT,CAMOUNT,crtBy,CRTDATE,DTYPE,DEPOSITER
+                    ,REMARK,flag,fareacode,fareaName,fcriminal,Frealareacode,FrealAreaName,ptype,udate,origid,cardtype
+                    ,TYPEFLAG,acctype,Bankflag,checkflag,checkby,pc,curUserAmount
+                    ,curAllAmount,PayAuditFlag,[FinancePayFlag],[BankInterfaceFlag])
+                    select 'V'+InvoiceNo as VOUNO,cardcode,fcrimecode,amountB as DAMOUNT,0 as CAMOUNT,@CrtBy as CrtBy,CRTDATE
+                    ,'积分退货' as DTYPE,'' as DEPOSITER,REMARK,flag,fareacode,fareaName,fcriminal,Frealareacode,FrealAreaName
+                    ,ptype,getdate() as udate,'TH' + [InvoiceNo] as origid,cardtype,TYPEFLAG,0 as acctype,0 as Bankflag,checkflag
+                    ,@CrtBy as checkby,0 as pc,0 as curUserAmount,0 as curAllAmount,0 as PayAuditFlag,0 as [FinancePayFlag],0 as [BankInterfaceFlag] 
+                    from T_Invoice where AmountB<>0 and INVOICENO in(" + strInvoices + ");");
+
+            strSql.Append(@"update t_criminal_card set AmountA=AmountA+b.A,AmountB=AmountB+b.B from t_criminal_card a
+                    ,(select fcrimecode,sum(AmountA) as A,sum(AmountB) as B from T_Invoice where  INVOICENO in(" + strInvoices + @") group by fcrimecode ) b 
+                                    where a.fcrimecode=b.fcrimecode;");//更新账户余额
+
+            //标记为退货
+            strSql.Append("update T_Invoice set Remark='该订单已全部退货.'+isnull(Remark,'') where INVOICENO in(" + strInvoices + ");");
+
+            using (IDbConnection conn = new SqlConnection(SqlHelper.getConnstr()))
+            {
+                conn.Open();
+                IDbTransaction myTran = conn.BeginTransaction();
+                object paramInvoice = new { InvoiceNo = strInvoices, CrtBy = crtby };
+                try
+                {
+                    int i = conn.Execute(strSql.ToString(), paramInvoice, myTran);
+                    myTran.Commit();
+                    return true;
+                }
+                catch
+                {
+                    myTran.Rollback();
+                    return false;
+                }
+            }
+        }
+
+
         public string AddTuiHuoOrder(List<T_InvoiceDTL> models, string crtby, string ipLastCode)
         {         
 
@@ -660,8 +768,11 @@ namespace SelfhelpOrderMgr.DAL
                 strSql.Append(");");
         
                 //更新金额
-                strSql.Append("Update t_criminal_card set AmountA=AmountA+"+ sumAmount +" where fcrimecode='"+ criminal.FCode +"'");                
-                
+                strSql.Append("Update t_criminal_card set AmountA=AmountA+"+ sumAmount +" where fcrimecode='"+ criminal.FCode +"'");
+
+                //标记为退货
+                strSql.Append($"update T_Invoice set Remark='该订单已部分退货.'+isnull(Remark,'') where INVOICENO ='{models[0].INVOICENO}';");
+
                 IDbTransaction myTran = conn.BeginTransaction();
                 try
                 {

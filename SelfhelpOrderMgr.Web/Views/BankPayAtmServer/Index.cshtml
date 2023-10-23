@@ -1,0 +1,267 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>代发记录</title>
+    @{Html.RenderPartial("~/Views/Shared/_PartialHeadPage.cshtml");}
+    <style type="text/css">
+        form {
+            margin: 0;
+            padding: 0;
+        }
+
+        .dv-table td {
+            border: 0;
+        }
+
+        .dv-table input {
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body class="easyui-layout">
+
+    @*<h4>银行转账支付管理</h4>*@
+
+    <div data-options="region:'center',title:'转账结算记录'" style="padding:5px;height:95%;">
+        <div data-options="region:'north',title:'North Title',split:true" style="height:43%;">
+
+            <table id="tbPay" class="easyui-datagrid" style="width:100%;height:260px" toolbar="#toolBarPay_11"></table>
+            <div id="toolBarPay_11" style="padding:5px;height:auto;">
+                <div style="margin-bottom:5px">
+                    <a href="#" id="btnAdd" class="easyui-linkbutton" iconcls="icon-add" plain="true" onclick="$('#winCustList').window('open')">创建对账单</a><label>|</label>
+                    @if (ViewData["id"].ToString() == "1")
+                    {
+
+                    }
+                    else
+                    {
+                        <a href="#" id="btnSubmit" class="easyui-linkbutton" iconcls="icon-ok" plain="true" onclick="SubmitMain()">审核主单</a><label>|</label>
+                    }
+
+                    <a href="#" id="btnDel" class="easyui-linkbutton" iconcls="icon-cancel" plain="true" onclick="DeleteMain()">删除主单</a><label>|</label>
+                    <a href="javascript:void(0)" id="mb" class="easyui-menubutton"
+                       data-options="menu:'#mmp',iconCls:'icon-print'">打印报表</a>
+                    <div id="mmp" style="width:150px;">
+                        <div class="menu-sep"></div>
+                        <div data-options="iconCls:'icon-reload'" onclick="btnPrintATMReport(0)">ATM机对账报表</div>
+                    </div> <label>|</label>
+
+                </div>
+            </div>
+
+
+
+        </div>
+
+        <div data-options="region:'south',title:'South Title',split:true" style="height:55%;">
+            <table id="tbPayDetail" class="easyui-datagrid" style="width:100%;height:53%"></table>
+        </div>
+
+
+
+    </div>
+
+
+    <div id="winCustList" class="easyui-window" title="创建对账单" style="width:800px;height:450px"
+         data-options="iconCls:'icon-reload',modal:true">
+        <form method="post" id="createPayOrder">
+            <table>
+                <tr>
+                    <th>建档日期</th>
+                    <td>
+                        <input class="easyui-datetimebox" id="wselCrtDate_Start" name="CrtDate_Start"
+                               data-options="required:true,showSeconds:false" value="3/4/2010 0:0" style="width:135px">
+                    </td>
+                    <th>至</th>
+                    <td>
+                        <input class="easyui-datetimebox" id="wselCrtDate_End" name="CrtDate_End"
+                               data-options="required:true,showSeconds:false" value="3/4/2010 23:59" style="width:135px">
+                    </td>
+                    <th>付款摘要</th>
+                    <td>
+                        <input class="easyui-textbox" id="wselPurposeInfo" name="PurposeInfo" style="width:135px" />
+                    </td>
+                </tr>
+                <tr>
+                    <th>取款日期</th>
+                    <td>
+                        <input class="easyui-datetimebox" id="wselTranDate_Start" name="TranDate_Start"
+                               data-options="required:true,showSeconds:false" value="3/4/2010 0:0" style="width:135px">
+                    </td>
+                    <th>至</th>
+                    <td>
+                        <input class="easyui-datetimebox" id="wselTranDate_End" name="TranDate_End"
+                               data-options="required:true,showSeconds:false" value="3/4/2010 23:59" style="width:135px">
+                    </td>
+                    <th>审核人</th>
+                    <td>
+                        <input class="easyui-textbox" id="wselAuditBy" name="AuditBy" style="width:135px" />
+                    </td>
+                </tr>
+
+                <tr>
+                    <td colspan="4"></td>
+                    <td align="right">
+                        <a id="btn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-search'" onclick="wselSelectInvs()">查询</a>
+                        <a id="btn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-reload'" onclick="$('#createPayOrder').form('clear');">清空</a>
+                    </td>
+
+                </tr>
+            </table>
+        </form>
+        <div>
+            <div style="width:70%;float:left">
+                <table id="invDetails"></table>
+            </div>
+
+            <div style="width:29%;float:right;">
+                <form>
+                    <label><strong>主单编辑区：</strong></label>
+                    <table>
+                        <tr>
+                            <th>选择</th>
+                            <td>
+                                <a id="btn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-more'" onclick="wSelectAll()">全选(所有记录)</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>摘要说明</th>
+                            <th>
+                                <textarea rows="12" id="paymainTotalDesc" name="TotalDesc" style="width:135px"></textarea>
+                            </th>
+                        </tr>
+                        <tr>
+                            <th></th>
+                            <td>
+                                <a id="btn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-ok'" onclick="wLoadCrtPayMainList()">确定创建</a>
+                            </td>
+                        </tr>
+                    </table>
+                </form>
+
+
+            </div>
+        </div>
+
+    </div>
+
+
+    <div data-options="region:'east',title:'查询条件',split:true" style="width:300px;">
+        <div data-options="region:'north',title:'North Title',split:true" style="height:580px;">
+            <form method="post" id="formPaySearch">
+                <table>
+                    <tr>
+                        <th align="right">Id：</th>
+                        <td align="left">
+                            <input class="easyui-numberbox" id="paySearchId" name="Id"
+                                   data-options="min:0,precision:0" style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">经办人：</th>
+                        <td align="left">
+                            <input class="easyui-textbox" id="paySearchCrtBy" name="CrtBy"
+                                   style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">创建起日：</th>
+                        <td align="left">
+                            <input class="easyui-datetimebox" id="paySearchCrtDate_Start" name="CrtDate_Start"
+                                   data-options="required:true,showSeconds:false" value="3/4/2010 00:00" style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">创建止日：</th>
+                        <td align="left">
+                            <input class="easyui-datetimebox" id="paySearchCrtDate_End" name="CrtDate_End"
+                                   data-options="required:true,showSeconds:false" value="3/4/2010 23:59" style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">用途描述：</th>
+                        <td align="left">
+                            <input class="easyui-textbox" id="paySearcTotalDesc" name="TotalDesc"
+                                   style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">金额：</th>
+                        <td align="left">
+                            <input class="easyui-textbox" id="paySearchAmount" name="Amount"
+                                   style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">审核人：</th>
+                        <td align="left">
+                            <input class="easyui-textbox" id="paySearchAuditBy" name="AuditBy"
+                                   style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">审核起日：</th>
+                        <td align="left">
+                            <input class="easyui-datetimebox" id="paySearchAuditDate_Start" name="AuditDate_Start"
+                                   data-options="required:true,showSeconds:false" value="3/4/2010 00:00" style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">审核止日：</th>
+                        <td align="left">
+                            <input class="easyui-datetimebox" id="paySearchAuditDate_End" name="AuditDate_End"
+                                   data-options="required:true,showSeconds:false" value="3/4/2010 23:59" style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">付款经办人：</th>
+                        <td align="left">
+                            <input class="easyui-textbox" id="paySearchPayBy" name="PayBy"
+                                   style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">付款起日：</th>
+                        <td align="left">
+                            <input class="easyui-datetimebox" id="paySearchPayDate_Start" name="PayDate_Start"
+                                   data-options="required:true,showSeconds:false" value="3/4/2010 00:00" style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">付款止日：</th>
+                        <td align="left">
+                            <input class="easyui-datetimebox" id="paySearchPayDate_End" name="PayDate_End"
+                                   data-options="required:true,showSeconds:false" value="3/4/2010 23:59" style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">其他备注：</th>
+                        <td align="left">
+                            <input class="easyui-textbox" id="paySearchRemark" name="Remark"
+                                   style="width:190px">
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th align="right"></th>
+                        <td align="right"><a id="btn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-search'" onclick="btnPaySearch()">查询</a><a id="A1" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-redo'" onclick="btnPayClear()">清空</a></td>
+                    </tr>
+
+                </table>
+            </form>
+        </div>
+    </div>
+
+    <script src="~/Scripts/myJs/LodopFuncs.js"></script>
+    <script src="~/Scripts/EasyUI/jquery.easyui.datagrid-detailview.js"></script>
+    <script src="~/Scripts/myJs/CommonEasyUIHelper.js"></script>
+    <script src="~/Scripts/myJs/CommonFormHelper.js"></script>
+    <script src="~/Scripts/myJs/BankPayAtmServerIndex.js"></script>
+</body>
+</html>

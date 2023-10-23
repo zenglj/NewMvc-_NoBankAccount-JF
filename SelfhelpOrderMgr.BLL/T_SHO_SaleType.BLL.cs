@@ -93,9 +93,9 @@ namespace SelfhelpOrderMgr.BLL
                 for (int n = 0; n < rowsCount; n++)
                 {
                     model = new SelfhelpOrderMgr.Model.T_SHO_SaleType();
-                    if (dt.Rows[n]["ID"].ToString() != "")
+                    if (dt.Rows[n]["Id"].ToString() != "")
                     {
-                        model.ID = int.Parse(dt.Rows[n]["ID"].ToString());
+                        model.Id = int.Parse(dt.Rows[n]["Id"].ToString());
                     }
                     model.PType = dt.Rows[n]["PType"].ToString();
                     if (dt.Rows[n]["TypeFlagId"].ToString() != "")
@@ -120,6 +120,12 @@ namespace SelfhelpOrderMgr.BLL
                         model.Fifoflag = int.Parse(dt.Rows[n]["Fifoflag"].ToString());
                     }
 
+                    if (dt.Rows[n]["UseType"].ToString() != "")
+                    {
+                        model.UseType = int.Parse(dt.Rows[n]["UseType"].ToString());
+                    }
+
+                    model.ControlName = dt.Rows[n]["ControlName"].ToString();
 
                     modelList.Add(model);
                 }

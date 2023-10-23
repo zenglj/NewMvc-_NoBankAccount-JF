@@ -251,11 +251,11 @@ function SetAuditDiv(row) {
 //没有银行的记录审核入账
 function btnAuditBankRec() {
     if ($('#addFCrimeCode').val() == "") {
-        $.message.alert("罪犯编号不能为空");
+        $.messager.alert("罪犯编号不能为空");
         return false;
     }
     if ($('#addFCrimeName').val() == "") {
-        $.message.alert("罪犯姓名不能为空");
+        $.messager.alert("罪犯姓名不能为空");
         return false;
     }
     $('#ffBankRecAudit').form({
@@ -291,16 +291,20 @@ function btnAuditBankRec() {
 
 //网银退回个人账户
 function btnReturnPersonalAccount() {
-    if ($('#addFCrimeCode').val() == "") {
-        $.message.alert("提示","罪犯编号不能为空");
-        return false;
+    if ($("#forceCheckFlag").combobox('getValue') != 2) {
+        if ($('#addFCrimeCode').val() == "") {
+            $.messager.alert("提示", "罪犯编号不能为空");
+            return false;
+        }
+
+        if ($('#addFCrimeName').val() == "") {
+            $.messager.alert("提示", "罪犯姓名不能为空");
+            return false;
+        }
     }
-    if ($('#addFCrimeName').val() == "") {
-        $.message.alert("提示","罪犯姓名不能为空");
-        return false;
-    }
+    
     if ($('#addFRemark').val() == "") {
-        $.message.alert("提示","备注信息不能为空");
+        $.messager.alert("提示","备注信息不能为空");
         return false;
     }
     $('#ffBankRecAudit').form({
@@ -338,7 +342,7 @@ function btnReturnPersonalAccount() {
 function btnReturnToBack() {
 
     if ($('#addFRemark').val() == "") {
-        $.message.alert("提示", "备注信息不能为空");
+        $.messager.alert("提示", "备注信息不能为空");
         return false;
     }
     $('#ffBankRecAudit').form({

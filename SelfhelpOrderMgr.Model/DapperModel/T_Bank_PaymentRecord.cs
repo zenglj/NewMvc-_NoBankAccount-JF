@@ -33,5 +33,10 @@ namespace SelfhelpOrderMgr.Model
         public string BankCNAPS { get; set; }
         public string OpeningBank { get; set; }
         public string OutBankRemark { get; set; }
+
+
+        //ATM服务清算字段
+        public int? AtmSrvId { get; set; }
+        public int AtmSrvPayFlag { get; set; }
     }
 }

@@ -86,6 +86,11 @@ namespace SelfhelpOrderMgr.BLL
             return new CommTableInfoDAL().ExecSql(Sql);
         }
 
+        public bool InsertListToDB<T>(List<T> list) where T : BaseModel
+        {
+            return new BaseDapperDAL().Insert<T>(list);
+        }
+
         #region 通过方法的封装
         /// <summary>
         /// 判断用户是否有犯人的管理权限

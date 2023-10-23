@@ -7,19 +7,19 @@
                 <div>
                     <div style="height:40px;"></div>
                     <div>
-                        <a  class="btn btn-link" href="/Message/Index"><span class="glyphicon glyphicon-envelope colorWhite" aria-hidden="true"> 通知消息(New)</span></a>
+                        <a class="btn btn-link" href="/Message/Index"><span class="glyphicon glyphicon-envelope colorWhite" aria-hidden="true"> 通知消息(New)</span></a>
                     </div>
-                </div>                
+                </div>
             </div>
         </div>
     </div>
     <div class="container">
         <div class="navbar-header">
             @*<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>*@
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>*@
             @Html.ActionLink("易购在线，欢迎您", "Index", "Home", null, new { @class = "navbar-brand" })
         </div>
         <div class="navbar-collapse collapse">
@@ -39,13 +39,13 @@
                         {
                             foreach (SelfhelpOrderMgr.Model.T_SHO_SaleType saletype in ViewData["saleTypes"] as List<SelfhelpOrderMgr.Model.T_SHO_SaleType>)
                             {
-                                if (saletype.ID > 1)
+                                if (saletype.Id > 1)
                                 {
-                                    <li>@Html.ActionLink(saletype.PType, "PrintCkeck", "Home", new { id = saletype.ID, SaleMode = "Shopping" }, new { target = "_self" })</li>
+                                    <li>@Html.ActionLink(saletype.PType, "PrintCkeck", "Home", new { id = saletype.Id, SaleMode = saletype.ControlName }, new { target = "_self" })</li>
                                 }
                                 else
                                 {
-                                    <li>@Html.ActionLink(saletype.PType, "Index", "Shopping", new { id = saletype.ID }, new { target = "_self" })</li>
+                                    <li>@Html.ActionLink(saletype.PType, "Index", "Shopping", new { id = saletype.Id }, new { target = "_self" })</li>
                                 }
                             }
                         }
@@ -58,13 +58,18 @@
                         {
                             foreach (SelfhelpOrderMgr.Model.T_SHO_SaleType saletype in ViewData["saleTypes"] as List<SelfhelpOrderMgr.Model.T_SHO_SaleType>)
                             {
-                                if (saletype.ID > 1)
+                                string ctrName = "Sales";
+                                if (saletype.ControlName.StartsWith("Jf"))
                                 {
-                                    <li>@Html.ActionLink(saletype.PType, "PrintCkeck", "Home", new { id = saletype.ID, SaleMode = "Sales" }, new { target = "_self" })</li>
+                                    ctrName = "JfSales";
+                                }
+                                if (saletype.Id > 1)
+                                {
+                                    <li>@Html.ActionLink(saletype.PType, "PrintCkeck", "Home", new { id = saletype.Id, SaleMode = ctrName }, new { target = "_self" })</li>
                                 }
                                 else
                                 {
-                                    <li>@Html.ActionLink(saletype.PType, "Index", "Sales", new { id = saletype.ID }, new { target = "_self" })</li>
+                                    <li>@Html.ActionLink(saletype.PType, "Index", "Sales", new { id = saletype.Id }, new { target = "_self" })</li>
                                 }
                             }
                         }
@@ -84,7 +89,7 @@
                                 <li>@Html.ActionLink("队别调整", "areaLogin", "ComApp", new { id = 99, SaleMode = "Sales" }, new { target = "_self" })</li>
                             }
                         }
-                        <li>@Html.ActionLink("自助扣款", "Login", "SelfPayment",new { id = 101, SaleMode = "Sales" }, new { target = "_self" })</li>
+                        <li>@Html.ActionLink("自助扣款", "Login", "SelfPayment", new { id = 101, SaleMode = "Sales" }, new { target = "_self" })</li>
                         <li>@Html.ActionLink("资金冻结", "Login", "SelfDongJie", new { id = 102, SaleMode = "Sales" }, new { target = "_self" })</li>
                         @if (ViewData["cyFlag"] != null)
                         {

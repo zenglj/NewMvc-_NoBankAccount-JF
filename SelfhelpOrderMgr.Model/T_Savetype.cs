@@ -71,7 +71,8 @@ namespace SelfhelpOrderMgr.Model
             get { return _fushuflag; }
             set { _fushuflag = value; }
         }
-
+        //使用类型：0是普通 还是 1是积分消费
+        public int UseType { get; set; }
     }
 }
 

@@ -108,6 +108,8 @@
         });
         function loginCheck() {
             var pwdBase64 = base64encode($('#FPwd').val());
+            //var pwdBase64 = $('#FPwd').val();
+
             $.post('/Admin/LoginCheck', { "FName": $('#FName').val(), "FPwd": pwdBase64 },
                 function (data, status) {
                     if ('success' != status) {

@@ -197,6 +197,75 @@ function SalesOrderReturn() {
 
 }
 
+
+function IsMoreThirtyDay(firstDate, secondDate) {
+    //let first = this.data.date  //开始时间
+    //let second = e.detail.value  //结束时间
+    var data1 = Date.parse(firstDate.replace(/-/g, "/"));
+    var data2 = Date.parse(secondDate.replace(/-/g, "/"));
+    var datadiff = data2 - data1;
+    var time = 31 * 24 * 60 * 60 * 1000;
+    console.log(firstDate.length)
+    console.log(secondDate.length)
+    if (firstDate.length > 0 && secondDate.length > 0) {
+        if (datadiff < 0 || datadiff > time) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+}
+
+
+//积分整单退货
+//撤单
+function SalesOrderAllReturn() {
+    $.messager.confirm('提示', '您真要对执行退货操作吗?', function (r) {
+        if (r) {
+            var rows = $("#test").datagrid("getSelections");
+            var selectRows = "";
+
+            if (rows.length > 0) {
+                $.messager.confirm('提示', '记录一共有' + rows.length + '条，对吗？', function (r) {
+                    if (r) {
+                        for (var i = 0; i < rows.length; i++) {
+                            if (IsMoreThirtyDay(rows[i].OrderDate, Date())) {
+                                $.messager.alert("提示", rows[i].InvoiceNo + ",消费时间超过30天不能退货");
+                                return false;
+                            }
+                            if (selectRows == "") {
+                                selectRows = rows[i].InvoiceNo;
+                            } else {
+                                selectRows = selectRows + "|" + rows[i].InvoiceNo;
+                            }
+                        }
+
+                        $.post("/Super/SalesOrderAllReturn", { "Invoices": selectRows }, function (data, status) {
+                            if (status != "success") {
+                                return false;
+                            } else {
+                                var words = data.split("|");
+                                if (words[0] == "OK") {
+                                    $.messager.alert("提示", "退货成功请重新查询");
+                                } else {
+                                    $.messager.alert("提示", data);
+                                }
+                            }
+                        });
+                    }
+                });
+
+
+            } else {
+                $.messager.alert("提示", "请至少选择一行记录");
+                return false;
+            }
+        }
+    });
+}
+
+
+
 //增加退货明细
 function btnAddList() {
     if ($('#returnCount').numberbox("getValue") == "") {

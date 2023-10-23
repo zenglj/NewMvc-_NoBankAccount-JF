@@ -26,24 +26,35 @@ namespace SelfhelpOrderMgr.YuZhengJieKou
             ServiceInterface srv = new ServiceInterface(username,password,_baseUrl,_zfzt);
 
             //var rs = srv.startService();
-            //获取人员基本信息
-            var rs = srv.GetJbxxList(_zfzt);
-            Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(rs));
-            //获取字典信息
-            rs = srv.GetDictDataList(_searchDicts);
-            Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(rs));
+
+            if(srv.loginFlag)
+            {
+                //获取字典信息
+                var rs = srv.GetDictDataList(_searchDicts);
+                Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(rs));
+
+                //获取队别信息
+                rs = srv.GetDeptList();
+                Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(rs));
+
+                //获取人员基本信息
+                rs = srv.GetJbxxList(_zfzt);
+                Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(rs));
+
+
+                //获取社会关系
+                rs = srv.GetShgxList();
+                Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(rs));
+
+                Console.WriteLine("恭喜！信息已经同步完成。");
+            }
+            else
+            {
+                Console.WriteLine("错误！请检查用户信息或网络是否正常。");
+            }
             
-            //获取队别信息
-            rs = srv.GetDeptList();
-            Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(rs));
 
-            //获取社会关系
-            rs = srv.GetShgxList();
-            Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(rs));
-
-            Console.WriteLine("恭喜！信息已经同步完成。");
-
-            Thread.Sleep(5000);
+            Thread.Sleep(10000);
             //Console.ReadKey();
 
 

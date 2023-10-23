@@ -1,0 +1,191 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>总账清单</title>
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Content/buttons.css" rel="stylesheet" />
+    <link href="~/Content/PrintReportCss.css" rel="stylesheet" />
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="page-header ">
+            <h1 class="text-center">滞留统计报表 <small>分类统计报表</small></h1>
+
+        </div>
+        <div class="row">
+            @if (ViewData["customTimeArea"] != null)
+            {
+                SelfhelpOrderMgr.Web.Models.CustomTimeArea cs = ViewData["customTimeArea"] as SelfhelpOrderMgr.Web.Models.CustomTimeArea;
+                <div class="col-sm-9"><strong>统计日期：</strong>@cs.CrtDate_Start.ToString("yyyy-MM-dd HH:mm:ss") 至 @cs.CrtDate_End.ToString("yyyy-MM-dd HH:mm:ss")</div>
+            }
+            <div class="col-sm-3"><strong>打印日期:</strong>@DateTime.Now.ToString("yyyy-MM-dd")</div>
+
+        </div>
+
+        <div class="row">
+
+            <div class="col-sm-12">
+                @if (ViewData["res"] != null)
+                {
+                    var res = ViewData["res"] as List<SelfhelpOrderMgr.Model.T_Bank_RetentionAmount>;
+                    var gp = res.GroupBy(x => new { x.OrderStatus })
+                .Select(g => new
+                {
+                    OrderStatus = g.Key.OrderStatus,
+                    Amount = g.Sum(t => t.Amount),
+                }).ToList();
+
+
+                    <table class="table table-bordered">
+                        <thead>
+                            @foreach (var item in gp)
+                            {
+                                string strStatus = "[其他]";
+                                if (item.OrderStatus == 0)
+                                {
+                                    strStatus = "[待处理]";
+                                }
+                                else if (item.OrderStatus == 1)
+                                {
+                                    strStatus = "[已入账]";
+                                }
+                                else if(item.OrderStatus == 2)
+                                {
+                                    strStatus = "[已退回]";
+                                }
+                            <tr style="font-size:large">                            
+                                <th colspan="3">@strStatus (小计)：</th>
+                                <td>@item.Amount</td>
+                                <td colspan="10"></td>
+                            </tr>
+                            }
+
+
+                        <tr>
+                            <th>Id</th>
+                            <th>狱号</th>
+                            <th>姓名</th>
+                            <th>建档日期</th>
+                            <th>类型</th>
+                            <th>原因</th>
+                            <th>金额</th>
+                            <th>历史单号</th>
+                            <th>操作员</th>
+                            <th>状态</th>
+                            <th>审核人</th>
+                            <th>审核日期</th>
+                            <th>结果</th>
+                            <th>摘要备注</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                            @if (ViewData["res"] != null)
+                            {
+                                var ls = ViewData["res"] as List<SelfhelpOrderMgr.Model.T_Bank_RetentionAmount>;
+
+                                decimal sAmount = 0;
+                                int rowId = 1;
+                                foreach (var item in ls)
+                                {
+                                    sAmount += item.Amount;
+
+                                    string strStatus = "其他未知";
+                                    if (item.OrderStatus == 0)
+                                    {
+                                        strStatus = "待处理";
+                                    }
+                                    else if (item.OrderStatus == 1)
+                                    {
+                                        strStatus = "已入账";
+                                    }
+                                    else if (item.OrderStatus == 2)
+                                    {
+                                        strStatus = "已退回";
+                                    }
+
+                            <tr>
+                                <td class="text-center">@rowId</td>
+                                <td>@item.FCrimeCode</td>
+                                <td>@item.FName</td>
+                                <td>@item.CrtDate.ToString("yyyyMMdd")</td>
+                                <td>@item.TypeName</td>
+                                <td>@item.CauseDesc</td>
+                                <td>@item.Amount</td>
+                                <td>@item.HistoryOrderNO</td>
+                                <td>@item.CrtBy</td>
+                                <td>@strStatus</td>
+                                <td>@item.ModifyBy</td>
+                                <td>@(item.ModifyDate == null?"":((DateTime)item.ModifyDate).ToString("yyyyMMdd"))</td>
+                                <td>@item.ResultDesc</td>
+                                <td>@item.Remark</td>
+                            </tr>
+                                    rowId++;
+                                }
+
+                        <tr>
+                            <th>合计</th>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td>@sAmount</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                            }
+
+
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Id</th>
+                                <th>狱号</th>
+                                <th>姓名</th>
+                                <th>建档日期</th>
+                                <th>类型</th>
+                                <th>原因</th>
+                                <th>金额</th>
+                                <th>历史单号</th>
+                                <th>操作员</th>
+                                <th>状态</th>
+                                <th>审核人</th>
+                                <th>审核日期</th>
+                                <th>结果</th>
+                                <th>摘要备注</th>
+                            </tr>
+                        </thead>
+
+                    </table>
+                }
+            </div>
+            <div class="col-sm-2">
+
+            </div>
+        </div>
+
+
+    </div>
+    <script src="~/Scripts/jquery-1.11.3.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <script src="~/Scripts/myJs/commonJs.js"></script>
+
+</body>
+</html>

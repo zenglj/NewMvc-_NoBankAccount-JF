@@ -42,6 +42,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
+    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="ICSharpCode.SharpZipLib, Version=1.0.0.999, Culture=neutral, PublicKeyToken=1b03e6acf1164f73, processorArchitecture=MSIL">
@@ -225,6 +226,7 @@
     <Compile Include="CommonHeler\LicenseHelper.cs" />
     <Compile Include="CommonHeler\MD5Process.cs" />
     <Compile Include="CommonHeler\RegexHelper.cs" />
+    <Compile Include="CommonHeler\SocketHelper.cs" />
     <Compile Include="CommonHeler\WebServiceHelper.cs" />
     <Compile Include="CommonHeler\XMLSerilazerHelper_Ext.cs" />
     <Compile Include="CommonHeler\XMLSerilazerHelper.cs" />
@@ -232,6 +234,7 @@
     <Compile Include="Controllers\AdminController.cs" />
     <Compile Include="Controllers\BankATMController.cs" />
     <Compile Include="Controllers\BankAtmMgrController.cs" />
+    <Compile Include="Controllers\BankPayAtmServerController.cs" />
     <Compile Include="Controllers\BankPaymentController.cs" />
     <Compile Include="Controllers\BankRcvPayController.cs" />
     <Compile Include="Controllers\BankRptController.cs" />
@@ -252,6 +255,13 @@
     <Compile Include="Controllers\GoodsController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\InfomgrController.cs" />
+    <Compile Include="Controllers\JfAssignMainController.cs" />
+    <Compile Include="Controllers\JfBaochouController.cs" />
+    <Compile Include="Controllers\JfCashPayController.cs" />
+    <Compile Include="Controllers\JfConsumePrintController.cs" />
+    <Compile Include="Controllers\JfLaobaoController.cs" />
+    <Compile Include="Controllers\JfReportController.cs" />
+    <Compile Include="Controllers\JfSalesController.cs" />
     <Compile Include="Controllers\JfShoppingController.cs" />
     <Compile Include="Controllers\LaobaoController.cs" />
     <Compile Include="Controllers\LBExcelCheckController.cs" />
@@ -267,6 +277,7 @@
     <Compile Include="Controllers\PowerController.cs" />
     <Compile Include="Controllers\RegMgrController.cs" />
     <Compile Include="Controllers\ReportController.cs" />
+    <Compile Include="Controllers\RetentionAmountController.cs" />
     <Compile Include="Controllers\SalesController.cs" />
     <Compile Include="Controllers\SelfDongJieController.cs" />
     <Compile Include="Controllers\SelfPaymentController.cs" />
@@ -294,7 +305,11 @@
     </Compile>
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\BankMonthReportModel.cs" />
+    <Compile Include="Models\CustomTimeArea.cs" />
+    <Compile Include="Models\FaceCheckResult.cs" />
     <Compile Include="Models\IdentityModels.cs" />
+    <Compile Include="Models\LaobaoEntity.cs" />
+    <Compile Include="Models\PhotoEntity.cs" />
     <Compile Include="Models\ShoppingEntity.cs" />
     <Compile Include="Models\XmlB2e0012.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -407,6 +422,7 @@
     <Content Include="Content\responsive-nav.css" />
     <Content Include="Content\site.min.css" />
     <Content Include="Content\style.css" />
+    <Content Include="Content\timeline.css" />
     <Content Include="Content\xiaopiaodan.css" />
     <Content Include="Content\zTree.css" />
     <Content Include="Content\zTree.min.css" />
@@ -847,6 +863,39 @@
     <Content Include="Scripts\jquery.validate.unobtrusive.min.js" />
     <Content Include="Scripts\jquery.wmuSlider.js" />
     <Content Include="Scripts\myJs\BankAtmMgrIndex.js" />
+    <Content Include="Scripts\myJs\RetentionAmountIndex.js" />
+    <Content Include="Scripts\myJs\BankPayAtmServerIndex.js" />
+    <Content Include="Scripts\myJs\CommonEasyUIHelper.js" />
+    <Content Include="Scripts\myJs\CommonFormHelper.js" />
+    <Content Include="Scripts\myJs\facejs\ccv.js" />
+    <Content Include="Scripts\myJs\facejs\clmtrackr.js" />
+    <Content Include="Scripts\myJs\facejs\common.js" />
+    <Content Include="Scripts\myJs\facejs\eye-min.js" />
+    <Content Include="Scripts\myJs\facejs\face-min.js" />
+    <Content Include="Scripts\myJs\facejs\face.js" />
+    <Content Include="Scripts\myJs\facejs\index.js" />
+    <Content Include="Scripts\myJs\facejs\init.js" />
+    <Content Include="Scripts\myJs\facejs\jquery-3.5.1.min.js" />
+    <Content Include="Scripts\myJs\facejs\mouth-min.js" />
+    <Content Include="Scripts\myJs\facejs\readyPageInit.js" />
+    <Content Include="Scripts\myJs\facejs\scripts.js" />
+    <Content Include="Scripts\myJs\facejs\stackblur.js" />
+    <Content Include="Scripts\myJs\facejs\track.js" />
+    <Content Include="Scripts\myJs\facejs\tracking-min.js" />
+    <Content Include="Scripts\myJs\facejs\tracking.js" />
+    <Content Include="Scripts\myJs\facejs\utils.js" />
+    <Content Include="Scripts\myJs\facejs\vconsole.min.js" />
+    <Content Include="Scripts\myJs\jfAssignMainIndex.js" />
+    <Content Include="Scripts\myJs\jfBaochouMgr.js" />
+    <Content Include="Scripts\myJs\jfBcParamSetting.js" />
+    <Content Include="Scripts\myJs\JfCashPay.js" />
+    <Content Include="Scripts\myJs\jfCustomerPrint.js" />
+    <Content Include="Scripts\myJs\JfIndexExcelDR.js" />
+    <Content Include="Scripts\myJs\jfLaobaoInput.js" />
+    <Content Include="Scripts\myJs\jfOrderCommon.js" />
+    <Content Include="Scripts\myJs\jfOrderSales.js" />
+    <Content Include="Scripts\myJs\jfOrderShopping.js" />
+    <Content Include="Scripts\myJs\jfReportIndex.js" />
     <Content Include="Scripts\myJs\LogMgr.js" />
     <Content Include="Scripts\myJs\BankSumReport.js" />
     <Content Include="Scripts\myJs\CriminalMgr.js" />
@@ -1176,6 +1225,37 @@
     <Content Include="Views\JfShopping\Index.cshtml" />
     <Content Include="Views\Laobao\CSJY_PrintReportList.cshtml" />
     <Content Include="Views\Laobao\PrintReportTotalList.cshtml" />
+    <Content Include="Views\Home\WebCamTest3.cshtml" />
+    <Content Include="Views\JfAssignMain\Index.cshtml" />
+    <Content Include="Views\JfBaochou\BaochouMgr.cshtml" />
+    <Content Include="Views\JfBaochou\Index.cshtml" />
+    <Content Include="Views\JfCashPay\Index.cshtml" />
+    <Content Include="Views\JfCashPay\IndexExcelDR.cshtml" />
+    <Content Include="Views\JfCashPay\Payment.cshtml" />
+    <Content Include="Views\JfCashPay\PrintSavePayList.cshtml" />
+    <Content Include="Views\JfConsumePrint\Index.cshtml" />
+    <Content Include="Views\JfConsumePrint\PrintAllXiaofeiDan.cshtml" />
+    <Content Include="Views\JfConsumePrint\PrintRowSumOrder.cshtml" />
+    <Content Include="Views\JfConsumePrint\PrintSumOrder.cshtml" />
+    <Content Include="Views\JfConsumePrint\PrintXiaofeiDan.cshtml" />
+    <Content Include="Views\JfLaobao\Index.cshtml" />
+    <Content Include="Views\JfLaobao\PrintReportList.cshtml" />
+    <Content Include="Views\JfReport\CreateIcCardList.cshtml" />
+    <Content Include="Views\JfReport\Index.cshtml" />
+    <Content Include="Views\JfReport\PrintCriminalSumOrder.cshtml" />
+    <Content Include="Views\JfReport\PrintIcCardList.cshtml" />
+    <Content Include="Views\JfSales\Index.cshtml" />
+    <Content Include="Views\JfSales\Medicine.cshtml" />
+    <Content Include="Views\JfShopping\NoAtShoppingTime.cshtml" />
+    <Content Include="Views\JfShopping\StopShoppingNotice.cshtml" />
+    <Content Include="Views\JfShopping\_PartialNumberKeyBoard.cshtml" />
+    <Content Include="Views\JfShopping\_PartialRoomNoKeyBoard.cshtml" />
+    <Content Include="Views\JfShopping\_Partial_InputRoomNo.cshtml" />
+    <Content Include="Views\BankPayment\PrintPayMentAtmReport.cshtml" />
+    <Content Include="Views\BankPayAtmServer\Index.cshtml" />
+    <Content Include="Views\BankPayAtmServer\PrintPayMentAtmReport.cshtml" />
+    <Content Include="Views\RetentionAmount\Index.cshtml" />
+    <Content Include="Views\RetentionAmount\PrintDetailReport.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

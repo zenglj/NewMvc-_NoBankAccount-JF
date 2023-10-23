@@ -19,7 +19,7 @@ namespace SelfhelpOrderMgr.Model
         public string AmountC { get; set; }
         public string AllMoney { get; set; }
         public string BankAccNo { get; set; }
-        
+        public string AccPoints { get; set; }
 
     }
 }

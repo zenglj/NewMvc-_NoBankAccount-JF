@@ -17,7 +17,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
     [MyLogActionFilterAttribute]
     public class BaseInfoMgrController : BaseController
     {
-        //
+        //基础Dapper类
+        BaseDapperBLL _baseDapperBLL = new BaseDapperBLL();
         // GET: /BaseInfoMgr/
         JavaScriptSerializer jss = new JavaScriptSerializer();
         public ActionResult Index()
@@ -30,7 +31,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
         public ActionResult AreaMgr()
         {
             //商品类别
-            List<T_GoodsType> goodtypes = new T_GoodsTypeBLL().GetModelList("");
+            //商品类别
+            List<T_GoodsType> goodtypes = _baseDapperBLL.GetModelList<T_GoodsType>("", "Id asc", 200);
             ViewData["goodtypes"] = goodtypes;
 
             //消费类型
@@ -86,9 +88,9 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 JArray ja = (JArray)JsonConvert.DeserializeObject(inserted);
                 if (ja.Count > 0)
                 {
-                    List<T_AREA> models = SetAreaInfo(ja,"Add");
+                    List<T_AREA> models = SetAreaInfo(ja, "Add");
 
-                    Log4NetHelper.logger.Info($"操作人员:{Session["loginUserName"].ToString()}|新增队别，编号：{ string.Join(",", models.Select(o=>o.FName).ToArray())}");
+                    Log4NetHelper.logger.Info($"操作人员:{Session["loginUserName"].ToString()}|新增队别，编号：{ string.Join(",", models.Select(o => o.FName).ToArray())}");
 
                     return Content("OK|" + jss.Serialize(models));
                 }
@@ -105,7 +107,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 JArray ja = (JArray)JsonConvert.DeserializeObject(updated);
                 if (ja.Count > 0)
                 {
-                    List<T_AREA> models = SetAreaInfo(ja,"Update");
+                    List<T_AREA> models = SetAreaInfo(ja, "Update");
                     Log4NetHelper.logger.Warn($"操作人员:{Session["loginUserName"].ToString()}|修改队别，编号：{ string.Join(",", models.Select(o => o.FName).ToArray())}");
 
                     return Content("OK保存成功！");
@@ -116,7 +118,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
             return Content("");
         }
 
-        private static List<T_AREA> SetAreaInfo(JArray ja,string action)
+        private static List<T_AREA> SetAreaInfo(JArray ja, string action)
         {
             T_AREA model = new T_AREA();
             foreach (JObject o in ja)
@@ -164,7 +166,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 //    new T_AREABLL().Add(model);
                 //}
 
-                if (action =="Update")
+                if (action == "Update")
                 {
                     bool b = new T_AREABLL().Update(model);
                 }
@@ -182,19 +184,19 @@ namespace SelfhelpOrderMgr.Web.Controllers
         {
             string strRes = "Err|更新失败";
             string flag = Request["flag"];
-            if(string.IsNullOrEmpty(flag))
+            if (string.IsNullOrEmpty(flag))
             {
                 flag = "0";
             }
             string strSql = "update t_Area set SaleCloseFlag='" + flag + "'";
-            if(new CommTableInfoBLL().ExecSql(strSql)>0)
+            if (new CommTableInfoBLL().ExecSql(strSql) > 0)
             {
                 strRes = "OK|更新成功";
             }
-            
+
             return Content(strRes);
         }
-        
+
         #endregion
 
         #region 供应商管理
@@ -302,7 +304,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
             }
             List<T_Supplyer> models = new T_SupplyerBLL().GetModelList("");
             return models;
-        } 
+        }
         #endregion
 
         #region 系统参数管理
@@ -384,7 +386,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 if (ja.Count > 0)
                 {
                     List<T_SHO_ManagerSet> models = SetManagerSetInfo(ja);
-                    Log4NetHelper.logger.Warn($"操作人员:{Session["loginUserName"].ToString()}|修改系统参数，KeyName：{string.Join(",", models.Select(o=>o.KeyName).ToArray())}");
+                    Log4NetHelper.logger.Warn($"操作人员:{Session["loginUserName"].ToString()}|修改系统参数，KeyName：{string.Join(",", models.Select(o => o.KeyName).ToArray())}");
 
                     return Content("OK保存成功！");
                 }
@@ -414,9 +416,9 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 }
                 model.Remark = o["Remark"].ToString();
 
-                if(model.KeyName== "InterestRate")
+                if (model.KeyName == "InterestRate")
                 {
-                    if( Convert.ToDouble(model.MgrValue) > 0.003)
+                    if (Convert.ToDouble(model.MgrValue) > 0.003)
                     {
                         throw new Exception("银行活动利息不能超过千分之三(0.003)");
                     }
@@ -435,21 +437,22 @@ namespace SelfhelpOrderMgr.Web.Controllers
             List<T_SHO_ManagerSet> models = new T_SHO_ManagerSetBLL().GetModelList("");
             return models;
         }
-        
+
         #endregion
 
         #region 存取款类型管理
         //=================存取款类型==========================
         //存取款类型管理
-        public ActionResult SaveTypeMgr()
+        public ActionResult SaveTypeMgr(int id = 0)
         {
+            ViewData["UseTypeId"] = id;
             return View();
         }
 
         //获取存取款类型
-        public ActionResult GetSaveTypeMgr()
+        public ActionResult GetSaveTypeMgr(int id = 0)
         {
-            List<T_Savetype> supplyers = new T_SavetypeBLL().GetModelList("");
+            List<T_Savetype> supplyers = new T_SavetypeBLL().GetModelList("UseType='" + id.ToString() + "'");
             //ViewData["goodtypes"] = goodtypes;
             JavaScriptSerializer jss = new JavaScriptSerializer();
 
@@ -578,8 +581,17 @@ namespace SelfhelpOrderMgr.Web.Controllers
                     model.FuShuFlag = Convert.ToInt32(o["FuShuFlag"].ToString());
                 }
 
-                List<T_Savetype> ls = new T_SavetypeBLL().GetModelList( "fcode="+model.fcode +" and typeflag="+model.typeflag.ToString());
-                if (ls.Count>0)
+                if (string.IsNullOrEmpty(o["UseType"].ToString()))
+                {
+                    model.UseType = 0;
+                }
+                else
+                {
+                    model.UseType = Convert.ToInt32(o["UseType"].ToString());
+                }
+
+                List<T_Savetype> ls = new T_SavetypeBLL().GetModelList("fcode=" + model.fcode + " and typeflag=" + model.typeflag.ToString());
+                if (ls.Count > 0)
                 {
                     bool b = new T_SavetypeBLL().Update(model);
                 }
@@ -591,8 +603,9 @@ namespace SelfhelpOrderMgr.Web.Controllers
             List<T_Savetype> models = new T_SavetypeBLL().GetModelList("");
             return models;
         }
-        
+
         #endregion
+
 
 
         #region 消费的起始日期管理
@@ -618,7 +631,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
         {
             List<T_SHO_SaleType> saleTypes = new T_SHO_SaleTypeBLL().GetModelList("FifoFlag=-1");
 
-            List<comType> comtypes=new List<comType> ();
+            List<comType> comtypes = new List<comType>();
 
             foreach (T_SHO_SaleType a in saleTypes)
             {
@@ -626,11 +639,11 @@ namespace SelfhelpOrderMgr.Web.Controllers
                      new comType()
                      {
                          text = a.PType,
-                         value = a.ID.ToString(),
-                         typeFlag=a.TypeFlagId.ToString()
+                         value = a.Id.ToString(),
+                         typeFlag = a.TypeFlagId.ToString()
                      }
                     );
-            }            
+            }
             JavaScriptSerializer jss = new JavaScriptSerializer();
 
             return Content(jss.Serialize(comtypes));
@@ -749,17 +762,19 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 {
                     model.Flag = Convert.ToInt32(o["Flag"].ToString());
                 }
-                if ( string.IsNullOrEmpty( o["LevelId"].ToString())){
+                if (string.IsNullOrEmpty(o["LevelId"].ToString()))
+                {
                     model.LevelId = 0;
                 }
-                else{
-                    model.LevelId = Convert.ToInt32( o["LevelId"].ToString());
+                else
+                {
+                    model.LevelId = Convert.ToInt32(o["LevelId"].ToString());
                 }
-                
+
                 model.Remark = o["Remark"].ToString();
 
 
-                List<T_SHO_SaleDayList> ls = new T_SHO_SaleDayListBLL().GetModelList("Seqno=" + model.Seqno.ToString() );
+                List<T_SHO_SaleDayList> ls = new T_SHO_SaleDayListBLL().GetModelList("Seqno=" + model.Seqno.ToString());
                 if (ls.Count > 0)
                 {
                     bool b = new T_SHO_SaleDayListBLL().Update(model);
@@ -825,7 +840,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
             {
                 strRes = "Err|没有找到相应的记录";
             }
-            
+
             return Content(strRes);
         }
 
@@ -888,13 +903,13 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 if ("" != o["id"].ToString())
                 {
                     model.id = Convert.ToInt32(o["id"].ToString());
-                }                
+                }
                 model.FName = o["FName"].ToString();
                 //model.FDate = Convert.ToDateTime( o["FDate"].ToString());
                 model.FDate = Convert.ToDateTime(o["FTextDate"].ToString());
                 model.Festival_Name = o["Festival_Name"].ToString();
                 model.Remark = o["Remark"].ToString();
-                
+
 
 
                 List<T_CY_ChinaFestival> ls = new T_CY_ChinaFestivalBLL().GetModelList("id=" + model.id.ToString());
@@ -914,12 +929,12 @@ namespace SelfhelpOrderMgr.Web.Controllers
         #endregion
 
 
-	}
+    }
 
     public class comType
     {
         public string value { get; set; }
         public string text { get; set; }
         public string typeFlag { get; set; }
-    } 
+    }
 }

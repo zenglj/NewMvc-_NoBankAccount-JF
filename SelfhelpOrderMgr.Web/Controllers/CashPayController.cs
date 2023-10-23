@@ -35,11 +35,11 @@ namespace SelfhelpOrderMgr.Web.Controllers
             List<T_Savetype> saveTypes=new List<T_Savetype>();
             if (id == 1)//存款
             {
-                saveTypes = new T_SavetypeBLL().GetModelList("typeFlag=0");
+                saveTypes = new T_SavetypeBLL().GetModelList("typeFlag=0 and isnull(UseType,0)=0");
             }
             else if (id == 2)//取款
             {
-                saveTypes = new T_SavetypeBLL().GetModelList("typeFlag=1");
+                saveTypes = new T_SavetypeBLL().GetModelList("typeFlag=1 and isnull(UseType,0)=0");
             }
             ViewData["saveTypes"] = saveTypes;
 

@@ -57,6 +57,7 @@
         else
         {
             <a class="btn btn-large btn-primary " href="#" role="button" onclick="btnQueryUserInfo('3504013494')">读卡IC卡</a>
+
         }
 
     </div>
@@ -68,13 +69,13 @@
         @if (ViewData["softNumerKeyBoard"].ToString() == "1")
         {
             <div class="col-sm-9">
-            <div class="alert alert-danger" role="alert" id="lblInfo">银行账号：</div>
+                <div class="alert alert-danger" role="alert" id="lblInfo">银行账号：</div>
 
-            @{Html.RenderPartial("~/Views/UserQuery/_PartialQueryList.cshtml");}
-        </div>
-        <div class="col-sm-3" id="div_UserQueryKeyBoard">
-            @{Html.RenderPartial("~/Views/Shopping/_PartialNumberKeyBoard.cshtml");}
-        </div>
+                @{Html.RenderPartial("~/Views/UserQuery/_PartialQueryList.cshtml");}
+            </div>
+            <div class="col-sm-3" id="div_UserQueryKeyBoard">
+                @{Html.RenderPartial("~/Views/Shopping/_PartialNumberKeyBoard.cshtml");}
+            </div>
         }
         else
         {
@@ -82,8 +83,10 @@
                 <div class="alert alert-danger" role="alert" id="lblInfo">银行账号：</div>
                 @{Html.RenderPartial("~/Views/UserQuery/_PartialQueryList.cshtml");}
             </div>
+
+            
         }
-        
+
     </div>
     
 

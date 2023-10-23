@@ -20,7 +20,8 @@ namespace SelfhelpOrderMgr.Model
         public decimal AmountA { get; set; }//A账户原金额
         public decimal AmountB { get; set; }//B账户原金额
         public decimal AmountC { get; set; }//C账户原金额
-
+        public decimal AccPoints { get; set; }//会员积分
+        public decimal XiaoFeiPoints { get; set; }//本月消费积分
 
         //限额方法：
         //1是存款账户限额;

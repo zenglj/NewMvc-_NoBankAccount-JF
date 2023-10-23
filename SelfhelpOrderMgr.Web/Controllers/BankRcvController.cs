@@ -517,7 +517,15 @@ namespace SelfhelpOrderMgr.Web.Controllers
             //return Content(jss.Serialize(rs));
         }
 
-
+        /// <summary>
+        /// 从网银手动原路退回
+        /// </summary>
+        /// <param name="fcrimecode"></param>
+        /// <param name="fcrimename"></param>
+        /// <param name="remark"></param>
+        /// <param name="vchnum"></param>
+        /// <param name="checkFlag"></param>
+        /// <returns></returns>
         public ActionResult SetListForReturnPersonalAccount(string fcrimecode, string fcrimename, string remark, string vchnum, int checkFlag = 1)
         {
             ResultInfo rs = new ResultInfo()
@@ -527,33 +535,53 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 DataInfo = null
             };
 
-            T_Criminal criminal = new T_CriminalBLL().GetModel(fcrimecode);
-            if (criminal == null)
+            string _desc = "";
+            if (checkFlag == 1)
             {
-                rs.Flag = false;
-                rs.ReMsg = "犯人编号不存在";
-                return Content(jss.Serialize(rs));
-            }
 
-            if (criminal.FName != fcrimename)
-            {
-                rs.Flag = false;
-                rs.ReMsg = "犯人编号与姓名不一致";
-                return Content(jss.Serialize(rs));
-            }
-            if (criminal.fflag != 1)
-            {
-                rs.Flag = false;
-                rs.ReMsg = "犯人还在押,不能办理退回";
-                return Content(jss.Serialize(rs));
-            }
-            //var search = new { OrigId = vchnum };
 
-            T_Vcrd _vcrd = new T_VcrdBLL().GetModelList($"OrigId='{vchnum}'").FirstOrDefault();
-            if (_vcrd != null)
+                T_Criminal criminal = new T_CriminalBLL().GetModel(fcrimecode);
+                if (criminal == null)
+                {
+                    rs.Flag = false;
+                    rs.ReMsg = "犯人编号不存在";
+                    return Content(jss.Serialize(rs));
+                }
+
+                if (criminal.FName != fcrimename)
+                {
+                    rs.Flag = false;
+                    rs.ReMsg = "犯人编号与姓名不一致";
+                    return Content(jss.Serialize(rs));
+                }
+                if (criminal.fflag != 1)
+                {
+                    rs.Flag = false;
+                    rs.ReMsg = "犯人还在押,不能办理退回";
+                    return Content(jss.Serialize(rs));
+                }
+                //var search = new { OrigId = vchnum };
+
+                T_Vcrd _vcrd = new T_VcrdBLL().GetModelList($"OrigId='{vchnum}'").FirstOrDefault();
+                if (_vcrd != null)
+                {
+                    rs.Flag = false;
+                    rs.ReMsg = "已经入账到个人中银结算卡账户了，不能退款";
+                    return Content(jss.Serialize(rs));
+                }
+
+                _desc = Session["loginUserName"].ToString() + "_" + $"说明：{remark},编号：{fcrimecode}，姓名:{fcrimename}";
+
+            }
+            else if (checkFlag == 2)
+            {
+                _desc = Session["loginUserName"].ToString() + "_" + $"说明：{remark},[手动强制网银退回]";
+
+            }
+            else
             {
                 rs.Flag = false;
-                rs.ReMsg = "已经入账到个人中银结算卡账户了，不能退款";
+                rs.ReMsg = "传送的入账方式参数不正确";
                 return Content(jss.Serialize(rs));
             }
 
@@ -565,7 +593,6 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 rs.ReMsg = "记录状态不对，不能退款";
                 return Content(jss.Serialize(rs));
             }
-            string _desc = Session["loginUserName"].ToString() + "_" + $"说明：{remark},编号：{fcrimecode}，姓名:{fcrimename}";
             rcv.Remark = _desc;
             rcv.ImportFlag = 3;//3表示网银退回个人
              

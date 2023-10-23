@@ -1,5 +1,8 @@
-﻿using SelfhelpOrderMgr.BLL;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using SelfhelpOrderMgr.BLL;
 using SelfhelpOrderMgr.Model;
+using SelfhelpOrderMgr.Web.Filters;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -12,6 +15,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
 {
     public class JfShoppingController : Controller
     {
+        
+        JifenMgrService _jifenMgrService = new JifenMgrService();
         JavaScriptSerializer jss = new JavaScriptSerializer();
         private int loginSaleId = 1;
         string strLoginUserName = "";
@@ -68,7 +73,9 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
             ViewData["ptype"] = saletype.PType;
             ViewData["saleTypeId"] = saleTypeId;
-            List<T_GoodsType> types = (List<T_GoodsType>)new T_GoodsTypeBLL().GetListOfIEnumerable("SaleTypeId=" + id.ToString() + " and UseType=1");
+            //List<T_GoodsType> types = _jifenMgrService.GetModelList<T_GoodsType>(jss.Serialize(new { SaleTypeId= id, UseType=1 }), "Id asc", 100);
+            List<T_GoodsType> types = _jifenMgrService.QueryList<T_GoodsType>("(SaleTypeId='"+id+"' and UseType =1) or UseType=2");
+
             ViewData["types"] = types;
             string strTypes = "";
 
@@ -263,9 +270,17 @@ namespace SelfhelpOrderMgr.Web.Controllers
             #region 判断是队别是否已经关账停止消费了
             try
             {
-                if (criminal.SaleCloseFlag == 1)
+                //超市消费
+                //if (criminal.SaleCloseFlag == 1)
+                //{
+                //    return Content("Error|您所在队别已经停止消费下单了，请下个月再来购买");
+                //}
+
+                //积分消费
+                T_AREA tarea = new T_AREABLL().GetModelList($"FCode ='{criminal.FAreaCode}'").FirstOrDefault();
+                if (tarea.JiFenCloseFlag == 1)
                 {
-                    return Content("Error|您所在队别已经停止消费下单了，请下个月再来购买");
+                    return Content("Error|您所在队别已经停止【积分消费】了，请下个月再来购买");
                 }
             }
             catch
@@ -328,37 +343,43 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
 
 
-            if (criminal.AmountAmoney < 0)
-            {
-                if (criminal.dongjieMoney + criminal.AmountBmoney >= 0)
-                {
-                    return Content("Error|该账户有冻结" + criminal.dongjieMoney.ToString() + " 元，余额不足，不能消费，请与管理人员联系");
-                }
-                return Content("Error|该账户A账出现负数不能消费，请与管理人员联系");
-            }
+            //if (criminal.AmountAmoney < 0)
+            //{
+            //    if (criminal.dongjieMoney + criminal.AmountBmoney >= 0)
+            //    {
+            //        return Content("Error|该账户有冻结" + criminal.dongjieMoney.ToString() + " 元，余额不足，不能消费，请与管理人员联系");
+            //    }
+            //    return Content("Error|该账户A账出现负数不能消费，请与管理人员联系");
+            //}
 
-            if (criminal.AmountBmoney < 0)
-            {
-                if (criminal.dongjieMoney + criminal.AmountBmoney >= 0)
-                {
-                    return Content("Error|该账户有冻结" + criminal.dongjieMoney.ToString() + " 元，余额不足，不能消费，请与管理人员联系");
-                }
-                return Content("Error|该账户B账出现负数不能消费，请与管理人员联系");
+            //if (criminal.AmountBmoney < 0)
+            //{
+            //    if (criminal.dongjieMoney + criminal.AmountBmoney >= 0)
+            //    {
+            //        return Content("Error|该账户有冻结" + criminal.dongjieMoney.ToString() + " 元，余额不足，不能消费，请与管理人员联系");
+            //    }
+            //    return Content("Error|该账户B账出现负数不能消费，请与管理人员联系");
 
-            }
+            //}
 
-            if (criminal.AmountCmoney < 0)
-            {
-                return Content("Error|该账户C账出现负数不能消费，请与管理人员联系");
-            }
+            //if (criminal.AmountCmoney < 0)
+            //{
+            //    return Content("Error|该账户C账出现负数不能消费，请与管理人员联系");
+            //}
 
-            if (criminal.CanUseMoneyA < 0)
+            //if (criminal.CanUseMoneyA < 0)
+            //{
+            //    return Content("Error|A账户已经超过本月最大可消费额度了，请与管理人员联系");
+            //}
+            //if (criminal.CanUseMoneyB < 0)
+            //{
+            //    return Content("Error|B账户已经超过本月最大可消费额度了，请与管理人员联系");
+            //}
+
+
+            if (criminal.AccPoints <= 0)
             {
-                return Content("Error|A账户已经超过本月最大可消费额度了，请与管理人员联系");
-            }
-            if (criminal.CanUseMoneyB < 0)
-            {
-                return Content("Error|B账户已经超过本月最大可消费额度了，请与管理人员联系");
+                return Content("Error|账户已经积分小于等于0不能消费");
             }
 
 
@@ -481,6 +502,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
             rts.NoXiaofeimoney = criminal.NoXiaofeimoney;
             rts.OkUseAllMoney = criminal.OkUseAllMoney;
             rts.orderMoney = orders[0].FAmount;
+            rts.AccPoints = criminal.AccPoints;
+            rts.XiaoFeiPoints = criminal.XiaoFeiPoints;
             JavaScriptSerializer css = new JavaScriptSerializer();
 
             List<T_SHO_OrderDTL> details = new T_SHO_OrderDTLBLL().GetModelList("OrderId='" + orders[0].OrderID.ToString() + "'");
@@ -557,6 +580,9 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 rts.orderMoney = 0;
                 rts.FAreaName = criminal.FAreaName;
                 rts.FCrimeCode = criminal.FCode;
+
+                rts.AccPoints = criminal.AccPoints;
+                rts.XiaoFeiPoints = criminal.XiaoFeiPoints;
                 JavaScriptSerializer css = new JavaScriptSerializer();
                 status = css.Serialize(rts);
                 status = "OK|" + status;
@@ -572,7 +598,9 @@ namespace SelfhelpOrderMgr.Web.Controllers
             string gtxm = Request["Gtxm"];
             string saleTypeId = Request["saleTypeId"];
             string ptype = "";
-            List<T_GoodsType> types = new T_GoodsTypeBLL().GetModelList("SaleTypeId='" + saleTypeId + "'");
+            //List<T_GoodsType> types = _jifenMgrService.GetModelList<T_GoodsType>(jss.Serialize(new { SaleTypeId = saleTypeId, UseType = 1 }), "Id asc", 100); 
+            List<T_GoodsType> types = _jifenMgrService.QueryList<T_GoodsType>("(SaleTypeId='"+ saleTypeId + "' and UseType=1) or UseType=2");
+
             if (types.Count > 0)
             {
                 //foreach(T_GoodsType type in types)
@@ -652,8 +680,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
             string status = "Error|添加失败";
             //获取商品信息
             T_Goods good = new T_GoodsBLL().GetModel(gtxm);
-            DataTable dt = new CommTableInfoBLL().GetDataTable(@"select *from t_sho_order a,t_sho_saletype b,t_goodstype c,t_goods d 
-                    where a.ptype=b.ptype and b.id=c.saletypeid and c.fcode=d.gtype and a.orderid='" + orderId + "' and (d.gtxm='" + gtxm + "' or spShortCode='" + gtxm + "')");
+            DataTable dt = new CommTableInfoBLL().GetDataTable(@"select *from t_goodstype c,t_goods d 
+                    where  c.fcode=d.gtype and c.UseType in(1,2)  and (d.gtxm='" + gtxm + "' or spShortCode='" + gtxm + "')");
             if (dt.Rows.Count <= 0)
             {
                 return Content("Error|您录入的商品信息不存在");
@@ -725,7 +753,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 }
 
 
-                T_GoodsType gt = new T_GoodsTypeBLL().GetModel(good.GTYPE);
+                T_GoodsType gt = _jifenMgrService.GetModelFirst<T_GoodsType>(jss.Serialize(new { Fcode = good.GTYPE })); 
                 if (gt == null)
                 {
                     return Content("Error|您所选的商品类别为空");
@@ -777,7 +805,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
                 //T_SHO_Order order = new T_SHO_OrderBLL().GetModel(model.OrderID);
                 List<T_SHO_SaleType> saleTypes = new T_SHO_SaleTypeBLL().GetModelList("PType='" + order.PType + "'");
-                T_Criminal criminal = new T_CriminalBLL().GetCriminalXE_info(order.FCrimecode, saleTypes[0].ID);
+                T_Criminal criminal = new T_CriminalBLL().GetCriminalXE_info(order.FCrimecode, saleTypes[0].Id);
                 if (criminal.ErrInfo != "")
                 {
                     return Content("Error|" + criminal.ErrInfo + "，请与管理人员联系");
@@ -868,7 +896,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
                 #region 判断是否在属于特购商品
                 //判断是否在属于特购商品，如果是就要验证金额是有够扣
-                int typeflag = new T_GoodsTypeBLL().GetModel(good.GTYPE).FTZSP_TypeFlag;
+                int typeflag = _jifenMgrService.GetModelFirst<T_GoodsType>(jss.Serialize(new { Fcode=good.GTYPE})).FTZSP_TypeFlag;
                 if (typeflag == 1)
                 {
                     model.FTZSP_TypeFlag = 1;//标记该商品是特种消费商品
@@ -903,11 +931,13 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 else
                 {
                     strFreeFlag = "0";
-                    status = "Error|可消费余额不足";
-                    if (criminal.NoXiaofeimoney >= (order.FAmount - order.FreeAmount + model.GAmount))//看下钱是否够扣
+                    status = "Error|可消费积分不足";
+                    //if (criminal.NoXiaofeimoney >= (order.FAmount - order.FreeAmount + model.GAmount))//看下钱是否够扣
+
+                    if (criminal.AccPoints >= (order.FAmount - order.FreeAmount + model.GAmount))//看下钱是否够扣
                     {
                         //如果金额可消费金额有够，判断总的可用金额够吗
-                        if (criminal.OkUseAllMoney >= (order.FAmount + model.GAmount))//看下钱是否够扣
+                        if (criminal.AccPoints >= (order.FAmount + model.GAmount))//看下钱是否够扣
                         {
                             //执行订单明细记录插入
                             status = DoAddOrderDetail(status, model, strFreeFlag);
@@ -972,7 +1002,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
         {
             string orderId = Request["OrderId"];
 
-            List<T_SHO_OrderDTL> types = (List<T_SHO_OrderDTL>)new T_SHO_OrderDTLBLL().GetModelList("");
+            List<T_SHO_OrderDTL> types = new T_SHO_OrderDTLBLL().GetModelList("");
             ViewData["types"] = types;
             List<T_Goods> goods = (List<T_Goods>)new T_GoodsBLL().GetListOfIEnumerable("");
             ViewData["goods"] = goods;
@@ -993,7 +1023,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
             {
                 T_SHO_Order order = new T_SHO_OrderBLL().GetModel(Convert.ToInt32(orderId));
                 List<T_SHO_SaleType> saleTypes = new T_SHO_SaleTypeBLL().GetModelList("PType='" + order.PType + "'");
-                T_Criminal criminal = new T_CriminalBLL().GetCriminalXE_info(order.FCrimecode, saleTypes[0].ID);
+                T_Criminal criminal = new T_CriminalBLL().GetCriminalXE_info(order.FCrimecode, saleTypes[0].Id);
                 if (criminal.ErrInfo != "")
                 {
                     return Content("Error|" + criminal.ErrInfo + "，请与管理人员联系");
@@ -1116,15 +1146,15 @@ namespace SelfhelpOrderMgr.Web.Controllers
             orderModel.Flag = 1;
             if (new T_SHO_OrderBLL().Update(orderModel))//更订单状态为1“提交中”
             {
-                string status = new T_SHO_OrderBLL().SubmitOrder(Convert.ToInt32(orderId), crtby, ipLastCode, fcrimecode, userRoomNo);
+                string status = new T_SHO_OrderBLL().SubmitJFOrder(Convert.ToInt32(orderId), crtby, ipLastCode, fcrimecode, userRoomNo);
                 if (status == "OK|结算成功。")
                 {
-                    rtnPaySubmitInfo rtns = new rtnPaySubmitInfo();
+                    rtnPaySubmitInfo<T_JF_Invoice,T_JF_InvoiceDTL> rtns = new rtnPaySubmitInfo<T_JF_Invoice, T_JF_InvoiceDTL>();
 
-                    T_Invoice invoice = new T_InvoiceBLL().GetModelList("OrderId='" + orderId + "'")[0];
+                    T_JF_Invoice invoice = _jifenMgrService.GetModelFirst<T_JF_Invoice>(Newtonsoft.Json.JsonConvert.SerializeObject(new { OrderId = orderId }));
                     List<T_SHO_SaleType> saleTypes = new T_SHO_SaleTypeBLL().GetModelList("PType='" + invoice.PType + "'");
-                    T_Criminal criminal = new T_CriminalBLL().GetCriminalXE_info(fcrimecode, saleTypes[0].ID);
-                    List<T_InvoiceDTL> details = new T_InvoiceDTLBLL().GetModelList("InvoiceNo='" + invoice.InvoiceNo + "'");
+                    T_Criminal criminal = new T_CriminalBLL().GetCriminalXE_info(fcrimecode, saleTypes[0].Id);
+                    List<T_JF_InvoiceDTL> details = _jifenMgrService.GetModelList<T_JF_InvoiceDTL>(Newtonsoft.Json.JsonConvert.SerializeObject(new { INVOICENO = invoice.InvoiceNo }) ,"Id asc",100);
 
 
                     rtns.details = details;
@@ -1220,5 +1250,11 @@ namespace SelfhelpOrderMgr.Web.Controllers
             ViewData["saleTimeArea"] = saleTimeArea;
             return View();
         }
+
+
+
+
+
+
     }
 }

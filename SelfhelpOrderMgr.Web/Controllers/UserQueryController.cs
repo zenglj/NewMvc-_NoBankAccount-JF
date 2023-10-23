@@ -20,6 +20,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
         private readonly static string bankPort = ConfigurationManager.ConnectionStrings["bankPort"].ConnectionString;
         private readonly static string bankUserCode = ConfigurationManager.ConnectionStrings["bankUserCode"].ConnectionString;
         private readonly static string id_Type = ConfigurationManager.ConnectionStrings["id_Type"].ConnectionString;
+
+        JifenMgrService _jifenMgrService = new JifenMgrService();
         //
         // GET: /UserQuery/
         public ActionResult Index()
@@ -47,6 +49,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
             string startDate = Request["startDate"];
             string endDate = Request["endDate"];
+
             string ip = System.Web.HttpContext.Current.Request.UserHostAddress;
             string status = "Error|查询失败";
             if (fcardCode.Length != 10)
@@ -61,32 +64,39 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 return Content(status);
             }
             string fcrimeCode = cards[0].fcrimecode;
-            T_Criminal criminal = new T_CriminalBLL().GetCriminalXE_info(fcrimeCode,1);
+            T_Criminal criminal = new T_CriminalBLL().GetCriminalXE_info(fcrimeCode, 1);
             //获取查询到的近三个月的存款记录
 
             T_SHO_ManagerSet msetHide = new T_SHO_ManagerSetBLL().GetModel("HideBankCardFlag");
-            if(msetHide != null && msetHide.MgrValue == "1")
+            if (msetHide != null && msetHide.MgrValue == "1")
             {
                 cards[0].BankAccNo = "*******************";
                 cards[0].SecondaryBankCard = "*******************";
                 criminal.BankCardNo = "******************";
             }
-            
+
+
             string vcrdWhere = "flag=0 and fcrimecode='" + criminal.FCode + "' and crtdate>='" + DateTime.Now.AddMonths(-3).ToShortDateString() + "'and crtdate<'" + DateTime.Now.AddDays(1).ToShortDateString() + "'";
-            if(!(string.IsNullOrWhiteSpace( startDate) && string.IsNullOrWhiteSpace( endDate))){
+            if (!(string.IsNullOrWhiteSpace(startDate) && string.IsNullOrWhiteSpace(endDate)))
+            {
                 vcrdWhere = "flag=0 and fcrimecode='" + criminal.FCode + "' and crtdate>='" + startDate + "'and crtdate<'" + Convert.ToDateTime(endDate).AddDays(1).ToShortDateString() + "'";
             }
-            List<T_Vcrd> vcrds = new T_VcrdBLL().GetModelList(200, vcrdWhere, " CrtDate desc");
+
+            List<T_Vcrd> vcrds = new T_VcrdBLL().GetModelList(100, vcrdWhere, " CrtDate desc");
+
+            List<T_JF_Vcrd> jfvcrds = _jifenMgrService.QueryList<T_JF_Vcrd>(vcrdWhere);
             rtnQueryUserInfo userinfo = new rtnQueryUserInfo();
             userinfo.UserInfo = criminal;
             userinfo.UserCard = cards[0];
             userinfo.vcrds = vcrds;
+            userinfo.jfvcrds = jfvcrds.OrderByDescending(o => o.CrtDate).ToList();
             userinfo.bankTimeMoney = "";
 
             //判断是否要执行银行实时余额查询
             T_SHO_ManagerSet mset = new T_SHO_ManagerSetBLL().GetModel("openBankTimeSearchFlag");
-            if (mset!=null){
-                if (mset.MgrValue=="1")
+            if (mset != null)
+            {
+                if (mset.MgrValue == "1")
                 {
                     if (cards.Count > 0)
                     {
@@ -96,9 +106,9 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         }
                     }
                 }
-            } 
+            }
             JavaScriptSerializer jss = new JavaScriptSerializer();
-            
+
             status = jss.Serialize(userinfo);
             status = "There|" + status;
             return Content(status);
@@ -411,6 +421,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
         public T_Criminal UserInfo { get; set; }//犯人信息信息
         public T_Criminal_card UserCard { get; set; }//IC卡信息
         public List<T_Vcrd> vcrds { get; set; }//存款记录
+        public List<T_JF_Vcrd> jfvcrds { get; set; }//存款记录
         public string bankTimeMoney { get; set; }//银行实时余额
 
     }

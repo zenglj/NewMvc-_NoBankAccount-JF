@@ -1,0 +1,268 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" charset="utf-8" lang="zh-cn" />
+    <title>银行存款记录</title>
+    @{Html.RenderPartial("~/Views/Shared/_PartialHeadPage.cshtml");}
+    <style>
+        #ffAudit div {
+            text-align: center;
+            margin: 5px 0px;
+        }
+    </style>
+
+</head>
+<body class="easyui-layout">
+    <div data-options="region:'center',title:'银行存款清单'" style="padding:5px;">
+
+        <form id="ffMainOrder" method="post" enctype="multipart/form-data">
+            <table id="mainOrder">
+                <tr>
+
+                    <th align="right">队别：</th>
+                    <td align="left">
+
+                        <input type="hidden" id="sDtype" name="sDtype" /><!--Dtype存款类型-->
+                        <input type="hidden" id="sTypeFlag" name="sTypeFlag" /><!--TypeFlag-->
+                        <input type="hidden" id="sSubTypeFlag" name="sSubTypeFlag" /><!--主单的备注信息-->
+
+                        <input type="hidden" id="sbid" /><!--主单的Bid-->
+                        <input type="hidden" id="sOrderStatus" /><!--主单的确认状态-->
+                        <input type="hidden" id="sYearMonth" /><!--主单的归属年月-->
+                        <input type="hidden" id="sMainRemark" /><!--主单的备注信息-->
+                        <input type="hidden" id="MainAction" name="action" />
+                        <input type="hidden" id="MainDoType" name="DoType" />
+                        <input type="hidden" id="sAreaName" name="sAreaName" />
+                        <input type="hidden" id="sAreaCode" name="sAreaCode" />
+                        <select id="mainAreaName" name="mainAreaName" class="easyui-combobox" style="width: 135px;">
+                            <option value="" selected="selected">请选择队别</option>
+                            @if (ViewData["areas"] != null)
+                            {
+                                foreach (SelfhelpOrderMgr.Model.T_AREA area in ViewData["areas"] as List<SelfhelpOrderMgr.Model.T_AREA>)
+                                {
+                                    <option value="@area.FCode">@area.FName</option>
+                                }
+                            }
+                        </select>
+                    </td>
+                    <th>奖金年度</th>
+                    <td><input id="syear" name="syear" class="easyui-numberspinner" style="width:80px;" required="required" data-options="min:2020,max:2050,editable:false"></td>
+                    <th>奖金月份</th>
+                    <td><input id="smonth" name="smonth" class="easyui-numberspinner" style="width:80px;" required="required" data-options="min:1,max:12,editable:false"></td>
+                    <th>  申请人</th>
+                    <td><input id="sapplyby" name="sapplyby" type="text" style="width:100px"></td>
+
+                </tr>
+                <tr>
+
+                    <th>备注</th>
+                    <td colspan="4"><input id="sremark" name="sremark" type="text" style="width:300px"></td>
+                    <td colspan="3"><input type="file" id="FBcExcelFile" name="FBcExcelFile" formenctype="multipart/form-data" /></td>
+                    <td>
+                        <a id="btnImportMainOrder" href="#" onclick="btnImportMainOrder()" class="easyui-linkbutton" data-options="iconCls:'icon-save'">新建单据(导入)</a>
+                    </td>
+                </tr>
+            </table>
+        </form>
+
+        <table id="test" toolbar="#tb"></table>
+
+        <div id="template"></div>
+
+        <div id="tb" style="height:40px">
+
+            <a href="javascript:void(0)" id="mb" class="easyui-menubutton"
+               data-options="menu:'#mm',iconCls:'icon-print'">打印报表</a>
+            <div id="mm" style="width:150px;">
+                <div data-options="iconCls:'icon-print'" onclick="btnPrintSum()">打印汇总单</div>
+                <div data-options="iconCls:'icon-print'" onclick="btnPrintList()">打印清单</div>
+                <div data-options="iconCls:'icon-save'" onclick="btnExcelReportSave()">Excel月统计报表</div>
+                <div class="menu-sep"></div>
+                <div data-options="iconCls:'icon-man'" onclick="btnPrintBankDateReport()">银行日交易报表</div>
+                <div data-options="iconCls:'icon-redo'" onclick="btnPrintBankMonthReport()">银行月交易报表</div>
+                <div data-options="iconCls:'icon-man'" onclick="btnPrintBankYearReport()">银行年交易报表</div>
+
+            </div> <label>|</label>
+
+            <a href="javascript:void(0)" id="mbe" class="easyui-menubutton"
+               data-options="menu:'#mmex',iconCls:'icon-print'">Excel导出</a>
+            <div id="mmex" style="width:150px;">
+                <div data-options="iconCls:'icon-save'" onclick="btnExcelSave()">Excel导出</div>
+
+            </div> <label>|</label>
+
+
+            <label id="schSumMoney" style="float:right;font-size:1.2em;">查询结果总额: ____________</label>
+
+            <input id="userTypeId" type="hidden" value="@ViewData["id"].ToString()" />
+
+            <div id="divAuditRec" style="display:none">
+                <form id="ffBankRecAudit">
+                    <input type="hidden" id="addVchnum" name="vchnum" />
+                    <label>编号:</label><input type="text" style="width:100px;" class="easyui-numberbox" id="addFCrimeCode" name="fcrimecode" />
+                    <label>姓名:</label><input type="text" style="width:150px;" class="easyui-textbox" id="addFCrimeName" name="fcrimename" />
+                    <label>审核备注:</label><input type="text" style="width:150px;" class="easyui-textbox" id="addFRemark" name="remark" />
+                    <select id="forceCheckFlag" class="easyui-combobox" name="checkFlag" style="width:100px;">
+                        <option value="1" selected="selected">标准入账</option>
+                        <option value="2">强制入账</option>
+                    </select>
+                    @*<a id="btn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-save'" onclick="btnAuditBankRec()">确认审核入账</a>*@
+                    <a href="javascript:void(0)" id="mpSets" class="easyui-menubutton"
+                       data-options="menu:'#mpList',iconCls:'icon-redo'">审核方式</a>
+                    <div id="mpList" style="width:150px;">
+                        <div data-options="iconCls:'icon-save'" onclick="btnAuditBankRec()">确认审核入账</div>
+                        <div data-options="iconCls:'icon-redo'" onclick="btnReturnPersonalAccount()">网银对私退回</div>
+                        <div data-options="iconCls:'icon-undo'" onclick="btnReturnToBack()">原路退回</div>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+
+        <table id="detail" toolbar="#tbDetail"></table>
+
+
+        <div id="tbDetail" style="height:40px">
+
+            <form id="ffDetail" method="post" enctype="multipart/form-data">
+                <table id="detailOrder">
+                    <tr>
+                        
+                        <th>备注
+                        <input type="hidden" id="detailOrderId" name="orderId" />
+                        </th>
+                        <td colspan="4"><input id="detailRemark" name="Remark" type="text" style="width:300px"></td>
+                        <td colspan="3"><input type="file" id="detailExcelFile" name="detailExcelFile" formenctype="multipart/form-data" /></td>
+                        <td>
+                            <a id="btnImportDetailOrder" href="#" onclick="btnImportDetailOrder()" class="easyui-linkbutton" data-options="iconCls:'icon-save'">导入分配方案</a>
+                        </td>
+                    </tr>
+                </table>
+            </form>
+
+        </div>
+
+    </div>
+
+    <div data-options="region:'east',title:'查询条件',split:true" style="width:300px;">
+        <div data-options="region:'north',title:'North Title',split:true" style="height:200px;">
+            <form method="post" id="formSearch">
+                <table id="crimeSearch">
+                    <tr>
+                        <th align="right">Id：</th>
+                        <td align="left">
+                            <input class="easyui-numberbox" id="SearchId" name="Id"
+                                   data-options="min:0,precision:0" style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">主单号：</th>
+                        <td align="left">
+                            <input class="easyui-textbox" id="SearchOrderId" name="OrderId"
+                                   style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">年月：</th>
+                        <td align="left">
+                            <input class="easyui-textbox" id="SearchYearMonth" name="YearMonth"
+                                   style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">队别：</th>
+                        <td align="left">
+                            <input class="easyui-textbox" id="SearchFAreaCode" name="FAreaCode"
+                                   style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">创建人：</th>
+                        <td align="left">
+                            <input id="SearchCreateBy" name="CreateBy" class="easyui-textbox" style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">审核人：</th>
+                        <td align="left">
+                            <input id="SearchAuditBy" name="AuditBy" class="easyui-textbox" style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">生产金额：</th>
+                        <td align="left">
+                            <input id="SearchCompleteMoney" name="CompleteMoney" class="easyui-textbox" style="width:190px">
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th align="right">审核起日：</th>
+                        <td align="left">
+                            <input class="easyui-datetimebox" id="SearchAuditDate_Start" name="AuditDate_Start"
+                                   data-options="required:true,showSeconds:false" value="" style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">审核止日：</th>
+                        <td align="left">
+                            <input class="easyui-datetimebox" id="SearchAuditDate_End" name="AuditDate_End"
+                                   data-options="required:true,showSeconds:false" value="" style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">单据状态：</th>
+                        <td align="left">
+                            <select id="SearchOrderStatus" name="OrderStatus" class="easyui-combobox" style="width:190px">
+                                <option value="">请选择</option>
+                                <option value="0">未提交</option>
+                                <option value="1">待监区审核</option>
+                                <option value="2">待科室审核</option>
+                                <option value="3">待入账</option>
+                                <option value="9">已完成</option>
+                            </select>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th align="right">备注：</th>
+                        <td align="left">
+                            <input id="SearchRemark" name="Remark" class="easyui-textbox" style="width:190px">
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th align="right">导入起日：</th>
+                        <td align="left">
+                            <input class="easyui-datetimebox" id="SearchCreateDate_Start" name="CreateDate_Start"
+                                   data-options="required:true,showSeconds:false" value="3/4/2010 00:00" style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">导入止日：</th>
+                        <td align="left">
+                            <input class="easyui-datetimebox" id="SearchCreateDate_End" name="CreateDate_End"
+                                   data-options="required:true,showSeconds:false" value="3/4/2010 23:59" style="width:190px">
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th align="right"></th>
+                        <td align="right"><a id="btn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-search'" onclick="btnSearch()">查询</a><a id="A1" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-redo'" onclick="btnClear()">清空</a></td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+    </div>
+
+    <script src="~/Scripts/EasyUI/jquery.easyui.min.js"></script>
+    <script src="~/Scripts/EasyUI/locale/easyui-lang-zh_CN.js"></script>
+    <script src="~/Scripts/myJs/LodopFuncs.js"></script>
+
+    <script src="~/Scripts/myJs/jfBaochouMgr.js"></script>
+</body>
+</html>

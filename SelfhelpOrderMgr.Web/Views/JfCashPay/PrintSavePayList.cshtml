@@ -1,0 +1,294 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>PrintSavePayList</title>
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+</head>
+<body>
+    <div>
+        <div class="row">
+            @*<div class="col-sm-1"></div>*@
+            <div class="col-sm-11">
+                
+
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        @if (ViewData["vcrd"] != null)
+                        {
+                            var vcrd = ViewData["vcrd"] as SelfhelpOrderMgr.Model.T_JF_Vcrd;
+                            <div class="text-center">
+                                <h3>@ViewData["savePayTitle"] <small>      单据号:@vcrd.Vouno</small></h3>
+                            </div>
+                        }
+                    </div>
+                    <div class="panel-body">
+
+                        @if (ViewData["vcrd"] != null)
+                        {
+                            var vcrd = ViewData["vcrd"] as SelfhelpOrderMgr.Model.T_JF_Vcrd;
+                            decimal fmoney = vcrd.DAmount - vcrd.CAmount;
+                            <div class="row">
+                                <div class="col-lg-3 col-xs-3"><strong>队别:</strong> @vcrd.FAreaName</div>
+                                <div class="col-lg-3 col-xs-3"><strong>操作员:</strong>  @vcrd.CrtBy</div>
+                                <div class="col-lg-4 col-xs-4"><strong>操作日期:</strong> @DateTime.Now.ToString("yyyy-MM-dd")</div>
+                                <div class="col-lg-2 col-xs-2"><strong>单位:</strong> 积分</div>
+                                @*<table>
+                                    <tr>
+                                        <td >
+                                            <strong>队别:</strong> @vcrd.FAreaName
+                                        </td>
+                                        <td >
+                                            <strong>操作员:</strong>  @vcrd.CrtBy
+                                        </td>
+                                        <td >
+                                            <strong>操作日期:</strong> @DateTime.Now.ToString("yyyy-MM-dd")
+                                        </td>
+                                        <td >
+                                            <strong>单位:</strong> 元
+                                        </td>
+                                    </tr>
+                                </table>*@
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-11 col-xs-11">
+                                    <table class="table table-bordered">
+                                        <tr>
+                                            <th style="width:20%">狱政编号:</th>
+                                            <td style="width:30%">@vcrd.FCrimeCode</td>
+                                            <th style="width:20%">服刑人员姓名:</th>
+                                            <td style="width:30%">@vcrd.FCriminal</td>
+                                        </tr>
+                                        <tr>
+                                            <th>备注:</th>
+                                            <td colspan="3">
+                                                @vcrd.DType
+                                                @if (vcrd.Remark != "")
+                                                {
+                                                    <span>( @vcrd.Remark)</span>
+                                                }
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>分管财务领导:</th>
+                                            <td></td>
+                                            <th>财务审核:</th>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <th>部门负责人:</th>
+                                            <td></td>
+                                            <th>会计审核:</th>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <th>操作员:</th>
+                                            <td></td>
+                                            <th>经办人:</th>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <th>
+                                                @if (fmoney >= 0)
+                                                {
+                                                    <span>【存入】积分:</span>
+                                                }
+                                                else
+                                                {
+                                                    <span>【支取】积分:</span>
+                                                }
+                                            </th>
+                                            <td colspan="3" id="money_one">
+                                                @if (fmoney >= 0)
+                                                {
+                                                    @vcrd.DAmount
+                                                }
+                                                else
+                                                {
+                                                    @vcrd.CAmount
+                                                }
+                                            </td>
+
+                                        </tr>
+
+
+                                    </table>
+                                    <div class="row">
+                                        <div class="col-sm-4 col-xs-4"><strong>注:</strong> 本凭证一式二联</div>
+                                        <div class="col-sm-5 col-xs-4"></div>
+                                        <div class="col-sm-3 col-xs-4">
+                                            @if (vcrd.DAmount > 0)
+                                            {
+                                                <span>【存入人】(签字):</span>
+                                            }
+                                            else
+                                            {
+                                                <span>【支取人】(签字):</span>
+                                            }
+
+
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-1 col-xs-1">
+                                    <div><br /><br /> 第<br />一<br />联<br /><br /> 记<br /><br /> 账</div>
+                                </div>
+                            </div>
+                            
+                        }
+
+
+                    </div>
+                    
+
+                    <div class="panel-footer">@@监狱--财务科</div>
+                </div>
+
+                <div> <br /> <br /><br /><br /> </div>
+
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        @if (ViewData["vcrd"] != null)
+                        {
+                            var vcrd = ViewData["vcrd"] as SelfhelpOrderMgr.Model.T_JF_Vcrd;
+                            <div class="text-center">
+                                <h3>@ViewData["savePayTitle"] <small>      单据号:@vcrd.Vouno</small></h3>
+                            </div>
+                        }
+                    </div>
+                    <div class="panel-body">
+
+                        @if (ViewData["vcrd"] != null)
+                        {
+                            var vcrd = ViewData["vcrd"] as SelfhelpOrderMgr.Model.T_JF_Vcrd;
+                            decimal fmoney = vcrd.DAmount - vcrd.CAmount;
+                            <div class="row">
+                                <div class="col-sm-3 col-xs-3"><strong>队别:</strong> @vcrd.FAreaName</div>
+                                <div class="col-sm-3 col-xs-3"><strong>操作员:</strong>  @vcrd.CrtBy</div>
+                                <div class="col-sm-4 col-xs-4"><strong>操作日期:</strong> @DateTime.Now.ToString("yyyy-MM-dd")</div>
+                                <div class="col-sm-2 col-xs-2"><strong>单位:</strong> 积分</div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-11 col-xs-11">
+                                    <table class="table table-bordered">
+                                        <tr>
+                                            <th style="width:20%">狱政编号:</th>
+                                            <td style="width:30%">@vcrd.FCrimeCode</td>
+                                            <th style="width:20%">服刑人员姓名:</th>
+                                            <td style="width:30%">@vcrd.FCriminal</td>
+                                        </tr>
+                                        <tr>
+                                            <th>备注:</th>
+                                            <td colspan="3">
+                                                @vcrd.DType
+                                                @if (vcrd.Remark != "")
+                                                {
+                                                    <span>( @vcrd.Remark)</span>
+                                                }
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>分管财务领导:</th>
+                                            <td></td>
+                                            <th>财务审核:</th>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <th>部门负责人:</th>
+                                            <td></td>
+                                            <th>会计审核:</th>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <th>操作员:</th>
+                                            <td></td>
+                                            <th>经办人:</th>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <th>
+                                                @if (fmoney >= 0)
+                                                {
+                                                    <span>【存入】积分:</span>
+                                                }
+                                                else
+                                                {
+                                                    <span>【支取】积分:</span>
+                                                }
+                                            </th>
+                                            <td colspan="3" id="money_two">
+                                                @if (fmoney >= 0)
+                                                {
+                                                    @vcrd.DAmount
+                                                }
+                                                else
+                                                {
+                                                    @vcrd.CAmount
+                                                }
+                                            </td>
+
+                                        </tr>
+
+
+                                    </table>
+                                    <div class="row">
+                                        <div class="col-sm-4 col-xs-4"><strong>注:</strong> 本凭证一式二联</div>
+                                        <div class="col-sm-5 col-xs-4"></div>
+                                        <div class="col-sm-3 col-xs-4">
+                                            @if (vcrd.DAmount > 0)
+                                            {
+                                                <span>【存入人】(签字):</span>
+                                            }
+                                            else
+                                            {
+                                                <span>【支取人】(签字):</span>
+                                            }
+
+
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-1 col-xs-1">
+                                    <div><br /><br /> 第<br />二<br />联<br /><br /> 存<br /><br /> 根</div>
+                                </div>
+                            </div>
+
+                        }
+
+
+                    </div>
+
+
+                    <div class="panel-footer">@@监狱--财务科</div>
+                </div>
+            </div>
+            @*<div class="col-sm-1"></div>*@
+
+        </div>
+    </div>
+    <script src="~/Scripts/jquery-1.11.3.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <script src="~/Scripts/myJs/commonJs.js"></script>
+    <script type="text/javascript"> 
+               
+        $(document).ready(function () {    
+            var fmoneyTxt = $("#money_one").html();
+            var newMoneyTxt = "";
+            if (parseFloat(fmoneyTxt) < 0) {
+                newMoneyTxt = DX(parseFloat(fmoneyTxt.substr(1, fmoneyTxt.length)));
+                newMoneyTxt = "负" + newMoneyTxt;
+            } else {
+                newMoneyTxt = DX(parseFloat(fmoneyTxt));
+            }
+            $("#money_one").html(newMoneyTxt + "(¥" + fmoneyTxt + " 积分)");
+            $("#money_two").html(newMoneyTxt + "(¥" + fmoneyTxt + " 积分)");
+        });
+    </script>
+</body>
+</html>

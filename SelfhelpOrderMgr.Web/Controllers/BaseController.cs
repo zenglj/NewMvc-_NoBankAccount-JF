@@ -1,14 +1,21 @@
-﻿using System;
+﻿using SelfhelpOrderMgr.BLL;
+using SelfhelpOrderMgr.Common;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
+using System.Web.Script.Serialization;
 
 namespace SelfhelpOrderMgr.Web.Controllers
 {
     public class BaseController : Controller
     {
+        protected string loginUserCode;
+        protected string loginUserName ;
+        protected JavaScriptSerializer jss = new JavaScriptSerializer();
+        protected BaseDapperBLL _baseDapperBll = new BaseDapperBLL();
         protected override void OnActionExecuting(ActionExecutingContext filterContext)
         {
             if (Session["loginUserCode"] == null)
@@ -24,12 +31,16 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 {
                     Session["loginUserCode"] = Request.Cookies["loginUserCode"].Value;
                     Session["loginUserName"] = Request.Cookies["loginUserName"].Value;
+                    loginUserName = Session["loginUserName"].ToString();
+                    loginUserCode = Session["loginUserCode"].ToString();
                 }
                 //filterContext.HttpContext.Response.Redirect("/Admin/Index");
                 
             }
             else
             {
+                loginUserName = Session["loginUserName"].ToString();
+                loginUserCode = Session["loginUserCode"].ToString();
                 base.OnActionExecuting(filterContext);
             }
         }

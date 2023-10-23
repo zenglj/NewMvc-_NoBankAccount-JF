@@ -72,6 +72,16 @@ namespace SelfhelpOrderMgr.Model
             set { _salecloseflag = value; }
         }
 
+
+        /// <summary>
+        /// JiFenCloseFlag
+        /// </summary>		
+        private int _jifencloseflag;
+        public int JiFenCloseFlag
+        {
+            get { return _jifencloseflag; }
+            set { _jifencloseflag = value; }
+        }
     }
 }
 

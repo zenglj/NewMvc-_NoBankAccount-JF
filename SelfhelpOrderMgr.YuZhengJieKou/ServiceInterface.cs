@@ -1,6 +1,7 @@
 ﻿using SelfhelpOrderMgr.BLL;
 using SelfhelpOrderMgr.Common;
 using SelfhelpOrderMgr.Model;
+using SelfhelpOrderMgr.Model.ShengjuYZJKModel;
 using SelfhelpOrderMgr.YuZhengJieKou.Model;
 using System;
 using System.Collections.Generic;
@@ -18,6 +19,7 @@ namespace SelfhelpOrderMgr.YuZhengJieKou
         //public string _url="http://localhost:8080/api/jwt/login?password=cs&username=cs";
         private string _baseurl = "http://localhost:8080/";
         private string _zfzt = "";
+        public bool loginFlag = false;
         /// <summary>
         /// 构造函数
         /// </summary>
@@ -27,7 +29,9 @@ namespace SelfhelpOrderMgr.YuZhengJieKou
         {
             this._baseurl = baseurl;
             this._zfzt = zfzt;
-            this.UserLogin(username, password);
+            var rs=this.UserLogin(username, password);
+            this.loginFlag = rs.Flag;
+            
         }
         public ResultInfo startService() {
             ResultInfo rs = new ResultInfo();
@@ -94,7 +98,7 @@ namespace SelfhelpOrderMgr.YuZhengJieKou
 
                     rs.ReMsg = "失败";
                     rs.Flag = false;
-                    rs.DataInfo = _res;
+                    rs.DataInfo = _res;                    
                     return rs;
                 }
                 
@@ -149,12 +153,8 @@ namespace SelfhelpOrderMgr.YuZhengJieKou
 	                            [FID] [varchar](50) NULL,
 	                            [URL] [varchar](50) NULL,
 	                            [FTZSP_Money] [numeric](18, 2) NULL,
-	                            [SaleCloseFlag] [int] NULL,
-                             CONSTRAINT [PK_YzglTempDept] PRIMARY KEY CLUSTERED 
-                            (
-	                            [FCode] ASC
-                            )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
-                            ) ON [PRIMARY]                            
+	                            [SaleCloseFlag] [int] NULL)
+                            ON [PRIMARY]                            
                             ";
 
                         new CommTableInfoBLL().ExecSql(sql);//创建部门临时表
@@ -310,7 +310,7 @@ namespace SelfhelpOrderMgr.YuZhengJieKou
 	                            [FAge] [int] NULL,
 	                            [FSex] [varchar](8) NULL,
 	                            [FAddr] [varchar](256) NULL,
-	                            [FCrimeCode] [varchar](60) NULL,
+	                            [FCrimeCode] [varchar](256) NULL,
 	                            [FCYCode] [varchar](10) NULL,
 	                            [FTerm] [varchar](20) NULL,
 	                            [FInDate] [datetime] NULL,
@@ -318,8 +318,10 @@ namespace SelfhelpOrderMgr.YuZhengJieKou
 	                            [FAreaCode] [varchar](100) NULL,
 	                            [gz] [varchar](100) NULL,
 	                            [gw] [varchar](100) NULL,
-								[zfZt] [varchar](20) NULL,
-								[jtqh] [varchar](20) NULL,
+								[zfZt] [varchar](100) NULL,
+								[jtqh] [varchar](100) NULL,
+                                [csrq] [varchar](20) NULL,
+                                [sybq] [varchar](256) NULL,
                              CONSTRAINT [PK_YzglTempJbxx] PRIMARY KEY CLUSTERED 
                             (
 	                            [FCode] ASC
@@ -381,6 +383,7 @@ namespace SelfhelpOrderMgr.YuZhengJieKou
             //string YzglTempDept = "";
             //string strPrec = "insert into YzglTempDept (FCode,FName) values(,)";
             StringBuilder strInsertInfo = new StringBuilder();
+            
             if (_result.rows.Count > 0)
             {
                 foreach (var item in _result.rows)
@@ -390,10 +393,45 @@ namespace SelfhelpOrderMgr.YuZhengJieKou
                     {
                         sex = "女";
                     }
-                    string strTemp = $"insert into YzglTempJbxx (FCode,FName,FIdenNo,FAge,FSex,FAddr,FCrimeCode,FCYCode,FTerm,FInDate,FOuDate,FAreaCode, gz , gw,zfZt,jtqh) values('{item.zfbh}','{item.zfxm}','{item.zjHm}','{0}','{sex}','{item.jtmx}','{item.syzm}','{item.fgdj}','{item.xq}','{item.rjrq}','{item.xqzr}','{item.deptId}', '{item.gz}' , '{item.gw}', '{item.zfZt}','{item.jtqh}');";
+                    if(item.syzm=="null")
+                    {
+                        item.syzm = "";
+                    }
+                    string strTemp = $"insert into YzglTempJbxx (FCode,FName,FIdenNo,FAge,FSex,FAddr,FCrimeCode,FCYCode,FTerm,FInDate,FOuDate,FAreaCode, gz , gw,zfZt,jtqh,csrq,sybq) values('{item.zfbh}','{item.zfxm}','{item.zjHm}','{0}','{sex}','{item.jtmx}','{item.syzm}','{item.fgdj}','{item.xq}','{item.rjrq}','{item.xqzr}','{item.deptId}', '{item.gz}' , '{item.gw}', '{item.zfZt}','{item.jtqh}','{item.csrq}','{item.sybq}');";
                     strInsertInfo.Append(strTemp);
+
                 }
+                
                 new CommTableInfoBLL().ExecSql(strInsertInfo.ToString());//创建部门临时表
+
+                //改为参数化查询方式
+                //string strTemp = $"insert into YzglTempJbxx (FCode,FName,FIdenNo,FAge,FSex,FAddr,FCrimeCode,FCYCode,FTerm,FInDate,FOuDate,FAreaCode, gz , gw,zfZt,jtqh,csrq,sybq) values(@FCode,@FName,@FIdenNo,@FAge,@FSex,@FAddr,@FCrimeCode,@FCYCode,@FTerm,@FInDate,@FOuDate,@FAreaCode, @gz , @gw,@zfZt,@jtqh,@csrq,@sybq);";
+                //var selList = _result.rows.Select(o => new YzglTempJbxx()
+                //{
+                //    FCode = o.zfbh,
+                //    FName = o.zfxm,
+                //    FIdenNo = o.zjHm,
+                //    FAge = 0,
+                //    FSex = o.xb=="2"?"女":"男",
+                //    FAddr = o.jtmx,
+                //    FCrimeCode=o.syzm,
+                //    FCYCode=o.fgdj,
+                //    //,FTerm,FInDate,FOuDate,FAreaCode, gz , gw,zfZt,jtqh,csrq,sybq
+                //    FTerm=o.xq,
+                //    //FInDate = o.rjrq!=""?Convert.ToDateTime( o.rjrq): DBNull,
+                //    FInDate = o.xqzr != "null" ? Convert.ToDateTime(o.rjrq) : Convert.ToDateTime("1900-01-01"),
+
+                //    FOuDate = o.xqzr!="null"?Convert.ToDateTime(o.xqzr) : Convert.ToDateTime("1900-01-01"),
+                //    FAreaCode = o.deptId,
+                //    gz = o.gz,
+                //    gw = o.gw,
+                //    zfZt = o.zfZt,
+                //    jtqh = o.jtqh,
+                //    csrq = o.csrq,
+                //    sybq = o.sybq
+                //}).ToList();
+
+                //new BaseDapperBLL().ExecuteSql(strTemp, selList);
 
                 rs.ReMsg = "插入人员记录成功";
                 rs.Flag = true;
@@ -443,16 +481,16 @@ namespace SelfhelpOrderMgr.YuZhengJieKou
                     new CommTableInfoBLL().ExecSql(sql);//删除人员临时表
 
                     sql = @"CREATE TABLE [YzglTempShgx](
-                                [id] [varchar](20) NOT NULL,
-	                            [zfbh] [varchar](20) NOT NULL,
-	                            [FamilyName] [varchar](50) NULL,
-	                            [FSex] [varchar](8) NULL,
-                                [FRelation] [varchar](100) NULL,
-	                            [FIdenNo] [varchar](20) NULL,
-	                            [FBirthday] [varchar](20) NULL,	                            
-	                            [FAddr] [varchar](256) NULL,
-                                [jtqh] [varchar](50) NULL,
-                                [FTel] [varchar](50) NULL
+                                [id] [varchar](max) NOT NULL,
+	                            [zfbh] [varchar](max) NOT NULL,
+	                            [FamilyName] [varchar](max) NULL,
+	                            [FSex] [varchar](max) NULL,
+                                [FRelation] [varchar](max) NULL,
+	                            [FIdenNo] [varchar](max) NULL,
+	                            [FBirthday] [varchar](max) NULL,	                            
+	                            [FAddr] [varchar](max) NULL,
+                                [jtqh] [varchar](max) NULL,
+                                [FTel] [varchar](max) NULL
                             ) ON [PRIMARY]                            
                             ";
 
@@ -510,19 +548,36 @@ namespace SelfhelpOrderMgr.YuZhengJieKou
             StringBuilder strInsertInfo = new StringBuilder();
             if (_result.rows.Count > 0)
             {
-                foreach (var item in _result.rows)
-                {
-                    string sex = "男";
-                    if (item.xb == "2")
-                    {
-                        sex = "女";
-                    }
-                    string strTemp = $"insert into YzglTempShgx (id,zfbh,FamilyName,FSex,FRelation,FIdenNo,FBirthday,FAddr,jtqh,FTel) values('{item.id}','{item.zfbh}','{item.xm}','{sex}','{item.gxlb}','{item.zjhm}','{item.csrq}','{item.jtmx}','{item.jtqh}','{item.dh}');";
-                    strInsertInfo.Append(strTemp);
-                }
-                new CommTableInfoBLL().ExecSql(strInsertInfo.ToString());//创建部门临时表
+                //foreach (var item in _result.rows)
+                //{
+                //    string sex = "男";
+                //    if (item.xb == "2")
+                //    {
+                //        sex = "女";
+                //    }
+                //    string strTemp = $"insert into YzglTempShgx (id,zfbh,FamilyName,FSex,FRelation,FIdenNo,FBirthday,FAddr,jtqh,FTel) values('{item.id}','{item.zfbh}','{item.xm}','{sex}','{item.gxlb}','{item.zjhm}','{item.csrq}','{item.jtmx}','{item.jtqh}','{item.dh}');";
+                //    strInsertInfo.Append(strTemp);
+                //}
+                //new CommTableInfoBLL().ExecSql(strInsertInfo.ToString());//创建部门临时表
 
-                
+
+                //改为参数化查询方式
+                string strTemp = $"insert into YzglTempShgx (id,zfbh,FamilyName,FSex,FRelation,FIdenNo,FBirthday,FAddr,jtqh,FTel) values(@id,@zfbh,@FamilyName,@FSex,@FRelation,@FIdenNo,@FBirthday,@FAddr,@jtqh,@FTel);";
+                //'{item.id}','{item.zfbh}','{item.xm}','{sex}','{item.gxlb}','{item.zjhm}','{item.csrq}','{item.jtmx}','{item.jtqh}','{item.dh}'
+                var selList = _result.rows.Select(o => new YzglTempShgx()
+                {
+                    id = o.id,
+                    zfbh = o.zfbh,
+                    FSex=o.xb=="2"?"女":"男",
+                    FRelation=o.gxlb,
+                    FIdenNo=o.zjhm,
+                    FBirthday=o.csrq,
+                    FAddr=o.jtmx,
+                    jtqh=o.jtqh,
+                    FTel=o.dh
+                }).ToList();
+
+                new BaseDapperBLL().ExecuteSql(strTemp, selList);
 
                 rs.ReMsg = "插入社会关系记录成功";
                 rs.Flag = true;

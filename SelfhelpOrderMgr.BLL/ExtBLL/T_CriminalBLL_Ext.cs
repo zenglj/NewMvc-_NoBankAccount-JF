@@ -39,7 +39,7 @@ namespace SelfhelpOrderMgr.BLL
              * ChinaFestival_Money    //中国传统节日月金额
                   */
 
-            
+
 
             #region 查找不同类型的消费限额参数
             //查找不同类型的消费限额参数
@@ -94,13 +94,13 @@ namespace SelfhelpOrderMgr.BLL
 
             //List<T_AREA> areas = new T_AREABLL().GetModelList( "fcode='"+model.FAreaCode+"'").Single();//队别编号
             T_AREA area = new T_AREABLL().GetModel(model.FAreaCode);//队别编号
-            if(area==null)
+            if (area == null)
             {
                 model.ErrInfo = "用户所处队别代码错误";
                 return model;
             }
 
-            
+
 
             model.CyName = cy.FName;
             decimal dongjieMoney = 0;//被冻结金额
@@ -207,11 +207,11 @@ namespace SelfhelpOrderMgr.BLL
             //        //}
             //    }
             //}
-            
+
             List<T_Invoice> invLists = new T_InvoiceBLL().GetModelList(strWhere);
 
 
-            decimal xfYYCmoneyAmoney=0, xfYYCmoneyBmoney=0, xfYYCmoneyFreeAmoney=0, xfYYCmoneyFreeBmoney=0;
+            decimal xfYYCmoneyAmoney = 0, xfYYCmoneyBmoney = 0, xfYYCmoneyFreeAmoney = 0, xfYYCmoneyFreeBmoney = 0;
             if (invLists != null)
             {
                 foreach (T_Invoice vs in invLists)
@@ -232,7 +232,7 @@ namespace SelfhelpOrderMgr.BLL
                                     xfYYCmoneyBmoney = xfYYCmoneyBmoney + (vs.AmountB * vs.Fifoflag * -1);
                                     xfYYCmoneyFreeAmoney = xfYYCmoneyFreeAmoney + (vs.FreeAmountA * vs.Fifoflag * -1);
                                     xfYYCmoneyFreeBmoney = xfYYCmoneyFreeBmoney + (vs.FreeAmountB * vs.Fifoflag * -1);
-                                }                                
+                                }
                             }
                         }
                     }
@@ -246,7 +246,10 @@ namespace SelfhelpOrderMgr.BLL
                 }
             }
 
-            
+
+            List<T_JF_Invoice> jfinvLists = new BaseDapperBLL().QueryList<T_JF_Invoice>(strWhere);
+
+            model.XiaoFeiPoints = jfinvLists.Sum(o => o.Amount);
 
             //if (yyMset != null)
             //{
@@ -272,13 +275,15 @@ namespace SelfhelpOrderMgr.BLL
                     {
                         model.CanUseMoneyA = model.AmountAmoney;
                         model.CanUseMoneyB = model.AmountBmoney;
-                    } break;
+                    }
+                    break;
                 case 1:
                     {
                         model.CanUseMoneyA = model.AmountAmoney;
                         model.CanUseMoneyB = 0;
                         model.AmountBmoney = 0;
-                    } break;
+                    }
+                    break;
                 case 2:
                     {
                         model.CanUseMoneyA = 0;
@@ -291,7 +296,8 @@ namespace SelfhelpOrderMgr.BLL
                         {
                             model.CanUseMoneyB = model.AmountBmoney - dongjieMoney;
                         }
-                    } break;
+                    }
+                    break;
                 default:
                     break;
             }
@@ -303,10 +309,10 @@ namespace SelfhelpOrderMgr.BLL
             //==========================================================================
             //2018-11-02  zenglj
             //增加节假日判断，如是传统节日增加相应的金额            
-            List<T_CY_ChinaFestival> festivalDates =new T_CY_ChinaFestivalBLL().GetModelList("FDate>='" + startDate + "' and FDate<'" + endDate + "'");
+            List<T_CY_ChinaFestival> festivalDates = new T_CY_ChinaFestivalBLL().GetModelList("FDate>='" + startDate + "' and FDate<'" + endDate + "'");
             if (festivalDates.Count <= 0)
             {
-                cy.JaRi_Cy_Money=0;
+                cy.JaRi_Cy_Money = 0;
             }
             //if (yyMset != null)
             //{
@@ -326,7 +332,7 @@ namespace SelfhelpOrderMgr.BLL
             decimal TP_YingYangCan_Money = 0;
             decimal TP_CY_YingYangCan_Money = 0;
 
-            List<T_Criminal_TPList> yingyangcaMoneys = new T_Criminal_TPListBLL().GetModelList("EffectiveDate>=getdate() and isnull(FifoFlag,0)=0 and FCode='"+ model.FCode +"'");
+            List<T_Criminal_TPList> yingyangcaMoneys = new T_Criminal_TPListBLL().GetModelList("EffectiveDate>=getdate() and isnull(FifoFlag,0)=0 and FCode='" + model.FCode + "'");
             if (yingyangcaMoneys.Count > 0)
             {
                 TP_YingYangCan_Money = model.TP_YingYangCan_Money;
@@ -357,7 +363,7 @@ namespace SelfhelpOrderMgr.BLL
                 //判断是否是传统节日月和领导特批营养餐金额
                 model.UserCyDesc = "总额限制处遇" + cy.ftotamtmonth.ToString() + ",领导特批" + TP_CY_YingYangCan_Money.ToString() + ",节日" + cy.JaRi_Cy_Money;
                 cy.ftotamtmonth = cy.ftotamtmonth + TP_CY_YingYangCan_Money + cy.JaRi_Cy_Money;
-                
+
                 //判断限额验证，如总额度，小于A账户额度，则是错的，那么直将AB都设为0
                 if (cy.ftotamtmonth < cy.famtmonth)
                 {
@@ -604,7 +610,7 @@ namespace SelfhelpOrderMgr.BLL
                     if (yyMset.KeyMode == saleTypeId)
                     {
                         //TP_CY_YingYangCan_Money = 0;
-                        model.MonthStandard =cy.totpct;
+                        model.MonthStandard = cy.totpct;
                         model.Xiaofeimoney = xfYYCmoneyAmoney + xfYYCmoneyBmoney - xfYYCmoneyFreeAmoney - xfYYCmoneyFreeBmoney;
                         model.NoXiaofeimoney = model.NoXiaofeimoney > (cy.totpct - model.Xiaofeimoney) ? (cy.totpct - model.Xiaofeimoney) : model.NoXiaofeimoney;
                         //cy.JaRi_Cy_Money=0;
@@ -645,7 +651,7 @@ namespace SelfhelpOrderMgr.BLL
 
             //如果节假日金额设定为可以购买特种商品，则金额加上节日金额
             T_SHO_ManagerSet jjrMSet = new T_SHO_ManagerSetBLL().GetModel("JieJiaRi_Money_TZSPFlag");
-            if(jjrMSet!=null)
+            if (jjrMSet != null)
             {
                 if (jjrMSet.MgrValue == "1")
                 {
@@ -745,7 +751,7 @@ namespace SelfhelpOrderMgr.BLL
             //                model.CanUseMoneyA = canAllUseMoney1 - cy.totpct > 0 ? cy.totpct - model.CanUseMoneyB : canAllUseMoney1 - model.CanUseMoneyB;
 
             //            }
-                        
+
             //        }
             //    }
             //}
@@ -754,7 +760,10 @@ namespace SelfhelpOrderMgr.BLL
             //只要领导有审批则个人增加相应的金额，可购买食品和日用品
             //model.FTZSP_CanUseMoney = model.FTZSP_CanUseMoney + TP_YingYangCan_Money;
             //model.TZSP_cyMoney = model.TZSP_cyMoney + TP_YingYangCan_Money;
-            
+
+
+            model.AccPoints = card.AccPoints;//增加积分
+
             return model;
         }
 

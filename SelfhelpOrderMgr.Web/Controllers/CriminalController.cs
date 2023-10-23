@@ -29,7 +29,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
         // GET: /Criminal/
         JavaScriptSerializer jss = new JavaScriptSerializer();
         
-        public ActionResult Index()
+        public ActionResult Index(int id=1)
         {
             List<T_AREA> areas = new T_AREABLL().GetModelList("FCode in( select fareaCode from t_czy_area where fflag=2 and fcode='" + Session["loginUserCode"].ToString() + "')");
             ViewData["areas"] = areas;
@@ -92,6 +92,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 ViewData["areaMset"] = areaMset.MgrValue;
             }
 
+            ViewData["id"] = id;
             //测试一下
             //List<T_Criminal> lists =  DapperHelperBLL<T_Criminal>.GetAll("select * from t_criminal where fcycode=@fcycode", new { fcycode = "3" });
             return View();

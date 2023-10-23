@@ -56,16 +56,16 @@
                 <form id="ffBankRecAudit">
                     <input type="hidden" id="addVchnum" name="vchnum" />
                     <label>编号:</label><input type="text" style="width:100px;" class="easyui-numberbox" id="addFCrimeCode" name="fcrimecode" />
-                    <label>姓名:</label><input type="text" style="width:150px;" class="easyui-textbox" id="addFCrimeName" name="fcrimename" />
+                    <label>姓名:</label><input type="text" style="width:120px;" class="easyui-textbox" id="addFCrimeName" name="fcrimename" />
                     <label>审核备注:</label><input type="text" style="width:150px;" class="easyui-textbox" id="addFRemark" name="remark" />
-                    <select id="forceCheckFlag" class="easyui-combobox" name="checkFlag" style="width:100px;">
+                    <select id="forceCheckFlag" class="easyui-combobox" name="checkFlag" style="width:80px;">
                         <option value="1" selected="selected">标准入账</option>
                         <option value="2">强制入账</option>
                     </select>
                     @*<a id="btn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-save'" onclick="btnAuditBankRec()">确认审核入账</a>*@
                     <a href="javascript:void(0)" id="mpSets" class="easyui-menubutton"
                        data-options="menu:'#mpList',iconCls:'icon-redo'">审核方式</a>
-                    <div id="mpList" style="width:150px;">
+                    <div id="mpList" style="width:100px;">
                         <div data-options="iconCls:'icon-save'" onclick="btnAuditBankRec()">确认审核入账</div>
                         <div data-options="iconCls:'icon-redo'" onclick="btnReturnPersonalAccount()">网银对私退回</div>
                         <div data-options="iconCls:'icon-undo'" onclick="btnReturnToBack()">原路退回</div>

@@ -236,7 +236,7 @@ namespace SelfhelpOrderMgr.Model
 
 
         /// <summary>
-        /// SettleMode
+        /// SettleMode 结算模式
         /// </summary>		
         private int _settlemode;
         public int SettleMode

@@ -23,7 +23,7 @@ namespace SelfhelpOrderMgr.YuZhengJieKou.Model
         public string createById { get; set; }//创建者Id
         public string createTime { get; set; }//创建时间
         public string csqh { get; set; }//出生地 对应编码：sys_gjxzqh
-        public string chrq { get; set; }//出生日期
+        public string csrq { get; set; }//出生日期
         public string dah { get; set; }//档案号
         public string dbmx { get; set; }//逮捕机关称谓 对应编码： 1X
         public string dbqh { get; set; }//逮捕机关区划 对应编码：sys_gjxzqh

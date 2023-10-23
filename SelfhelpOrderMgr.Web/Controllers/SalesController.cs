@@ -48,11 +48,11 @@ namespace SelfhelpOrderMgr.Web.Controllers
                     switch (saledayFlag)
                     {
                         case 0:
-                            return Redirect("/Shopping/StopShoppingNotice/"+id);
+                            return Redirect("/Shopping/StopShoppingNotice/" + id);
                         case 1:
                             break;
                         case -1:
-                            return Redirect("/Shopping/NoAtShoppingTime/"+id);
+                            return Redirect("/Shopping/NoAtShoppingTime/" + id);
                     }
                     //if (!saledayFlag)
                     //{
@@ -73,7 +73,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                     if (DateTime.Now < Convert.ToDateTime(DateTime.Today.ToString("yyyy-MM-dd") + " " + startTime) || DateTime.Now > Convert.ToDateTime(DateTime.Today.ToString("yyyy-MM-dd") + " " + endTime))
                     {
                         return Redirect("/Shopping/NoAtShoppingTime");
-                    }                    
+                    }
                 }
             }
 
@@ -109,16 +109,16 @@ namespace SelfhelpOrderMgr.Web.Controllers
             string gtxm = Request["Gtxm"];
             string SaleTypeId = Request["SaleTypeId"];
             List<T_Goods> good = (List<T_Goods>)new T_GoodsBLL().GetListOfIEnumerable("gtxm='" + gtxm + "' and gtype in(select fcode from T_GoodsType where saletypeid='" + SaleTypeId + "')");
-            
+
             JavaScriptSerializer jss = new JavaScriptSerializer();
-            if (good.Count ==1)
+            if (good.Count == 1)
             {
                 //获取商品的属性
-                List<T_SHO_GoodsForAttr> attrs = new T_SHO_GoodsForAttrBLL().GetModelList("GCODE='" + good[0].GCODE + "'","AttrInfo");
+                List<T_SHO_GoodsForAttr> attrs = new T_SHO_GoodsForAttrBLL().GetModelList("GCODE='" + good[0].GCODE + "'", "AttrInfo");
 
                 if (good[0].ACTIVE == "N")
                 {
-                    return Content( "Error|抱谦，该商品已经下架了");
+                    return Content("Error|抱谦，该商品已经下架了");
                 }
                 else
                 {
@@ -129,7 +129,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
             }
             else if (good.Count > 1)
             {
-                return Content("Error|商品条码有重复的记录" );
+                return Content("Error|商品条码有重复的记录");
             }
             else
             {
@@ -140,7 +140,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                     if (good.Count == 1)
                     {
                         //获取商品的属性
-                        List<T_SHO_GoodsForAttr> attrs = new T_SHO_GoodsForAttrBLL().GetModelList("GCODE='" + good[0].GCODE + "'","AttrInfo");
+                        List<T_SHO_GoodsForAttr> attrs = new T_SHO_GoodsForAttrBLL().GetModelList("GCODE='" + good[0].GCODE + "'", "AttrInfo");
 
                         if (good[0].ACTIVE == "N")
                         {
@@ -157,6 +157,6 @@ namespace SelfhelpOrderMgr.Web.Controllers
             }
         }
 
-        
-	}
+
+    }
 }

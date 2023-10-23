@@ -63,6 +63,21 @@ $(function () {
     //    }
     //}
 
+
+
+    var useTypes = [{ "value": "0", "text": "购物系统" }, { "value": "1", "text": "积分系统" }, { "value": "2", "text": "全部通用" }];
+
+    function useTypesFormatter(value, rowData, rowIndex) {
+        //if (value == 0) {
+        //    return;
+        //}
+        for (var i = 0; i < useTypes.length; i++) {
+            if (useTypes[i].value == value) {
+                return useTypes[i].text;
+            }
+        }
+    }
+
     $.post("/BaseInfoMgr/GetSystemSaleType", { "action": "" }, function (data, status) {
         if ("success" == status) {
             consumeAccount = $.parseJSON(data);
@@ -78,7 +93,7 @@ $(function () {
                 autoRowHeight: false,
                 striped: true,
                 collapsible: true,
-                url: '/Super/GetGoodsTypeMgr',
+                url: '/Super/GetGoodsTypeMgr/' + $("#UseTypeId").val(),
                 sortName: 'Fcode',
                 sortOrder: 'asc',
                 remoteSort: false,
@@ -155,7 +170,8 @@ $(function () {
                                         return "单品限购";
                                     }
                                 }
-                            }
+                    },
+                    { field: 'UseType', width: 80, title: '使用类型', formatter: useTypesFormatter, editor: { type: 'combobox', options: { data: useTypes, valueField: "value", textField: "text" } } }
                 ]]
             });
 

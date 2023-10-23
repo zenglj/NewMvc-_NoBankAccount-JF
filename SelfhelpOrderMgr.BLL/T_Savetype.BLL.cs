@@ -117,7 +117,10 @@ namespace SelfhelpOrderMgr.BLL
                     {
                         model.FuShuFlag = int.Parse(dt.Rows[n]["FuShuFlag"].ToString());
                     }
-
+                    if (dt.Rows[n]["UseType"].ToString() != "")
+                    {
+                        model.UseType = int.Parse(dt.Rows[n]["UseType"].ToString());
+                    }
 
                     modelList.Add(model);
                 }

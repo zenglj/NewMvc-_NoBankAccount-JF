@@ -27,12 +27,12 @@ $(function () {
         textField: 'Fname'
     });
 
-    
+
 
 
 
     loadTableList();//载入队别列表数据
-    
+
     $('#editWindows').window({
         modal: true,
         closed: true
@@ -91,16 +91,19 @@ function loadTableList() {
         pageList: [10, 20],
         pagination: true,
         columns: [[
-					{ field: 'ck', checkbox: true },
-					{ field: 'FCode', width: 50, sortable: true, title: '编号', editor: 'text' },
-                    { field: 'FName', width: 50, sortable: true, title: '名称', editor: 'text' },
-                    { field: 'ID', width: 50, sortable: true, title: 'ID', editor: 'text' },
-                    { field: 'FID', width: 50, sortable: true, title: '父ID', editor: 'text' },
-                    { field: 'URL', width: 80, title: 'URL', editor: 'text' },
-                    { field: 'FTZSP_Money', width: 100, title: '特种品购买金额', editor: 'text' },
-                    {
-                        field: 'SaleCloseFlag', width: 60, sortable: true, title: '消费开单状态', formatter: FlagFormatter, editor: { type: 'combobox', options: { data: FlagTypes, valueField: "value", textField: "text" } }
-                    }]]
+            { field: 'ck', checkbox: true },
+            { field: 'FCode', width: 50, sortable: true, title: '编号', editor: 'text' },
+            { field: 'FName', width: 50, sortable: true, title: '名称', editor: 'text' },
+            { field: 'ID', width: 50, sortable: true, title: 'ID', editor: 'text' },
+            { field: 'FID', width: 50, sortable: true, title: '父ID', editor: 'text' },
+            { field: 'URL', width: 80, title: 'URL', editor: 'text' },
+            { field: 'FTZSP_Money', width: 100, title: '特种品购买金额', editor: 'text' },
+            {
+                field: 'SaleCloseFlag', width: 60, sortable: true, title: '消费开单状态', formatter: FlagFormatter, editor: { type: 'combobox', options: { data: FlagTypes, valueField: "value", textField: "text" } }
+            },
+            {
+                field: 'JiFenCloseFlag', width: 60, sortable: true, title: '积分消费状态', formatter: FlagFormatter, editor: { type: 'combobox', options: { data: FlagTypes, valueField: "value", textField: "text" } }
+            }]]
     });
 }
 
@@ -164,13 +167,13 @@ $(function () {
 var $dg = $("#test");
 
 //批量保存数据
-function BatchSaveDg(){
+function BatchSaveDg() {
     endEdit();
     if ($dg.datagrid('getChanges').length) {
         var inserted = $dg.datagrid('getChanges', "inserted");
         var deleted = $dg.datagrid('getChanges', "deleted");
         var updated = $dg.datagrid('getChanges', "updated");
-                         
+
         var effectRow = new Object();
         if (inserted.length) {
             effectRow["inserted"] = JSON.stringify(inserted);
@@ -181,24 +184,23 @@ function BatchSaveDg(){
         if (updated.length) {
             effectRow["updated"] = JSON.stringify(updated);
         }
- 
+
         $.post("/BaseInfoMgr/SaveAreaList", effectRow,
             function (data, status) {
                 if ("success" != status) {
                     return false;
                 }
-                else{
+                else {
                     var words = data.split("|");
                     if (words[0] == "OK") {
                         UpdateDGInfo(words[1]);
                         $dg.datagrid('acceptChanges');
                         $.messager.alert("提示", "保存成功！");
                     }
-                    else
-                    {
+                    else {
                         $.messager.alert("提示", data);
                     }
-                }                
+                }
             });
     }
 }
@@ -213,8 +215,7 @@ function endEdit() {
 
 //更新DataGrid记录信息
 
-function UpdateDGInfo(word)
-{
+function UpdateDGInfo(word) {
     var invs = $.parseJSON(word);
     //清空现有记录
     var item = $('#test').datagrid('getRows');
@@ -261,7 +262,7 @@ function FilterSearch() {
         , "FGoodsName": $('#FGoodsName').val()
         , "FGoodsGTXM": $('#FGoodsGTXM').val()
     });
-    
+
     //$.post("/Super/GetXEGoodTypeList", {
     //    "typeName": $('#FGoodsType').combobox('getText')
     //    , "FAreaInfo": $('#FAreaInfo').combobox('getValue')
@@ -275,20 +276,19 @@ function FilterSearch() {
     //            UpdateDGInfo(data);
     //        }
     //    });
-    
+
 }
 
 
 //添加类别商品信息
-function AddTypeGoods()
-{
+function AddTypeGoods() {
     $('#test').datagrid('appendRow', {
         FCode: '',
         FName: "",
         ID: '',
         FID: "",
         URL: "",
-        FTZSP_Money:0
+        FTZSP_Money: 0
     });
 }
 
@@ -296,7 +296,7 @@ function AddTypeGoods()
 function DeleteTypeInfoById() {
     $.messager.confirm('确认', '您确认想要删除记录吗？', function (r) {
         if (r) {
-            var row = $('#test').datagrid('getSelected');            
+            var row = $('#test').datagrid('getSelected');
             if (row != null) {
                 $.post("/BaseInfoMgr/DeleleArea", { "FCode": row.FCode }
                     , function (data, status) {
@@ -312,10 +312,10 @@ function DeleteTypeInfoById() {
                             }
                         }
                     });
-                
+
             }
         }
-    });    
+    });
 }
 
 //改变队别许可消费状态:0表示开，1表示关
@@ -323,17 +323,17 @@ function ChangeAallSaleCloseFlag(flag) {
     $.messager.confirm('确认', '您确认进行本操作吗？', function (r) {
         if (r) {
             $.post("/BaseInfoMgr/ChangeAallSaleCloseFlag", { "flag": flag }
-                    , function (data, status) {
-                        if ("success" != status) {
-                            return false;
+                , function (data, status) {
+                    if ("success" != status) {
+                        return false;
+                    } else {
+                        if (data == "OK|更新成功") {
+                            loadTableList();//载入监区列表数据
                         } else {
-                            if (data == "OK|更新成功") {
-                                loadTableList();//载入监区列表数据
-                            } else {
-                                $.messager.alert('提示', '执行失败');
-                            }
+                            $.messager.alert('提示', '执行失败');
                         }
-                    });
+                    }
+                });
         }
     });
 }

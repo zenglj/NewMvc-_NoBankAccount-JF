@@ -13,6 +13,7 @@
 <body class="easyui-layout">
     <div data-options="region:'center',title:'财务子科目'" style="padding:5px;">
         <div style="height:300px;">
+            <input type="hidden" id="useTypeId" value="@ViewData["UseTypeId"]" />
             <input type="hidden" id="typeName" />
             <table id="test" class="easyui-datagrid" toolbar="#tb"></table>
 

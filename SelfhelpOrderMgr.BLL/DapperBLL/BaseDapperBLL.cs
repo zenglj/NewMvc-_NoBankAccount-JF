@@ -10,7 +10,7 @@ namespace SelfhelpOrderMgr.BLL
 {
     public class BaseDapperBLL
     {
-        protected readonly BaseDapperDAL dapperDal=new BaseDapperDAL();
+        protected readonly BaseDapperDAL dapperDal = new BaseDapperDAL();
 
 
         #region 基本增删改查
@@ -40,7 +40,7 @@ namespace SelfhelpOrderMgr.BLL
             return dapperDal.QueryList<T>(sqlStr, page, pageSize, orderField, parameter);
         }
 
-        
+
         public T Insert<T>(T t) where T : BaseModel
         {
             return dapperDal.Insert<T>(t);
@@ -69,9 +69,9 @@ namespace SelfhelpOrderMgr.BLL
         /// <param name="strUpdateJson"></param>
         /// <param name="otherStrWhere"></param>
         /// <returns></returns>
-        public bool Update<T>(T t, string strUpdateJson, string otherStrWhere = "",bool isIdFlag=true) where T : BaseModel
+        public bool Update<T>(T t, string strUpdateJson, string otherStrWhere = "", bool isIdFlag = true) where T : BaseModel
         {
-            return dapperDal.Update<T>(t, strUpdateJson, otherStrWhere,isIdFlag);
+            return dapperDal.Update<T>(t, strUpdateJson, otherStrWhere, isIdFlag);
         }
         /// <summary>
         /// 批量更新
@@ -92,9 +92,9 @@ namespace SelfhelpOrderMgr.BLL
         /// <param name="strUpdateJson">部分更新的Json</param>
         /// <param name="otherStrWhere">其他查询条件</param>
         /// <returns></returns>
-        public bool Update<T>(IEnumerable<T> list, string strUpdateJson, string otherStrWhere = "",bool isIdFlag=true) where T : BaseModel
+        public bool Update<T>(IEnumerable<T> list, string strUpdateJson, string otherStrWhere = "", bool isIdFlag = true) where T : BaseModel
         {
-            return dapperDal.Update<T>(list, strUpdateJson, otherStrWhere,isIdFlag);
+            return dapperDal.Update<T>(list, strUpdateJson, otherStrWhere, isIdFlag);
         }
 
         public bool Delete<T>(int id) where T : BaseModel
@@ -102,12 +102,29 @@ namespace SelfhelpOrderMgr.BLL
             return dapperDal.Delete<T>(id);
         }
 
-        
+        public bool Delete<T>(string fieldName, string fieldValue) where T : BaseModel
+        {
+            return dapperDal.Delete<T>(fieldName, fieldValue);
+        }
 
 
         public T GetModel<T>(int id) where T : BaseModel
         {
             return dapperDal.GetModel<T>(id);
+        }
+
+        public List<T> GetModelList<T>(string strJsonWhere) where T : BaseModel
+        {
+            return dapperDal.GetModelList<T, T>(strJsonWhere);
+        }
+        public List<T> GetModelList<T, S>(string strJsonWhere) where T : BaseModel
+        {
+            return dapperDal.GetModelList<T, S>(strJsonWhere);
+        }
+
+        public List<T> GetModelList<T>(string strJsonWhere, string orderField, int topNum = 10) where T : BaseModel
+        {
+            return dapperDal.GetModelList<T, T>(strJsonWhere, orderField, topNum);
         }
         public List<T> GetModelList<T, S>(string strJsonWhere, string orderField, int topNum = 10) where T : BaseModel
         {
@@ -125,7 +142,12 @@ namespace SelfhelpOrderMgr.BLL
         {
             return dapperDal.GetParamString<T, S>(strJsonWhere);
         }
-            public T GetModelFirst<T, S>(string strJsonWhere) where T : BaseModel
+
+        public T GetModelFirst<T>(string strJsonWhere) where T : BaseModel
+        {
+            return dapperDal.GetModelFirst<T, T>(strJsonWhere);
+        }
+        public T GetModelFirst<T, S>(string strJsonWhere) where T : BaseModel
         {
             return dapperDal.GetModelFirst<T, S>(strJsonWhere);
         }
@@ -141,9 +163,25 @@ namespace SelfhelpOrderMgr.BLL
         /// <param name="pageRows"></param>
         /// <param name="OtherQuery"></param>
         /// <returns></returns>
+        public PageResult<T> GetPageList<T>(string orderField, string strJsonWhere, int pageIndex = 1, int pageRows = 10, string OtherQuery = "") where T : BaseModel
+        {
+            return dapperDal.GetPageList<T, T>(orderField, strJsonWhere, pageIndex, pageRows, OtherQuery);
+        }
+
+        /// <summary>
+        /// 按查询条件获取数据表相应的实体数据
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="S"></typeparam>
+        /// <param name="orderField"></param>
+        /// <param name="strJsonWhere"></param>
+        /// <param name="pageIndex"></param>
+        /// <param name="pageRows"></param>
+        /// <param name="OtherQuery"></param>
+        /// <returns></returns>
         public PageResult<T> GetPageList<T, S>(string orderField, string strJsonWhere, int pageIndex = 1, int pageRows = 10, string OtherQuery = "") where T : BaseModel
         {
-            return dapperDal.GetPageList<T,S>(orderField, strJsonWhere, pageIndex, pageRows,OtherQuery);
+            return dapperDal.GetPageList<T, S>(orderField, strJsonWhere, pageIndex, pageRows, OtherQuery);
         }
 
         /// <summary>
@@ -173,9 +211,9 @@ namespace SelfhelpOrderMgr.BLL
         /// <param name="strJsonWhere"></param>
         /// <param name="OtherQuery"></param>
         /// <returns></returns>
-        public int GetTableCount<T, S>( string strJsonWhere,  string OtherQuery = "") where T : BaseModel
+        public int GetTableCount<T, S>(string strJsonWhere, string OtherQuery = "") where T : BaseModel
         {
-            return dapperDal.GetTableCount<T, S>( strJsonWhere,  OtherQuery);
+            return dapperDal.GetTableCount<T, S>(strJsonWhere, OtherQuery);
         }
 
         public decimal GetListSumAmount<T, S>(string sumField, string strJsonWhere, string OtherQuery = "") where T : BaseModel
@@ -185,7 +223,7 @@ namespace SelfhelpOrderMgr.BLL
 
         public List<R> GetSumOfFieldList<T, S, R>(string sumField, string groupField, string strJsonWhere, string OtherQuery = "") where T : BaseModel
         {
-            return dapperDal.GetSumOfFieldList<T, S,R>(sumField, groupField, strJsonWhere, OtherQuery);
+            return dapperDal.GetSumOfFieldList<T, S, R>(sumField, groupField, strJsonWhere, OtherQuery);
         }
 
 
@@ -214,5 +252,44 @@ namespace SelfhelpOrderMgr.BLL
 
         #endregion
 
+        /// <summary>
+        /// 获取订单号Vou
+        /// </summary>
+        /// <returns></returns>
+        public string GetVouNo()
+        {
+            return dapperDal.GetVouNo();
+        }
+
+        /// <summary>
+        /// 更新部分金额字段
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="dict"></param>
+        /// <param name="strwhere"></param>
+        /// <returns></returns>
+        public bool UpdateNumericPart<T>(Dictionary<string, decimal> dict, string strwhere)
+        {
+            return dapperDal.UpdateNumericPart<T>(dict, strwhere);
+        }
+        public bool UpdatePartInfo<T>(Dictionary<string, string> dict, string strwhere)
+        {
+            return dapperDal.UpdatePartInfo<T>(dict, strwhere);
+        }
+
+        public string ExecuteProc(string procName, Dictionary<string, string> dict)
+        {
+            return dapperDal.ExecuteProc(procName, dict);
+        }
+
+        /// <summary>
+        /// 创建订单Id
+        /// </summary>
+        /// <param name="seqnoType"></param>
+        /// <returns></returns>
+        public string CreateOrderId(string seqnoType)
+        {
+            return dapperDal.CreateOrderId(seqnoType);
+        }
     }
 }

@@ -24,6 +24,8 @@ namespace SelfhelpOrderMgr.Web
 
         public string FCrimeCode { get; set; }//狱号
 
+        public decimal AccPoints { get; set; }//账户积分
+        public decimal XiaoFeiPoints { get; set; }//本月已消费积分
 
         public List<T_SHO_OrderDTL> lists { get; set; }//订单列表
 
@@ -37,10 +39,29 @@ namespace SelfhelpOrderMgr.Web
     }
 
     //结算返回的信息
-    public class rtnPaySubmitInfo
+    public class rtnPaySubmitInfo<T, DTL>
     {
-        public List<T_InvoiceDTL> details { get; set; }
-        public T_Invoice invoice { get; set; }
+        //public T_Invoice invoice { get; set; }
+        public T invoice { get; set; }
+        //public List<T_InvoiceDTL> details { get; set; }
+        public List<DTL> details { get; set; }
+        public T_Criminal criminal { get; set; }
+    }
+
+
+
+    public class rtnTrades
+    {
+        public T_BatchMoneyTrade trade { get; set; }
+        public List<T_BatchMoneyTrade_DTL> dtls { get; set; }
+    }
+
+
+    public class PrintInvoices<T, DTL>
+    {
+        public T invoice { get; set; }
+        public List<DTL> details { get; set; }
+
         public T_Criminal criminal { get; set; }
     }
 }

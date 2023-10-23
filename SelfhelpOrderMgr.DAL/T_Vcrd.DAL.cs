@@ -31,9 +31,9 @@ namespace SelfhelpOrderMgr.DAL
         {
             StringBuilder strSql = new StringBuilder();
             strSql.Append("insert into T_Vcrd(");
-            strSql.Append("Vouno,Remark,Flag,DelBy,DelDate,FAreaCode,FAreaName,FCriminal,Frealareacode,FrealAreaName,PType,CardCode,UDate,OrigId,CardType,TypeFlag,AccType,SendDate,BankFlag,CheckFlag,CheckDate,CheckBy,FCrimeCode,pc,SubTypeFlag,RcvDate,CurUserAmount,CurAllAmount,bankRcvFlag,FinancePayId,FinancePayFlag,BankInterfaceFlag,DAmount,PayAuditFlag,CAmount,CrtBy,CrtDate,DType,Depositer");
+            strSql.Append("Vouno,Remark,Flag,DelBy,DelDate,FAreaCode,FAreaName,FCriminal,Frealareacode,FrealAreaName,PType,CardCode,UDate,OrigId,CardType,TypeFlag,AccType,SendDate,BankFlag,CheckFlag,CheckDate,CheckBy,FCrimeCode,pc,SubTypeFlag,RcvDate,CurUserAmount,CurAllAmount,bankRcvFlag,FinancePayId,FinancePayFlag,BankInterfaceFlag,DAmount,PayAuditFlag,CAmount,CrtBy,CrtDate,DType,Depositer,PayMode");
             strSql.Append(") values (");
-            strSql.Append("@Vouno,@Remark,@Flag,@DelBy,@DelDate,@FAreaCode,@FAreaName,@FCriminal,@Frealareacode,@FrealAreaName,@PType,@CardCode,@UDate,@OrigId,@CardType,@TypeFlag,@AccType,@SendDate,@BankFlag,@CheckFlag,@CheckDate,@CheckBy,@FCrimeCode,@pc,@SubTypeFlag,@RcvDate,@CurUserAmount,@CurAllAmount,@bankRcvFlag,@FinancePayId,@FinancePayFlag,@BankInterfaceFlag,@DAmount,@PayAuditFlag,@CAmount,@CrtBy,@CrtDate,@DType,@Depositer");
+            strSql.Append("@Vouno,@Remark,@Flag,@DelBy,@DelDate,@FAreaCode,@FAreaName,@FCriminal,@Frealareacode,@FrealAreaName,@PType,@CardCode,@UDate,@OrigId,@CardType,@TypeFlag,@AccType,@SendDate,@BankFlag,@CheckFlag,@CheckDate,@CheckBy,@FCrimeCode,@pc,@SubTypeFlag,@RcvDate,@CurUserAmount,@CurAllAmount,@bankRcvFlag,@FinancePayId,@FinancePayFlag,@BankInterfaceFlag,@DAmount,@PayAuditFlag,@CAmount,@CrtBy,@CrtDate,@DType,@Depositer,@PayMode");
             strSql.Append(") ");
             strSql.Append(";select @@IDENTITY");
             SqlParameter[] parameters = {
@@ -75,8 +75,9 @@ namespace SelfhelpOrderMgr.DAL
                         new SqlParameter("@CrtBy", SqlDbType.VarChar,20) ,            
                         new SqlParameter("@CrtDate", SqlDbType.DateTime) ,            
                         new SqlParameter("@DType", SqlDbType.VarChar,20) ,            
-                        new SqlParameter("@Depositer", SqlDbType.VarChar,20)             
-              
+                        new SqlParameter("@Depositer", SqlDbType.VarChar,20) ,
+                        new SqlParameter("@PayMode", SqlDbType.Int,4)
+
             };
 
             parameters[0].Value = model.Vouno;
@@ -118,6 +119,7 @@ namespace SelfhelpOrderMgr.DAL
             parameters[36].Value = model.CrtDate;
             parameters[37].Value = model.DType;
             parameters[38].Value = model.Depositer;
+            parameters[39].Value = model.PayMode;
 
             object obj = SqlHelper.GetSingle(strSql.ToString(), parameters);
             if (obj == null)
@@ -332,7 +334,7 @@ namespace SelfhelpOrderMgr.DAL
         {
 
             StringBuilder strSql = new StringBuilder();
-            strSql.Append("select Vouno, Remark, Flag, DelBy, DelDate, FAreaCode, FAreaName, FCriminal, Frealareacode, FrealAreaName, PType, CardCode, UDate, OrigId, CardType, TypeFlag, AccType, SendDate, BankFlag, CheckFlag, CheckDate, CheckBy, FCrimeCode, pc, seqno, SubTypeFlag, RcvDate, CurUserAmount, CurAllAmount, bankRcvFlag, FinancePayId, FinancePayFlag, BankInterfaceFlag, DAmount, PayAuditFlag, CAmount, CrtBy, CrtDate, DType, Depositer  ");
+            strSql.Append("select Vouno, Remark, Flag, DelBy, DelDate, FAreaCode, FAreaName, FCriminal, Frealareacode, FrealAreaName, PType, CardCode, UDate, OrigId, CardType, TypeFlag, AccType, SendDate, BankFlag, CheckFlag, CheckDate, CheckBy, FCrimeCode, pc, seqno, SubTypeFlag, RcvDate, CurUserAmount, CurAllAmount, bankRcvFlag, FinancePayId, FinancePayFlag, BankInterfaceFlag, DAmount, PayAuditFlag, CAmount, CrtBy, CrtDate, DType, Depositer,PayMode  ");
             strSql.Append("  from T_Vcrd ");
             strSql.Append(" where seqno=@seqno");
             SqlParameter[] parameters = {
@@ -458,6 +460,7 @@ namespace SelfhelpOrderMgr.DAL
                 }
                 model.DType = ds.Tables[0].Rows[0]["DType"].ToString();
                 model.Depositer = ds.Tables[0].Rows[0]["Depositer"].ToString();
+                model.PayMode = int.Parse(ds.Tables[0].Rows[0]["PayMode"].ToString());
 
                 return model;
             }

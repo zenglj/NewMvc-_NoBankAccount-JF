@@ -5,18 +5,18 @@ using System.Data;
 namespace SelfhelpOrderMgr.Model
 {
     //T_SHO_SaleType
-    public class T_SHO_SaleType
+    public class T_SHO_SaleType:BaseModel
     {
 
-        /// <summary>
-        /// ID
-        /// </summary>		
-        private int _id;
-        public int ID
-        {
-            get { return _id; }
-            set { _id = value; }
-        }
+        ///// <summary>
+        ///// ID
+        ///// </summary>		
+        //private int _id;
+        //public int ID
+        //{
+        //    get { return _id; }
+        //    set { _id = value; }
+        //}
         /// <summary>
         /// PType
         /// </summary>		
@@ -81,6 +81,11 @@ namespace SelfhelpOrderMgr.Model
             set { _fifoflag = value; }
         }
 
+        //使用类型：0是普通 还是 1是积分消费
+        public int UseType { get; set; }
+
+        //控制器名称
+        public string ControlName { get; set; }
     }
 }
 

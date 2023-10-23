@@ -27,7 +27,7 @@ namespace SelfhelpOrderMgr.Model
 		private int _unregflag;
 		private string _secondarybankcard;
 		private int _secondarycardflag;
-		private int _accpoints;
+		private decimal _accpoints;
 		public int seqno
 		{
 			get
@@ -293,7 +293,7 @@ namespace SelfhelpOrderMgr.Model
 			}
 		}
 
-		public int AccPoints
+		public decimal AccPoints
 		{
 			get
 			{

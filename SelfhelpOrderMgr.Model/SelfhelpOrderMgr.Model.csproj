@@ -87,8 +87,23 @@
     <Compile Include="DapperModel\BfUseListMgr.cs" />
     <Compile Include="DapperModel\T_Bank_CNAPS.cs" />
     <Compile Include="DapperModel\T_Bank_AtmDealList_Search.cs" />
+    <Compile Include="DapperModel\T_Bank_AtmServerPay_Search.cs" />
     <Compile Include="DapperModel\T_Bank_DateBalance_Search.cs" />
     <Compile Include="DapperModel\T_Bank_DateBalance.cs" />
+    <Compile Include="DapperModel\T_Bank_AtmServerPay.cs" />
+    <Compile Include="DapperModel\T_Bank_RetentionAmount_Search.cs" />
+    <Compile Include="DapperModel\T_Bank_RetentionAmount.cs" />
+    <Compile Include="DapperModel\T_BC_BaochouDetail.cs" />
+    <Compile Include="DapperModel\T_BC_BaochouMain.cs" />
+    <Compile Include="DapperModel\T_BC_BaochouMain_Search.cs" />
+    <Compile Include="DapperModel\T_BC_BaochouSum.cs" />
+    <Compile Include="DapperModel\T_BC_BaochouSum_Search.cs" />
+    <Compile Include="DapperModel\T_BC_ManagerParam.cs" />
+    <Compile Include="DapperModel\T_JF_BONUS.cs" />
+    <Compile Include="DapperModel\T_JF_BONUSDTL.cs" />
+    <Compile Include="DapperModel\T_JF_Invoice.cs" />
+    <Compile Include="DapperModel\T_JF_InvoiceDTL.cs" />
+    <Compile Include="DapperModel\T_JF_Vcrd.cs" />
     <Compile Include="DapperModel\T_SysOperationLog_Search.cs" />
     <Compile Include="DapperModel\T_Bank_PaymentDetail.cs" />
     <Compile Include="DapperModel\T_Bank_PayRecBase.cs" />
@@ -128,6 +143,8 @@
     <Compile Include="ExtModel\t_XFQueryList_Ext.cs" />
     <Compile Include="ExtModel\xfMingxi.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ShengjuYZJKModel\YzglTempJbxx.cs" />
+    <Compile Include="ShengjuYZJKModel\YzglTempShgx.cs" />
     <Compile Include="Shyue.cs" />
     <Compile Include="tappstatus.cs" />
     <Compile Include="Tlog.cs" />
@@ -262,9 +279,7 @@
   <ItemGroup>
     <Content Include="Rotativa\wkhtmltopdf.exe" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="ShengjuYZJKModel\" />
-  </ItemGroup>
+  <ItemGroup />
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>

@@ -38,7 +38,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
             List<T_CZY> czies = new T_CZYBLL().GetModelList("");
             ViewData["czies"] = czies;
 
-            List<T_Savetype> savetypes = new T_SavetypeBLL().GetModelList(" typeflag=0");
+            List<T_Savetype> savetypes = new T_SavetypeBLL().GetModelList(" typeflag=0 and isnull(UseType,0)=0");
             ViewData["savetypes"] = savetypes;
 
             ViewData["PowerId"] = id;//1是一般录入，2是审核，3是复核，4是财务入账,5是所有功能都有,6是莆田

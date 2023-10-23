@@ -15,6 +15,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
     public class ShoppingController : LoginController
     {
         JavaScriptSerializer jss = new JavaScriptSerializer();
+        BaseDapperBLL _baseDapperBLL = new BaseDapperBLL();
         private int loginSaleId = 1;
         string strLoginUserName = "";
         public ActionResult Index(int id = 1)//默认1是超市消费
@@ -85,7 +86,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
             ViewData["ptype"] = saletype.PType;
             ViewData["saleTypeId"] = saleTypeId;
-            List<T_GoodsType> types = (List<T_GoodsType>)new T_GoodsTypeBLL().GetListOfIEnumerable("SaleTypeId=" + id.ToString() + "");
+            List<T_GoodsType> types = _baseDapperBLL.GetModelList<T_GoodsType>("{\"SaleTypeId\":\"" + id.ToString() + "\"}", "Id asc", 50);
             ViewData["types"] = types;
             string strTypes = "";
             //foreach (T_GoodsType type in types)
@@ -613,7 +614,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
             string gtxm = Request["Gtxm"];
             string saleTypeId = Request["saleTypeId"];
             string ptype = "";
-            List<T_GoodsType> types = new T_GoodsTypeBLL().GetModelList("SaleTypeId='" + saleTypeId + "'");
+            List<T_GoodsType> types = _baseDapperBLL.GetModelList<T_GoodsType>("{\"SaleTypeId\":\"" + saleTypeId + "\"}", "Id asc", 50);
             if (types.Count > 0)
             {
                 //foreach(T_GoodsType type in types)
@@ -766,7 +767,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 }
 
 
-                T_GoodsType gt = new T_GoodsTypeBLL().GetModel(good.GTYPE);
+                T_GoodsType gt = _baseDapperBLL.GetModelFirst<T_GoodsType>(jss.Serialize(new { Fcode = good.GTYPE }));
                 if (gt == null)
                 {
                     return Content("Error|您所选的商品类别为空");
@@ -818,7 +819,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
                 //T_SHO_Order order = new T_SHO_OrderBLL().GetModel(model.OrderID);
                 List<T_SHO_SaleType> saleTypes = new T_SHO_SaleTypeBLL().GetModelList("PType='" + order.PType + "'");
-                T_Criminal criminal = new T_CriminalBLL().GetCriminalXE_info(order.FCrimecode, saleTypes[0].ID);
+                T_Criminal criminal = new T_CriminalBLL().GetCriminalXE_info(order.FCrimecode, saleTypes[0].Id);
                 if (criminal.ErrInfo != "")
                 {
                     return Content("Error|" + criminal.ErrInfo + "，请与管理人员联系");
@@ -909,7 +910,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
                 #region 判断是否在属于特购商品
                 //判断是否在属于特购商品，如果是就要验证金额是有够扣
-                int typeflag = new T_GoodsTypeBLL().GetModel(good.GTYPE).FTZSP_TypeFlag;
+                int typeflag = _baseDapperBLL.GetModelFirst<T_GoodsType>(jss.Serialize(new { Fcode = good.GTYPE })).FTZSP_TypeFlag;
                 if (typeflag == 1)
                 {
                     model.FTZSP_TypeFlag = 1;//标记该商品是特种消费商品
@@ -1034,7 +1035,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
             {
                 T_SHO_Order order = new T_SHO_OrderBLL().GetModel(Convert.ToInt32(orderId));
                 List<T_SHO_SaleType> saleTypes = new T_SHO_SaleTypeBLL().GetModelList("PType='" + order.PType + "'");
-                T_Criminal criminal = new T_CriminalBLL().GetCriminalXE_info(order.FCrimecode, saleTypes[0].ID);
+                T_Criminal criminal = new T_CriminalBLL().GetCriminalXE_info(order.FCrimecode, saleTypes[0].Id);
                 if (criminal.ErrInfo != "")
                 {
                     return Content("Error|" + criminal.ErrInfo + "，请与管理人员联系");
@@ -1160,11 +1161,11 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 string status = new T_SHO_OrderBLL().SubmitOrder(Convert.ToInt32(orderId), crtby, ipLastCode, fcrimecode, userRoomNo);
                 if (status == "OK|结算成功。")
                 {
-                    rtnPaySubmitInfo rtns = new rtnPaySubmitInfo();
+                    rtnPaySubmitInfo<T_Invoice, T_InvoiceDTL> rtns = new rtnPaySubmitInfo<T_Invoice, T_InvoiceDTL>();
 
                     T_Invoice invoice = new T_InvoiceBLL().GetModelList("OrderId='" + orderId + "'")[0];
                     List<T_SHO_SaleType> saleTypes = new T_SHO_SaleTypeBLL().GetModelList("PType='" + invoice.PType + "'");
-                    T_Criminal criminal = new T_CriminalBLL().GetCriminalXE_info(fcrimecode, saleTypes[0].ID);
+                    T_Criminal criminal = new T_CriminalBLL().GetCriminalXE_info(fcrimecode, saleTypes[0].Id);
                     List<T_InvoiceDTL> details = new T_InvoiceDTLBLL().GetModelList("InvoiceNo='" + invoice.InvoiceNo + "'");
                     //rtns.OrderId = orderId;
                     //rtns.CrimeCode = criminal.FCode;
@@ -1271,4 +1272,3 @@ namespace SelfhelpOrderMgr.Web.Controllers
         }
     }
 }
-    

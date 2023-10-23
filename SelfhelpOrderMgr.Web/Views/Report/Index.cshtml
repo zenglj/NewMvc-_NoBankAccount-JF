@@ -94,8 +94,6 @@
             </div>
         </div>
 
-
-
         <div id="template"></div>
     </div>
 
@@ -259,10 +257,21 @@
                     <tr>
                         <th align="right">烛光卡：</th>
                         <td align="left">
-                            <select id="CardTypeFlag" name="CardTypeFlag" class="easyui-combobox"  style="width:190px;">
+                            <select id="CardTypeFlag" name="CardTypeFlag" class="easyui-combobox" style="width:190px;">
                                 <option value="" selected="selected">请选择</option>
                                 <option value="0">无</option>
                                 <option value="1">有</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">支付方式：</th>
+                        <td align="left">
+                            <select id="PayMode" name="PayMode" class="easyui-combobox" style="width:190px;">
+                                <option value="" selected="selected">请选择</option>
+                                <option value="0">现金(含银行柜台)</option>
+                                <option value="1">狱内ATM机</option>
+                                <option value="2">转账支付</option>
                             </select>
                         </td>
                     </tr>

@@ -2,11 +2,16 @@
 using SelfhelpOrderMgr.BLL;
 using SelfhelpOrderMgr.Common;
 using SelfhelpOrderMgr.Model;
+using SelfhelpOrderMgr.Web.CommonHeler;
 using SelfhelpOrderMgr.Web.Filters;
+using SelfhelpOrderMgr.Web.Models;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Sockets;
 using System.Text;
 using System.Web;
 using System.Web.Mvc;
@@ -491,7 +496,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
             List<T_AREA> areas = new T_AREABLL().GetModelList(" FCode in(select a.fareacode from t_czy_area a,t_czy b where a.fcode=b.fcode and a.fflag=2 and b.FManagerCard='" + managerCardNo + "')");
             ViewData["areas"] = areas;
 
-            List<T_SHO_SaleType> saleTypes = new T_SHO_SaleTypeBLL().GetModelList("FifoFlag=-1");
+            //List<T_SHO_SaleType> saleTypes = new T_SHO_SaleTypeBLL().GetModelList("FifoFlag=-1");
+            List<T_SHO_SaleType> saleTypes = new T_SHO_SaleTypeBLL().GetModelList("FifoFlag=-1 and not(PType like '%积分%')");
             ViewData["saleTypes"] = saleTypes;
 
             List<T_GoodsType> goodsTypes = new T_GoodsTypeBLL().GetModelList("");
@@ -1238,5 +1244,170 @@ namespace SelfhelpOrderMgr.Web.Controllers
             return Content("OK|" + "xfMingXi_List.xls");
             
         }
+
+
+
+        public ActionResult CheckFace(string fcrimecode,string imageSrc)
+        {
+            ResultInfo rs = new ResultInfo();
+
+            string stringdata = "";
+
+            //string imageSrc = Request["imageSrc"];  //改为参数提取
+            if (string.IsNullOrWhiteSpace(imageSrc))
+            {
+                return Content("Err|图片不能为空");
+            }
+
+            #region Socket发送验证图片信息
+
+
+            //实例化socket
+            Socket sendsocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp); ;
+            IPEndPoint ipendpiont = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 7788);
+            sendsocket.Connect(ipendpiont);
+            //MessageBox.Show("服务器IP:" + sendsocket.RemoteEndPoint);
+
+            byte[] msgByte = new byte[1024 * 1024 * 2];
+            int length = 0;
+
+            var photo = new PhotoEntity() { 
+                fcrimeCode=fcrimecode,
+                photoBase64Data=imageSrc
+            };
+            length = sendsocket.Receive(msgByte, msgByte.Length, SocketFlags.None);
+            string strConnectRcv = ("人脸比对连接请求返回：" + Encoding.UTF8.GetString(msgByte, 0, length));
+            Log4NetHelper.logger.Info(strConnectRcv);//写入连接记录
+            //imageSrc = "0001" + imageSrc;//增加报文头
+            imageSrc = "0001" + Newtonsoft.Json.JsonConvert.SerializeObject(photo);//增加报文头
+            byte[] orgByte = Encoding.Default.GetBytes(imageSrc);
+
+            sendsocket.Send(orgByte);
+
+
+            //==================================================
+            //接收数据
+
+
+            msgByte = new byte[1024 * 1024 * 2];
+            length = 0;
+            stringdata = "";
+            try
+            {
+                length = sendsocket.Receive(msgByte, msgByte.Length, SocketFlags.None);
+                if (length > 0)
+                {
+                    string strRecv = Encoding.UTF8.GetString(msgByte, 0, length);
+                    rs = Newtonsoft.Json.JsonConvert.DeserializeObject<ResultInfo>(strRecv);
+                    rs.DataInfo = Newtonsoft.Json.JsonConvert.DeserializeObject<FaceCheckResult>(rs.DataInfo.ToString());
+                    //stringdata = ("人脸比对结果：" + Encoding.UTF8.GetString(msgByte, 0, length));
+
+                    Log4NetHelper.logger.Info(strConnectRcv);//写入连接记录
+
+                }
+            }
+            catch
+            {
+                stringdata = "recvice data fail";
+                rs.ReMsg = stringdata;
+            }
+
+
+            sendsocket.Shutdown(System.Net.Sockets.SocketShutdown.Send);
+            sendsocket.Close();
+            sendsocket.Dispose();
+
+
+
+            //return Content("OK|"+ stringdata);
+
+            return Json(rs);
+
+            #endregion
+        }
+
+
+        #region 人脸管理
+        /// <summary>
+        /// 注册人脸
+        /// </summary>
+        /// <returns></returns>
+        public ActionResult RegisterFace(int typeFlag = 0)
+        {
+            if (Request.Files.Count > 0)
+            {
+                List<PhotoEntity> photoList = new List<PhotoEntity>();
+                if (Request.Files.Count > 0)
+                {
+                    for (int i = 0; i < Request.Files.Count; i++)
+                    {
+                        HttpPostedFileBase f = Request.Files[i];
+                        string fname = f.FileName;
+                        /* startIndex */
+                        int index = fname.LastIndexOf("\\") + 1;
+                        /* length */
+                        int len = fname.Length - index;
+                        fname = fname.Substring(index, len);
+                        string extName = FileNameHelper.GetFileExtName(fname);
+
+                        if (extName == "png" || extName == "PNG" || extName == "jpg" || extName == "JPG" || extName == "jepg" || extName == "JEPG")
+                        {
+                            string savePath = Server.MapPath("~/Upload/" + fname);
+                            MemoryStream ms = new MemoryStream();
+                            f.InputStream.CopyTo(ms);
+                            byte[] arr = new byte[ms.Length];
+                            ms.Position = 0;
+                            ms.Read(arr, 0, (int)ms.Length);
+                            ms.Close();
+                            String strbaser64 = Convert.ToBase64String(arr);
+
+                            var _pho = new PhotoEntity()
+                            {
+                                photoName = fname,
+                                photoBase64Data = strbaser64,
+                                TypeFlag = typeFlag
+                            };
+                            photoList.Add(_pho);
+                        }
+                    }
+
+                }
+
+                string strSendPhotoInfo = "0002" + Newtonsoft.Json.JsonConvert.SerializeObject(photoList);//增加报文头0002
+                var _sendRs = SocketHelper.SendInfo(strSendPhotoInfo, "127.0.0.1", 7788);
+                if (_sendRs.Flag)
+                {
+                    return Content("OK|" + Convert.ToString(_sendRs.DataInfo));
+                }
+                else
+                {
+                    return Content("Err|" + _sendRs.ReMsg);
+                }
+
+            }
+            return Content("Err|没有接收到文件信息");
+        }
+
+        public ActionResult WebCamTest3(string callback = "")
+        {
+            ViewData["callback"] = callback;
+            return View();
+        }
+
+
+
+        public ActionResult MulitImageUpload()
+        {
+            return View();
+        }
+
+        public ActionResult SpeechTest()
+        {
+            return View();
+        }
+
+        #endregion
+
+
     }
 }

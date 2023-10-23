@@ -5,6 +5,8 @@
                 <tr><th>名称</th><th>金额</th></tr>
             </thead>
             <tbody>
+                <tr><td>当前积分</td><td id="accPoints">0.00</td></tr>
+                <tr><td>本月消费积分</td><td><span class="label label-warning" id="xiaofeiPoints">0.00</span></td></tr>
                 <tr><td>存款余额</td><td id="amountA">0.00</td></tr>
                 <tr><td>报酬金额</td><td id="amountB">0.00</td></tr>
                 <tr><td>留存金额(不可用)</td><td id="amountC">0.00</td></tr>
@@ -18,24 +20,55 @@
 
     </div>
     <div class="col-md-9">
-        <form>
-            <h3>
-                近三个月存/取款记录 <span class="label label-default">New</span>
-                           <small> 手动查询，起
-                               <input type="date" name="startDate" id="startDate" />止<input type="date" name="endDate" id="endDate" />
-                           </small>
-            </h3>
-        </form>
+        <h3>近三个月存/取款记录 <span class="label label-default">New</span>
+                       <small>
+                           手动查询，起
+                           <input type="date" name="startDate" id="startDate" />止<input type="date" name="endDate" id="endDate" />
+                       </small>
+        </h3>
+
         <div>
-            <table class="table table-striped">
-                <thead>
-                    <tr><th>日期</th><th>存款类型</th><th>金额</th><th>备注</th></tr>
-                </thead>
-                <tbody id="tbodyOrderList">
-                    <tr><td>2015-11-25</td><td>亲属存款</td><td>1.00</td><td>银行转入</td></tr>
-                </tbody>
-            </table>
+
+            <!-- Nav tabs -->
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" class="active"><a href="#home" aria-controls="home" role="tab" data-toggle="tab">通用记录</a></li>
+                <li role="presentation"><a href="#profile" aria-controls="profile" role="tab" data-toggle="tab">积分记录</a></li>
+            </ul>
+
+            <!-- Tab panes -->
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane active" id="home">
+                    <div>
+                        <table class="table table-striped">
+                            <thead>
+                                <tr><th>日期</th><th>存款类型</th><th>金额</th><th>备注</th></tr>
+                            </thead>
+                            <tbody id="tbodyOrderList">
+                                <tr><td>2015-11-25</td><td>亲属存款</td><td>1.00</td><td>银行转入</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+                <div role="tabpanel" class="tab-pane" id="profile">
+                    <div>
+                        <table class="table table-striped">
+                            <thead>
+                                <tr><th>日期</th><th>存款类型</th><th>金额</th><th>备注</th></tr>
+                            </thead>
+                            <tbody id="jfBodyOrderList">
+                                @*<tr><td>2015-11-25</td><td>亲属存款</td><td>1.00</td><td>银行转入</td></tr>*@
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
         </div>
+
+
+
+
     </div>
 </div>
 

@@ -10,5 +10,7 @@ namespace SelfhelpOrderMgr.Model
         public int total { get; set; }
         public List<T> rows { get; set; }
         public decimal sumMoney { get; set; }
+        public decimal sum { get; set; }
+
     }
 }

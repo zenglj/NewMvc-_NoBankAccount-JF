@@ -84,6 +84,7 @@
     <Compile Include="CustomExtend\AttributeExtend.cs" />
     <Compile Include="CustomExtend\CustomEnumToList.cs" />
     <Compile Include="Des3PasswordHelper.cs" />
+    <Compile Include="FileNameHelper.cs" />
     <Compile Include="HttpHelper.cs" />
     <Compile Include="IpAddressHelper.cs" />
     <Compile Include="JsonHelper.cs" />

@@ -117,6 +117,8 @@ function SetAndDisplayUserInfo(words) {
         $("#curMonthXFE").html(rts.UserInfo.Xiaofeimoney);
         $("#okUseAllMoney").html(rts.UserInfo.OkUseAllMoney);
         $("#xiaofeiYuE").html(rts.UserInfo.NoXiaofeimoney);
+        $("#accPoints").html(rts.UserInfo.AccPoints);
+        $("#xiaofeiPoints").html(rts.UserInfo.XiaoFeiPoints);
         $("#amountC").html(rts.UserInfo.AmountC);
         $("#amountB").html(rts.UserInfo.AmountB);
         $("#amountA").html(rts.UserInfo.AmountA);
@@ -128,6 +130,8 @@ function SetAndDisplayUserInfo(words) {
         } else {
             $("#trBankMoneyInfo").hide();
         }
+
+
         
         var details = rts.vcrds;
         if (details.length > 0) {
@@ -137,7 +141,19 @@ function SetAndDisplayUserInfo(words) {
                 var option = "<tr><td>" + getLocalTime(detail.CrtDate) + "</td><td>" + detail.DType + "</td><td>" + fmoney + "</td><td>" + detail.Remark + "</td></tr>";
                 $("#tbodyOrderList").append(option);
             }
-        }    
+        }
+
+        //积分明细
+        $("#jfBodyOrderList").empty();
+        var jfdetails = rts.jfvcrds;
+        if (jfdetails.length > 0) {
+            for (var i = 0; i < jfdetails.length; i++) {
+                var detail = jfdetails[i];
+                var fmoney = (detail.DAmount - detail.CAmount);
+                var option = "<tr><td>" + getLocalTime(detail.CrtDate) + "</td><td>" + detail.DType + "</td><td>" + fmoney + "</td><td>" + detail.Remark + "</td></tr>";
+                $("#jfBodyOrderList").append(option);
+            }
+        }
     }
 }
 
@@ -145,6 +161,7 @@ function ClearUserDisplayInfo() {
     
     $("#okUseAllMoney").html("0.00");
     $("#xiaofeiYuE").html("0.00");
+    $("#accPoints").html("0.00");
     $("#amountC").html("0.00");
     $("#amountB").html("0.00");
     $("#amountA").html("0.00");

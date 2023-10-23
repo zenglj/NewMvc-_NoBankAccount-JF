@@ -114,12 +114,6 @@ $(function () {
 }); 
 
 
-function doSearch() {
-    $('#tt').datagrid('load', {
-        itemid: $('#itemid').val(),
-        productid: $('#productid').val()
-    });
-}
 
 //修改消费记录为调账取款
 function btnInvListChange() {
@@ -133,7 +127,7 @@ function loadDetailTable() {
         //title: '账户余额列表',
         iconCls: 'icon-save',
         //width: 900,
-        height: $(window).height()*1.0,
+        height: $(window).height()*0.8,
         queryParams: {
             fName: '',
             FCode: '00000',
@@ -260,7 +254,7 @@ function loadPayGrid() {
         //title: '银企直联支付记录',
         //iconCls: 'icon-save',
         //width: 900,
-        height: $(window).height() * 0.4,
+        height: $(window).height() * 0.5,
         queryParams: {
             Id: 0
         },
@@ -273,6 +267,7 @@ function loadPayGrid() {
         url: '/BankPayment/GetBankPaymentList/',
         sortName: 'Id',
         sortOrder: 'asc',
+        showFooter: true,
         remoteSort: false,
         idField: 'Id',
         pageSize: 10,
@@ -293,7 +288,7 @@ function loadPayGrid() {
                     } else if (row.TranType == "2") {
                         return "快捷代发";
                     }else {
-                        return "其他";
+                        return row.TranType;
                     }
                 }
             },
@@ -306,7 +301,28 @@ function loadPayGrid() {
                     }else if (row.PayMode == "2") {
                         return "转账";
                     } else {
-                        return "其他";
+                        return row.PayMode;
+                    }
+                }
+            },
+            { field: 'Amount', title: '结算余额', width: 100, sortable: true },
+            { field: 'TranMoney', title: '支付金额', width: 100, sortable: true },
+            {
+                field: 'TranStatus', title: '状态', width: 100, sortable: true, formatter: function (value, row, index) {
+                    if (row.TranStatus == "0") {
+                        return "未处理";
+                    } else if (row.TranStatus == "1") {
+                        return "已提交,待银行处理";
+                    } else if (row.TranStatus == "2") {
+                        return "支付成功";
+                    } else if (row.TranStatus == "3") {
+                        return "转账失败";
+                    } else if (row.TranStatus == "4") {
+                        return "失败已复位";
+                    } else if (row.TranStatus == "5") {
+                        return "放弃领款";
+                    } else {
+                        return row.TranStatus;
                     }
                 }
             },
@@ -314,8 +330,7 @@ function loadPayGrid() {
             { field: 'OutBankCard', title: '收款账号', width: 100, sortable: true },
             { field: 'OpeningBank', title: '开户行', width: 100, sortable: true },
             { field: 'OutBankRemark', title: '关系说明', width: 100, sortable: true },
-            { field: 'Amount', title: '结算余额', width: 100, sortable: true },
-            { field: 'TranMoney', title: '支付金额', width: 100, sortable: true },
+            
             { field: 'PurposeInfo', title: '摘要', width: 100, sortable: true },
             {
                 field: 'ToBankId', title: '对公类型', width: 100, sortable: true, formatter: function (value, row, index) {
@@ -326,7 +341,7 @@ function loadPayGrid() {
                     } else if (row.TypeFlag == "30") {
                         return "建新消费";
                     } else {
-                        return "其他";
+                        return row.TypeFlag;
                     }
                 }
             },
@@ -368,25 +383,7 @@ function loadPayGrid() {
                     }
                 }
             },
-            {
-                field: 'TranStatus', title: '状态', width: 100, sortable: true, formatter: function (value, row, index) {
-                    if (row.TranStatus == "0") {
-                        return "未处理";
-                    } else if (row.TranStatus == "1") {
-                        return "已提交,待银行处理";
-                    } else if (row.TranStatus == "2") {
-                        return "支付成功";
-                    } else if (row.TranStatus == "3") {
-                        return "转账失败";
-                    } else if (row.TranStatus == "4") {
-                        return "失败已复位";
-                    } else if (row.TranStatus == "5") {
-                        return "放弃领款";
-                    } else {
-                        return "其他失败";
-                    }
-                }
-            },
+            
             {
                 field: 'Crtdate', title: '创建日期', width: 100, sortable: true, formatter: function (value, row, index) {
                     if (row.Crtdate != null) {
@@ -453,6 +450,10 @@ function loadPayGrid() {
             $('#tbPayDetail').datagrid('load', {
                 mainId: rowData.Id
             });
+        },
+        onLoadSuccess: function (data) {
+            $("#tbPay").datagrid('resize');
+            $("#tbPay").datagrid('reloadFooter', [{ Amount: '支付合计', TranMoney: data.sum }])
         },
         pagination: true,
         rownumbers: true
@@ -525,6 +526,7 @@ function loadPayGridDetail() {
             },
             { field: 'Remark', title: '备注', sortable: true, width: 300 }
         ]],
+
         pagination: true,
         rownumbers: true
     });
@@ -622,46 +624,6 @@ function ResetRefund() {
 
 
 
-//确认消费退货——消费记录为一般扣款（不影响消费限额）
-function btnSaveChangeType() {
-    $.messager.confirm('确认', '您确认要退货调账吗？', function (r) {
-        if (r) {
-            var saveType = $("#comChangeType").combobox('getValue');
-            if (saveType != 0) {
-                var saleId = $("#tTypeFlag").val();
-                $.post("/Report/GetSaleType/", { "saleId": saleId }, function (data, status) {
-                    if (status != "success") {
-                        return false;
-                    } else {
-                        var words = data.split("|");
-                        if (words[0] == "OK") {
-                            $.post("/Report/SaveChangeType/", { "invNo": $("#tInvno").html(), "saveType": saveType }, function (data, status) {
-                                if (status != "success") {
-                                    return false;
-                                } else {
-                                    var words = data.split("|");
-                                    if (words[0] == "OK") {
-                                        $.messager.alert("提示", words[1]);
-                                    } else {
-                                        $.messager.alert("提示", data);
-                                    }
-                                }
-                            });
-                        } else {
-                            $.messager.alert("提示", data);
-                        }
-
-                    }
-                });
-            } else {
-                $.messager.alert("提示", "请选择您要修改的类型");
-            }
-        }
-    });
-    
-    
-}
-
 function btnSearch() {
     if ($("#vcrdSearchDType").combobox("getValue")=="") {
         alert("请先选择一个取款类型");
@@ -728,42 +690,6 @@ function pwdCountReset() {
     
 }
 
-//执行查询加载dataGrid数据的方法
-function funcSearch(formId,gridId) {
-    var strJson = GetSearchJson(formId);
-    $('#' + gridId).datagrid('load', {
-        strJsonWhere: strJson
-    });
-}
-
-//执行查询加载dataGrid数据的方法
-function funcSearchByPost(formId,urlAddress) {
-    var strJson = GetSearchJson(formId);
-    $.post(urlAddress, { "strJsonWhere": strJson }, function (data, status) {
-        if ("success" == status) {
-            var d = $.parseJSON(data);
-            $("#schSumMoney").html("结果金额:<u>" + d.sumMoney + " 元</u>");
-        }
-    });
-}
-
-//获取表单的查询条件
-function GetSearchJson(formId) {
-    var strJson = "";
-    $("#" + formId + " table tr td span input").each(function (index, element) {   //element-当前的元素,也可使用this选择器
-        if (typeof $(this).attr("name") != "undefined" && $(this).val().replace(/^\s*|\s*$/g, "") != "" && typeof $(this).val() != "undefined") {
-            //console.log($(this).attr("name") + ":" + $(this).val());
-            if (strJson == "") {
-                strJson = "\"" + $(this).attr("name") + "\":\"" + $(this).val() + "\"";
-            } else {
-                strJson = strJson + "," + "\"" + $(this).attr("name") + "\":\"" + $(this).val() + "\"";
-            }
-        }
-    });
-    strJson = "{" + strJson + "}";
-    return strJson;
-}
-
 
 function btnPaySubmit() {
     var purposeInfo=$("#payPurposeInfo").textbox("getValue");
@@ -806,25 +732,7 @@ function btnPaySearch() {
         CrtDate_End: '2020-05-21'
     };
 
-    var inpunts = $("#formPaySearch:input");
-    var json = {};
-    var message = [];
-    var strJson = "";
-    $("#formPaySearch table tr td span input").each(function (index, element) {   //element-当前的元素,也可使用this选择器
-        if (typeof $(this).attr("name") != "undefined" && $(this).val().replace(/^\s*|\s*$/g, "") != "" && typeof $(this).val() != "undefined") {
-            console.log($(this).attr("name") + ":" + $(this).val());
-            if (strJson == "") {
-                strJson = "\"" + $(this).attr("name") + "\":\"" + $(this).val() + "\"";
-            } else {
-                strJson = strJson + "," + "\"" + $(this).attr("name") + "\":\"" + $(this).val() + "\"";
-            }
-        }
-    });
-    strJson = "{" + strJson + "}";
-    console.log(strJson);
-    $('#tbPay').datagrid('load', {
-        strJsonWhere: strJson
-    });
+    funcSearch('formPaySearch','tbPay');//查询tbPay的DataGrid的记录
 }
 
 //清空条件
@@ -887,7 +795,6 @@ function auditRequest(mode,gridId,formId,urlAddress) {
     if (mode == "all") {
         $.messager.confirm('确认对话框', '一般是单条审核，您确认要全部审付款记录吗？', function (r) {
             if (r) {
-
                 $.messager.confirm('再次确认', '请再次确认，是否要全部审？', function (r) {
                     if (r) {
                         $.messager.prompt({
@@ -1004,203 +911,6 @@ function auditRequest(mode,gridId,formId,urlAddress) {
 }
 
 
-function GetGridSelectIds(gridId) {
-    var selectIds = "";     
-    var rows = $('#' + gridId).datagrid('getSelections');
-    rows.forEach(function (element, index) {
-        if (selectIds == "") {
-            selectIds = element.Id;
-        } else {
-            selectIds = selectIds + "," + element.Id;
-        }        
-    });
-    return selectIds;
-}
-//打印报表，id 是的不同报表的参数
-function printMenuBtn(id) {
-    var strWhere = getSearchCondition();
-    window.open("/Report/PrintCriminalSumOrder/" + id + "?" + strWhere);
-
-}
-
-function OutExcelSumOrder(id) {
-    //$.messager.alert("提示",id);
-    var objWhere = getSearchObjCondition();
-
-    $.post("/Report/ExcelCriminalSumOrder/" + id, objWhere, function (data, status) {
-        if (status != "success") {
-            return false;
-        } else {
-            var words = data.split("|");
-            if (words[0] == "OK") {
-                window.open("/Upload/" + words[1]);
-            }
-        }
-    });
-}
-
-//导出Excel数据，id 是的不同报表的参数
-function ExcelMain(id) {
-
-    var objWhere = getSearchObjCondition();
-    //window.open("/Report/ExcelCriminalSumOrder/" + id + "?" + strWhere);
-
-    $.post("/Report/ExcelCriminalSumOrder/" + id, objWhere, function (data, status) {
-        if (status != "success") {
-            return false;
-        } else {
-            var words = data.split("|");
-            if (words[0] == "OK") {
-                window.open("/Upload/" + words[1]);
-            }
-        }
-    });
-
-
-}
-
-//获取查询条件，用于直接开链接方式
-function getSearchCondition() {
-
-
-    GetQueryComboboxValues();//获取查询栏里多选框里的值
-
-    strSearchWhere = "FCode=" + $("#FCode").numberbox('getValue');
-    strSearchWhere = strSearchWhere + "&FName=" + $("#FName").textbox('getText');
-    strSearchWhere = strSearchWhere + "&FRemark=" + $("#FRemark").textbox('getText');
-    strSearchWhere = strSearchWhere + "&cyName=" + $("#FCyName").combobox('getValue');
-    strSearchWhere = strSearchWhere + "&startTime=" + $("#StartDate").datetimebox('getValue');
-    strSearchWhere = strSearchWhere + "&endTime=" + $("#EndDate").datetimebox('getValue');
-    strSearchWhere = strSearchWhere + "&areaName=" + $("#FAreaName").combobox('getValue');
-    strSearchWhere = strSearchWhere + "&CrtBy=" + $("#FCrtBy").combobox('getValue');
-    strSearchWhere = strSearchWhere + "&CriminalFlag=" + $("#FCriminalFlag").combobox('getValue');
-    strSearchWhere = strSearchWhere + "&CashTypes=" + selCashTypes;
-    strSearchWhere = strSearchWhere + "&PayTypes=" + selPayTypes;
-    strSearchWhere = strSearchWhere + "&AccTypes=" + selAccTypes;
-    strSearchWhere = strSearchWhere + "&BankFlags=" + selBankFlags;
-    strSearchWhere = strSearchWhere + "&FFlags=" + selFFlags;
-    return strSearchWhere;
-}
-
-//获取Obj查询条件,用于Post方式
-function getSearchObjCondition() {
-
-
-    GetQueryComboboxValues();//获取查询栏里多选框里的值
-
-    var objWhere = {
-        FCode: $("#FCode").numberbox('getValue'),
-        FName: $("#FName").textbox('getText'),
-        FRemark: $("#FRemark").textbox('getText'),
-        cyName: $("#FCyName").combobox('getValue'),
-        startTime: $("#StartDate").datetimebox('getValue'),
-        endTime: $("#EndDate").datetimebox('getValue'),
-        areaName: $("#FAreaName").combobox('getValue'),
-        CrtBy: $("#FCrtBy").combobox('getValue'),
-        CriminalFlag: $("#FCriminalFlag").combobox('getValue'),
-        CashTypes: selCashTypes,
-        PayTypes: selPayTypes,
-        AccTypes: selAccTypes,
-        BankFlags: selBankFlags,
-        FFlags: selFFlags
-    };
-    
-    return objWhere;
-}
-
-
-
-//A4打印消费单
-//printType 0表示消费清单，1表示签字确认单
-function printMulXiaofeiDan(printType) {
-
-    CreateXiaofeiDanReport('mul', printType)
-
-}
-
-//生成消费单
-//printType 0表示消费清单，1表示签字确认单
-function CreateXiaofeiDanReport(e,printType) {
-    if (e == "mul") {
-        var rows = $("#test").datagrid("getSelections");
-        var selectRows = "";
-        if (rows.length > 0) {
-            for (var i = 0; i < rows.length; i++) {
-                if (selectRows == "") {
-                    selectRows = rows[i].InvoiceNo;
-                } else {
-                    selectRows = selectRows + "|" + rows[i].InvoiceNo;
-                }
-            }
-        }
-    } else if (e == "one") {
-        var row = $("#test").datagrid("getSelected");
-        var selectRows = row.InvoiceNo;
-    } else if (e == "all") {
-        $("#test").datagrid("selectAll");
-        var rows = $("#test").datagrid("getRows");
-        var selectRows = "";
-        if (rows.length > 0) {
-            for (var i = 0; i < rows.length; i++) {
-                if (selectRows == "") {
-                    selectRows = rows[i].InvoiceNo;
-                } else {
-                    selectRows = rows[i].InvoiceNo + "|" + selectRows;
-                }
-            }
-        }
-    } else {
-        return false;
-    }
-    window.open("/Super/PrintXiaofeiDan?invoices=" + selectRows + "&printType=" + printType);
-    //$.post("/Home/GetInvoices", {
-    //    "invoices": selectRows
-    //}, function (data, status) {
-    //    if ("success" != status) {
-    //        return false;
-    //    } else {
-    //        //$.messager.alert('提示', data);
-    //        var invs = $.parseJSON(data);
-    //        $("#template").empty();//清空
-    //        if (invs.length > 0) {
-    //            for (var i = 0; i < invs.length; i++) {
-    //                var content = invs[i];
-    //                var inv = content;
-
-    //                var xiaopiao = "<div id='temp" + i + "'><div> <div style='text-align:center'><h2>监狱一卡通系统</h2></div>"
-    //                + "<table >"
-    //                + "<tbody>"
-    //                + "<tr><td>单号：" + inv.invoice.InvoiceNo + "</td><td>编号：" + inv.invoice.FCrimeCode + "</td><td>姓名：" + inv.invoice.FCriminal + "</td><td >监区：" + inv.invoice.FAreaName + "</td><td>日期：" + getLocalTime(inv.invoice.OrderDate) + "</td></tr>"
-
-    //                + "</tbody>"
-    //                + "</table>"
-    //                + "<hr />"
-    //                + "<table style='font-size:11px;'>"
-    //                + "<thead>"
-    //                + "<tr><th>货号</th><th>品名</th><th style='width:80px;'>型号</th><th style='width:50px;'>单价</th><th style='width:50px;'>数量</th><th>金额</th></tr>"
-    //                + "</thead>"
-    //                + "<tbody>";
-
-    //                for (var j = 0; j < inv.details.length; j++) {
-    //                    xiaopiao = xiaopiao + "<tr><td>" + inv.details[j].SPShortCode + "</td><td  style=' border-bottom:dashed;border-bottom-width:1px;'>" + inv.details[j].GNAME + "</td><td>" + inv.details[j].Remark + "</td><td align='center'>" + inv.details[j].GDJ + "</td><td align='center'>" + inv.details[j].QTY + "</td><td align='right'>" + inv.details[j].AMOUNT + "</td></tr>"
-    //                    + ""
-
-    //                }
-
-    //                xiaopiao = xiaopiao + "</tbody>"
-    //                + "</table>"
-    //                + "<hr />"
-    //                + "<h3><span>消费合计：" + inv.invoice.Amount + "元</span></h3><hr/>"
-                    
-    //                + "</div><br/></div>";
-
-    //                $("#template").append(xiaopiao);
-    //            }
-    //        }
-
-    //    }
-    //});
-}
 
 
 function DeleteMenuBtn() {
@@ -1274,3 +984,38 @@ function btnPrintPayMentReport(mode) {
     }
 }
 
+
+//机对账报表
+function btnPrintATMReport(mode) {
+
+    var searchInfo = {
+        TranType: 1,
+        Amount: 200,
+        CrtDate_Start: '2020-05-01',
+        CrtDate_End: '2020-05-21'
+    };
+
+    var inpunts = $("#formPaySearch:input");
+    var json = {};
+    var message = [];
+    var strJson = "";
+    $("#formPaySearch table tr td span input").each(function (index, element) {   //element-当前的元素,也可使用this选择器
+        if (typeof $(this).attr("name") != "undefined" && $(this).val().replace(/^\s*|\s*$/g, "") != "" && typeof $(this).val() != "undefined") {
+            console.log($(this).attr("name") + ":" + $(this).val());
+            if (strJson == "") {
+                strJson = "\"" + $(this).attr("name") + "\":\"" + $(this).val() + "\"";
+            } else {
+                strJson = strJson + "," + "\"" + $(this).attr("name") + "\":\"" + $(this).val() + "\"";
+            }
+        }
+    });
+    strJson = "{" + strJson + "}";
+    console.log(strJson);
+
+    if (mode == 1) {
+        window.open("/BankPayment/PrintPayMentAtmReport/?strJsonWhere=" + strJson);
+    }
+    else {
+        window.open("/BankPayment/PrintPayMentAtmReport/?strJsonWhere=" + strJson);
+    }
+}
