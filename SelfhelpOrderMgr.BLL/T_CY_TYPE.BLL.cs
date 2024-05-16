@@ -190,6 +190,17 @@ namespace SelfhelpOrderMgr.BLL
                         model.pct = decimal.Parse(dt.Rows[n]["pct"].ToString());
                     }
 
+                    if (dt.Rows[n]["FTZSP_Zero_MaxMoney"].ToString() != "")
+                    {
+                        model.FTZSP_Zero_MaxMoney = decimal.Parse(dt.Rows[n]["FTZSP_Zero_MaxMoney"].ToString());
+                    }
+
+                    if (dt.Rows[n]["JaRi_Cy_FTZSP_Money"].ToString() != "")
+                    {
+                        model.JaRi_Cy_FTZSP_Money = decimal.Parse(dt.Rows[n]["JaRi_Cy_FTZSP_Money"].ToString());
+                    }
+                    
+
 
                     modelList.Add(model);
                 }

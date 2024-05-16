@@ -156,13 +156,19 @@ namespace SelfhelpOrderMgr.DAL
         {
             strSql.Append("update t_criminal set FFlag=0 where fcode =@fcrimecode;");
             strSql.Append("update T_ICCARD_LIST set FFlag=1 where fcrimecode =@fcrimecode and FFlag=4;");
-            strSql.Append("delete t_balanceList where fcrimecode =@fcrimecode;");
-            strSql.Append("delete t_Vcrd where fcrimecode =@fcrimecode and typeFlag in(5,6);");
-            strSql.Append(@"update t_Criminal_Card set cardflaga=1,amounta=b.a,amountb=b.b,amountc=b.c from t_Criminal_Card a,(
-                    select fcrimecode,sum(case when acctype=0 then damount-camount else 0 end) A
-                    ,sum(case when acctype=1 then damount-camount else 0 end) B
-                    ,sum(case when acctype=2 then damount-camount else 0 end) C
-                     from t_vcrd where flag=0 and fcrimecode=@fcrimecode group by fcrimecode) b where a.fcrimecode=b.fcrimecode;");
+            strSql.Append("delete T_Vcrd where fcrimecode =@fcrimecode and TypeFlag=52 and seqno in (select a.seqno from t_Vcrd a, t_balanceList b where a.fcrimecode=b.fcrimecode and b.fcrimecode=@fcrimecode and a.DAMOUNT=b.AccPoints and CONVERT(varchar(10), a.CRTDATE,120)=CONVERT(varchar(10), b.CRTDATE,120)); ");
+            strSql.Append("delete T_JF_Vcrd where fcrimecode =@fcrimecode and TypeFlag=5 and Id=(select a.Id from T_JF_Vcrd a, t_balanceList b where a.fcrimecode=b.fcrimecode and b.fcrimecode=@fcrimecode and a.CAMOUNT=b.AccPoints and CONVERT(varchar(10), a.CRTDATE,120)=CONVERT(varchar(10), b.CRTDATE,120)); ");
+            //strSql.Append("delete t_balanceList where fcrimecode =@fcrimecode;");
+            strSql.Append("delete t_Vcrd where fcrimecode =@fcrimecode and typeFlag in(5,6) and Convert(Varchar(10),CrtDate,120)=(select top 1  Convert(varchar(10),CrtDate,120) t_balanceList where fcrimecode =@fcrimecode Order by SeqNo Desc) ;");
+            //strSql.Append(@"update t_Criminal_Card set cardflaga=1,amounta=b.a,amountb=b.b,amountc=b.c,AccPoints=b.d from t_Criminal_Card a,(
+            //        select fcrimecode,sum(case when acctype=0 then damount-camount else 0 end) A
+            //        ,sum(case when acctype=1 then damount-camount else 0 end) B
+            //        ,sum(case when acctype=2 then damount-camount else 0 end) C
+            //        ,sum(case when acctype=3 then damount-camount else 0 end) D
+            //         from t_vcrd where flag=0 and fcrimecode=@fcrimecode group by fcrimecode) b where a.fcrimecode=b.fcrimecode;");
+            strSql.Append(@"update t_Criminal_Card set cardflaga=1,amounta=b.a,amountb=b.b,amountc=b.c,AccPoints=b.d from t_Criminal_Card a,(
+                    select top 1 fcrimecode,amounta as A,amountb as B,amountc as C ,AccPoints as D from t_balanceList where fcrimecode=@fcrimecode order by Seqno desc) b where a.fcrimecode=b.fcrimecode;");
+            strSql.Append("delete t_balanceList where fcrimecode =@fcrimecode and Seqno=(select top 1 Seqno t_balanceList where fcrimecode =@fcrimecode Order by SeqNo Desc);");
         }
 
         /// <summary>

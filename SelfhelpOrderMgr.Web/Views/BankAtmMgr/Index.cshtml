@@ -50,7 +50,7 @@
                                 <input id="formAtmSerialNo" class="easyui-textbox" data-options="readonly:true" type="text" name="AtmSerialNo" />
                             </td>
                         </tr>
-                        <tr>                            
+                        <tr>
                             <th>对账日期:</th>
                             <td>
                                 <input id="formReconciliationDate" class="easyui-datetimebox" name="ReconciliationDate"
@@ -63,6 +63,14 @@
                             <th>备注:</th>
                             <td>
                                 <input id="formRemark" class="easyui-textbox" data-options="readonly:true" type="text" name="Remark" />
+                            </td>
+
+                            
+                            <td align="right">
+                                <a id="A1" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-redo'" onclick="ExcelOutPrint()">Excel导出</a>
+                            </td>
+                            <td align="right">
+                                <a id="A2" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-print'" onclick="PrintDetailReport()">打印报表</a>
                             </td>
                         </tr>
                     </table>

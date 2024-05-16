@@ -651,6 +651,18 @@ namespace SelfhelpOrderMgr.Web.Controllers
             ViewData["mset"] = mset;
 
             ViewData["operatorId"] = id;
+
+            T_SHO_ManagerSet printPlusVer = new T_SHO_ManagerSetBLL().GetModel("PrintPlusVer");
+            if (printPlusVer == null || printPlusVer.MgrValue == "0")
+            {
+                ViewData["PrintPlusVer"] = "0";
+            }
+            else
+            {
+                ViewData["PrintPlusVer"] = "1";
+            }
+
+
             return View();
         }
 
@@ -1918,7 +1930,9 @@ namespace SelfhelpOrderMgr.Web.Controllers
                     _baseDapperBLL.Insert(model);
                 }
             }
-            List<T_GoodsType> models = _baseDapperBLL.GetModelList<T_GoodsType>("", "Id asc", 200);
+            //List<T_GoodsType> models = _baseDapperBLL.GetModelList<T_GoodsType>("", "Id asc", 200);
+            List<T_GoodsType> models = _baseDapperBLL.GetModelList<T_GoodsType>( Newtonsoft.Json.JsonConvert.SerializeObject( new { UseType= model.UseType}), "Id asc", 200);
+
             return models;
         }
         public ActionResult DeleleGoodsType()//删除商品类型
@@ -2005,9 +2019,9 @@ namespace SelfhelpOrderMgr.Web.Controllers
             foreach (JObject o in ja)
             {
                 model = new T_SHO_SaleType();
-                if (o["ID"].ToString() != "")
+                if (o["Id"].ToString() != "")
                 {
-                    model.Id = Convert.ToInt32(o["ID"].ToString());
+                    model.Id = Convert.ToInt32(o["Id"].ToString());
                 }
 
                 model.PType = o["PType"].ToString();
@@ -2017,6 +2031,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 model.ShoppingFlag = Convert.ToInt32(o["ShoppingFlag"].ToString());
                 model.Remark = o["Remark"].ToString();
                 model.Fifoflag = Convert.ToInt32(o["Fifoflag"].ToString());
+                model.UseType = Convert.ToInt32(o["UseType"].ToString());
+                model.ControlName =o["ControlName"].ToString();
                 T_SHO_SaleType m = new T_SHO_SaleTypeBLL().GetModel(model.Id);
                 if (m != null)
                 {

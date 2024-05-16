@@ -6,6 +6,7 @@ using SelfhelpOrderMgr.YuZhengJieKou.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -272,7 +273,7 @@ namespace SelfhelpOrderMgr.YuZhengJieKou
         /// 获取罪犯信息
         /// </summary>
         /// <returns></returns>
-        public ResultInfo GetJbxxList(string zfzt)
+        public ResultInfo GetJbxxList(string zfzt,int pageSize=3000)
         {
             Console.WriteLine("正在获取人员基本信息......");
 
@@ -289,7 +290,7 @@ namespace SelfhelpOrderMgr.YuZhengJieKou
             {
                 string subUrl = $"api/getJbxxList";
 
-                int pageSize = 3000;
+                //int pageSize = 3000;
                 int pageNum = 1;
                 //获取银企直连配置参数
                 //var setting = new ConfigHelper().GetYinQiSetting();
@@ -306,15 +307,15 @@ namespace SelfhelpOrderMgr.YuZhengJieKou
                     sql = @"CREATE TABLE [YzglTempJbxx](
 	                            [FCode] [varchar](20) NOT NULL,
 	                            [FName] [varchar](50) NULL,
-	                            [FIdenNo] [varchar](20) NULL,
+	                            [FIdenNo] [varchar](200) NULL,
 	                            [FAge] [int] NULL,
 	                            [FSex] [varchar](8) NULL,
 	                            [FAddr] [varchar](256) NULL,
 	                            [FCrimeCode] [varchar](256) NULL,
 	                            [FCYCode] [varchar](10) NULL,
 	                            [FTerm] [varchar](20) NULL,
-	                            [FInDate] [datetime] NULL,
-	                            [FOuDate] [datetime] NULL,
+	                            [FInDate] [varchar](50) NULL,
+	                            [FOuDate] [varchar](50) NULL,
 	                            [FAreaCode] [varchar](100) NULL,
 	                            [gz] [varchar](100) NULL,
 	                            [gw] [varchar](100) NULL,
@@ -322,6 +323,12 @@ namespace SelfhelpOrderMgr.YuZhengJieKou
 								[jtqh] [varchar](100) NULL,
                                 [csrq] [varchar](20) NULL,
                                 [sybq] [varchar](256) NULL,
+                                [sfSd] [int] NULL,
+                                [sfSe] [int] NULL,
+                                [sfSh] [int] NULL,
+                                [sfSk] [int] NULL,
+                                [sfSq] [int] NULL,
+                                [CrtDate] [datetime] NULL CONSTRAINT [DF_YzglTempJbxx_CrtDate]  DEFAULT (getdate()),
                              CONSTRAINT [PK_YzglTempJbxx] PRIMARY KEY CLUSTERED 
                             (
 	                            [FCode] ASC
@@ -333,6 +340,7 @@ namespace SelfhelpOrderMgr.YuZhengJieKou
 
                     foreach (var subZfzt in _subZfzts)
                     {
+                        pageNum = 1;
                         //先查询一次
                         ReqResultInfo<YzglzfdkJbxx> _result = PostGetJbxx(ref subUrl, rs, pageSize, pageNum, subZfzt);
 
@@ -342,6 +350,7 @@ namespace SelfhelpOrderMgr.YuZhengJieKou
                             pageNum++;
                             PostGetJbxx(ref subUrl, rs, pageSize, pageNum, subZfzt);
                         }
+                        
                     }
 
                     //更新地址信息
@@ -370,9 +379,35 @@ namespace SelfhelpOrderMgr.YuZhengJieKou
         private ReqResultInfo<YzglzfdkJbxx> PostGetJbxx(ref string subUrl, ResultInfo rs, int pageSize, int pageNum,string zfzt="")
         {
             subUrl = $"api/getJbxxList?pageNum={pageNum}&pageSize={pageSize}&zfzt={zfzt}";
+            Console.WriteLine(subUrl);
             string _res = HttpHelper.HttpPostByJson(_baseurl + subUrl, "", token);
 
             ReqResultInfo<YzglzfdkJbxx> _result = Newtonsoft.Json.JsonConvert.DeserializeObject<ReqResultInfo<YzglzfdkJbxx>>(_res);
+
+            if (_result.rows == null || _result.rows.Count==0)
+            {
+                Console.WriteLine($"{zfzt}状态的记录为空");
+                return _result;
+            }
+
+            #region 去除已存在的记录
+            //List<YzglTempJbxx> nls = new CommTableInfoBLL().GetList<YzglTempJbxx>("select * from YzglTempJbxx", null).ToList();
+
+            //List<YzglzfdkJbxx> errLs = new List<YzglzfdkJbxx>();
+
+            //foreach (var item in _result.rows)
+            //{
+            //    if (nls.Where(o => o.FCode == item.zfbh).ToList().Count >= 1)
+            //    {
+            //        errLs.Add(item);
+            //    }
+            //}
+
+            //foreach (var item in errLs)
+            //{
+            //    _result.rows.Remove(item);
+            //} 
+            #endregion
 
             var sst = _result.rows.Select(o => o.zfxm).ToList();
             string tempstr = "";
@@ -388,6 +423,7 @@ namespace SelfhelpOrderMgr.YuZhengJieKou
             {
                 foreach (var item in _result.rows)
                 {
+
                     string sex = "男";
                     if (item.xb == "2")
                     {
@@ -397,7 +433,51 @@ namespace SelfhelpOrderMgr.YuZhengJieKou
                     {
                         item.syzm = "";
                     }
-                    string strTemp = $"insert into YzglTempJbxx (FCode,FName,FIdenNo,FAge,FSex,FAddr,FCrimeCode,FCYCode,FTerm,FInDate,FOuDate,FAreaCode, gz , gw,zfZt,jtqh,csrq,sybq) values('{item.zfbh}','{item.zfxm}','{item.zjHm}','{0}','{sex}','{item.jtmx}','{item.syzm}','{item.fgdj}','{item.xq}','{item.rjrq}','{item.xqzr}','{item.deptId}', '{item.gz}' , '{item.gw}', '{item.zfZt}','{item.jtqh}','{item.csrq}','{item.sybq}');";
+
+                    //Type type = typeof(YzglzfdkJbxx); // 获取要遍历的类型
+                    //PropertyInfo[] properties = type.GetProperties(); // 获取所有公共属性（包括只读）
+                    //foreach (var property in properties)
+                    //{
+                    //    string value = (string)property.GetValue(item); // 获取属性值
+                    //    // 设置属性名的值去除：“\n”，将其赋值为"John Doe"
+                    //    property.SetValue(item, value?.Replace("\n",""));
+                    //}
+
+
+                    //DateTime result;
+                    //bool isDateValid = DateTime.TryParse(item.rjrq, out result);
+                    //if (!isDateValid)
+                    //{
+                    //    item.rjrq = DateTime.Today.ToString();
+                    //}
+
+
+
+                    //isDateValid = DateTime.TryParse(item.xqzr, out result);
+                    //if (!isDateValid)
+                    //{
+                    //    item.xqzr = DateTime.Today.ToString();
+                    //}
+
+
+                    //try
+                    //{
+                    //    var ss = Convert.ToDateTime(item.rjrq);
+                    //    var aa = Convert.ToDateTime(item.xqzr);
+                    //}
+                    //catch (Exception ex)
+                    //{
+                        
+                    //    Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject( item));
+
+                    //    Console.WriteLine($"本行错误信息：{ex.Message}");
+                    //    item.rjrq = DateTime.Today.ToString();
+                    //    item.xqzr = DateTime.Today.ToString();
+                    //    continue;
+
+                    //}
+
+                    string strTemp = $"insert into YzglTempJbxx (FCode,FName,FIdenNo,FAge,FSex,FAddr,FCrimeCode,FCYCode,FTerm,FInDate,FOuDate,FAreaCode, gz , gw,zfZt,jtqh,csrq,sybq,sfSd,sfSe,sfSh,sfSk,sfSq) values('{item.zfbh}','{item.zfxm}','{item.zjHm}','{0}','{sex}','{item.jtmx}','{item.syzm}','{item.fgdj}','{item.xq}','{item.rjrq}','{item.xqzr}','{item.deptId}', '{item.gz}' , '{item.gw}', '{item.zfZt}','{item.jtqh}','{item.csrq}','{item.sybq}','{item.sfSd}','{item.sfSe}','{item.sfSh}','{item.sfSk}','{item.sfSq}');";
                     strInsertInfo.Append(strTemp);
 
                 }
@@ -455,7 +535,7 @@ namespace SelfhelpOrderMgr.YuZhengJieKou
         /// 获取罪犯信息
         /// </summary>
         /// <returns></returns>
-        public ResultInfo GetShgxList()
+        public ResultInfo GetShgxList(int pageSize=3000)
         {
             Console.WriteLine("正在获取社会关系信息......");
 
@@ -466,7 +546,7 @@ namespace SelfhelpOrderMgr.YuZhengJieKou
             {
                 string subUrl = $"api/getShgx";
 
-                int pageSize = 3000;
+                //int pageSize = 3000;
                 int pageNum = 1;
                 //获取银企直连配置参数
                 //var setting = new ConfigHelper().GetYinQiSetting();
@@ -534,9 +614,14 @@ namespace SelfhelpOrderMgr.YuZhengJieKou
         {
             subUrl = $"api/getShgx?pageNum={pageNum}&pageSize={pageSize}";
             string _res = HttpHelper.HttpPostByJson(_baseurl + subUrl, "", token);
-
             ReqResultInfo<YzglzfdkShgx> _result = Newtonsoft.Json.JsonConvert.DeserializeObject<ReqResultInfo<YzglzfdkShgx>>(_res);
-
+            if (_result.code != 0)
+            {
+                rs.ReMsg = _result.msg;
+                rs.Flag = false;
+                rs.DataInfo = "";
+                return _result;
+            }
             var sst = _result.rows.Select(o => o.zfxm).ToList();
             string tempstr = "";
             foreach (var item in sst)
@@ -568,6 +653,7 @@ namespace SelfhelpOrderMgr.YuZhengJieKou
                 {
                     id = o.id,
                     zfbh = o.zfbh,
+                    FamilyName=o.xm,
                     FSex=o.xb=="2"?"女":"男",
                     FRelation=o.gxlb,
                     FIdenNo=o.zjhm,

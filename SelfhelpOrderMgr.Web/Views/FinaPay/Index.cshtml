@@ -12,7 +12,7 @@
     @{Html.RenderPartial("~/Views/Shared/_PartialHeadPage.cshtml");}
 </head>
 <body class="easyui-layout">
-    <div >
+    <div>
         <form method="post">
             <table id="crimeSearch">
                 <tr>
@@ -53,26 +53,99 @@
         </form>
     </div>
 
-    <div data-options="region:'center',title:'付款单列表:'" style="padding:5px;background:#eee;" >
+
+
+    <div data-options="region:'center',title:'付款单列表:'" style="height:100px;padding:5px;background:#eee;">
 
         <table id="test"></table>
     </div>
-    <div data-options="region:'north',title:'应付记录',split:true" style="height:250px;">
+
+    <div data-options="region:'north',title:'未付/应付记录',split:true" style="height:250px;">
         <div>
             <form id="ffExcel" method="post">
                 <input type="hidden" id="action" name="action" />
                 <input type="hidden" id="FBidExcel" name="FBidExcel" />
             </form>
-            
+
         </div>
         <table id="mainOrderTable" class="easyui-datagrid" data-options="toolbar:'#tbMain'"></table>
     </div>
-    
+
+    <div data-options="region:'east',title:'查询条件',split:true" style="width:300px;">
+        <div data-options="region:'north',title:'North Title',split:true">
+            <form method="post" style="padding-top:10px;">
+                <table id="crimeSearch">
+
+
+                    <tr>
+                        <th align="right">开始日期：</th>
+                        <td align="left">
+                            <input class="easyui-datetimebox" id="rjStartDate" name="CrtDt_Start"
+                                   data-options="required:false,showSeconds:false" value="3/4/2010 00:00" style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">结束日期：</th>
+                        <td align="left">
+                            <input class="easyui-datetimebox" id="rjEndDate" name="CrtDt_End"
+                                   data-options="required:false,showSeconds:false" value="3/4/2010 23:59" style="width:190px">
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th align="right">付款类型：</th>
+                        <td align="left">
+                            <select id="FAreaName" name="FType" class="easyui-combobox" style="width:190px;">
+                                <option value="" selected="selected">请选择类型</option>
+                                @if (ViewData["payTypes"] != null)
+                                {
+                                    foreach (SelfhelpOrderMgr.Model.T_CommonTypeTab typetab in ViewData["payTypes"] as List<SelfhelpOrderMgr.Model.T_CommonTypeTab>)
+                                    {
+                                        <option value="@typetab.FName">@typetab.FName</option>
+                                    }
+                                }
+                            </select>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th align="right">操作员：</th>
+                        <td align="left">
+                            <select id="FCrtBy" name="CrtBy" class="easyui-combobox" style="width:190px;">
+                                <option value="" selected="selected">请选择</option>
+                                @if (ViewData["crtbys"] != null)
+                                {
+                                    foreach (string crtby in ViewData["crtbys"] as List<string>)
+                                    {
+                                        <option value="@crtby">@crtby</option>
+                                    }
+                                }
+                            </select>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th align="right">备注：</th>
+                        <td align="left">
+                            <input id="FDesc" name="Remark" class="easyui-textbox" style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right"></th>
+                        <td align="right"><a id="btn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-search'" onclick="btnSearch()">查询</a><a id="A1" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-redo'" onclick="btnClear()">清空</a></td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+    </div>
+
+
+
     <div id="tbMain">
         <form id="ffMainOrder" method="post">
-            <table id="mainOrder">
+            <table id="crimeSearch">
                 <tr>
-                    <th align="right">回款类型：</th>
+                    <th align="right">扣款类型：</th>
                     <td align="left">
                         <input type="hidden" id="sbid" /><!--主单的Bid-->
                         <input type="hidden" id="sOrderStatus" /><!--主单的确认状态-->
@@ -84,30 +157,30 @@
                         <input type="hidden" id="sAreaCode" name="sAreaCode" />
                         <select id="payKemu" name="payKemu" class="easyui-combobox" style="width: 115px;">
                             @*<option value="0" selected="selected">请选付款科目</option>
-                            @if (ViewData["payTypes"] != null)
-                            {
-                                foreach (SelfhelpOrderMgr.Model.T_CommonTypeTab savetype in ViewData["payTypes"] as List<SelfhelpOrderMgr.Model.T_CommonTypeTab>)
+                                @if (ViewData["payTypes"] != null)
                                 {
-                                    <option value="@savetype.FCode">@savetype.FName</option>
-                                }
-                            }*@
+                                    foreach (SelfhelpOrderMgr.Model.T_CommonTypeTab savetype in ViewData["payTypes"] as List<SelfhelpOrderMgr.Model.T_CommonTypeTab>)
+                                    {
+                                        <option value="@savetype.FCode">@savetype.FName</option>
+                                    }
+                                }*@
                         </select>
                     <th align="right">队别：</th>
                     <td>
                         <select id="mainAreaName" name="mainAreaName" class="easyui-combobox" style="width: 135px;">
                             @*<option value="0" selected="selected">请选择队别</option>
-                            @if (ViewData["areas"] != null)
-                            {
-                                foreach (SelfhelpOrderMgr.Model.T_AREA area in ViewData["areas"] as List<SelfhelpOrderMgr.Model.T_AREA>)
+                                @if (ViewData["areas"] != null)
                                 {
-                                    <option value="@area.FCode">@area.FName</option>
-                                }
-                            }*@
+                                    foreach (SelfhelpOrderMgr.Model.T_AREA area in ViewData["areas"] as List<SelfhelpOrderMgr.Model.T_AREA>)
+                                    {
+                                        <option value="@area.FCode">@area.FName</option>
+                                    }
+                                }*@
                         </select>
                     </td>
-                    
-                    
-                    
+
+
+
                     <th>编号:</th>
                     <td><input id="vcrd_FCrimeCode" name="vcrd_FCrimeCode" type="text" style="width:100px"></td>
                     <th>姓名:</th>
@@ -116,7 +189,7 @@
                     <td colspan="2"><input id="sremark" name="sremark" type="text" style="width:150px"></td>
                 </tr>
                 <tr>
-                    <th align="right">回款状态：</th>
+                    <th align="right">记录状态：</th>
                     <td>
                         <select id="rtnMoneyFlag" name="rtnMoneyFlag" class="easyui-combobox" style="width: 115px;">
                             <option value="" selected="selected">==请选择==</option>
@@ -140,12 +213,12 @@
                         <a id="btnSavePayOrder" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-save',plain:'true'" onclick="VcrdExcelOut()">Excel导出</a>|
                         <a id="btnCreatePayOrder" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-add',plain:'true'" onclick="btnCreatePayOrder()">创建付款单|</a>
                     </td>
-                    
+
                 </tr>
             </table>
         </form>
-      
-        
+
+
     </div>
 
     <div id="win" class="easyui-window" title="新建付款单" style="width:400px;height:300px"
@@ -185,8 +258,8 @@
                 </tr>
             </table>
         </div>
-    </div> 
-
+    </div>
+    <script src="~/Scripts/myJs/commonJs.js"></script>
     <script src="~/Scripts/myJs/FinancePay.js"></script>
 </body>
 

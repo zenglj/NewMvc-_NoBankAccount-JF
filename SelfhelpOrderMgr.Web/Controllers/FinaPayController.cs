@@ -22,6 +22,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
         // GET: /Laobao/
 
         JavaScriptSerializer jss = new JavaScriptSerializer();
+        BaseDapperBLL _baseDapperBLL = new BaseDapperBLL();
+
         string strWherePay = " and isnull(FinancePayFlag,0)=0 and flag=0 and CAmount<>0 and Dtype in(select FName from T_CommonTypeTab where FTYpe='CWKM' and FRemark='支')";
         public ActionResult Index(int id = 1)
         {
@@ -90,7 +92,17 @@ namespace SelfhelpOrderMgr.Web.Controllers
             return Content(sss);
         }
 
-        public ActionResult getPaies(int id = 1)
+        public JsonResult GetPayList(string strJsonWhere, string orderField = " Id asc ", int page = 1, int rows = 10)
+        {
+            var paramWhere = Newtonsoft.Json.JsonConvert.DeserializeObject<T_Bank_Rcv_Search>(strJsonWhere);
+
+            PageResult<T_SHO_FinancePay> _r =_baseDapperBll.GetPageList<T_SHO_FinancePay, T_SHO_FinancePay_Search>(orderField, strJsonWhere, page, rows);
+
+            return Json(_r);
+        
+        }
+
+    public ActionResult getPaies(int id = 1)
         {
             string action = Request["action"];
             List<T_SHO_FinancePay> bonuies;
@@ -579,7 +591,32 @@ namespace SelfhelpOrderMgr.Web.Controllers
             
         }
 
- 
+        public ActionResult DelMainOrder(string bid)
+        {
+            ResultInfo rs = new ResultInfo();
+            try
+            {
+                var czy = _baseDapperBll.QueryModel<T_CZY>("FCode", base.loginUserCode);
+                if (czy == null || czy.FPRIVATE != 1)
+                {
+                    rs.ReMsg = "Err|对不起，您不用删除付款主单，需要与管理员联系。";
+                    return Json(rs);
+                }
+
+                _baseDapperBLL.ExecuteSql(@"update t_vcrd set FinancePayId=null,FinancePayFlag=0 where FinancePayId=@FinancePayId;
+                                        delete from T_SHO_FinancePay where Id=@FinancePayId;"
+                            , new { FinancePayId = bid });
+                rs.Flag = true;
+                rs.ReMsg = "OK|删除成功";
+                return Json(rs);
+            }
+            catch (Exception ex )
+            {
+                rs.ReMsg = $"Err|{ex.Message}";
+                throw;
+            }
+            
+        }
 
         //删除明细记录
         public ActionResult DelOrderDetail()
@@ -645,6 +682,62 @@ namespace SelfhelpOrderMgr.Web.Controllers
         }
 
 
+        //账户显示平台
+        public ActionResult AccForm()
+        {
+            //获取银行最新的余额
+            ResultInfo rs = new BankEnterpriseSerice().GetBankCardDateBalance(DateTime.Now.AddDays(-7), DateTime.Now.AddDays(-1));
 
+            T_Bank_DateBalance bal = _baseDapperBll.QueryList<T_Bank_DateBalance>("select Top 1 * from T_Bank_DateBalance order by baldat desc", null).FirstOrDefault();
+
+            if (bal != null)
+            {
+                T_Bank_SubAccBalance subBal = _baseDapperBll.QueryModel<T_Bank_SubAccBalance>("AccountName", "BankAccount");
+                subBal.AccountBalance = bal.avabal;
+                subBal.AccountDate = bal.baldat;
+                _baseDapperBll.Update(subBal);
+            }
+
+            //罪犯个人总额
+            var sumMoney = new CommTableInfoBLL().ExtSqlGetModel<decimal>("select sum(Damount-CAmount) from T_Vcrd where flag=0", null);
+
+            T_Bank_SubAccBalance prisonerBal = _baseDapperBll.QueryModel<T_Bank_SubAccBalance>("AccountName", "PersonerAccount");
+            prisonerBal.AccountBalance = sumMoney;
+            prisonerBal.AccountDate = DateTime.Now;
+            _baseDapperBll.Update(prisonerBal);
+
+
+
+            //超市消费
+            decimal superBal = new CommTableInfoBLL().ExtSqlGetModel<decimal>("select isnull(sum(camount-damount),0) from T_vcrd where flag=0 and DTYPE in('超市消费','消费退货') and isnull(FinancePayFlag,0)=0", null);
+                        
+            _baseDapperBll.UpdatePartInfo<T_Bank_SubAccBalance>(
+                new { AccountBalance = superBal, AccountDate = DateTime.Now }
+                    , " AccountName=@AccountName "
+                    , new { AccountName = "SuperCenterAccount" });
+
+            //医院消费
+            decimal hospitalBal = new CommTableInfoBLL().ExtSqlGetModel<decimal>("select isnull(sum(camount-damount),0) from T_vcrd where flag=0 and DTYPE in('医院消费','医院退货') and isnull(FinancePayFlag,0)=0", null);
+
+            _baseDapperBll.UpdatePartInfo<T_Bank_SubAccBalance>(
+                new { AccountBalance = hospitalBal, AccountDate = DateTime.Now }
+                    , " AccountName=@AccountName "
+                    , new { AccountName = "HospitalAccount" });
+
+
+            List<T_Bank_SubAccBalance> ls = _baseDapperBLL.GetModelList<T_Bank_SubAccBalance>("");
+            ViewData["balanceInfo"] = ls;
+            return View();
+        }
+
+        /// <summary>
+        /// 子账户设定管理
+        /// </summary>
+        /// <returns></returns>
+        public ActionResult SubAccMgr()
+        {
+            IEnumerable<T_Bank_SubAccBalance> model = _baseDapperBll.GetModelList<T_Bank_SubAccBalance>(""); // 获取你的数据
+            return View(model);
+        }
 	}
 }

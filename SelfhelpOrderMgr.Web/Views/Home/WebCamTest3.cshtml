@@ -2,27 +2,21 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 <!doctype html>
-<html lang="en">
+<html>
 <head>
-    <title>人脸验证</title>
     <meta charset="utf-8">
-    <!-- 强制让文档与设备的宽度保持1：1,对页面设置不能进行缩放： -->
-    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
-    <!-- 是否/启用 WebApp 全屏模式，删除苹果默认的工具栏和菜单栏： -->
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <!-- 针对手持设备优化，主要是针对一些老的不识别viewport的浏览器，比如黑莓： -->
-    <meta name="HandheldFriendly" content="true">
-    <!-- 启用360浏览器的极速模式(webkit)： -->
-    <meta name="renderer" content="webkit">
-    <!-- 优先使用 IE 最新版本和 Chrome: -->
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-    <!-- <link href="./css/bootstrap.min.css" rel="stylesheet" type="text/css"> -->
+    <title>基于tracking的取人脸</title>
+    <script src="~/Scripts/jquery-1.11.3.min.js"></script>
     <link href="~/Scripts/diyUpload/css/webuploader.css" rel="stylesheet" />
     <link href="~/Scripts/diyUpload/css/diyUpload.css" rel="stylesheet" />
     <script src="~/Scripts/diyUpload/js/diyUpload.js"></script>
     <script src="~/Scripts/diyUpload/js/webuploader.html5only.min.js"></script>
     <link href="~/Content/font-awesome.min.css" rel="stylesheet" />
     <link href="~/Content/timeline.css" rel="stylesheet" />
+
+    <script src="~/Scripts/tracking-js/tracking-min.js"></script>
+    <script src="~/Scripts/tracking-js/face-min.js"></script>
+    <script src="~/Scripts/EasyUI/jquery.easyui.min.js"></script>
     <style>
 
         body {
@@ -43,13 +37,28 @@
             filter: fliph; /*IE*/
         }
 
-        #videoel {
+        /*#video {
             -o-transform: scaleX(-1);
             -webkit-transform: scaleX(-1);
             transform: scaleX(-1);
-            -ms-filter: fliph; /*IE*/
-            filter: fliph; /*IE*/
-            object-fit: cover;
+            -ms-filter: fliph;
+            IE filter: fliph;
+            IE object-fit: cover;
+        }*/
+
+        video, #canvas, #canvas1 {
+            border-radius: 50%;  设置圆角 
+        }
+
+        /*video, #canvas, #canvas1 {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+        }*/
+
+
+        #canvas1 {
+            position: absolute;
         }
 
         #container {
@@ -75,6 +84,34 @@
             font-size: 16px;
         }
 
+        /*========Start==================*/
+
+
+
+        /*.container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+        }*/
+
+        #keepImg {
+            width: 100px;
+            height: 100px;
+            background-color: pink;
+            display: inline-block;
+            /*float: left;*/
+        }
+
+        #btn {
+            width: 100px;
+            height: 100px;
+            background-color: deeppink;
+            display: inline-block;
+            /*float: left;*/
+        }
+
+        /*========End======================*/
+
         .hide {
             display: none;
         }
@@ -92,34 +129,94 @@
             }
     </style>
 </head>
-<body style="background-color:white">
-    <div id="content" >
+<body>
+
+    <div id="content">
         <div class="row">
             <div class="col-md-3">
                 <div>
                     <br /><br /><br />
-                    <img src="~/Content/GoodsImages/Logo.png" />
-                    <h2>专注 专业 创新</h2>
-                    <h4>数字监狱方向的引领者</h4>
-                    <h5>以客户为第一、以创新为核心、专注行业领域、用专业技术服务管理需要</h5>
+                    @*<img src="~/Content/GoodsImages/Logo.png" />*@
+                    @if (ViewData["loginCheck"] != null)
+                    {
+                        var loginCheck = ViewData["loginCheck"].ToString();
+                        if (loginCheck == "2")
+                        {
+                            <img src="~/Content/images/police.png" class="img-circle" />
+                        }
+                        else
+                        {
+
+                            <img src="~/Content/images/shopping.png" class="img-circle" />
+                        }
+                    }
+                    else
+                    {
+                        <img src="~/Content/images/shopping.png" class="img-circle" />
+
+                    }
+
+                    <h4>智慧人脸购物中心</h4>
+                    <h5>操作简单、使用便捷、安全放心</h5>
                 </div>
                 <div class="row">
                     <div class="col-sm-8">
-                        <button class="twinkle btn-primary btn-lg btn-block active ">开始识别</button>
+                        <div class="form-group">
+                            <label for="exampleInputEmail1">账号</label>
+                            <input type="number" class="input-lg" id="fcrimecode" value="@ViewData["FUserCode"]" placeholder="输入用户账号" />
+                        </div>
+                        <button id="btnStartFaceCheck" class="twinkle btn-primary btn-lg btn-block active ">开始识别</button>
                     </div>
                 </div>
-                
+
 
 
 
             </div>
             <div class="col-md-6">
-                <br /><br /><br />
-                <div id="container">
-
-                    <video id="videoel" width="300" height="300" preload="auto" loop playsinline muted autoplay webkit-playsinline='true'></video>
-                    <canvas id="overlay" height="300"></canvas>
+                <br /><br />
+                <div class="row" style="height:300px;">
+                    <div class="container">
+                        <video id="video" width="400" height="300" style="position: absolute; left: 50%; transform: translate(-50%, -0%);" preload="auto" loop playsinline muted autoplay webkit-playsinline='true'></video>
+                        <canvas id="canvas" width="400" height="300" style="position: absolute; left: 50%; transform: translate(-50%, -0%);"></canvas>
+                        <canvas id="canvas1" width="400" height="300" style="position: absolute; left: 50%; transform: translate(-50%, -0%);"></canvas>
+                    </div>
                 </div>
+                <div class="row text-center">
+                    <div class="text-center"><h3 id="faceCheckResultInfo">点击【开始识别】按钮进行识别</h3></div>
+                    <div style="display:none">
+
+                        <div id="keepImg">保存图片</div>
+                        <div id="btn">截图</div>
+
+
+                    </div>
+                    <canvas id="shortCut" width="200" height="200"></canvas>
+                    <div id="img"></div>
+
+                    @*<div style="display:none">*@
+                    <div style="display:none">
+
+                        <input type="hidden" id="callback" value="@ViewData["callback"]" />
+
+
+                        <form id="checkForm" class="imgbox" method="post" enctype="multipart/form-data" action="/Home/CheckFace">
+
+                            <img id="faceImage" src="" name="faceImage"  alt="">
+                            <input type="hidden" id="imageSrc" name="imageSrc" value="" />
+                            <input type="hidden" id="loginCheck" name="loginCheck" value="@ViewData["loginCheck"]" />
+                            <input type="hidden" id="FaceMode" name="faceMode" value="@ViewData["FaceMode"]" />
+                            <input type="hidden" id="smFCrimeCode" name="fcrimecode" value="" />
+                            @*<input type="submit" value="上传" />
+                <input id="btnReadAddr" type="button" value="地址" />*@
+                        </form>
+                    </div>
+
+                </div>
+
+
+
+
             </div>
             <div class="col-md-3">
                 <div class="text-center">
@@ -143,8 +240,8 @@
                                         <p>点击【开始识别】按钮</p>
                                     </div>
                                     @*<div class="timeline-footer">
-                    <p class="text-right">首先</p>
-                </div>*@
+                                            <p class="text-right">首先</p>
+                                        </div>*@
                                 </div>
                             </div>
 
@@ -162,8 +259,8 @@
                                         <p>根据提示眨眼或是摇头进行识别人脸</p>
                                     </div>
                                     @*<div class="timeline-footer">
-                    <p class="text-left">接着</p>
-                </div>*@
+                                            <p class="text-left">接着</p>
+                                        </div>*@
                                 </div>
                             </div>
 
@@ -181,8 +278,8 @@
                                         <p>正确识别您的身份</p>
                                     </div>
                                     @*<div class="timeline-footer">
-                    <p class="text-right">最后</p>
-                </div>*@
+                                            <p class="text-right">最后</p>
+                                        </div>*@
                                 </div>
                             </div>
 
@@ -190,7 +287,7 @@
                                 <button class="btn btn-danger"><i class="fa fa-ambulance"></i></button>
                             </span>
                         </div>
-                        </div>
+                    </div>
 
                 </div>
             </div>
@@ -206,17 +303,7 @@
             <div class="imgbox">
                 <img src="" alt="">
             </div>*@
-        <div style="display:none">
-
-            <input type="hidden" id="callback" value="@ViewData["callback"]"/>
-
-            <form id="checkForm" class="imgbox" method="post" enctype="multipart/form-data" action="/Home/CheckFace">
-                <img id="faceImage" src="" name="facephone" alt="">
-                <input type="hidden" id="imageSrc" name="imageSrc" value="" />
-                @*<input type="submit" value="上传" />
-                    <input id="btnReadAddr" type="button" value="地址" />*@
-            </form>
-        </div>
+        
 
 
         @*<hr />
@@ -228,84 +315,132 @@
             </form>*@
 
     </div>
-    <script src="~/Scripts/myJs/facejs/init.js"></script>
-    <script src="~/Scripts/myJs/facejs/jquery-3.5.1.min.js"></script>
-    <script type="text/javascript" src="~/Scripts/myJs/facejs/ccv.js"></script>
-    <script type="text/javascript" src="~/Scripts/myJs/facejs/face.js"></script>
-    <script type="text/javascript" src="~/Scripts/myJs/facejs/stackblur.js"></script>
-    <script src="~/Scripts/myJs/facejs/vconsole.min.js"></script>
-    <script src="~/Scripts/myJs/facejs/utils.js"></script>
-    <script src="~/Scripts/myJs/facejs/clmtrackr.js"></script>
-    <script src="~/Scripts/myJs/facejs/common.js"></script>
+
+
+
     <script>
-        userFace.callTheCamera();
-        userFace.init();
-
         var speechSU = new window.SpeechSynthesisUtterance();//语音识别
-        $('.twinkle').click(function () {
-
-            var modeFlag = Math.round(Math.random());
-            if (modeFlag == 0) {
-                speechSU.text = "开始识别，请眨下眼睛";
-            } else {
-                speechSU.text = "开始识别，请左右摇头";
-            }
-
-            //播放提示
-            window.speechSynthesis.speak(speechSU);
-
-            //userFace.faceFlag = '11';//眨眼
-            //userFace.faceFlag = '13';//摇头
-            //userFace.init();//同时开启重新检测
+        var faceStartFlag = 0;
+        var saveArray = {};
 
 
-            //休眠3秒后开始验证
-            setTimeout(function () {
-                if (modeFlag == 0) {
-                    userFace.faceFlag = '11';//眨眼
-                } else {
-                    userFace.faceFlag = '13';//摇头
+        //启动人脸
+        function faceStart() {
+            var video = document.getElementById('video');
+            var canvas = document.getElementById('canvas');
+            var context = canvas.getContext('2d');
+
+            var tracker = new tracking.ObjectTracker('face');
+            tracker.setInitialScale(4);
+            tracker.setStepSize(2);
+            tracker.setEdgesDensity(0.1);
+
+            tracking.track('#video', tracker, { camera: true });
+
+            tracker.on('track', function (event) {
+                context.clearRect(0, 0, canvas.width, canvas.height);
+
+                event.data.forEach(function (rect) {
+                    context.strokeStyle = '#fff';
+                    context.strokeRect(rect.x, rect.y, rect.width, rect.height);
+                    //context.font = '11px Helvetica';
+                    context.fillStyle = "#fff";
+                    // context.fillText('x: ' + rect.x + 'px', rect.x + rect.width + 5, rect.y + 11);
+                    // context.fillText('y: ' + rect.y + 'px', rect.x + rect.width + 5, rect.y + 22);
+                    //console.log(rect.x, rect.width, rect.y, rect.height);
+                    saveArray.x = rect.x;
+                    saveArray.y = rect.y;
+                    saveArray.width = rect.width;
+                    saveArray.height = rect.height;
+                });
+            });
+
+            //启动人脸捕捉
+            setInterval(function () {
+                //console.log(saveArray);
+                if (saveArray.x > 100 &&
+                    saveArray.x + saveArray.width < 300 &&
+                    saveArray.y > 50 &&
+                    saveArray.y + saveArray.height < 250 &&
+                    saveArray.width < 180
+                    && saveArray.height < 180) {
+                    //增加判断，启动标志是1就开始，0就不抓拍
+                    console.log("标记：" + faceStartFlag);
+                    if (faceStartFlag == 1) {
+                        console.log("开始抓取图片");
+                        console.log(saveArray);
+                        getPhoto();
+                        for (var key in saveArray) {
+                            delete saveArray[key];
+                        }
+                    }
                 }
-                userFace.init();//同时开启重新检测
-            }, 5000)
+            }, 3000);
+
+            //faceStart(saveArray);
+
+            function getPhoto() {
+                context2.drawImage(video, 55, 65, 500, 500, 0, 0, 140, 140); //将video对象内指定的区域捕捉绘制到画布上指定的区域，实现拍照。
+                $("#faceCheckResultInfo").html("已截取图片");
+                console.log("已截取图片");
+                $("#faceImage").attr("src", convertCanvasToImage(can).src)
+                faceStop();//停止捕捉人脸
+                CheckFaceFunc();
+
+            }
+            //截图
+            var btn = document.getElementById("btn");
+            btn.onclick = function () {
+                getPhoto();
+            }
+            var canvas1 = document.getElementById('canvas1');
+            var context1 = canvas1.getContext('2d');
+            var can = document.getElementById('shortCut');
+            var context2 = can.getContext('2d');
+            /*context1.strokeStyle = "#69fff1";*/
+            context1.strokeStyle = "#0000FF";
+            context1.moveTo(100, 50);
+            context1.lineTo(300, 50);
+            context1.lineTo(300, 250);
+            context1.lineTo(100, 250);
+            context1.lineTo(100, 50);
+            context1.stroke();
 
 
 
-        })
-        $('.dataReconstitution').click(function () {
-            userFace.faceFlag = '13';
-        })
-        $('.reidentification').click(function () {
-            userFace.init();
-        })
-        $('.shakeHead').click(function () {
-            this.counter = 0;
-            this.lastTime = 0;
-            this.last_dis_eye_norse = 0;
-            this.last_nose_left = 0;
-            this.last_nose_top = 0;
-            this.last_DIF = 0;
-            userFace.faceFlag = '12';
-        })
+            var img = document.getElementById("img")
+            //将canvas转化为图片
+            function convertCanvasToImage(canvas) {
+                var image = new Image();
+                image.src = canvas.toDataURL("image/png");
+                return image;
+            }
+            //保存图片
+            var keepImg = document.getElementById("keepImg");
+            keepImg.onclick = function () {
+                var photoImg = document.createElement("img");
+                photoImg.src = convertCanvasToImage(can).src;
+                img.appendChild(photoImg);
+                //获取到转化为base64的图片地址
+                console.log(convertCanvasToImage(can).src);
+            }
+            //拍照
+        };
 
+        window.onload = faceStart();
+
+
+
+        function faceStop() {
+            faceStartFlag = 0;//停止抓拍
+        }
+        //增加部分
         $('#btnReadAddr').click(function () {
             //console.log($("#faceImage").attr("src"));
             $("#imageSrc").val($("#faceImage").attr("src"));
             //alert("Image width " + $("#faceImage").attr("src"));
         })
 
-
-
-        $("#checkForm").submit(function (e) {
-            e.preventDefault();
-            $("#imageSrc").val($("#faceImage").attr("src"));
-            //alert("Submit prevented");
-            $.post("/Home/CheckFace", { "fcrimecode":"3502019222", "imageSrc": $("#imageSrc").val() }, function (data, status) {
-                if ("success" == status) {
-                    alert(data);
-                }
-            });
-        });
 
         $("#faceImage").on('load', function () {
             //alert($("#faceImage").attr("src"));
@@ -314,50 +449,135 @@
         });
 
 
+        //图像压缩算法
+        function compressImage(srcBase64, maxWidth, maxHeight, outputFormat, quality, callback) {
+            var img = new Image();
+            img.onload = function () {
+                var canvas = document.createElement('canvas');
+                var ctx = canvas.getContext('2d');
+                var width = img.width;
+                var height = img.height;
+
+                if (width > maxWidth) {
+                    height *= maxWidth / width;
+                    width = maxWidth;
+                }
+
+                if (height > maxHeight) {
+                    width *= maxHeight / height;
+                    height = maxHeight;
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+                ctx.drawImage(img, 0, 0, width, height);
+
+                var newDataUrl = canvas.toDataURL(outputFormat, quality);
+                callback(newDataUrl);
+            };
+            img.src = srcBase64;
+        }
+
 
         function CheckFaceFunc() {
+            console.log("Call CheckFaceFunc");
             $("#imageSrc").val($("#faceImage").attr("src"));
-            //alert("Submit prevented");
-            $.post("/Home/CheckFace", { "fcrimecode": "3502019222", "imageSrc": $("#imageSrc").val() }, function (data, status) {
-                if ("success" == status) {
-                    //$("#faceImage").off('load');
+            $("#smFCrimeCode").val($("#fcrimecode").val());
+            //console.log('原始 image:', $("#imageSrc").val());
 
+
+            console.log("准备调用表单.....");
+
+            $('#checkForm').form({
+                url: "/Home/CheckFace",
+                onSubmit: function () {
+                    // do some check
+                    // return false to prevent submit;
+                },
+                success: function (responedata) {
+
+                    console.log(data);
+                    var data = $.parseJSON(responedata);
                     if (data.Flag == true) {
                         //console.log("wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww");
                         //console.log(data);
-                        $("#userId").html("用户:" + data.DataInfo.UserName);
+                        //$("#userId").html("用户:" + data.DataInfo.UserName);
+                        //alert($("#userId").html());
+                        //alert($("#loginCheck").val());
+                        if ($("#loginCheck").val() == 2) {
+                            if ($("#loginCheck").val() == 2 && data.DataInfo.typeFlag == 1) {
+                                speechSU.text = "登录成功";
+                                window.open($("#callback").val() + "&printFlag=LoginOK122342124121123131231122&loginFlag=LoginOK122342124121123131231122&managerCardNo=" + data.DataInfo.UserCode, "_self");
+                            } else {
+                                speechSU.text = "请联系民警刷脸登录";
+                            }
+                        }
+                        else {
+                            if (data.DataInfo.typeFlag == 0) {
+                                if ($("#FaceMode").val() == "0002") {
+                                    speechSU.text = data.ReMsg;
+                                    window.open($("#callback").val() + "&FaceMode=0002&printFlag=LoginOK122342124121123131231122&loginFlag=LoginOK122342124121123131231122&fcrimecode=" + data.DataInfo.UserCode, "_self");
+                                } else {
+                                    speechSU.text = data.DataInfo.UserName;
+                                    window.open($("#callback").val() + "&FaceMode=&printFlag=LoginOK122342124121123131231122&loginFlag=LoginOK122342124121123131231122&fcrimecode=" + data.DataInfo.UserCode, "_self");
+                                }
+                            } else {
+                                //alert(data.DataInfo.typeFlag);
+                                $("#faceCheckResultInfo").html("系统管理用户不能用于消费购物");
+                                //speechSU.text = "系统管理用户不能用于消费购物";
 
-                        speechSU.text = data.DataInfo.UserName;
-                        userFace.faceFlag = '10';//未启用
-                        window.open($("#callback").val()+"?fcrimecode=" + data.DataInfo.UserName,"_self");
+                                //失败后休眠2秒后开始验证
+                                setTimeout(function () {
+                                    faceStartFlag = 1;//重新启动人脸检测捕捉
+                                }, 2000);
+
+                            }
+                        }
+
                     } else {
-                        $("#userId").html(data.ReMsg);
-                        speechSU.text = data.ReMsg;
-                        userFace.faceFlag = '11';//未启用
+                        //$("#userId").html(data.ReMsg);
+                        $("#faceCheckResultInfo").html(data.ReMsg);
+
+                        ////失败后休眠2秒后开始验证
+                        setTimeout(function () {
+                            faceStartFlag = 1;//重新启动人脸检测捕捉
+                        }, 2000);
+
                     }
                     //userFace.faceFlag = '10';//未启用
-                    userFace.init();//同时开启重新检测
+                    //userFace.init();//同时开启重新检测
                     //播放提示
                     //speechSU.text = data;
-                    window.speechSynthesis.speak(speechSU);
-                    
-
+                    //window.speechSynthesis.speak(speechSU);
                 }
             });
+            // submit the form
+            $('#checkForm').submit();
+        
+                                                                                     $("#imageSrc").val()
+
         }
 
-        //语音播放
+        function btnStartFaceCheck() {
+            speechSU.text = "开始识别，请将人像移到蓝色提示框内";
+            window.speechSynthesis.speak(speechSU);
+            faceStartFlag = 1;//启动抓拍
+        }
 
-        //var btn = document.getElementById("btn");
-        //var speechSU = new window.SpeechSynthesisUtterance();
-        //btn.onclick = function () {
-        //    var val = document.getElementById("val").value;
-        //    speechSU.text = val;
-        //    window.speechSynthesis.speak(speechSU);
-        //}
+        //开始人脸检测
+        $("#btnStartFaceCheck").click(function () {
+            btnStartFaceCheck();
+        });
 
+        $(document).ready(function () {
+            //失败后休眠2秒后开始验证
+            setTimeout(function () {
+                btnStartFaceCheck();
+            }, 1000);
 
-        $("#footer").hide();
+        });
+
     </script>
+
 </body>
 </html>

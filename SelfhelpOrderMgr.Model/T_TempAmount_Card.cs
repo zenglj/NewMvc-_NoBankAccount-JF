@@ -81,6 +81,8 @@ namespace SelfhelpOrderMgr.Model{
         }
 
         public int cardflaga { get; set; }//IC的状态
+
+        public decimal AccPoints { get; set; }
 	}
 }
 

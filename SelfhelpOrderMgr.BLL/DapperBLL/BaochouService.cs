@@ -28,19 +28,19 @@ namespace SelfhelpOrderMgr.BLL
             var _controlPam = _dal.GetModelList<T_BC_ManagerParam, T_BC_ManagerParam>(strJson, "Id asc", 100);
 
             //获取出工积分系数  G
-            if (_controlPam != null)
+            if (_controlPam != null && _controlPam.Count>0 )
             {
                 this.chuqinRation = Convert.ToDecimal(_controlPam.Where(o => o.FCode == "G").FirstOrDefault().MgrValue);
             }
 
             //刑释完成比例值  H
-            if (_controlPam != null)
+            if (_controlPam != null && _controlPam.Count > 0)
             {
                 this.xingshiWanchengBili = Convert.ToDecimal(_controlPam.Where(o => o.FCode == "H").FirstOrDefault().MgrValue);
             }
 
             //增值税率  C
-            if (_controlPam != null)
+            if (_controlPam != null && _controlPam.Count > 0)
             {
                 this.shuilv = Convert.ToDecimal(_controlPam.Where(o => o.FCode == "C").FirstOrDefault().MgrValue);
             }

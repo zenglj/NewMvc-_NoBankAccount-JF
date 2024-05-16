@@ -77,9 +77,14 @@
     <Compile Include="DapperModel\BedInfomation.cs" />
     <Compile Include="DapperModel\BfShopType.cs" />
     <Compile Include="DapperModel\EasyUiPageResult.cs" />
+    <Compile Include="DapperModel\FaceCheckResult.cs" />
     <Compile Include="DapperModel\PageResult.cs" />
     <Compile Include="DapperModel\ResultInfo.cs" />
+    <Compile Include="DapperModel\T_Area_MacIpAddr.cs" />
     <Compile Include="DapperModel\t_BankProve_ext.cs" />
+    <Compile Include="DapperModel\T_Bank_SubAccBalance.cs" />
+    <Compile Include="DapperModel\T_Bank_ATMCashBoxDetail.cs" />
+    <Compile Include="DapperModel\T_Bank_ATMCashBoxMain.cs" />
     <Compile Include="DapperModel\T_Bank_AtmDealList.cs" />
     <Compile Include="DapperModel\T_Bank_AtmMachine.cs" />
     <Compile Include="DapperModel\T_Bank_CardPool_Search.cs" />
@@ -91,6 +96,8 @@
     <Compile Include="DapperModel\T_Bank_DateBalance_Search.cs" />
     <Compile Include="DapperModel\T_Bank_DateBalance.cs" />
     <Compile Include="DapperModel\T_Bank_AtmServerPay.cs" />
+    <Compile Include="DapperModel\T_Criminal_FaceModel _Ext.cs" />
+    <Compile Include="DapperModel\T_Criminal_Family_Search.cs" />
     <Compile Include="DapperModel\T_Bank_RetentionAmount_Search.cs" />
     <Compile Include="DapperModel\T_Bank_RetentionAmount.cs" />
     <Compile Include="DapperModel\T_BC_BaochouDetail.cs" />
@@ -99,6 +106,8 @@
     <Compile Include="DapperModel\T_BC_BaochouSum.cs" />
     <Compile Include="DapperModel\T_BC_BaochouSum_Search.cs" />
     <Compile Include="DapperModel\T_BC_ManagerParam.cs" />
+    <Compile Include="DapperModel\T_Criminal_FaceModel.cs" />
+    <Compile Include="DapperModel\T_Criminal_Family.cs" />
     <Compile Include="DapperModel\T_JF_BONUS.cs" />
     <Compile Include="DapperModel\T_JF_BONUSDTL.cs" />
     <Compile Include="DapperModel\T_JF_Invoice.cs" />
@@ -117,6 +126,8 @@
     <Compile Include="DapperModel\T_Bank_Rcv_Search.cs" />
     <Compile Include="DapperModel\ViewBankUserInfo.cs" />
     <Compile Include="DapperModel\ViewCriminalInfo.cs" />
+    <Compile Include="DapperModel\ViewFamilyInfo.cs" />
+    <Compile Include="DapperModel\ViewFamilyInfo_Search.cs" />
     <Compile Include="DapperModel\ViewPaymentRecordExtend.cs" />
     <Compile Include="DapperModel\T_Vcrd_Search.cs" />
     <Compile Include="DapperModel\T_Bank_DepositList_Search.cs" />
@@ -142,6 +153,7 @@
     <Compile Include="ExtModel\T_VeryDay_RcvPay.cs" />
     <Compile Include="ExtModel\t_XFQueryList_Ext.cs" />
     <Compile Include="ExtModel\xfMingxi.cs" />
+    <Compile Include="DapperModel\PhotoEntity.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ShengjuYZJKModel\YzglTempJbxx.cs" />
     <Compile Include="ShengjuYZJKModel\YzglTempShgx.cs" />
@@ -233,6 +245,7 @@
     <Compile Include="T_SHO_AreaGoodMaxCount.cs" />
     <Compile Include="T_SHO_BankReturnList.cs" />
     <Compile Include="T_SHO_ClientMachine.cs" />
+    <Compile Include="T_SHO_FinancePay_Search.cs" />
     <Compile Include="T_SHO_FinancePay.cs" />
     <Compile Include="T_SHO_GoodsAttribute.cs" />
     <Compile Include="T_SHO_GoodsForAttr.cs" />
@@ -279,7 +292,12 @@
   <ItemGroup>
     <Content Include="Rotativa\wkhtmltopdf.exe" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\SelfhelpOrderMgr.Common\SelfhelpOrderMgr.Common.csproj">
+      <Project>{BB3714BD-1096-40FC-A045-E92BED1985EE}</Project>
+      <Name>SelfhelpOrderMgr.Common</Name>
+    </ProjectReference>
+  </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>

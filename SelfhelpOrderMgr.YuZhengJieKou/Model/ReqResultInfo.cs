@@ -10,6 +10,8 @@ namespace SelfhelpOrderMgr.YuZhengJieKou.Model
     {
         public int total { get; set; }
         public List<T> rows { get; set; }
+        public string msg { get; set; }
+        public int code { get; set; }
 
     }
 }

@@ -398,6 +398,7 @@ function PrintCustomers(e) {
             $("#PrintXPItemS").val('');
             var PrintXPItemS = "";
             if (invs.length > 0) {
+
                 var k = 0;
                 var pageRows = 20;
                 for (var i = 0; i < invs.length; i++) {
@@ -409,6 +410,7 @@ function PrintCustomers(e) {
 
                     //alert(pages);
                     for (var p = 1; p <= pages; p++) {
+
                         var startRow = (p - 1) * pageRows;
                         var endRow = p * pageRows;
                         if (endRow > inv.details.length) {
@@ -501,8 +503,6 @@ function PrintCustomers(e) {
                 }
             }
             $("#PrintXPItemS").val(PrintXPItemS);
-
-
         }
     });
 }
@@ -570,12 +570,12 @@ function printMulXiaoPiao()//打印多个小票
     //    myTestHtml("#temp" + tid,$("#xiaoPiaoPageWidth").val());
     //}
 
-
     var PrintXPItemS = $("#PrintXPItemS").val();
     var pItems = PrintXPItemS.split("|");
     for (var i = 0; i < pItems.length; i++) {
         var item = pItems[i];
-        myTestHtml("#" + item, $("#xiaoPiaoPageWidth").val());
+        //myTestHtml("#" + item, $("#xiaoPiaoPageWidth").val());
+        printXiaoPiaoXinxi(item, $("#xiaoPiaoPageWidth").val());
     }
 
     //更新小票的次数
@@ -586,6 +586,7 @@ function printMulXiaoPiao()//打印多个小票
         return false;
     }
     var InvoiceNos = "";
+    
     for (var i = 0; i < rows.length; i++) {
         var tid = i;
 
@@ -595,6 +596,7 @@ function printMulXiaoPiao()//打印多个小票
             InvoiceNos = InvoiceNos + "|" + rows[i].InvoiceNo;
         }
     }
+
     //2、后台更新小票的打印次数（多个）
     var selectRows = InvoiceNos;
     $.post("/Home/UpdatePrintCount", { "Invoices": selectRows }, function (data, status) {
@@ -674,7 +676,7 @@ function ExcelSumOrder(id) {
 //printType 0表示消费清单，1表示签字确认单,2表示队别汇总单,3表示号房汇总单
 function printMulXiaofeiDan(printType) {
 
-    CreateXiaofeiDanReport('mul', printType)
+    CreateXiaofeiDanReport('mul', printType);
 
     //var rows = $("#test").datagrid('getSelections');
     //for (var i = 0; i < rows.length; i++) {

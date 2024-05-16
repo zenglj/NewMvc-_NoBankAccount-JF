@@ -1,0 +1,84 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>AccForm</title>
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+</head>
+<body>
+    <div>
+        <div class="page-header text-center">
+            <h1>JVD电子购物平台 <small>子账户资金分布情况</small></h1>
+        </div>
+        <div class="row" style="padding:50px;">
+            @if (ViewData["balanceInfo"] != null)
+            {
+                var ls = ViewData["balanceInfo"] as List<SelfhelpOrderMgr.Model.T_Bank_SubAccBalance>;
+
+            <div class="col-sm-3">
+                 
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <h3 class="panel-title"><span class="glyphicon glyphicon-piggy-bank" aria-hidden="true"></span> 银行账户余额</h3>
+                    </div>
+                    <div class="panel-body">
+                        <h2>￥ @ls.Where(o=>o.AccountName.Equals("BankAccount")).FirstOrDefault().AccountBalance</h2>
+                    </div>
+                    <div class="panel-footer">
+                        <div>银行日期:@ls.Where(o=>o.AccountName.Equals("BankAccount")).FirstOrDefault().AccountDate</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <div class="panel panel-info">
+                    <div class="panel-heading">
+                        <h3 class="panel-title"><span class="glyphicon glyphicon-user" aria-hidden="true"></span> 全监罪犯账户总额</h3>
+                    </div>
+                    <div class="panel-body">
+                        <h2>￥ @ls.Where(o => o.AccountName.Equals("PersonerAccount")).FirstOrDefault().AccountBalance</h2>
+                    </div>
+                    <div class="panel-footer">
+                        <div>截止日期:@ls.Where(o => o.AccountName.Equals("PersonerAccount")).FirstOrDefault().AccountDate</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <div class="panel panel-danger">
+                    <div class="panel-heading">
+                        <h3 class="panel-title"><span class="glyphicon glyphicon-user" aria-hidden="true"></span> 超市应付款</h3>
+                    </div>
+                    <div class="panel-body">
+                        <h2>￥ @ls.Where(o => o.AccountName.Equals("SuperCenterAccount")).FirstOrDefault().AccountBalance</h2>
+                    </div>
+                    <div class="panel-footer">
+                        <div>截止日期:@ls.Where(o => o.AccountName.Equals("SuperCenterAccount")).FirstOrDefault().AccountDate</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <div class="panel panel-warning">
+                    <div class="panel-heading">
+                        <h3 class="panel-title"><span class="glyphicon glyphicon-user" aria-hidden="true"></span> 医院应付款</h3>
+                    </div>
+                    <div class="panel-body">
+                        <h2>￥ @ls.Where(o => o.AccountName.Equals("HospitalAccount")).FirstOrDefault().AccountBalance</h2>
+                    </div>
+                    <div class="panel-footer">
+                        <div>截止日期:@ls.Where(o => o.AccountName.Equals("HospitalAccount")).FirstOrDefault().AccountDate</div>
+                    </div>
+                </div>
+            </div>
+            }
+        </div>
+
+    </div>
+    <script src="~/Scripts/jquery-1.11.3.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+</body>
+</html>

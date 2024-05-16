@@ -145,6 +145,8 @@ namespace SelfhelpOrderMgr.BLL
                         model.PwdUpdateTime = DateTime.Parse(dt.Rows[n]["PwdUpdateTime"].ToString());
                     }
 
+                    model.Photo = dt.Rows[n]["Photo"].ToString();
+
                     modelList.Add(model);
                 }
             }

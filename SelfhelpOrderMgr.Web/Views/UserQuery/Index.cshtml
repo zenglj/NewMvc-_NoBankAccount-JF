@@ -31,14 +31,32 @@
     <object id=MWRFATL style="WIDTH: 0px; HEIGHT: 0px"
             codebase=eyeFZ.cab#version =1,0,0,1
             classid=CLSID:CD851DCA-5D3C-4DA9-A0F7-DE018FDC0A7F></object>@*加载数明华读卡器控件*@
-    <div class="form-inline" style=" text-align:right;">
-        <input type="hidden" id="orderFcrimeCode" />
-        <input type="hidden" id="orderFcrimeName" />
-        <input type="hidden" id="orderCyName" />
-        <input type="hidden" id="orderFareaName" />
-        @if (ViewData["loginMode"].ToString() == "1")
-        {
-            <div class="form-group">
+<div class="form-inline" style=" text-align:right;">
+    <input type="hidden" id="orderFcrimeCode" />
+    <input type="hidden" id="orderFcrimeName" />
+    <input type="hidden" id="orderCyName" />
+    <input type="hidden" id="orderFareaName" />
+    @if (ViewData["loginMode"].ToString() == "1")
+    {
+        <div class="form-group">
+            <div class="input-group">
+                <div class="input-group-addon">用户号</div>
+                <input class="form-control" type="number" id="userCode" name="userCode" placeholder="用户号" onkeydown="if(event.keyCode==13) $('#UserPwd').focus();" style="width:150px;">
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="input-group">
+                <div class="input-group-addon">密码</div>
+                <input class="form-control" type="password" id="UserPwd" name="UserPwd" placeholder="密码" onkeydown="if (event.keyCode == 13) $('#btnSearch').focus();" style="width:150px;">
+            </div>
+        </div>
+        <button type="button" class="btn btn-primary" id="btnSearch" onclick="UserLoginCheck()">查询</button>
+
+
+    }
+    else if (ViewData["loginMode"].ToString() == "2")
+    {
+        @*<div class="form-group">
                 <div class="input-group">
                     <div class="input-group-addon">用户号</div>
                     <input class="form-control" type="number" id="userCode" name="userCode" placeholder="用户号" onkeydown="if(event.keyCode==13) $('#UserPwd').focus();" style="width:150px;">
@@ -49,18 +67,20 @@
                     <div class="input-group-addon">密码</div>
                     <input class="form-control" type="password" id="UserPwd" name="UserPwd" placeholder="密码" onkeydown="if (event.keyCode == 13) $('#btnSearch').focus();" style="width:150px;">
                 </div>
-            </div>
-            <button type="button" class="btn btn-primary" id="btnSearch" onclick="UserLoginCheck()">查询</button>
+            </div>*@
+        <input type="hidden" id="userCode" name="userCode" placeholder="用户号" value="@ViewData["fcrimecode"]">
+        <input type="hidden" id="UserPwd" name="UserPwd" placeholder="密码">
+        @*<button type="button" class="btn btn-primary" id="btnSearch" onclick="UserLoginCheck()">查询</button>*@
+        <a class="btn btn-lg btn-primary " role="button" href="/Home/WebCamTest3?callback=/UserQuery/Index?">人脸识别</a>
 
+    }
+    else
+    {
+        <a class="btn btn-large btn-primary " href="#" role="button" onclick="btnQueryUserInfo('3504013494')">读卡IC卡</a>
 
-        }
-        else
-        {
-            <a class="btn btn-large btn-primary " href="#" role="button" onclick="btnQueryUserInfo('3504013494')">读卡IC卡</a>
+    }
 
-        }
-
-    </div>
+</div>
     <h3 id="userNameInfo">你好, 某某某<span class="label label-primary">普管(500)</span>,您的账户信息如下：</h3>
     
 
@@ -82,9 +102,7 @@
             <div class="col-sm-12">
                 <div class="alert alert-danger" role="alert" id="lblInfo">银行账号：</div>
                 @{Html.RenderPartial("~/Views/UserQuery/_PartialQueryList.cshtml");}
-            </div>
-
-            
+            </div>  
         }
 
     </div>
@@ -98,10 +116,14 @@
         <script src="~/Scripts/messenger.min.js"></script>
         <script src="~/Scripts/myJs/minghuaICcardCommon.js"></script>
         <script src="~/Scripts/myJs/commonJs.js"></script>
-    <script src="~/Scripts/myJs/MyNumerKeyBoard.js"></script>
-    <script src="~/Scripts/myJs/userInfoQuery.js"></script>
+        <script src="~/Scripts/myJs/MyNumerKeyBoard.js"></script>
+        <script src="~/Scripts/myJs/userInfoQuery.js"></script>
         <script type="text/javascript">
-
+            $(document).ready(function (){
+                if ($("#userCode").val() != "" && $("#userCode").val() != undefined) {
+                    UserLoginCheck();
+                }
+            });
         </script>
     
 

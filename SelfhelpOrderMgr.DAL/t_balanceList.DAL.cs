@@ -233,7 +233,7 @@ namespace SelfhelpOrderMgr.DAL
 		{
 
 			StringBuilder strSql = new StringBuilder();
-			strSql.Append("select seqno, AmountB, crtdate, crtby, remark, baltype, DEPOSITER, AmountC, bankamount, PayMode, CollectMoneyFlag, fcrimecode, PrintCount, vounoa, cardcodea, typeflagA, AmountA, vounob, cardcodeB, typeflagB  ");
+			strSql.Append("select seqno, AmountB, crtdate, crtby, remark, baltype, DEPOSITER, AmountC, bankamount, PayMode, CollectMoneyFlag, fcrimecode, PrintCount, vounoa, cardcodea, typeflagA, AmountA, vounob, cardcodeB, typeflagB ,AccPoints ");
 			strSql.Append("  from t_balanceList ");
 			strSql.Append(" where seqno=@seqno");
 			SqlParameter[] parameters = {
@@ -304,6 +304,10 @@ namespace SelfhelpOrderMgr.DAL
 					model.typeflagB = int.Parse(ds.Tables[0].Rows[0]["typeflagB"].ToString());
 				}
 
+				if (ds.Tables[0].Rows[0]["AccPoints"].ToString() != "")
+				{
+					model.AccPoints = decimal.Parse(ds.Tables[0].Rows[0]["AccPoints"].ToString());
+				}
 				return model;
 			}
 			else

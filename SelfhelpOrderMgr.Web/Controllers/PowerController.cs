@@ -12,6 +12,7 @@ using System.Web.Script.Serialization;
 using System.Text.RegularExpressions;//正则表达式
 using SelfhelpOrderMgr.Web.CommonHeler;
 using Newtonsoft.Json;
+using System.IO;
 
 namespace SelfhelpOrderMgr.Web.Controllers
 {
@@ -20,6 +21,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
     
     public class PowerController : Controller
     {
+        BaseDapperBLL _baseDapperBLL = new BaseDapperBLL();
         #region 用户管理操作
         // GET: /Power/  //用户管理
         public ActionResult Index()
@@ -108,8 +110,9 @@ namespace SelfhelpOrderMgr.Web.Controllers
             int fprivate = selectRadio;// Request["selectRadio"] == null ? 0 : Convert.ToInt32(Request["selectRadio"]);
 
             //string FUserChinaName = Request["FUserChinaName"] == null ? "" : Request["FUserChinaName"];
+            
 
-            string decPwd = strUserPwd;
+                string decPwd = strUserPwd;
             if (strUserPwd != "**********")
             {
 
@@ -205,7 +208,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 }
             }
 
-                
+            
             op.FUserArea = strUserArea;
             t_TreeRole trl = new t_TreeRole();
             trl.RoleID = strUserRole == "" ? 0 : Convert.ToInt32(strUserRole);
@@ -218,6 +221,36 @@ namespace SelfhelpOrderMgr.Web.Controllers
             op.ver = "";
             op.rolecode = "";
             op.FManagerCard = FManagerCard;
+            HttpPostedFileBase photo;
+            string photoFileName = "";
+            string imageSrc = "";
+            if (Request.Files.Count > 0)
+            {
+                photo = Request.Files[0];
+                if (photo != null)
+                {
+                    //byte[] imageBytes = null;
+
+                    //using (var ms = new MemoryStream())
+                    //{
+                    //    photo.InputStream.CopyTo(ms);
+                    //    imageBytes = ms.GetBuffer();
+                    //}
+
+                    //string base64String = $"data:image/{Path.GetExtension(photo.FileName).Substring(1)};base64,{Convert.ToBase64String(imageBytes)}" ;
+                    //return base64String;
+
+                    photoFileName = photo.FileName;
+                    string savePath = Server.MapPath("~/Upload/" + photoFileName);
+                    photo.SaveAs(savePath);
+                    string base64String =Base64ToImageHelper.ImgToBase64StringByReturn(savePath);
+                    imageSrc = $"data:image/{Path.GetExtension(photoFileName).Substring(1)};base64,{base64String}" ;
+                    
+                    op.Photo = photoFileName;
+
+                }
+            }
+
             
             string strRes = "";
             if (czy != null)
@@ -247,8 +280,22 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
             //最后修改该用户所拥有该功能,权限设为2
             res = new T_Czy_areaBLL().UpdateByNodesAndUserCode(strUserCode, 2, TreeNodes);
+
+            
+
             if (res > 0)
             {
+                //注册人脸
+                if (imageSrc.Length > 2000 && op.FManagerCard.Length == 7)
+                {
+                    //PhotoEntity photoEntity = new PhotoEntity();
+                    //photoEntity.fcrimeCode = op.FManagerCard;
+                    //photoEntity.photoBase64Data = imageSrc;
+                    //photoEntity.photoName = photoFileName;
+                    //photoEntity.TypeFlag = 1;
+                    
+                    this.RegFaceModel(op.FManagerCard, imageSrc, "0003", 1);
+                }
                 strRes = "OK." + strRes;
             }
             else
@@ -260,6 +307,37 @@ namespace SelfhelpOrderMgr.Web.Controllers
             return Content(strRes);
 
         }
+
+
+        //public ActionResult CheckFace()
+        private ResultInfo RegFaceModel(string fcrimecode, string imageSrc, string faceMode = "0003", int loginCheck = 1)
+        {
+            ResultInfo rs = new ResultInfo();
+
+            if (string.IsNullOrWhiteSpace(faceMode))
+            {
+                faceMode = "0003";
+            }
+
+            if (string.IsNullOrWhiteSpace(imageSrc))
+            {
+                rs.ReMsg = "Err|图片不能为空";
+                return rs;
+            }
+
+            int typeFlag = 0;
+            if (loginCheck == 2)
+            {
+                typeFlag = 1;
+            }
+
+            rs = FaceCheckService.SendAndCheckFace(fcrimecode, imageSrc, faceMode, null, typeFlag, "");
+
+
+            return (rs);
+        }
+
+
 
         //删除操作员用户
         [MyLogActionFilterAttribute]

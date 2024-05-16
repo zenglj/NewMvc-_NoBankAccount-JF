@@ -411,7 +411,19 @@ function loadPayGrid() {
                 }
             },            
             { field: 'BankObssid', title: '银行流水', sortable: true, width: 300 },
-            { field: 'BankResultInfo', title: '银行结果描述', sortable: true, width: 300 }
+            { field: 'BankResultInfo', title: '银行结果描述', sortable: true, width: 300 },
+            {
+                field: 'AtmSrvPayFlag', title: 'ATM对账标志', width: 100, sortable: true, formatter: function (value, row, index) {
+                    if (row.AtmSrvPayFlag == "0") {
+                        return "否";
+                    } else if (row.AtmSrvPayFlag == "1") {
+                        return "是";
+                    } else {
+                        return value;
+                    }
+                }
+            },
+            { field: 'AtmSrvId', title: 'ATM对账单号', sortable: true, width: 300 }
         ]],
         onSelect: function (rowIndex, rowData) {
             

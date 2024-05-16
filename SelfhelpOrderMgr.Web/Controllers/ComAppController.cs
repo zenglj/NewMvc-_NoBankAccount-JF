@@ -21,6 +21,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
         string ip = "";
         public ActionResult Index()
         {
+
             string LoginFlag = Request["LoginFlag"];
             string managerCardNo = Request["managerCardNo"];
             string UserName = Request["UserName"];
@@ -47,6 +48,9 @@ namespace SelfhelpOrderMgr.Web.Controllers
             
 
             ViewData["areas"] = areas;
+
+            ViewData["fcrimecode"] = Request["fcrimecode"];
+
 
             T_SHO_ManagerSet mset = new T_SHO_ManagerSetBLL().GetModel("LoginMode");
             ViewData["LoginMode"] = mset.MgrValue;
@@ -125,39 +129,50 @@ namespace SelfhelpOrderMgr.Web.Controllers
         //按狱号查询人员信息
         public ActionResult QueryUserInfoByFCrimeCode()
         {
-            string userCodeId = Request["userCodeId"];
-            string FManagerCard = Request["FManagerCard"];
-            string UserName = Request["UserName"];
-            ip = System.Web.HttpContext.Current.Request.UserHostAddress;
-            //string ip = System.Web.HttpContext.Current.Request.ServerVariables["REMOTE_ADDR"];
-            string status = "Error|查询失败";
-
-            //FManagerCard = FManagerCard.Substring(3);
-            List<T_CZY> czys = new T_CZYBLL().GetModelList("FManagerCard='" + FManagerCard + "'");
-            if (czys.Count == 0)
+            try
             {
-                return Content("Error|无效的管理卡，请联系统民警");
-            }
+                string userCodeId = Request["userCodeId"];
+                string FManagerCard = Request["FManagerCard"];
+                string UserName = Request["UserName"];
+                ip = System.Web.HttpContext.Current.Request.UserHostAddress;
+                //string ip = System.Web.HttpContext.Current.Request.ServerVariables["REMOTE_ADDR"];
+                string status = "Error|查询失败";
 
-            if (string.IsNullOrEmpty(userCodeId)==true)
-            {
-                status = "Error|狱号不能为空";
+                //FManagerCard = FManagerCard.Substring(3);
+                List<T_CZY> czys = new T_CZYBLL().GetModelList("FManagerCard='" + FManagerCard + "'");
+                if (czys.Count == 0)
+                {
+                    return Content("Error|无效的管理卡，请联系统民警");
+                }
+
+                if (string.IsNullOrEmpty(userCodeId) == true)
+                {
+                    status = "Error|狱号不能为空";
+                    return Content(status);
+                }
+                T_Criminal criminal = new T_CriminalBLL().GetCriminalXE_info(userCodeId, 1);
+
+                if (criminal == null)
+                {
+                    return Content("Error|没有相应的狱政编号");
+                }
+
+                //获取查询到的近三个月的存款记录
+
+                List<T_Vcrd> vcrds = new T_VcrdBLL().GetModelList(100, "flag=0 and fcrimecode='" + criminal.FCode + "' and crtdate>='" + DateTime.Now.AddMonths(-3).ToShortDateString() + "'and crtdate<'" + DateTime.Now.AddDays(1).ToShortDateString() + "'", " CrtDate desc");
+                rtnQueryUserInfo userinfo = new rtnQueryUserInfo();
+                userinfo.UserInfo = criminal;
+                userinfo.vcrds = vcrds;
+
+                status = jss.Serialize(userinfo);
+                status = "There|" + status;
                 return Content(status);
             }
-            T_Criminal criminal = new T_CriminalBLL().GetCriminalXE_info(userCodeId, 1);
-
-
-
-            //获取查询到的近三个月的存款记录
-
-            List<T_Vcrd> vcrds = new T_VcrdBLL().GetModelList(100, "flag=0 and fcrimecode='" + criminal.FCode + "' and crtdate>='" + DateTime.Now.AddMonths(-3).ToShortDateString() + "'and crtdate<'" + DateTime.Now.AddDays(1).ToShortDateString() + "'", " CrtDate desc");
-            rtnQueryUserInfo userinfo = new rtnQueryUserInfo();
-            userinfo.UserInfo = criminal;
-            userinfo.vcrds = vcrds;
-
-            status = jss.Serialize(userinfo);
-            status = "There|" + status;
-            return Content(status);
+            catch (Exception ex)
+            {
+                return Content("Error|查询失败_"+ex.Message);
+            }
+            
         }
         //队别调整
         public ActionResult btnSubmitKK(int id = 1)
@@ -454,5 +469,48 @@ namespace SelfhelpOrderMgr.Web.Controllers
         }
 
 
-	}
+        /// <summary>
+        /// 脸谱采集
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public ActionResult FaceCollection(int id = 1)
+        {
+            string LoginFlag = Request["LoginFlag"];
+            string managerCardNo = Request["managerCardNo"];
+            string UserName = Request["UserName"];
+            ViewData["FaceMode"] = Request["FaceMode"];
+            //if (string.IsNullOrEmpty(LoginFlag) == true)
+            //{
+            //    return View("Login");
+            //}
+            //else if ("LoginOK122342124121123131231122" != LoginFlag)
+            //{
+            //    return View("Login");
+            //}
+
+            ViewData["FManagerCard"] = managerCardNo;
+            ViewData["UserName"] = UserName;
+
+            //List<T_AREA> areas = new T_AREABLL().GetModelList("");
+            List<T_AREA> areas = null;
+            if (string.IsNullOrEmpty(managerCardNo) == false)
+            {
+                areas = new T_AREABLL().GetModelList(@" fcode in(
+                select fareaCode from t_Czy_Area where fflag=2 and fcode in(
+                select fcode from t_czy where FManagerCard ='" + managerCardNo + "'))");
+            }
+
+
+            ViewData["areas"] = areas;
+
+            ViewData["fcrimecode"] = Request["fcrimecode"];
+
+
+            T_SHO_ManagerSet mset = new T_SHO_ManagerSetBLL().GetModel("LoginMode");
+            ViewData["LoginMode"] = mset.MgrValue;
+            return View();
+        }
+
+    }
 }

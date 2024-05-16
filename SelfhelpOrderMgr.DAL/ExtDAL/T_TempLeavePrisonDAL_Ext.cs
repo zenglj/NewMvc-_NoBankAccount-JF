@@ -17,10 +17,10 @@ namespace SelfhelpOrderMgr.DAL
             using (IDbConnection conn = new SqlConnection(SqlHelper.getConnstr()))
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.Append(@"select top 200 c.*,isnull((d.AmountA+d.AmountB+d.AmountC),0) JSMoney,e.OutBankCard,e.BankUserName,e.OpeningBank ,d.PayMode,d.CollectMoneyFlag,d.seqno from (
+                strSql.Append(@"select top 200 c.*,isnull((d.AmountA+d.AmountB+d.AmountC+d.AccPoints),0) JSMoney,e.OutBankCard,e.BankUserName,e.OpeningBank ,d.PayMode,d.CollectMoneyFlag,d.seqno from (
 select a.fcode,a.fname,a.foudate,isnull(b.fname,'') fareaName,a.foudate strOutDate
                     ,case isnull(c.CardFlaga,0) when 4 then '已结算' when 2 then '已挂失' when 3 then '已作废' else '未结' end as FStatus,isnull(c.BankAccNo,'') BankCardNo
-                    ,c.AmountA,c.AmountB,c.AmountC
+                    ,c.AmountA,c.AmountB,c.AmountC,c.AccPoints
                     from t_criminal a left outer join t_area b on a.fareacode=b.fcode left join t_criminal_card c 
                     on  a.Fcode=c.fcrimecode where 1=1 ");
                 if(string.IsNullOrEmpty(startDate)==false && string.IsNullOrEmpty(endDate)==false)
@@ -200,13 +200,13 @@ select a.fcode,a.fname,a.foudate,isnull(b.fname,'') fareaName,a.foudate strOutDa
                             from t_criminal a,t_area b,t_criminal_card c";
                 if (payMode != 3)
                 {
-                    strSql += @" ,(select top 1 fcrimecode,(AmountA+AmountB+AmountC) as CardMoney,CrtDate from t_balanceList
+                    strSql += @" ,(select top 1 fcrimecode,(AmountA+AmountB+AmountC+AccPoints) as CardMoney,CrtDate from t_balanceList
                             where fcrimecode=@fcode
                              order by seqno desc) d ";
                 }
                 else
                 {
-                    strSql += @" ,(select top 1 fcrimecode,(AmountA+AmountB+AmountC) as CardMoney,getdate() as CrtDate from T_Criminal_Card
+                    strSql += @" ,(select top 1 fcrimecode,(AmountA+AmountB+AmountC+AccPoints) as CardMoney,getdate() as CrtDate from T_Criminal_Card
                             where fcrimecode=@fcode) d ";
                 }
 
@@ -253,7 +253,7 @@ select a.fcode,a.fname,a.foudate,isnull(b.fname,'') fareaName,a.foudate strOutDa
                 strSql = strSql + @"insert into t_BankProve (fcode,fname,foudate,FIdenNo,fareaname,BankCode,CardMoney,CrtDate)
                             select a.fcode,a.fname,a.foudate,a.FIdenNo,b.fname fareaName,c.bankaccno BankCode,d.CardMoney,d.CrtDate 
                             from t_criminal a,t_area b,t_criminal_card c ,
-                            (select top 1 fcrimecode,(AmountA+AmountB+AmountC) as CardMoney,getDate() CrtDate from t_criminal_card
+                            (select top 1 fcrimecode,(AmountA+AmountB+AmountC+AccPoints) as CardMoney,getDate() CrtDate from t_criminal_card
                             where fcrimecode=@fcode
                              order by seqno desc) d
                             where a.fareacode=b.fcode and a.fcode=c.fcrimecode and a.fcode=d.fcrimecode 

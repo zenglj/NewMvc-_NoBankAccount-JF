@@ -45,7 +45,8 @@ namespace SelfhelpOrderMgr.Web.Filters
 		private void SetLoginInfo(int errMode,string fname,int changeCount,string statusInfo)
         {
 			string strErrMode = "失败";
-			T_CZY _user = _bll.GetModelList("FName='" + fname + "' or FCode='" + fname + "'").FirstOrDefault();
+			//T_CZY _user = _bll.GetModelList("FName='" + fname + "' or FCode='" + fname + "'").FirstOrDefault();
+			T_CZY _user = new BaseDapperBLL().QueryList<T_CZY>("select * from t_czy where FName=@FName  or FCode=@FCode", new { FName = fname, FCode = fname }).FirstOrDefault();
 			if (_user != null)
 			{
                 if (errMode == 1)
@@ -86,7 +87,9 @@ namespace SelfhelpOrderMgr.Web.Filters
 			if (context.HttpContext.Request["FName"] != null)
 			{
 				var fname = context.HttpContext.Request["FName"].ToString();
-				T_CZY _user = _bll.GetModelList("FName='" + fname + "' or FCode='" + fname + "'").FirstOrDefault();
+				//T_CZY _user = _bll.GetModelList("FName='" + fname + "' or FCode='" + fname + "'").FirstOrDefault();
+				T_CZY _user = new BaseDapperBLL().QueryList<T_CZY>("select * from t_czy where FName=@FName  or FCode=@FCode", new { FName = fname, FCode = fname }).FirstOrDefault();
+
 				if (_user != null)
 				{
 					var mset = new T_SHO_ManagerSetBLL().GetModel("PwdErrLoginCount");

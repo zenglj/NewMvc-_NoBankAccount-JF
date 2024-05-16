@@ -157,7 +157,10 @@ namespace SelfhelpOrderMgr.BLL
 					{
 						model.typeflagB = int.Parse(dt.Rows[n]["typeflagB"].ToString());
 					}
-
+					if (dt.Rows[0]["AccPoints"].ToString() != "")
+					{
+						model.AccPoints = decimal.Parse(dt.Rows[0]["AccPoints"].ToString());
+					}
 
 					modelList.Add(model);
 				}

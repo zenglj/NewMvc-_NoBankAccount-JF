@@ -677,7 +677,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
             //判断劳动报酬Excel的格式
             int id = 1;
-            T_SHO_ManagerSet mset = new T_SHO_ManagerSetBLL().GetModel("LaoBaoModel");
+            //T_SHO_ManagerSet mset = new T_SHO_ManagerSetBLL().GetModel("LaoBaoModel");
+            T_SHO_ManagerSet mset = new T_SHO_ManagerSetBLL().GetModel("JiFenModel");
             if (mset != null)
             {
                 id = Convert.ToInt32(mset.MgrValue);
@@ -704,7 +705,18 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 {
                     checkflag = Convert.ToInt32(lbset.MgrValue);
                 }
-                if (_jifenMgrService.UpdateInDbFlag(strFBid, strLoginName,checkflag))
+
+                bool upFlag = false;
+                if (id == 2)
+                {//厦门的模板 
+                    upFlag=_jifenMgrService.UpdateInDbFlag(strFBid, strLoginName, checkflag,id);
+                }
+                else
+                {//标准的模板
+                    upFlag=_jifenMgrService.UpdateInDbFlag(strFBid, strLoginName, checkflag);
+                }
+
+                if (upFlag)
                 {
                     List < T_ImportList > imports= new T_ImportListBLL().GetModelList("pc='" + strFBid + "' and Remark='该记录财务入账时，已离监销户了'");
                     if (imports.Count>0)
@@ -930,8 +942,10 @@ namespace SelfhelpOrderMgr.Web.Controllers
             string strLoginName = new T_CZYBLL().GetModel(Session["loginUserCode"].ToString()).FName;
             string strReSaveFlag = Request["reSaveFlag"];
             int id = 1;
-            T_SHO_ManagerSet mset = new T_SHO_ManagerSetBLL().GetModel("LaoBaoModel");
-            if(mset!=null)
+            //T_SHO_ManagerSet mset = new T_SHO_ManagerSetBLL().GetModel("LaoBaoModel");
+            //积分模板的方式
+            T_SHO_ManagerSet mset = new T_SHO_ManagerSetBLL().GetModel("JiFenModel");
+            if (mset!=null)
             {
                 id = Convert.ToInt32(mset.MgrValue);
             }
@@ -1013,7 +1027,15 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         }
                         else if(bonus.TypeFlag==4)
                         {
-                            drTemp = lbExcelModel_One(strFBid, sheet, rows, dtUserAdd, drTemp);
+                            if (id == 2)
+                            {
+                                drTemp = lbExcelModel_Two(strFBid, sheet, rows, dtUserAdd, drTemp);
+                            }
+                            else
+                            {
+                                drTemp = lbExcelModel_One(strFBid, sheet, rows, dtUserAdd, drTemp);
+                            }
+
 
                         }
                         else
@@ -1163,7 +1185,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         drTemp["FMoney"] = FMoney;
                         drTemp["FRemark"] = FRemark;
                         drTemp["Notes"] = "";
-                        drTemp["AmountA"] = 0;
+                        drTemp["AmountA"] = FMoney;
                         drTemp["AmountB"] = 0;
                         drTemp["AmountC"] = 0;
                         drTemp["cqbt"] = 0;
@@ -1184,9 +1206,123 @@ namespace SelfhelpOrderMgr.Web.Controllers
             return drTemp;
         }
 
-        
 
-        
+        /// <summary>
+        /// 厦门劳酬Excel格式  ：编号、姓名、积分、备注
+        /// </summary>
+        /// <param name="strFBid"></param>
+        /// <param name="sheet"></param>
+        /// <param name="rows"></param>
+        /// <param name="dtUserAdd"></param>
+        /// <param name="drTemp"></param>
+        /// <returns></returns>
+        private static DataRow lbExcelModel_Two(string strFBid, NPOI.SS.UserModel.ISheet sheet, int rows, DataTable dtUserAdd, DataRow drTemp)
+        {
+            #region 厦门劳酬Excel格式  ：编号、姓名、生产积分、改造积分、总结积分、备注
+            for (int i = 1; i <= rows; i++)
+            {
+                NPOI.SS.UserModel.IRow row = sheet.GetRow(i);
+                //int iType = row.GetCell(0).CellType;//文本是1，数字是0
+                NPOI.SS.UserModel.CellType iType = 0;
+                try
+                {
+                    iType = row.GetCell(0).CellType;
+                }
+                catch
+                {
+                    break;
+                }
+                string FCode = "";
+                if (iType == 0)
+                {
+                    FCode = Convert.ToString(row.GetCell(0).NumericCellValue);//数字型 excel列名【名称不能变,否则就会出错】
+                }
+                else
+                {
+                    FCode = row.GetCell(0).StringCellValue;//文本型 excel列名【名称不能变,否则就会出错】
+                }
+                string FName = row.GetCell(1).StringCellValue;//编号 列名 以下类似
+
+                string shengChanJifen = "0";  //生产积分
+                try
+                {
+                    shengChanJifen = Convert.ToString(row.GetCell(2).NumericCellValue);
+                }
+                catch
+                {
+
+                }
+
+                string gaiZhaoJifen = "0";  //改造积分
+                try
+                {
+                    gaiZhaoJifen = Convert.ToString(row.GetCell(3).NumericCellValue);
+                }
+                catch
+                {
+
+                }
+
+                
+
+                string allJifen = "0";  //总积分
+                try
+                {
+                    allJifen = Convert.ToString(row.GetCell(4).NumericCellValue);
+                }
+                catch
+                {
+
+                }
+
+                string FRemark = "";  //备注
+                try
+                {
+                    FRemark = Convert.ToString(row.GetCell(5).StringCellValue);
+                }
+                catch { }
+
+
+                #region Excel行写入到DataTabel中
+                decimal rstMoney = 0;
+                try
+                {//如果积分有
+                    rstMoney = Convert.ToDecimal(shengChanJifen);
+                    rstMoney = Convert.ToDecimal(gaiZhaoJifen);
+                    //rstMoney = Convert.ToDecimal(kouchuJifen);
+                    rstMoney = Convert.ToDecimal(allJifen);
+                    if (FCode != "")
+                    {
+                        drTemp = dtUserAdd.NewRow();
+                        drTemp["BID"] = strFBid;
+                        drTemp["FCrimeCode"] = FCode;
+                        drTemp["FCriminal"] = FName;
+                        drTemp["FMoney"] = allJifen;
+                        drTemp["FRemark"] = FRemark;
+                        drTemp["Notes"] = "";
+                        drTemp["AmountA"] = shengChanJifen;
+                        drTemp["AmountB"] = gaiZhaoJifen;
+                        drTemp["AmountC"] = 0;
+                        drTemp["cqbt"] = 0;
+                        drTemp["gwjt"] = 0;
+                        drTemp["ldjx"] = 0;
+                        drTemp["tbbz"] = 0;
+                        drTemp["grkj"] = 0;
+
+                        dtUserAdd.Rows.Add(drTemp);
+                    }
+
+                }
+                catch
+                { }
+                #endregion
+            }
+            #endregion
+            return drTemp;
+        }
+
+
+
 
         private static DataRow lbExcelModel_Five(string strFBid, NPOI.SS.UserModel.ISheet sheet, int rows, DataTable dtUserAdd, DataRow drTemp)
         {

@@ -1,0 +1,68 @@
+﻿@model IEnumerable<SelfhelpOrderMgr.Model.T_Bank_SubAccBalance>
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>SubAccMgr</title>
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <p>
+                @Html.ActionLink("Create New", "Create")
+            </p>
+            <table class="table table-condensed">
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.AccountName)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.AccountBalance)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.AccountDate)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Remark)
+                    </th>
+                    <th></th>
+                </tr>
+
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.AccountName)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.AccountBalance)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.AccountDate)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Remark)
+                        </td>
+                        <td>
+                            @Html.ActionLink("编辑", "Edit", new { id = item.Id }) |
+                            @Html.ActionLink("详情", "Details", new { id = item.Id }) |
+                            @Html.ActionLink("删除", "Delete", new { id = item.Id })
+                        </td>
+                    </tr>
+                }
+
+            </table>
+        </div>
+    </div>
+    
+    <script src="~/Scripts/jquery-1.11.3.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+</body>
+</html>

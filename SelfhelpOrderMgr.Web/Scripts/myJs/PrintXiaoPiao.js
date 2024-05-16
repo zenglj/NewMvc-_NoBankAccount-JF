@@ -203,7 +203,8 @@ function printMulXiaoPiao()//打印多个小票
     var pItems = PrintXPItemS.split("|");
     for (var i = 0; i < pItems.length; i++) {
         var item = pItems[i];
-        myTestHtml("#"+item,$("#xiaoPiaoPageWidth").val());
+        //myTestHtml("#"+item,$("#xiaoPiaoPageWidth").val());
+        printXiaoPiaoXinxi(item, $("#xiaoPiaoPageWidth").val());
     }
 
     var selectRows = $("#InvoiceNos").val();

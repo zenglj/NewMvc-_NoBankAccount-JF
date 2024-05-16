@@ -77,6 +77,7 @@
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConfigHelper.cs" />
     <Compile Include="Crypto\Constant.cs" />
     <Compile Include="Crypto\DesEncrypt.cs" />
     <Compile Include="Crypto\MD5Encrypt.cs" />

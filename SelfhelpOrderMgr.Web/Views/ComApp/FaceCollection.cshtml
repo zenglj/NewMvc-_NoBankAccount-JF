@@ -1,0 +1,291 @@
+﻿@{
+    ViewBag.Title = "人脸采集";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@{Html.RenderPartial("~/Views/Shared/_PartialXiaopiaoControl.cshtml");}
+<link href="~/Content/font-awesome.min.css" rel="stylesheet" />
+<link href="~/Content/docs.min.css" rel="stylesheet" />
+<link href="~/Scripts/simple-calendar/tcal.css" rel="stylesheet" />
+<div>
+    @*<h1><small>欢迎进入</small> 队别调动 <small>这里您可以将本队人员调出到其他分监区</small></h1>*@
+    <input type="hidden" id="UserName" name="UserName" value="@ViewData["UserName"]" />
+    <input type="hidden" id="FManagerCard" name="FManagerCard" value="@ViewData["FManagerCard"]" />
+
+    <input type="hidden" id="FCrimeCode" name="FCrimeCode" />
+    <input type="hidden" id="FIcCardCode" name="FIcCardCode" />
+</div>
+
+<div>
+    <object id=MWRFATL style="WIDTH: 0px; HEIGHT: 0px"
+            codebase=eyeFZ.cab#version =1,0,0,1
+            classid=CLSID:CD851DCA-5D3C-4DA9-A0F7-DE018FDC0A7F></object>@*加载数明华读卡器控件*@
+
+            <div class="row">
+                <div class="col-sm-10"></div>
+                <div class="col-sm-2">
+                    <input type="hidden" id="FaceMode" value="@ViewData["FaceMode"]" />
+
+                    @if (ViewData["LoginMode"] != null && ViewData["LoginMode"].ToString() == "1")
+                    {
+                        string loginMode = ViewData["LoginMode"].ToString();
+                        string cardMgrNo = ViewData["FManagerCard"].ToString();
+                        <input type="hidden" id="LoginMode" value="@loginMode" />
+                        <input type="hidden" id="MgrCardNo" value="@cardMgrNo" />
+                    }
+                    else if (ViewData["LoginMode"] != null && ViewData["LoginMode"].ToString() == "2")
+                    {
+
+                        <input type="hidden" id="LoginMode" value="@ViewData["LoginMode"]" />
+                        <input type="hidden" id="MgrCardNo" value="@ViewData["FManagerCard"]" />
+
+                    }
+                    else
+                    {
+                        <div style=" text-align:right;">
+                            <a class="btn btn-large btn-primary btn-lg" href="#" role="button" onclick="loginCheck(1)">1请先刷管理卡</a>
+                            <input type="hidden" id="MgrCardNo" value="" />
+                        </div>
+                    }
+
+
+                </div>
+
+            </div>
+            <hr />
+
+
+            <div class="row">
+
+                <div class="col-sm-2">
+                    <input type="hidden" id="orderFcrimeCode" />
+                    <input type="hidden" id="orderFcrimeName" />
+                    <input type="hidden" id="orderCyName" />
+                    <input type="hidden" id="orderFareaName" />
+                    <form class="form-inline">
+                        <input type="hidden" id="userCodeId" value="@ViewData["fcrimecode"]" />
+
+
+                    </form>
+                </div>
+                <div class="col-sm-10">
+                    <h3 id="userNameInfo">你好, 这里是人像采集中心，您可以在这里采集脸谱信息：</h3>
+                </div>
+
+
+            </div>
+            <div class="alert alert-danger" role="alert" id="lblInfo">账户信息：</div>
+            <div class="row">
+                <div class="col-md-3">
+                    <table class="table">
+                        <thead>
+                            <tr><th>名称</th><th>金额</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>存款余额</td><td id="amountA">0.00</td></tr>
+                            <tr><td>报酬金额</td><td id="amountB">0.00</td></tr>
+                            <tr><td>留存金额(不可用)</td><td id="amountC">0.00</td></tr>
+                            <tr><td>本月已经消费</td><td><span class="label label-danger" id="curMonthXFE">0.00</span></td></tr>
+                            <tr><td>本月消费限额</td><td><span class="label label-warning" id="xiaofeiYuE">0.00</span></td></tr>
+                            <tr class="danger"><td>账户可用总余额</td><td id="okUseAllMoney">0.00</td></tr>
+                        </tbody>
+                    </table>
+
+                </div>
+                <div class="col-md-9">
+                    <div id="divQuery">
+                        <h3>人脸采集，请输入编号 ：</h3>
+                        <div>
+                            <div>
+                                <div class="form-group">
+                                    <div class="input-group">
+                                        <div class="input-group-addon">狱政编号：</div>
+                                        <input type="number" class="form-control input-lg" id="queryFCode" name="fcrimecode" />
+                                    </div>
+                                </div>
+                                <div class="form-group">
+
+                                    <p class="help-block">操作提示：<span id="rmbDX"></span></p>
+                                    <p class="help-block">　　　　　1、请输入正确的狱政编号.</p>
+                                    <p class="help-block">　　　　　2、然点【下一步】,继续操作.</p>
+
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-sm-10">
+                                        <button type="button" id="btnQueryUserInfo" class="btn btn-danger btn-lg"  onclick="btnQueryUserInfo()">下一步</button>
+                                    </div>
+
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                    <div id="divFace" style="display:none">
+                        <h3>请核对正确信息 ：</h3>
+                        <div>
+                            <div>
+                                <div class="form-group">
+                                    <div class="input-group">
+                                        <div class="input-group-addon">人员信息：</div>
+                                        <label class="form-control input-lg" id="lblUserName">张三丰</label>
+                                    </div>
+                                    <div class="input-group">
+                                        <div class="input-group-addon">所在队别：</div>
+                                        <label class="form-control input-lg" id="lblAreaName">一监区一分监区</label>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+
+                                    <p class="help-block">操作提示：<span id="rmbDX"></span></p>
+                                    <p class="help-block">　　　　　1、先读IC卡，读完显示相应的信息.</p>
+                                    <p class="help-block">　　　　　2、选择调往队别后,点【保存】,完成操作.</p>
+
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-sm-10">
+                                        @*<a class="btn btn-large btn-primary btn-lg" href="/Home/WebCamTest3?callback=/ComApp/Index?managerCardNo=@ViewData["FManagerCard"]&FaceMode=0002&FUserCode=3511022677" role="button">人脸采集</a>*@
+                                        <button class="btn btn-large btn-primary btn-lg"  role="button" onclick="btnFaceCollection()" >人脸采集</button>
+
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <button class="btn btn-warning" role="button" onclick="btnBackStep()">返回上一步</button>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="divFinsh" style="display:none">
+                        <h3>采集完成 ：</h3>
+                        <div>
+                            <div>
+                                <div class="form-group">
+                                    <div class="input-group">
+                                        <div class="input-group-addon">提示信息：</div>
+                                        <label class="form-control input-lg">恭喜您，采集完成！</label>
+                                    </div>
+                                    
+                                </div>
+                                <div class="form-group">
+
+                                    <p class="help-block">操作提示：<span id="rmbDX"></span></p>
+                                    <p class="help-block">　　　　　1、继续采集下一人，点【完成】.</p>
+                                    <p class="help-block">　　　　　2、退出采集，点【返回主页】.</p>
+
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-sm-10">
+                                        <button type="button" id="btnFinsh" class="btn btn-primary btn-lg"  onclick="btnFinish()">完成采集</button>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <a href="/Home/Index" class="btn btn-default" role="button">返回主页</a>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script src="~/Scripts/jquery-1.11.3.min.js"></script>
+        <!-- Include all compiled plugins (below), or include individual files as needed -->
+        <script src="js/bootstrap.min.js"></script>
+        <script src="~/Scripts/messenger.min.js"></script>
+        <script src="~/Scripts/myJs/minghuaICcardCommon.js"></script>
+        <script src="~/Scripts/myJs/commonJs.js"></script>
+        <script src="~/Scripts/myJs/ComAppFaceCollection.js"></script>
+        <script type="text/javascript">
+            $(document).ready(function () {
+                // 此处填写页面加载完成后要执行的操作
+                //if ($("#FManagerCard").val() != undefined && $("#FManagerCard").val() != "" && $("#queryFCode").val() != undefined && $("#queryFCode").val() != "") {
+                //    $.post("/ComApp/QueryUserInfoByFCrimeCode", { "userCodeId": $("#queryFCode").val(), "checkFlag": "1", "FManagerCard": $("#MgrCardNo").val(), "UserName": $("#UserName").val() }, function (data, status) {
+                //        if ("success" != status) {
+                //            return false;
+                //        } else {
+                //            var words = data.split("|")
+                //            if (words[0] == "Error") {
+                //                $("#lblInfo").html(data);
+                //                $("#userNameInfo").html("对不起，未识别到您的账户信息，请与管教联系！");
+                //                ClearUserDisplayInfo();
+                //            } else if (words[0] == "There") {
+                //                SetAndDisplayUserInfo(words[1]);
+                //            }
+                //            else {
+                //                //SetAndDisplayCriminalInfo(words[1], saleSort);//显示抬头栏的账户余额信息
+                //            }
+                //        }
+                //    });
+                //}
+
+                if ($("#FaceMode").val() == "0002") {
+                    $("#divQuery").hide();
+                    $("#divFace").hide();
+                    $("#divFinsh").show();
+
+                }
+            });
+
+
+            //查找用户信息
+            function btnQueryUserInfo() {
+                if ($("#FManagerCard").val() != undefined && $("#FManagerCard").val() != "" && $("#queryFCode").val() != undefined && $("#queryFCode").val() != "") {
+                    $.post("/ComApp/QueryUserInfoByFCrimeCode", { "userCodeId": $("#queryFCode").val(), "checkFlag": "1", "FManagerCard": $("#MgrCardNo").val(), "UserName": $("#UserName").val() }, function (data, status) {
+                        if ("success" != status) {
+                            return false;
+                        } else {
+                            var words = data.split("|")
+                            if (words[0] == "Error") {
+                                $("#lblInfo").html(data);
+                                $("#userNameInfo").html("对不起，未识别到您的账户信息，请与管教联系！");
+
+                                ClearUserDisplayInfo();
+                            } else if (words[0] == "There") {
+                                SetAndDisplayUserInfo(words[1]);
+                                var rts = $.parseJSON(words[1]);
+
+                                $("#lblUserName").html(rts.UserInfo.FName);
+                                $("#lblAreaName").html(rts.UserInfo.FAreaName);
+                                $("#divQuery").hide();
+                                $("#divFace").show();
+
+                            }
+                            else {
+                                //SetAndDisplayCriminalInfo(words[1], saleSort);//显示抬头栏的账户余额信息
+                            }
+                        }
+                    });
+                }
+            }
+
+            //打开链接
+            function btnFaceCollection() {
+                window.open("/Home/WebCamTest3?callback=/ComApp/FaceCollection?managerCardNo=" + $("#MgrCardNo").val() + "&FaceMode=0002&FUserCode=" + $("#queryFCode").val(),"_self");
+            }
+
+            function btnFinish() {
+                $("#divQuery").show();
+                $("#divFace").hide();
+                $("#divFinsh").hide();
+                $("#FaceMode").val("");
+            }
+
+            function btnFinish() {
+                $("#divQuery").show();
+                $("#divFace").hide();
+                $("#divFinsh").hide();
+                $("#FaceMode").val("");
+            }
+
+            function btnBackStep() {
+                $("#divQuery").show();
+                $("#divFace").hide();
+                $("#divFinsh").hide();
+            }
+
+        </script>
+

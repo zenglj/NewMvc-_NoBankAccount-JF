@@ -313,6 +313,9 @@ namespace SelfhelpOrderMgr.BLL
             if (festivalDates.Count <= 0)
             {
                 cy.JaRi_Cy_Money = 0;
+
+                //增加假日食品可用额度 zenglj by 20240113
+                cy.JaRi_Cy_FTZSP_Money = 0;
             }
             //if (yyMset != null)
             //{
@@ -326,6 +329,8 @@ namespace SelfhelpOrderMgr.BLL
             //}
             model.JaRi_Cy_Money = cy.JaRi_Cy_Money;
 
+            //增加假日食品可用额度 zenglj by 20240113
+            model.JaRi_Cy_FTZSP_Money = cy.JaRi_Cy_FTZSP_Money;
 
             //增加个人营养餐特批金额
             //只要领导有审批则个人增加相应的金额，可购买食品和日用品
@@ -361,7 +366,7 @@ namespace SelfhelpOrderMgr.BLL
             if (cy.ftotamtmonth != 0 && cy.famtmonth != 0)//如果启用总额限制,同时启动存款账户限额
             {
                 //判断是否是传统节日月和领导特批营养餐金额
-                model.UserCyDesc = "总额限制处遇" + cy.ftotamtmonth.ToString() + ",领导特批" + TP_CY_YingYangCan_Money.ToString() + ",节日" + cy.JaRi_Cy_Money;
+                model.UserCyDesc = cy.FName+ "总额限制处遇" + cy.ftotamtmonth.ToString() + ",领导特批" + TP_CY_YingYangCan_Money.ToString() + ",节日" + cy.JaRi_Cy_Money;
                 cy.ftotamtmonth = cy.ftotamtmonth + TP_CY_YingYangCan_Money + cy.JaRi_Cy_Money;
 
                 //判断限额验证，如总额度，小于A账户额度，则是错的，那么直将AB都设为0
@@ -428,7 +433,7 @@ namespace SelfhelpOrderMgr.BLL
             else if (cy.ftotamtmonth != 0)//如果启用总额限制
             {
                 //判断是否是传统节日月和领导特批营养餐金额
-                model.UserCyDesc = "总额限制处遇" + cy.ftotamtmonth.ToString() + ",领导特批" + TP_CY_YingYangCan_Money.ToString() + ",节日" + cy.JaRi_Cy_Money;
+                model.UserCyDesc = cy.FName+"总额限制处遇" + cy.ftotamtmonth.ToString() + ",领导特批" + TP_CY_YingYangCan_Money.ToString() + ",节日" + cy.JaRi_Cy_Money;
                 cy.ftotamtmonth = cy.ftotamtmonth + TP_CY_YingYangCan_Money + cy.JaRi_Cy_Money;
 
                 #region 启用总额限制计算相关设定
@@ -481,7 +486,7 @@ namespace SelfhelpOrderMgr.BLL
             else if (cy.famtmonth != 0 && cy.FBamtMonth != 0)//A账户限额，B账户也限额
             {
                 //判断是否是传统节日月和领导特批营养餐金额
-                model.UserCyDesc = "A限额" + cy.famtmonth.ToString() + ",B限额" + cy.FBamtMonth.ToString() + ",领导特批" + TP_CY_YingYangCan_Money.ToString() + ",节日" + cy.JaRi_Cy_Money;
+                model.UserCyDesc = cy.FName+ "A限额" + cy.famtmonth.ToString() + ",B限额" + cy.FBamtMonth.ToString() + ",领导特批" + TP_CY_YingYangCan_Money.ToString() + ",节日" + cy.JaRi_Cy_Money;
                 cy.famtmonth = cy.famtmonth + TP_CY_YingYangCan_Money + cy.JaRi_Cy_Money;
 
                 #region A账户限额，B账户也限额
@@ -550,7 +555,7 @@ namespace SelfhelpOrderMgr.BLL
             else if (cy.famtmonth != 0 && cy.FBamtMonth == 0)//A账户限额，B账户不限额
             {
                 //判断是否是传统节日月和领导特批营养餐金额
-                model.UserCyDesc = "A限额" + cy.famtmonth.ToString() + ",B不限额,领导特批" + TP_CY_YingYangCan_Money.ToString() + ",节日" + cy.JaRi_Cy_Money;
+                model.UserCyDesc = cy.FName+ "A限额" + cy.famtmonth.ToString() + ",B不限额,领导特批" + TP_CY_YingYangCan_Money.ToString() + ",节日" + cy.JaRi_Cy_Money;
                 cy.famtmonth = cy.famtmonth + TP_CY_YingYangCan_Money + cy.JaRi_Cy_Money;
 
                 #region A账户限额，B账户不限额
@@ -571,7 +576,7 @@ namespace SelfhelpOrderMgr.BLL
             else if (cy.famtmonth == 0 && cy.FBamtMonth != 0)//B账户限额，A账户不限额
             {
                 //判断是否是传统节日月和领导特批营养餐金额
-                model.UserCyDesc = "B限额" + cy.FBamtMonth.ToString() + ",A不限额,领导特批" + TP_CY_YingYangCan_Money.ToString() + ",节日" + cy.JaRi_Cy_Money;
+                model.UserCyDesc = cy.FName+ "B限额" + cy.FBamtMonth.ToString() + ",A不限额,领导特批" + TP_CY_YingYangCan_Money.ToString() + ",节日" + cy.JaRi_Cy_Money;
                 cy.FBamtMonth = cy.FBamtMonth + TP_CY_YingYangCan_Money + cy.JaRi_Cy_Money;
 
                 #region B账户限额，A账户不限额
@@ -656,7 +661,14 @@ namespace SelfhelpOrderMgr.BLL
                 if (jjrMSet.MgrValue == "1")
                 {
                     //ftzspMoney = areaFTZSP_Money + cyFTZSP_Money + TP_YingYangCan_Money + cy.JaRi_Cy_Money - xfmoney.FTZSP_Money > 0 ? areaFTZSP_Money + cyFTZSP_Money + TP_YingYangCan_Money + cy.JaRi_Cy_Money - xfmoney.FTZSP_Money : 0;
-                    ftzspMoney = areaFTZSP_Money + cyFTZSP_Money + TP_YingYangCan_Money + cy.JaRi_Cy_Money - yingkouTzsp_Money > 0 ? areaFTZSP_Money + cyFTZSP_Money + TP_YingYangCan_Money + cy.JaRi_Cy_Money - yingkouTzsp_Money : 0;
+
+
+                    //=====修改假日非食品的金额 zenlj by 20240113 ====Start============================================================
+                    //修改节假日的食品金额，不等于假日处遇的金额，为 JaRi_Cy_FTZSP_Money 而不是 JaRi_Cy_Money
+                    //ftzspMoney = areaFTZSP_Money + cyFTZSP_Money + TP_YingYangCan_Money + cy.JaRi_Cy_Money - yingkouTzsp_Money > 0 ? areaFTZSP_Money + cyFTZSP_Money + TP_YingYangCan_Money + cy.JaRi_Cy_Money - yingkouTzsp_Money : 0;
+                    ftzspMoney = areaFTZSP_Money + cyFTZSP_Money + TP_YingYangCan_Money + cy.JaRi_Cy_FTZSP_Money - yingkouTzsp_Money > 0 ? areaFTZSP_Money + cyFTZSP_Money + TP_YingYangCan_Money + cy.JaRi_Cy_FTZSP_Money - yingkouTzsp_Money : 0;
+                    //=====修改假日非食品的金额 zenlj by 20240113 ====End============================================================
+
                 }
             }
 
@@ -728,7 +740,21 @@ namespace SelfhelpOrderMgr.BLL
             //当特种商品为零标志FTZSP_Zero_Flag=1时，不让购买特种商品（食品额度变为0）
             if (cy.FTZSP_Zero_Flag == 1)
             {
-                model.FTZSP_CanUseMoney = 0;
+                //model.FTZSP_CanUseMoney = 0;
+
+                //model.FTZSP_CanUseMoney = 0;
+                //2023-09-18修改为食品可用金额不能超过特种食品设定的金额
+                //2023-11-6修改为食品可用金额不能(超过特种食品设定的金额+领导特批)
+                //if (model.FTZSP_CanUseMoney > cy.FTZSP_Money+ TP_YingYangCan_Money-xfmoney.FTZSP_Money)
+                //{
+                //    model.FTZSP_CanUseMoney = cy.FTZSP_Money+ TP_YingYangCan_Money - xfmoney.FTZSP_Money;
+                //}
+
+                //2023-12-28修改为食品可用金额不能(置零后的金额,含领导特批营养餐)
+                if (model.FTZSP_CanUseMoney > cy.FTZSP_Zero_MaxMoney + TP_YingYangCan_Money - xfmoney.FTZSP_Money)
+                {
+                    model.FTZSP_CanUseMoney = cy.FTZSP_Zero_MaxMoney + TP_YingYangCan_Money - xfmoney.FTZSP_Money;
+                }
             }
 
             //if (yyMset != null)

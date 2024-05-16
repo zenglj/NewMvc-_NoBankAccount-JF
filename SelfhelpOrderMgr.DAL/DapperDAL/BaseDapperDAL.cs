@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Web;
 using System.Web.Script.Serialization;
@@ -606,6 +607,178 @@ namespace SelfhelpOrderMgr.DAL
                         sql = "select top " + topNum + @" * from
                     (
                     select ROW_NUMBER() over(order by " + orderField + ") as rowNumber,* from [" + type.Name + @"] where " + stringWhere
+                    + @" ) as t ";
+                    }
+
+                }
+
+                return SqlMapper.Query<T>(conn, sql, param).AsList<T>();
+
+            }
+        }
+
+        public List<T> GetModelList<T, S>(string strJsonWhere, string orderField, int topNum,string otherWhere) where T : BaseModel
+        {
+            var param = new DynamicParameters();
+            //获取查询参数列表
+            Type type = typeof(T);
+            Type stype = typeof(S);
+            string stringWhere = "";
+            if (string.IsNullOrWhiteSpace(strJsonWhere) == false)
+            {
+                S s = Newtonsoft.Json.JsonConvert.DeserializeObject<S>(strJsonWhere);
+                var paraList = stype.GetPropertiesInJson(strJsonWhere).Select(p => p)
+                    .ToList();
+
+                #region Dapper的设定参数
+
+                foreach (var p in paraList)
+                {
+                    //new SqlParameter("@" + p.Name + "", p.GetValue(t) ?? DBNull.Value);
+                    System.Data.DbType dbtypeInt;
+                    var value = p.GetValue(s, null);//用pi.GetValue获得值
+                    var ptype = value.GetType() ?? typeof(object);
+                    switch (ptype.Name)
+                    {
+                        case "string":
+                            {
+                                dbtypeInt = System.Data.DbType.String;
+                            }
+                            break;
+                        case "String":
+                            {
+                                dbtypeInt = System.Data.DbType.String;
+                            }
+                            break;
+                        case "int":
+                            {
+                                dbtypeInt = System.Data.DbType.Int32;
+                            }
+                            break;
+                        case "decimal":
+                            {
+                                dbtypeInt = System.Data.DbType.Decimal;
+                            }
+                            break;
+                        case "DateTime":
+                            {
+                                dbtypeInt = System.Data.DbType.DateTime;
+                            }
+                            break;
+                        case "long":
+                            {
+                                dbtypeInt = System.Data.DbType.Int64;
+                            }
+                            break;
+                        default:
+                            {
+                                dbtypeInt = System.Data.DbType.String;
+                            }
+                            break;
+                    }
+                    if (System.Data.DbType.DateTime == dbtypeInt)
+                    {
+                        param.Add(p.Name, p.GetValue(s) ?? DBNull.Value, dbtypeInt);
+                        if (p.Name.EndsWith("_Start"))
+                        {
+                            stringWhere = SetWhereString(stringWhere, ">=", p.Name.Substring(0, p.Name.Length - 6), p.Name);
+                        }
+                        else if (p.Name.EndsWith("_End"))
+                        {
+                            stringWhere = SetWhereString(stringWhere, "<", p.Name.Substring(0, p.Name.Length - 4), p.Name);
+                        }
+                        else
+                        {
+                            stringWhere = SetWhereString(stringWhere, "=", p.Name, p.Name);
+                        }
+                    }
+                    else if (System.Data.DbType.String == dbtypeInt)
+                    {
+                        param.Add(p.Name, p.GetValue(s) ?? DBNull.Value, dbtypeInt);
+                        if (p.Name.EndsWith("_Start"))
+                        {
+                            stringWhere = SetWhereString(stringWhere, ">=", p.Name.Substring(0, p.Name.Length - 6), p.Name);
+                        }
+                        else if (p.Name.EndsWith("_End"))
+                        {
+                            stringWhere = SetWhereString(stringWhere, "<=", p.Name.Substring(0, p.Name.Length - 4), p.Name);
+                        }
+                        else
+                        {
+                            stringWhere = SetWhereString(stringWhere, "=", p.Name, p.Name);
+                        }
+                    }
+                    else
+                    {
+                        param.Add(p.Name, p.GetValue(s) ?? DBNull.Value, dbtypeInt);
+                        if (p.Name.EndsWith("Name"))
+                        {
+                            stringWhere = SetWhereString(stringWhere, " like ", p.Name, p.Name);
+                        }
+                        else if (p.Name.EndsWith("_In"))
+                        {
+                            stringWhere = SetWhereString(stringWhere, " in ", p.Name.Substring(0, p.Name.Length - 3), "( " + p.Name + " )");
+                        }
+                        else
+                        {
+                            stringWhere = SetWhereString(stringWhere, "=", p.Name, p.Name);
+                        }
+                    }
+                }
+                #endregion
+
+                //stringWhere = string.Join(" and ", type.GetPropertiesInJson(strJsonWhere).Select(p => 
+                //"" + p.Name + "=@" + p.Name + ""
+                //    ));
+            }
+            //查询Sql字符串
+            using (SqlConnection conn = new SqlConnection(SqlHelper.getConnstr()))
+            {
+                string sql = null;
+                if (string.IsNullOrWhiteSpace(stringWhere))
+                {
+                    if (string.IsNullOrWhiteSpace(orderField))
+                    {
+                        
+                        sql = "select top " + topNum + @" * from [" + type.Name + "] ";
+                        
+                    }
+                    else
+                    {
+                        sql = "select top " + topNum + @" * from
+                    (
+                    select ROW_NUMBER() over(order by " + orderField + ") as rowNumber,* from [" + type.Name
+                    + @"] ) as t";
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(otherWhere))
+                    {
+                        sql = sql + " where " + otherWhere;
+                    }
+
+                }
+                else
+                {
+                    if (!string.IsNullOrWhiteSpace(otherWhere))
+                    {
+                        otherWhere =  " and " + otherWhere;
+                    }
+                    else
+                    {
+                        otherWhere = "";
+                    }
+
+                    if (string.IsNullOrWhiteSpace(orderField))
+                    {
+                        sql = "select top " + topNum + @" * from [" + type.Name + @"] where " + stringWhere + otherWhere;
+
+                        
+                    }
+                    else
+                    {
+                        sql = "select top " + topNum + @" * from
+                    (
+                    select ROW_NUMBER() over(order by " + orderField + ") as rowNumber,* from [" + type.Name + @"] where " + stringWhere + otherWhere
                     + @" ) as t ";
                     }
 
@@ -1285,6 +1458,57 @@ namespace SelfhelpOrderMgr.DAL
             using (SqlConnection conn = new SqlConnection(SqlHelper.getConnstr()))
             {
                 var irow = SqlMapper.Execute(conn, strSql.ToString());
+                return irow == 1;
+
+            }
+        }
+
+        public bool UpdatePartInfo<T>(object paramUpdateInfo, string strwhere,object paramWhere)
+        {
+            Type type = typeof(T);
+
+            var param = new DynamicParameters();
+            //param.Add($"@{fieldName}", fieldValue, DbType.String);
+            //return SqlMapper.Execute(conn, sql, param) == 1;//
+
+            Type objUpdateType = paramUpdateInfo.GetType();
+            PropertyInfo[] properties = objUpdateType.GetProperties();
+
+            Type objParamWhereType = paramWhere.GetType();
+            PropertyInfo[] whereProperties = objParamWhereType.GetProperties();
+
+
+            string strSql = $"Update {type.Name} set ";
+            string strSetInfo = "";
+            //更新参数
+            foreach (PropertyInfo property in properties)
+            {
+                //Console.WriteLine("Field Name: " + property.Name);
+                //Console.WriteLine("Field Value: " + property.GetValue(dynamicObj, null));
+
+                if (string.IsNullOrWhiteSpace(strSetInfo))
+                {
+                    strSetInfo = $" {property.Name}=@{property.Name} ";
+                }
+                else
+                {
+                    strSetInfo = strSetInfo + $" ,{property.Name}=@{property.Name} ";
+                }
+                param.Add($"@{property.Name}", property.GetValue(paramUpdateInfo, null));
+            }
+
+
+            strSql = strSql + strSetInfo + " where " + strwhere;
+
+            //条件参数
+            foreach (PropertyInfo whereProy in whereProperties)
+            {
+
+                param.Add($"@{whereProy.Name}", whereProy.GetValue(paramWhere, null));
+            }
+            using (SqlConnection conn = new SqlConnection(SqlHelper.getConnstr()))
+            {
+                var irow = SqlMapper.Execute(conn, strSql.ToString(),param);
                 return irow == 1;
 
             }

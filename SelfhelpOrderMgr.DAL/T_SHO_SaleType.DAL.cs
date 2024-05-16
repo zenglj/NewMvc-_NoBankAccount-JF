@@ -108,7 +108,8 @@ namespace SelfhelpOrderMgr.DAL
             parameters[5].Value = model.ShoppingFlag;
             parameters[6].Value = model.Remark;
             parameters[7].Value = model.Fifoflag;
-            parameters[8].Value = model.ControlName;
+            parameters[8].Value = model.UseType;
+            parameters[9].Value = model.ControlName;
             int rows = SqlHelper.ExecuteSql(strSql.ToString(), parameters);
             if (rows > 0)
             {

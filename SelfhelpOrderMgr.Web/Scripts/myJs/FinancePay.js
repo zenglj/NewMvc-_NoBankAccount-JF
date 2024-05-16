@@ -235,7 +235,7 @@ function LoadPayOrder() {
         autoRowHeight: false,
         striped: true,
         collapsible: true,
-        url: '/FinaPay/getPaies',
+        url: '/FinaPay/GetPayList',
         sortName: 'Id',
         sortOrder: 'asc',
         remoteSort: false,
@@ -307,7 +307,25 @@ function LoadPayOrder() {
                 var row = $("#test").datagrid("getSelected");
                 window.open("/FinaPay/PrintPayList?bid=" + row.Id);
             }
-        }
+            }, '-', {
+                id: 'btnDelMainOrder',
+                text: '删除主单',
+                iconCls: 'icon-cancel',
+                handler: function () {
+                    $.messager.confirm('询问', '您确认要删除主付款单吗?', function (r) {
+                        if (r) {
+                            var row = $("#test").datagrid("getSelected");
+                            if (row != null && row != undefined) {
+                                $.post("/FinaPay/DelMainOrder", { "bid": row.Id }, function (data, status) {
+                                    $.messager.alert("提示", data.ReMsg);
+                                });
+                            }
+                        }
+                    });
+                    
+
+                }
+            }
         ]
     });
 }
@@ -418,9 +436,6 @@ function btnSavePayOrder() {
             }
         });
     }
-
-    
-    
 }
 //取消定单
 function btnCancelSave() {
@@ -433,6 +448,60 @@ function btnCancelSave() {
 //清空查询条件
 function clearSearch() {
     $("#crimeSearch input").val("");
+}
+
+
+
+function btnSearch() {
+    var searchInfo = {
+        FromActAccount: 1221211,
+        TranAmount: 200,
+        CrtDate_Start: '2020-05-01',
+        CrtDate_End: '2020-05-21'
+    };
+
+    var inpunts = $("#crimeSearch:input");
+    var json = {};
+    var message = [];
+    var strJson = "";
+    $("#crimeSearch tr td span input").each(function (index, element) {   //element-当前的元素,也可使用this选择器
+        //var username = $(this).find("input[name='username']").val();
+        //var email = $(this).find("input[name='email']").val();
+        //json = {
+        //    "username":username,
+        //    "email":email
+        //};
+        //message.push(json);
+        //if ($(this).val() != 'undefined' && $(this).attr("name") != "undefined") {
+        //    //console.log(this);
+        //    console.log($(this).attr("name") +":" +$(this).val());
+
+        //}
+
+        if (typeof $(this).attr("name") != "undefined" && $(this).val().replace(/^\s*|\s*$/g, "") != "" && typeof $(this).val() != "undefined") {
+            console.log($(this).attr("name") + ":" + $(this).val());
+            if (strJson == "") {
+                strJson = "\"" + $(this).attr("name") + "\":\"" + $(this).val() + "\"";
+            } else {
+                strJson = strJson + "," + "\"" + $(this).attr("name") + "\":\"" + $(this).val() + "\"";
+            }
+        }
+    });
+    strJson = "{" + strJson + "}";
+    $('#test').datagrid('load', {
+        //FCode: $("#FCode").numberbox('getValue'),
+        //FName :$("#FName").textbox('getText'),
+        strJsonWhere: strJson
+    });
+
+    $.post("/BankRcv/GetListSumAmount", { "strJsonWhere": strJson }, function (data, status) {
+        if ("success" == status) {
+            if (data.Flag == true) {
+                $("#schSumMoney").html("查询结果总额:<u>" + data.DataInfo + " 元</u>");
+            }
+        }
+    });
+
 }
 
 //Vcrd查询结果导出

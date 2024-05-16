@@ -97,7 +97,8 @@
                             </tr>
                             <tr>
                                 <td>3、账户余额:</td>
-                                <td colspan="7">@xf.Zhanghuzongyue (其中劳动报酬不可用金额: @xf.BuKeYongMoney)</td>
+                                @*<td colspan="7">@xf.Zhanghuzongyue (其中劳动报酬不可用金额: @xf.BuKeYongMoney)</td>*@
+                            <td colspan="7">@(xf.Zhanghuzongyue-xf.BuKeYongMoney) (不含留存金额)</td>
                             </tr>
                             <tr>
                                 <td>备注:</td>

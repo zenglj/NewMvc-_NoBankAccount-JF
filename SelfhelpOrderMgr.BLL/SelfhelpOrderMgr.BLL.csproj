@@ -40,6 +40,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="log4net, Version=2.0.7.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -64,10 +65,12 @@
   <ItemGroup>
     <Compile Include="AC_SUBYRBLL.cs" />
     <Compile Include="DapperBLL\BankAtmService.cs" />
+    <Compile Include="DapperBLL\BankEnterpriseSerice.cs" />
     <Compile Include="DapperBLL\BankRcvServiceBLL.cs" />
     <Compile Include="DapperBLL\BaochouService.cs" />
     <Compile Include="DapperBLL\BaseDapperBLL.cs" />
     <Compile Include="DapperBLL\CommonQueryService.cs" />
+    <Compile Include="DapperBLL\FaceCheckService.cs" />
     <Compile Include="DapperBLL\JifenMgrService.cs" />
     <Compile Include="DapperBLL\PayeeAccountService.cs" />
     <Compile Include="DapperBLL\SettleService.cs" />

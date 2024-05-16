@@ -8,7 +8,7 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width" />
-    <title>总账清单</title>
+    <title>ATM机结算报表</title>
     <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
     <link href="~/Content/buttons.css" rel="stylesheet" />
     <link href="~/Content/PrintReportCss.css" rel="stylesheet" />
@@ -46,6 +46,7 @@
                         <thead>
                             @foreach (var item in gp)
                             {
+                                var mainOrder = ViewData["mainOrder"] as SelfhelpOrderMgr.Model.T_Bank_AtmServerPay;
                                 string strPayMode = "[现金]";
                                 if(item.PayMode == 1)
                                 {
@@ -64,7 +65,10 @@
                                 <td>@res.Sum(o => (o.Amount - o.TranMoney))</td>
                                 <th colspan="2">支付总合计：</th>
                                 <td>@res.Sum(o => o.Amount)</td>
-                                <td colspan="4"></td>
+                                <th>经办人:</th>
+                                <td>@mainOrder.CrtBy</td>
+                                <th>审核人:@mainOrder.AuditBy</th>
+
                             </tr>
                             }
 

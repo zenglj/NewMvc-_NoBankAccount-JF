@@ -25,10 +25,17 @@
                 <div class="col-sm-2">
                     @if (ViewData["LoginMode"] != null && ViewData["LoginMode"].ToString() == "1")
                     {
-                        string loginMode=ViewData["LoginMode"].ToString();
-                        string cardMgrNo=ViewData["FManagerCard"].ToString();
+                        string loginMode = ViewData["LoginMode"].ToString();
+                        string cardMgrNo = ViewData["FManagerCard"].ToString();
                         <input type="hidden" id="LoginMode" value="@loginMode" />
                         <input type="hidden" id="MgrCardNo" value="@cardMgrNo" />
+                    }
+                    else if (ViewData["LoginMode"] != null && ViewData["LoginMode"].ToString() == "2")
+                    {
+
+                        <input type="hidden" id="LoginMode" value="@ViewData["LoginMode"]" />
+                        <input type="hidden" id="MgrCardNo" value="@ViewData["FManagerCard"]" />
+                        
                     }
                     else
                     {
@@ -37,7 +44,7 @@
                             <input type="hidden" id="MgrCardNo" value="" />
                         </div>
                     }
-                    
+
 
                 </div>
                 
@@ -46,26 +53,45 @@
             
            
     <div class="row">
-        
+
         @if (ViewData["LoginMode"] != null && ViewData["LoginMode"].ToString() == "1")
         {
-            
+
             <div class="col-sm-4">
                 <input type="hidden" id="orderFcrimeCode" />
                 <input type="hidden" id="orderFcrimeName" />
                 <input type="hidden" id="orderCyName" />
-                <input type="hidden" id="orderFareaName" />            
+                <input type="hidden" id="orderFareaName" />
                 <form class="form-inline">
                     <div class="form-group">
                         <label for="exampleInputName2">用户编号: </label>
                         <input type="text" class="form-control" id="userCodeId" name="userCodeId" placeholder="输入编号" onkeydown="if (event.keyCode == 13) QueryUserInfoByFCrimeCode('3504013494');">
                     </div>
-                    <a  class="btn btn-default" onclick="QueryUserInfoByFCrimeCode('3504013494')">查询</a>
+                    <a class="btn btn-default" onclick="QueryUserInfoByFCrimeCode('3504013494')">查询</a>
                 </form>
             </div>
             <div class="col-sm-7">
                 <h4 id="userNameInfo">你好, 某某某<span class="label label-primary">普管(500)</span>,您的账户信息如下：</h4>
             </div>
+        }
+        else if (ViewData["LoginMode"] != null && ViewData["LoginMode"].ToString() == "2")
+        {
+            <div class="col-sm-4">
+                <input type="hidden" id="orderFcrimeCode" />
+                <input type="hidden" id="orderFcrimeName" />
+                <input type="hidden" id="orderCyName" />
+                <input type="hidden" id="orderFareaName" />
+                <form class="form-inline">
+                    <input type="hidden" id="userCodeId" value="@ViewData["fcrimecode"]" />
+                    <a class="btn btn-large btn-primary btn-lg" href="/Home/WebCamTest3?callback=/ComApp/Index?managerCardNo=@ViewData["FManagerCard"]" role="button">人脸识别</a>
+
+                </form>
+            </div>
+            <div class="col-sm-7">
+                <h4 id="userNameInfo">你好, 某某某<span class="label label-primary">普管(500)</span>,您的账户信息如下：</h4>
+            </div>
+
+            
         }
         else
         {
@@ -73,7 +99,7 @@
                 <input type="hidden" id="orderFcrimeCode" />
                 <input type="hidden" id="orderFcrimeName" />
                 <input type="hidden" id="orderCyName" />
-                <input type="hidden" id="orderFareaName" />            
+                <input type="hidden" id="orderFareaName" />
                 <a class="btn btn-primary btn-lg" href="#" role="button" onclick="btnQueryUserInfo('3504013494')">2读用户IC卡</a>
             </div>
             <div class="col-sm-9">
@@ -81,7 +107,7 @@
             </div>
         }
 
-        
+
 
     </div>
     <div class="alert alert-danger" role="alert" id="lblInfo">银行账号：</div>
@@ -154,6 +180,30 @@
         <script src="~/Scripts/myJs/commonJs.js"></script>
         <script src="~/Scripts/myJs/ComApp.js"></script>
         <script type="text/javascript">
-            
+            $(document).ready(function () {
+                // 此处填写页面加载完成后要执行的操作
+                if ($("#FManagerCard").val() != undefined && $("#FManagerCard").val() != "" && $("#userCodeId").val() != undefined && $("#userCodeId").val() != "") {
+                    $.post("/ComApp/QueryUserInfoByFCrimeCode", { "userCodeId": $("#userCodeId").val(), "checkFlag": "1", "FManagerCard": $("#MgrCardNo").val(), "UserName": $("#UserName").val() }, function (data, status) {
+                        if ("success" != status) {
+                            return false;
+                        } else {
+                            var words = data.split("|")
+                            if (words[0] == "Error") {
+                                $("#lblInfo").html(data);
+                                $("#userNameInfo").html("对不起，未识别到您的账户信息，请与管教联系！");
+                                $("#btnSubmitKK").attr("disabled", "disabled");//禁用扣款提交按钮
+                                ClearUserDisplayInfo();
+                            } else if (words[0] == "There") {
+                                SetAndDisplayUserInfo(words[1]);
+                                $("#KKMoney").focus();
+                            }
+                            else {
+                                //SetAndDisplayCriminalInfo(words[1], saleSort);//显示抬头栏的账户余额信息
+                            }
+                        }
+                    });
+                }
+
+            });
         </script>
 

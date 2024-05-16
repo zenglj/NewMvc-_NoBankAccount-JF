@@ -19,9 +19,9 @@ using SelfhelpOrderMgr.Web.Filters;
 
 namespace SelfhelpOrderMgr.Web.Controllers
 {
-    [LoginActionFilter]
-    [CustomActionFilterAttribute]
-    [MyLogActionFilterAttribute]
+    //[LoginActionFilter]
+    //[CustomActionFilterAttribute]
+    //[MyLogActionFilterAttribute]
     public class LaobaoController : Controller
     {
         //
@@ -940,6 +940,12 @@ namespace SelfhelpOrderMgr.Web.Controllers
         {
             string strLoginName = new T_CZYBLL().GetModel(Session["loginUserCode"].ToString()).FName;
             string strReSaveFlag = Request["reSaveFlag"];
+
+            string strhost = Request.Headers["Host"];
+            string strdate = Request.Headers["Date"];
+            string strauth = Request.Headers["Authorization"];
+            string strdigest = Request.Headers["Digest"];
+
             int id = 1;
             T_SHO_ManagerSet mset = new T_SHO_ManagerSetBLL().GetModel("LaoBaoModel");
             if(mset!=null)
@@ -1072,6 +1078,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
             }
             return Content("Err|导入失败，服务器没有接收到Excel文件");
         }
+
+        
 
         private string lbWriteToDb(int id, string strLoginName, string strFBid, DateTime sdt, DataTable dtUserAdd, int reSaveFlag=0)
         {

@@ -8,6 +8,9 @@ using NPOI.SS.Util;
 using System;
 using SelfhelpOrderMgr.Web.Controllers;
 using System.Collections.Generic;
+using System.Reflection;
+using System.ComponentModel;
+
 
 /// <summary>
 /// 使用NPOI操作Excel，无需Office COM组件
@@ -2089,6 +2092,147 @@ public class ExcelRender
 
     #endregion
 
+    public static void RenderListToExcel<T>(List<T> list, string titleName, string fileName)
+    {
+        using (MemoryStream ms = RenderListToExcel(list, titleName))
+        {
+            SaveToFile(ms, fileName);
+        }
+    }
+
+    public static MemoryStream RenderListToExcel<T>(List<T> list, string titleName)
+    {
+        MemoryStream ms = new MemoryStream();
+
+        using (ms)
+        {
+            Type type = typeof(T);
+
+
+            IWorkbook workbook = new HSSFWorkbook();
+            ISheet sheet = workbook.CreateSheet();
+            //生成Excel 表格标题名称首行
+            //CreateExcelTitle(table, titleName, workbook, sheet);
+
+            ICellStyle titleStyle = workbook.CreateCellStyle();
+            StyleTitleRow(workbook, titleStyle);
+
+            //表格的主标题名称行
+            IRow titleRow = sheet.CreateRow(0);
+            titleRow.HeightInPoints = 35;//行高
+            titleRow.CreateCell(0).SetCellValue(titleName);
+            titleRow.GetCell(0).CellStyle = titleStyle;
+
+            //SetCellRangeAddress(sheet, 0, 0, 0, table.Columns.Count);//合并单元格,加一列序号
+            SetCellRangeAddress(sheet, 0, 0, 0, type.GetProperties().Length);//合并单元格,加一列序号
+
+
+            //列头标题行样式
+            ICellStyle headStyle = workbook.CreateCellStyle();
+            StyleHeadRow(workbook, headStyle);
+            //Excel明细行样试
+            ICellStyle infoStyle = workbook.CreateCellStyle();
+            StyleInfoRow(workbook, infoStyle);
+
+
+            int rowIndex = 1;//设定初始行
+
+            IRow headerRow = sheet.CreateRow(1);
+            //序号行
+            headerRow.CreateCell(0).SetCellValue("序号");//If Caption not set, returns the ColumnName value
+            headerRow.GetCell(0).CellStyle = headStyle;
+            // handling header.
+            //foreach (DataColumn column in table.Columns)
+            //{
+            //    headerRow.CreateCell(column.Ordinal + 1).SetCellValue(column.Caption);//If Caption not set, returns the ColumnName value
+            //    headerRow.GetCell(column.Ordinal + 1).CellStyle = headStyle;
+            //}
+
+
+
+
+
+
+            var ps = type.GetProperties();
+            //for (int i = 0; i < ps.Length; i++)
+            //{
+            //    PropertyInfo p = ps[i];
+            //    headerRow.CreateCell(i + 1).SetCellValue(p.Name);//If Caption not set, returns the ColumnName value
+            //    headerRow.GetCell(i + 1).CellStyle = headStyle;
+            //}
+
+            //var ps = type.GetFields();
+            for (int i = 0; i < ps.Length; i++)
+            {
+                var attributes = ps[i].GetCustomAttributes(typeof(DescriptionAttribute), true);
+                if (attributes.Length > 0)
+                {
+                    DescriptionAttribute descriptionAttribute = (DescriptionAttribute)attributes[0];
+                    PropertyInfo p = ps[i];
+                    headerRow.CreateCell(i + 1).SetCellValue(descriptionAttribute.Description);//If Caption not set, returns the ColumnName value
+                    headerRow.GetCell(i + 1).CellStyle = headStyle;
+                    
+                    //Console.WriteLine($"{field.Name} 的中文名是: {descriptionAttribute.Description}");
+                }
+            }
+
+
+            // handling value.
+            rowIndex++;
+            decimal sumMoney = 0;
+            decimal groupMoney = 0;
+            string groupName = "";
+            for (int rowid = 0; rowid < list.Count; rowid++)
+            {
+                T row = list[rowid];
+
+
+                IRow dataRow = sheet.CreateRow(rowIndex);
+                //行号
+                dataRow.CreateCell(0).SetCellValue(rowid + 1);
+                dataRow.GetCell(0).CellStyle = infoStyle;
+                for (int i = 0; i < ps.Length; i++)
+                {
+                    PropertyInfo p = ps[i];
+                    string value = p.GetValue(row) == null ? "" : p.GetValue(row).ToString();
+                    dataRow.CreateCell(i + 1).SetCellValue(value);
+                    dataRow.GetCell(i + 1).CellStyle = infoStyle;
+                }
+
+
+                rowIndex++;
+
+            }
+
+            //AutoSizeColumns(sheet);
+            sheet.PrintSetup.Scale = 100;
+            //sheet.PrintSetup.PaperSize = 9;//A4纸张打印
+            sheet.PrintSetup.PaperSize = (short)PaperSize.A4;//A4纸张打印
+
+
+            sheet.PrintSetup.Copies = 3;
+            sheet.PrintSetup.NoColor = true;
+            sheet.PrintSetup.Landscape = false;//表示纵向
+            sheet.PrintSetup.PaperSize = (short)PaperSize.A4;
+
+            sheet.PrintSetup.FitHeight = 2;
+            sheet.PrintSetup.FitWidth = 3;
+            sheet.IsPrintGridlines = true;
+
+            //是否自适应界面
+            sheet.FitToPage = false;
+            //设置打印标题
+            //workbook.SetRepeatingRowsAndColumns(0, 0, 5, 0, 5);
+            //workbook.SetRepeatingRowsAndColumns(0, 0, 5, 0, 1);
+            SetExcelPrintPageAndMargin(sheet);
+
+            workbook.Write(ms);
+            ms.Flush();
+            ms.Position = 0;
+
+        }
+        return ms;
+    }
 
 }
 

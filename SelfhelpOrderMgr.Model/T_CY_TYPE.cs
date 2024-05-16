@@ -252,6 +252,8 @@ namespace SelfhelpOrderMgr.Model
             set { _jari_cy_money = value; }
         }
 
+        public decimal JaRi_Cy_FTZSP_Money { get; set; }//节日非劳食品可用金额
+        public decimal FTZSP_Zero_MaxMoney { get; set; }//归零后，最高可用食品的金额
     }
 }
 

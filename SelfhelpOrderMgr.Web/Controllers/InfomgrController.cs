@@ -25,6 +25,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
     [MyLogActionFilterAttribute]
     public class InfomgrController : Controller
     {
+        protected BaseDapperBLL _baseDapperBll = new BaseDapperBLL();
         JavaScriptSerializer jss = new JavaScriptSerializer();
         //
         // GET: /Infomgr/
@@ -337,7 +338,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
             string cardStatus = Request["cardStatus"]; //IC卡的状态
 
             StringBuilder strSql = new StringBuilder();
-            strSql.Append(@"select a.FCode,a.FName,c.Fname FAreaName,isnull(d.FMoneyIn,0) FMoneyIn,isnull(d.FMoneyOut,0) FMoneyOut,(b.AmountA+b.AmountB+b.AmountC) FUserMoneyAll,b.AmountC 
+            strSql.Append(@"select a.FCode,a.FName,c.Fname FAreaName,isnull(d.FMoneyIn,0) FMoneyIn,isnull(d.FMoneyOut,0) FMoneyOut,(b.AmountA+b.AmountB+b.AmountC) FUserMoneyAll,b.AmountC ,b.AccPoints
                 from t_Criminal a left join T_Criminal_Card b on a.fcode=b.fcrimecode 
 				left join t_Area c on a.FAreaCode=c.fcode
 				left outer join
@@ -416,7 +417,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
     //            where a.fcode=b.fcrimecode and a.fAreaCode=c.fcode and isnull(a.fflag,0)=0
     //            ");
 
-            strSql.Append(@"select a.FCode 编号,a.FName 姓名,c.Fname 队别,b.SecondaryBankCard 中银结算卡,isnull(d.FMoneyIn,0) 本期收入,isnull(d.FMoneyOut,0) 本期支出,(b.AmountA+b.AmountB+b.AmountC) 总余额,b.AmountC 留存不可用金额
+            strSql.Append(@"select a.FCode 编号,a.FName 姓名,c.Fname 队别,b.SecondaryBankCard 中银结算卡,isnull(d.FMoneyIn,0) 本期收入,isnull(d.FMoneyOut,0) 本期支出,(b.AmountA+b.AmountB+b.AmountC) 总余额,b.AmountC 留存不可用金额,b.AccPoints 积分
                 from t_Criminal a left join T_Criminal_Card b on a.fcode=b.fcrimecode 
 				left join t_Area c on a.FAreaCode=c.fcode
 				left outer join
@@ -1349,6 +1350,10 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
                         ViewData["prove"] = new t_BankProve() { 
                         PrintCount=bal.PrintCount+1};
+
+                        ViewData["balanceList"] = _baseDapperBll.QueryList<t_balanceList>(" select * from t_BalanceList where  FCrimeCode=@FCrimeCode", new { FCrimeCode = fcode })
+                            .OrderByDescending(o => o.seqno).FirstOrDefault();
+
                         //return Content("Err|该犯已经结算过，禁止重复结算打印单，请联系管理员");
                         return View();
                     }
@@ -1412,7 +1417,9 @@ namespace SelfhelpOrderMgr.Web.Controllers
             };
             new BaseDapperBLL().Insert<T_SysOperationLog>(log);
             Log4NetHelper.logger.Info($"第{prove.PrintCount}次结算打印,操作员：" + Session["loginUserName"].ToString() + ",登录时间=" + DateTime.Now.ToString() + ",结算信息：" + Newtonsoft.Json.JsonConvert.SerializeObject(prove) + "");
-
+            
+            ViewData["balanceList"] = _baseDapperBll.QueryList<t_balanceList>(" select * from t_BalanceList where  FCrimeCode=@FCrimeCode",new { FCrimeCode=fcode })
+                            .OrderByDescending(o => o.seqno).FirstOrDefault();
             return View();
             //return new PartialViewAsPdf();
         }
@@ -1559,6 +1566,9 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 model.FTZSP_Money = Convert.ToInt32(o["FTZSP_Money"].ToString());//特种物品的购物可用金额
                 model.FTZSP_Zero_Flag = Convert.ToInt32(o["FTZSP_Zero_Flag"].ToString());//特种物品归零_标志的购物可用金额
                 model.JaRi_Cy_Money = Convert.ToInt32(o["JaRi_Cy_Money"].ToString());//中国传统节日的增加金额
+                model.FTZSP_Zero_MaxMoney = Convert.ToDecimal(o["FTZSP_Zero_MaxMoney"].ToString());//中国传统节日的增加金额
+                model.JaRi_Cy_FTZSP_Money = Convert.ToDecimal(o["JaRi_Cy_FTZSP_Money"].ToString());//中国传统节日的增加非劳食品金额
+                
                 T_CY_TYPE m = new T_CY_TYPEBLL().GetModel(model.FCode);
                 if (m != null)
                 {

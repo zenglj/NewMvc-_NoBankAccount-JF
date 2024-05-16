@@ -63,7 +63,9 @@ namespace SelfhelpOrderMgr.Web.Controllers
             {
                 loginCard = "";
             }
-            if (string.IsNullOrEmpty(loginCard) == true)
+            T_SHO_ManagerSet loginMode = new T_SHO_ManagerSetBLL().GetModel("LoginMode");
+
+            if (string.IsNullOrEmpty(loginCard) == true && loginMode.MgrValue!="2")
             {
                 filterContext.HttpContext.Response.Redirect("/Home/Login/");
                 
@@ -79,5 +81,20 @@ namespace SelfhelpOrderMgr.Web.Controllers
             string pageMdu = Request["pageMdu"];
             return PartialView(pageMdu);
         }
-	}
+
+        protected static string GetIpAddressLastCode(string ip)
+        {
+            string cc = ".";
+            string[] ips = ip.Split(cc.ToCharArray());
+            //string ipLastCode = string.Format("000", ips[3]);
+            string ipLastCode = "001";
+            if (ips.Length > 3)
+            {
+                ipLastCode = "000" + ips[3];
+                ipLastCode = ipLastCode.Substring(ipLastCode.Length - 3);
+            }
+
+            return ipLastCode;
+        }
+    }
 }

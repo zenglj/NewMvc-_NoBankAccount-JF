@@ -83,10 +83,13 @@ $(function () {
         pageSize: 10,
         pageList: [10, 20],
         pagination: true,
+        frozenColumns: [[//DataGrid表格排序列
+            { field: 'ck', checkbox: true },
+            { field: 'FCode', width: 50, sortable: true, title: '编号', editor: 'numberbox' },
+            { field: 'FName', width: 100, sortable: true, title: '名称', editor: 'text' }
+        ]],
         columns: [[
-					{ field: 'ck', checkbox: true },
-					{ field: 'FCode', width: 50, sortable: true, title: '编号', editor: 'numberbox' },
-                    { field: 'FName', width: 100, sortable: true, title: '名称', editor: 'text' },
+					
                     {
                         field: 'flag', width: 60, title: '启动标志', formatter: shoppingFormatter, editor: { type: 'combobox', options: { data: shoppingFlag, valueField: "value", textField: "text" } }
                     },
@@ -116,13 +119,16 @@ $(function () {
                         field: 'totpct', width: 100, title: '加餐最高限额', sortable: true, editor: 'numberbox'
                     },
                     {
-                        field: 'FTZSP_Money', width: 100, title: '特种商品可用金额', sortable: true, editor: 'numberbox'
+                        field: 'FTZSP_Money', width: 100, title: '平常食品(特种)可用非劳金额', sortable: true, editor: 'numberbox'
                     },
                     {
                         field: 'JaRi_Cy_Money', width: 100, title: '节日增加金额', sortable: true, editor: 'numberbox'
                     },
                     {
-                        field: 'FTZSP_Zero_Flag', width: 150, sortable: true, title: '特种商品归零标志', editor: {
+                        field: 'JaRi_Cy_FTZSP_Money', width: 100, title: '节日食品(特种)非劳额度', sortable: true, editor: 'numberbox'
+                    },
+                    {
+                        field: 'FTZSP_Zero_Flag', width: 150, sortable: true, title: '食品(特种)归零标志', editor: {
                             type: 'checkbox',
                             options: {
                                 on: 1,
@@ -136,8 +142,9 @@ $(function () {
                                 return "是";
                             }
                         }
-                    },
-                    { field: 'FDesc', width: 200, sortable: true, title: '备注描述', editor: 'text' }
+            }, 
+            { field: 'FTZSP_Zero_MaxMoney', width: 200, sortable: true, title: '置零后最高食品限额', editor: 'text' },
+            { field: 'FDesc', width: 200, sortable: true, title: '备注描述', editor: 'text' }
         ]]
     });
 

@@ -5,18 +5,10 @@ using System.Data;
 namespace SelfhelpOrderMgr.Model
 {
     //T_SHO_FinancePay
-    public class T_SHO_FinancePay
+    public class T_SHO_FinancePay:BaseModel
     {
 
-        /// <summary>
-        /// Id
-        /// </summary>		
-        private int _id;
-        public int Id
-        {
-            get { return _id; }
-            set { _id = value; }
-        }
+
         /// <summary>
         /// FType
         /// </summary>		

@@ -1,0 +1,168 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>ATM报表</title>
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Content/buttons.css" rel="stylesheet" />
+    <link href="~/Content/PrintReportCss.css" rel="stylesheet" />
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="page-header ">
+            <h1 class="text-center">ATM机报表 <small>统计清单</small></h1>
+
+        </div>
+        <div class="row">
+            @if (ViewData["customTimeArea"] != null)
+            {
+                SelfhelpOrderMgr.Web.Models.CustomTimeArea cs = ViewData["customTimeArea"] as SelfhelpOrderMgr.Web.Models.CustomTimeArea;
+                <div class="col-sm-9"><strong>统计日期：</strong>@cs.CrtDate_Start.ToString("yyyy-MM-dd HH:mm:ss") 至 @cs.CrtDate_End.ToString("yyyy-MM-dd HH:mm:ss")</div>
+            }
+            <div class="col-sm-3"><strong>打印日期:</strong>@DateTime.Now.ToString("yyyy-MM-dd")</div>
+
+        </div>
+
+        <div class="row">
+
+            <div class="col-sm-12">
+                @if (ViewData["res"] != null)
+                {
+                    <table class="table table-bordered">
+                        <thead>
+                            @if (ViewData["res"] != null)
+                            {
+                                var ls = ViewData["res"] as List<SelfhelpOrderMgr.Model.T_Bank_AtmDealList>;
+                                var sumCunMoney = ls.Where(o => o.ChangeAmount > 0).Sum(s => s.ChangeAmount);
+                                var sumQuMoney = ls.Where(o => o.ChangeAmount <= 0).Sum(s => s.ChangeAmount);
+                                var sAmount = ls.Sum(s => s.ChangeAmount);
+                            <tr>
+                                <th>统计</th>
+                                <th>期初余额:@ls[0].MachineBalance</th>
+                                <th>存入</th>
+                                <th>@sumCunMoney</th>
+                                <th>取出</th>
+                                <th>@(0-sumQuMoney)</th>
+                                <th>变动金额</th>
+                                <th>@sAmount</th>
+                                <th>期末余额</th>
+                                <th>@ls[ls.Count - 1].MachineBalance</th>
+
+
+                            </tr>
+                            }
+                                <tr>
+                                    <th>Id</th>
+                                    <th>流水号</th>
+                                    <th>类型</th>
+                                    <th>存入</th>
+                                    <th>取出</th>
+                                    <th>变动金额</th>
+                                    <th>机器余额</th>
+                                    <th>日期</th>
+                                    <th>状态</th>
+                                    <th>备注</th>
+
+                                </tr>
+                            </thead>
+                        <tbody>
+                            @if (ViewData["res"] != null)
+                            {
+                                var ls = ViewData["res"] as List<SelfhelpOrderMgr.Model.T_Bank_AtmDealList>;
+
+                                decimal sAmount = 0;
+                                int rowId = 1;
+                                decimal cunMoney = 0;
+                                decimal quMoney = 0;
+
+                                decimal sumCunMoney = 0;
+                                decimal sumQuMoney = 0;
+                                foreach (var item in ls)
+                                {
+                                    if (item.ChangeAmount > 0)
+                                    {
+                                        cunMoney = item.ChangeAmount;
+                                        quMoney = 0;
+                                        sumCunMoney += cunMoney;
+                                    }
+                                    else
+                                    {
+                                        cunMoney = 0;
+                                        quMoney = 0-item.ChangeAmount;
+                                        sumQuMoney += quMoney;
+                                    }
+                                    sAmount += item.ChangeAmount;
+
+                            <tr>
+                                <td class="text-center">@rowId</td>
+                                <td>@item.AtmSerialNo</td>
+                                <td>@item.ActionType</td>
+                                <td>@cunMoney</td>
+                                <td>@quMoney</td>
+                                <td>@item.ChangeAmount</td>
+                                <td>@item.MachineBalance</td>
+                                <td>@item.CrtDate.ToString("yyyyMMdd HHmmss")</td>
+                                <td>@item.StatusFlag</td>
+                                <td>@item.Remark</td>
+                            </tr>
+                                    rowId++;
+                                }
+
+                        <tr>
+                            <th>合计</th>
+                            <th>期初余额:@ls[0].MachineBalance</th>
+                            <th></th>
+                            <th>@sumCunMoney</th>
+                            <th>@sumQuMoney</th>
+                            <th>变动金额</th>
+                            <th>@sAmount</th>
+                            <th>期末余额</th>
+                            <th>@ls[ls.Count - 1].MachineBalance</th>
+                            <th></th>
+                            
+
+                        </tr>
+                            }
+
+
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Id</th>
+                                <th>流水号</th>
+                                <th>类型</th>
+                                <th>变动金额</th>
+                                <th>机器余额</th>
+                                <th>日期</th>
+                                <th>状态</th>
+                                <th>备注</th>
+                            </tr>
+                        </thead>
+
+                    </table>
+                }
+            </div>
+            <div class="col-sm-2">
+
+            </div>
+        </div>
+
+
+    </div>
+    <script src="~/Scripts/jquery-1.11.3.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <script src="~/Scripts/myJs/commonJs.js"></script>
+
+</body>
+</html>

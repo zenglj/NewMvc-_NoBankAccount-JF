@@ -326,7 +326,9 @@ function PayCheckSubmit() {
                     var pItems = PrintXPItemS.split("|");
                     for (var i = 0; i < pItems.length; i++) {
                         var item = pItems[i];
-                        myTestHtml("#" + item, $("#xiaoPiaoPageWidth").val());
+                        /*myTestHtml("#" + item, $("#xiaoPiaoPageWidth").val());*/
+
+                        printXiaoPiaoXinxi(item, $("#xiaoPiaoPageWidth").val());
                         $.post("/Home/UpdatePrintCount", { "Invoices": inv.invoice.InvoiceNo }, function (data, status) {
                             if ("success" == data) {
                                 //alert(data);
@@ -470,7 +472,8 @@ function DoInsertBuyDetail(iallMoney, nowYue, saleSort) {
                     $("#goodInfoView").show();
                     $("#goodDetail").hide();
                     
-                    window.location.href("#topInfo");
+                    //window.location.href("#topInfo");
+                    window.location.href=("#topInfo");
                 } else {
                     $("#inputGtxm").val('');
                     $("#inputGname").val('');

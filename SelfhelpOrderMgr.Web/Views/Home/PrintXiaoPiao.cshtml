@@ -144,7 +144,7 @@
                                                     <td>@invoice.OrderDate</td>
                                                     <td>@invoice.PType</td>
                                                     <td>@invoice.Amount</td>
-                                                    @if(checkflag==1)
+                                                    @if (checkflag == 1)
                                                     {
                                                         <td><input class="btn btn-danger" type="button" value="取消" disabled="disabled" onclick="CancelOrder('@invoice.InvoiceNo')"></td>
                                                         <td><input class="btn btn-warning" type="button" value="改单" disabled="disabled" onclick="ChangeOrder('@invoice.InvoiceNo')"></td>
@@ -251,13 +251,15 @@
                                 2、打印小票统计单请选择显示比例60-70%
                             </li>
                             <li class="list-group-item text-right">
-                                
+                                printXiaoPiaoXinxi
                                 <span class="text-right">
                                     <button type="button" class="btn btn-primary" onclick="XiaoFeiTongji('1')">按号房统计</button>
-                                    <button type="button" class="btn btn-primary" onclick="printMyAddHtml('myTJPrint')()">(A4)打印统计单</button>
-                                    <button type="button" class="btn btn-primary" onclick="printMyAddHtml('myTJXiaoPrint')()">(小票纸)打印统计单</button>
+                                    @*<button type="button" class="btn btn-primary" onclick="printMyAddHtml('myTJPrint')()">(A4)打印统计单</button>
+                                    <button type="button" class="btn btn-primary" onclick="printMyAddHtml('myTJXiaoPrint')()">(小票纸)打印统计单</button>*@
+                                    <button type="button" class="btn btn-primary" onclick="printXiaoPiaoXinxi('myTJPrint',800)()">(A4)打印统计单</button>
+                                    <button type="button" class="btn btn-primary" onclick="printXiaoPiaoXinxi('myTJXiaoPrint',800)()">(小票纸)打印统计单</button>
                                 </span>
-                            </li>                           
+                            </li>
 
                         </ul>
                         <div id="myTJPrint">
@@ -272,8 +274,8 @@
                                         <th>规格</th>
                                         <th>条码</th>
                                         <th>数量</th>
-                                        <th>金额</th>                                       
-                                        
+                                        <th>金额</th>
+
                                     </tr>
                                 </thead>
                                 <tbody id="tjTBody"></tbody>
@@ -284,10 +286,10 @@
                         <div id="myTJXiaoPrint" hidden="hidden">
                             <table class="table">
                                 <thead id="tjXiaoThead">
-                                    <tr>                                        
+                                    <tr>
                                         <th>房号</th>
                                         <th>简码</th>
-                                        <th>品名</th>                                        
+                                        <th>品名</th>
                                         <th>数量</th>
                                         <th>金额</th>
                                     </tr>
@@ -296,7 +298,7 @@
 
                             </table>
                         </div>
-                        
+
                         <div id="tjTemplate"></div>
                     </div>
 
@@ -356,7 +358,7 @@
 
                                     </div>
                                     <div class="form-group">
-                                        <label for="mxFSaleType" >消费类型</label>
+                                        <label for="mxFSaleType">消费类型</label>
                                         <select id="mxFSaleType" name="mxFSaleType" class="form-control input-lg">
                                             @if (ViewData["saleTypes"] != null)
                                             {
@@ -392,7 +394,9 @@
                             <li class="list-group-item text-right">
                                 <span class="text-right">
                                     <button type="button" class="btn btn-primary" onclick="SearchXFMingxiExcelOut()">(Excel)数据导出</button>
-                                    <button type="button" class="btn btn-primary" onclick="printMyAddHtml('myMXPrint')()">(Print)打印明细单</button>
+                                    @*<button type="button" class="btn btn-primary" onclick="printMyAddHtml('myMXPrint')()">(Print)打印明细单</button>*@
+                                    <button type="button" class="btn btn-primary" onclick="printXiaoPiaoXinxi('myMXPrint',800)()">(Print)打印明细单</button>
+
                                 </span>
                             </li>
 
@@ -428,15 +432,32 @@
 </div>
 
 
-    @if (ViewData["mset"] != null)
-    {
-        SelfhelpOrderMgr.Model.T_SHO_ManagerSet mset = ViewData["mset"] as SelfhelpOrderMgr.Model.T_SHO_ManagerSet;
-        <input type="hidden" id="xiaoPiaoPageWidth" name="xiaoPiaoPageWidth" value="@mset.KeyMode" />
-        <input type="hidden" id="xiaoPiaoFontSize" name="xiaoPiaoFontSize" value="@mset.MgrValue" />
-    }
+@if (ViewData["mset"] != null)
+{
+    SelfhelpOrderMgr.Model.T_SHO_ManagerSet mset = ViewData["mset"] as SelfhelpOrderMgr.Model.T_SHO_ManagerSet;
+    <input type="hidden" id="xiaoPiaoPageWidth" name="xiaoPiaoPageWidth" value="@mset.KeyMode" />
+    <input type="hidden" id="xiaoPiaoFontSize" name="xiaoPiaoFontSize" value="@mset.MgrValue" />
+}
 <script src="~/Scripts/simple-calendar/tcal.js"></script>
+@*<script src="~/Scripts/myJs/opertorXiaopiaoFunc.js"></script>*@
+@*<script src="~/Scripts/myJs/LodopFuncs.js"></script>*@
+@if (ViewData["PrintPlusVer"] != null)
+{
+    string printPlusVer = ViewData["PrintPlusVer"] as string;
+    if (printPlusVer == "1")
+    {
+        <script src="~/Scripts/myJs/LodopFuncs.js"></script>
+    }
+    else
+    {
+        <script src="~/Scripts/myJs/opertorXiaopiaoFunc.js"></script>
+    }
+}
+else
+{
+    <script src="~/Scripts/myJs/opertorXiaopiaoFunc.js"></script>
+}
 <script src="~/Scripts/myJs/LodopFuncs.js"></script>
-<script src="~/Scripts/myJs/opertorXiaopiaoFunc.js"></script>
 <script src="~/Scripts/myJs/commonJs.js"></script>
 <script src="~/Scripts/myJs/PrintXiaoPiao.js"></script>
 <script type="text/javascript">

@@ -15,10 +15,26 @@
 }
 else
 {
-    <ul class="nav navbar-nav navbar-right">
-        <li>@Html.ActionLink("刷卡开启", "Login", "Home", routeValues: null, htmlAttributes: new { id = "registerLink" })</li>
-        <li>@Html.ActionLink("消费查询", "PrintCkeck", "Home", routeValues: null, htmlAttributes: new { id = "registerLink" })</li>
-        @*<li>@Html.ActionLink("登录", "Index", "Admin", routeValues: null, htmlAttributes: new { id = "loginLink" })</li>*@
+<ul class="nav navbar-nav navbar-right">
+    <li>@Html.ActionLink("刷卡开启", "Login", "Home", routeValues: null, htmlAttributes: new { id = "registerLink" })</li>
+    @*<li>@Html.ActionLink("消费查询", "PrintCkeck", "Home", routeValues: null, htmlAttributes: new { id = "registerLink" })</li>*@
+    @if (ViewData["loginMode"] != null)
+    {
+        var loginMode = ViewData["loginMode"] as string;
+        if (loginMode == "2")
+        {
 
-    </ul>
+            <li>@Html.ActionLink("消费查询", "webcamtest3", "Home", new { id = 1, callback = "/Home/PrintXiaoPiao?", loginCheck=2 }, new { target = "_self" })</li>
+
+        }
+        else
+        {
+            <li>@Html.ActionLink("消费查询", "PrintCkeck", "Home", routeValues: null, htmlAttributes: new { id = "registerLink" })</li>
+
+        }
+    }
+
+    @*<li>@Html.ActionLink("登录", "Index", "Admin", routeValues: null, htmlAttributes: new { id = "loginLink" })</li>*@
+
+</ul>
 }

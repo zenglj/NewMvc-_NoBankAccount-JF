@@ -1,4 +1,5 @@
 ﻿
+using MeetASRConsoleApp.Models;
 using SelfhelpOrderMgr.BLL;
 using SelfhelpOrderMgr.Common;
 using SelfhelpOrderMgr.Model;
@@ -7,6 +8,7 @@ using SelfhelpOrderMgr.Web.Filters;
 using SelfhelpOrderMgr.Web.Models;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using System.IO;
 using System.Linq;
@@ -21,6 +23,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
 {
     public class HomeController : BaseMenuController
     {
+        private BaseDapperBLL _baseDapperBLL = new BaseDapperBLL();
         public ActionResult Index()
         {
             T_SHO_ManagerSet cyMset = new T_SHO_ManagerSetBLL().GetModel("criminalChangeSetByCy");
@@ -28,6 +31,10 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
             ViewData["cyFlag"] = cyMset != null ? cyMset.KeyMode.ToString() : "0";
             ViewData["areaFlag"] = areaMset != null ? areaMset.KeyMode.ToString() : "1";
+
+
+            T_SHO_ManagerSet loginMode = new T_SHO_ManagerSetBLL().GetModel("LoginMode");
+            ViewData["loginMode"] = loginMode.MgrValue;
             return View();
         }
 
@@ -94,6 +101,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 id = LoginMode.MgrValue.ToString();
             }
             ViewData["LoginMode"] = id;
+            ViewData["managerCardNo"] =Request["managerCardNo"];
 
             //List<T_Vcrd> vcrds = new T_VcrdBLL().GetModelList("Flag=0 and Bankflag=1 and CAmount>0 and SendDate<'" + DateTime.Today.ToString() + "'");
             //ViewData["vcrdCount"] = vcrds.Count;
@@ -338,6 +346,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
             ViewData["SaleMode"] = SaleMode;
             ViewData["id"] = id;
 
+            ViewData["managerCardNo"] = Request["managerCardNo"];
+
             string strMode = "0";
             T_SHO_ManagerSet LoginMode = new T_SHO_ManagerSetBLL().GetModel("LoginMode");
             if (LoginMode != null)
@@ -346,12 +356,25 @@ namespace SelfhelpOrderMgr.Web.Controllers
             }
             ViewData["LoginMode"] = strMode;
 
+
+
             return View("PrintCkeck");
         }
         //[MyLogActionFilterAttribute]
         public ActionResult PrintCkeckLogin()//打印小票登录验证
         {
             string managerCardNo = Request["managerCardNo"];
+            string status = MgrCardLogin(managerCardNo);
+            return Content(status);
+        }
+
+        /// <summary>
+        /// 管理卡登录
+        /// </summary>
+        /// <param name="managerCardNo"></param>
+        /// <returns></returns>
+        private string MgrCardLogin(string managerCardNo)
+        {
             List<T_CZY> users = new T_CZYBLL().GetModelList("FManagerCard='" + managerCardNo + "'");
             string status = "Error|无效的管理卡";
             if (users.Count > 0)
@@ -376,8 +399,10 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 new BaseDapperBLL().Insert<T_SysOperationLog>(log);
                 status = "OK|登录成功";
             }
-            return Content(status);
+
+            return status;
         }
+
         //[MyLogActionFilterAttribute]
         public ActionResult PrintCkeckSignIn()//打印小票用户密码登录验证
         {
@@ -456,9 +481,26 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
         public ActionResult PrintXiaoPiao()//开始打印小票
         {
+            string strMode = "0";
+            T_SHO_ManagerSet LoginMode = new T_SHO_ManagerSetBLL().GetModel("LoginMode");
+            if (LoginMode != null)
+            {
+                strMode = LoginMode.MgrValue.ToString();
+            }
+            ViewData["LoginMode"] = strMode;
+
+            
+
             string printFlag = Request["printFlag"];
             string managerCardNo = Request["managerCardNo"];
-            if(string.IsNullOrEmpty(printFlag)==true)
+
+            //如果是人脸，则模拟管理登录
+            if (LoginMode.MgrValue == "2")
+            {
+                this.MgrCardLogin(managerCardNo);
+            }
+
+            if (string.IsNullOrEmpty(printFlag)==true)
             {
                 return View("PrintCkeck");
             }
@@ -507,6 +549,18 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
             T_SHO_ManagerSet mset = new T_SHO_ManagerSetBLL().GetModel("XiaoPiaoStyle");
             ViewData["mset"] = mset;
+
+
+            T_SHO_ManagerSet printPlusVer = new T_SHO_ManagerSetBLL().GetModel("PrintPlusVer");
+            if (printPlusVer == null || printPlusVer.MgrValue == "0")
+            {
+                ViewData["PrintPlusVer"] = "0";
+            }
+            else
+            {
+                ViewData["PrintPlusVer"] = "1";
+            }
+
 
             return View();
 
@@ -600,37 +654,46 @@ namespace SelfhelpOrderMgr.Web.Controllers
         }
         public ActionResult GetInvoices()
         {
-            string strInvoices = Request["invoices"];
-            char ee = (char)124;
-            string[] invoices = strInvoices.Split(ee);
-            List<PrintInvoices> rtnInvs = new List<PrintInvoices>();
-            if (invoices.Length > 0)
+            try
             {
-                for (int i = 0; i < invoices.Length; i++)
+                string strInvoices = Request["invoices"];
+                char ee = (char)124;
+                string[] invoices = strInvoices.Split(ee);
+                List<PrintInvoices> rtnInvs = new List<PrintInvoices>();
+                if (invoices.Length > 0)
                 {
-                    PrintInvoices rtnInv = new PrintInvoices();
-                    rtnInv.invoice = new T_InvoiceBLL().GetModel(invoices[i]);
-                    T_SHO_ManagerSet mgr = new T_SHO_ManagerSetBLL().GetModel("PrintSumOpion");
-                    if (mgr.MgrValue=="1")
+                    for (int i = 0; i < invoices.Length; i++)
                     {
-                        rtnInv.details = new T_InvoiceDTLBLL().GetModelList("InvoiceNo='" + invoices[i] + "'", 1);
-                    }
-                    else
-                    {
-                        rtnInv.details = new T_InvoiceDTLBLL().GetModelList("InvoiceNo='" + invoices[i] + "'");
-                    }
-                    rtnInv.criminal = new T_CriminalBLL().GetCriminalXE_info(rtnInv.invoice.FCrimeCode, 1);
-                    //2022年改为到账户清单中统计余额
-                    T_Criminal_card crimeBalance= new T_CriminalBLL().GetInvoiceBalance(rtnInv.invoice.FCrimeCode, rtnInv.invoice.InvoiceNo);
-                    rtnInv.criminal.AmountAmoney = crimeBalance.AmountA;
-                    rtnInv.criminal.AmountBmoney = crimeBalance.AmountB;
-                    rtnInv.criminal.AmountCmoney = crimeBalance.AmountC;
+                        PrintInvoices rtnInv = new PrintInvoices();
+                        rtnInv.invoice = new T_InvoiceBLL().GetModel(invoices[i]);
+                        T_SHO_ManagerSet mgr = new T_SHO_ManagerSetBLL().GetModel("PrintSumOpion");
+                        if (mgr.MgrValue == "1")
+                        {
+                            rtnInv.details = new T_InvoiceDTLBLL().GetModelList("InvoiceNo='" + invoices[i] + "'", 1);
+                        }
+                        else
+                        {
+                            rtnInv.details = new T_InvoiceDTLBLL().GetModelList("InvoiceNo='" + invoices[i] + "'");
+                        }
+                        rtnInv.criminal = new T_CriminalBLL().GetCriminalXE_info(rtnInv.invoice.FCrimeCode, 1);
+                        //2022年改为到账户清单中统计余额
+                        T_Criminal_card crimeBalance = new T_CriminalBLL().GetInvoiceBalance(rtnInv.invoice.FCrimeCode, rtnInv.invoice.InvoiceNo);
+                        rtnInv.criminal.AmountAmoney = crimeBalance.AmountA;
+                        rtnInv.criminal.AmountBmoney = crimeBalance.AmountB;
+                        rtnInv.criminal.AmountCmoney = crimeBalance.AmountC;
 
-                    rtnInvs.Add(rtnInv);
+                        rtnInvs.Add(rtnInv);
+                    }
                 }
+                //JavaScriptSerializer jss = new JavaScriptSerializer();
+                return Content(Newtonsoft.Json.JsonConvert.SerializeObject(rtnInvs));
             }
-            JavaScriptSerializer jss = new JavaScriptSerializer();
-            return Content(jss.Serialize(rtnInvs));
+            catch (Exception ex)
+            {
+                return Content("Err|"+ ex.Message);
+                throw;
+            }
+            
         }
 
         //取消订单按订单号
@@ -1246,11 +1309,34 @@ namespace SelfhelpOrderMgr.Web.Controllers
         }
 
 
+        
 
-        public ActionResult CheckFace(string fcrimecode,string imageSrc)
+        //public ActionResult CheckFace()
+        public ActionResult CheckFace(string fcrimecode, string imageSrc, string faceMode = "0001", int loginCheck = 1)
         {
+
+            //string fcrimecode = Request["smFCrimeCode"];
+            //string faceMode = Request["faceMode"];
+            //string strloginCheck = Request["loginCheck"];
+            //string faceImage = Request["faceImage"];
+            //string fcrimecode = Request["fcrimecode"];
+
+
+            //string imageSrc
+
+            //int loginCheck = 1;
+            //if (!string.IsNullOrWhiteSpace(strloginCheck))
+            //{
+            //    loginCheck = Convert.ToInt32(strloginCheck);
+            //}
+
+
             ResultInfo rs = new ResultInfo();
 
+            if (string.IsNullOrWhiteSpace(faceMode))
+            {
+                faceMode = "0001";
+            }
             string stringdata = "";
 
             //string imageSrc = Request["imageSrc"];  //改为参数提取
@@ -1259,72 +1345,31 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 return Content("Err|图片不能为空");
             }
 
-            #region Socket发送验证图片信息
-
-
-            //实例化socket
-            Socket sendsocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp); ;
-            IPEndPoint ipendpiont = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 7788);
-            sendsocket.Connect(ipendpiont);
-            //MessageBox.Show("服务器IP:" + sendsocket.RemoteEndPoint);
-
-            byte[] msgByte = new byte[1024 * 1024 * 2];
-            int length = 0;
-
-            var photo = new PhotoEntity() { 
-                fcrimeCode=fcrimecode,
-                photoBase64Data=imageSrc
-            };
-            length = sendsocket.Receive(msgByte, msgByte.Length, SocketFlags.None);
-            string strConnectRcv = ("人脸比对连接请求返回：" + Encoding.UTF8.GetString(msgByte, 0, length));
-            Log4NetHelper.logger.Info(strConnectRcv);//写入连接记录
-            //imageSrc = "0001" + imageSrc;//增加报文头
-            imageSrc = "0001" + Newtonsoft.Json.JsonConvert.SerializeObject(photo);//增加报文头
-            byte[] orgByte = Encoding.Default.GetBytes(imageSrc);
-
-            sendsocket.Send(orgByte);
-
-
-            //==================================================
-            //接收数据
-
-
-            msgByte = new byte[1024 * 1024 * 2];
-            length = 0;
-            stringdata = "";
-            try
+            T_Criminal _criminal = null;
+            if (!string.IsNullOrWhiteSpace(fcrimecode))
             {
-                length = sendsocket.Receive(msgByte, msgByte.Length, SocketFlags.None);
-                if (length > 0)
+                _criminal = new BaseDapperBLL().QueryModel<T_Criminal>("fcode", fcrimecode);
+                if (_criminal == null || _criminal.fflag == 1)
                 {
-                    string strRecv = Encoding.UTF8.GetString(msgByte, 0, length);
-                    rs = Newtonsoft.Json.JsonConvert.DeserializeObject<ResultInfo>(strRecv);
-                    rs.DataInfo = Newtonsoft.Json.JsonConvert.DeserializeObject<FaceCheckResult>(rs.DataInfo.ToString());
-                    //stringdata = ("人脸比对结果：" + Encoding.UTF8.GetString(msgByte, 0, length));
-
-                    Log4NetHelper.logger.Info(strConnectRcv);//写入连接记录
-
+                    return Content("Err|编号不存在或已离监");
                 }
+
             }
-            catch
+            int typeFlag = 0;
+            if (loginCheck == 2)
             {
-                stringdata = "recvice data fail";
-                rs.ReMsg = stringdata;
+                typeFlag = 1;
             }
+            string strIpAddr = IpAddressHelper.GetHostAddress();
+            var iplist=_baseDapperBLL.QueryList<T_Area_MacIpAddr>("select * from T_Area_MacIpAddr where IpAddr=@IpAddr", new { IpAddr = strIpAddr });
+            string strArea = string.Join<string>(",", iplist.Select(o=>o.FAreaCode).ToList().ToArray());
+            rs= FaceCheckService.SendAndCheckFace(fcrimecode,  imageSrc, faceMode,  _criminal, typeFlag,strArea);
 
-
-            sendsocket.Shutdown(System.Net.Sockets.SocketShutdown.Send);
-            sendsocket.Close();
-            sendsocket.Dispose();
-
-
-
-            //return Content("OK|"+ stringdata);
 
             return Json(rs);
-
-            #endregion
         }
+
+        
 
 
         #region 人脸管理
@@ -1388,9 +1433,13 @@ namespace SelfhelpOrderMgr.Web.Controllers
             return Content("Err|没有接收到文件信息");
         }
 
-        public ActionResult WebCamTest3(string callback = "")
+        public ActionResult WebCamTest3(string callback = "/Shopping/index/1?", int loginCheck=0)
         {
             ViewData["callback"] = callback;
+            ViewData["loginCheck"] = loginCheck;
+            ViewData["FUserCode"] =Request["FUserCode"];
+            ViewData["FaceMode"] = Request["FaceMode"];
+
             return View();
         }
 
@@ -1406,8 +1455,75 @@ namespace SelfhelpOrderMgr.Web.Controllers
             return View();
         }
 
+        public ActionResult AsrTest()
+        {
+            return View();
+        }
+        public ActionResult AsrStart(string strJson)
+        {
+            AsrResponeEntity asrInfo = Newtonsoft.Json.JsonConvert.DeserializeObject<AsrResponeEntity>(strJson);
+
+            var _message = Newtonsoft.Json.JsonConvert.DeserializeObject<AsrMessage>(asrInfo.msgBody.message);
+            var lattices = _message.lattices;
+
+            StringBuilder strOne = new StringBuilder();
+            foreach (var item in lattices)
+            {
+                strOne.Append(item.onebest +"<br>");
+            }
+            
+
+            return Content(strOne.ToString());
+        }
+
+
+
+        public ActionResult AsrFileInport()//语音文上传
+        {
+            string respone = "Err|未处理";
+            string strReSaveFlag = Request["reSaveFlag"];
+            string bizId = Request["bizId"];
+            string uuid = Request["uuid"];
+
+            
+
+
+            if (Request.Files.Count > 0)
+            {
+                //string strFBid = Request["excelBid"];
+
+                HttpPostedFileBase f = Request.Files[0];
+                string fname = f.FileName;
+                /* startIndex */
+                int index = fname.LastIndexOf("\\") + 1;
+                /* length */
+                int len = fname.Length - index;
+                fname = fname.Substring(index, len);
+                /* save to server */
+                string savePath = Server.MapPath("~/Upload/" + fname);
+                f.SaveAs(savePath);
+                //context.Response.Write("Success!");
+                DateTime sdt;
+                //DateTime edt;
+                //TimeSpan tspan;
+                respone = "OK|上传成功";
+                return Content(respone);
+            }
+            
+            return Content($"Err|bizId:{bizId},uuid:{uuid},导入失败，服务器没有接收到Excel文件");
+        }
+
         #endregion
 
+
+        #region 打印测试
+
+        public ActionResult PrintTest()
+        {
+            return View();
+        }
+
+        #endregion
 
     }
 }

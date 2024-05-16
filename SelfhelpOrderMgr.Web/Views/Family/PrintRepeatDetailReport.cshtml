@@ -1,0 +1,150 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>家属信息</title>
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Content/buttons.css" rel="stylesheet" />
+    <link href="~/Content/PrintReportCss.css" rel="stylesheet" />
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="page-header ">
+            <h1 class="text-center">家属身份证号重复 <small>预警明细清单</small></h1>
+
+        </div>
+        <div class="row">
+            @if (ViewData["customTimeArea"] != null)
+            {
+                SelfhelpOrderMgr.Web.Models.CustomTimeArea cs = ViewData["customTimeArea"] as SelfhelpOrderMgr.Web.Models.CustomTimeArea;
+                <div class="col-sm-9"><strong>统计日期：</strong>@cs.CrtDate_Start.ToString("yyyy-MM-dd HH:mm:ss") 至 @cs.CrtDate_End.ToString("yyyy-MM-dd HH:mm:ss")</div>
+            }
+            <div class="col-sm-3"><strong>打印日期:</strong>@DateTime.Now.ToString("yyyy-MM-dd")</div>
+
+        </div>
+
+        <div class="row">
+
+            <div class="col-sm-12">
+                @if (ViewData["res"] != null)
+                {
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Id</th>
+                                <th>队别</th>
+                                <th>狱号</th>
+                                <th>姓名</th>
+                                <th>建档日期</th>
+                                <th>家属姓名</th>
+                                <th>家属身份证</th>
+                                <th>性别</th>
+                                <th>关系</th>
+                                <th>手机</th>
+                                <th>操作员</th>
+                                <th>银行卡号</th>
+                                <th>开户行</th>
+                                <th>修改人</th>
+                                <th>修改日期</th>
+                                <th>备注</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (ViewData["res"] != null)
+                            {
+                                var ls = ViewData["res"] as List<SelfhelpOrderMgr.Model.ViewFamilyInfo>;
+
+                                decimal sAmount = 0;
+                                int rowId = 1;
+                                foreach (var item in ls)
+                                {
+
+                            <tr>
+                                <td class="text-center">@rowId</td>
+                                <td>@item.FAreaName</td>
+                                <td>@item.FCrimeCode</td>
+                                <td>@item.FName</td>
+                                <td>@item.CrtDate.ToString("yyyyMMdd")</td>
+                                <td>@item.FamilyName</td>
+                                <td>@item.FIdenNo</td>
+                                <td>@item.FSex</td>
+                                <td>@item.Relation</td>
+                                <td>@item.PhoneNum</td>
+                                <td>@item.CrtBy</td>
+                                <td>@item.BankCard</td>
+                                <td>@item.OpeningBank</td>
+                                <td>@item.ModBy</td>
+                                <td>@(item.ModDate == null?"":((DateTime)item.ModDate).ToString("yyyyMMdd"))</td>
+                                <td>@item.Remark</td>
+                            </tr>
+                                    rowId++;
+                                }
+
+                        <tr>
+                            <th>合计</th>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                            }
+
+
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Id</th>
+                                <th>队别</th>
+                                <th>狱号</th>
+                                <th>姓名</th>
+                                <th>建档日期</th>
+                                <th>家属姓名</th>
+                                <th>家属身份证</th>
+                                <th>性别</th>
+                                <th>关系</th>
+                                <th>手机</th>
+                                <th>操作员</th>
+                                <th>银行卡号</th>
+                                <th>开户行</th>
+                                <th>修改人</th>
+                                <th>修改日期</th>
+                                <th>备注</th>
+                            </tr>
+                        </thead>
+
+                    </table>
+                }
+            </div>
+            <div class="col-sm-2">
+
+            </div>
+        </div>
+
+
+    </div>
+    <script src="~/Scripts/jquery-1.11.3.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <script src="~/Scripts/myJs/commonJs.js"></script>
+
+</body>
+</html>

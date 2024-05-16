@@ -5,13 +5,13 @@
 
 
 
-    @{Html.RenderPartial("~/Views/Shared/_PartialXiaopiaoControl.cshtml");}
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-    <!--[if lt IE 9]>
-      <script src="//cdn.bootcss.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-      <script src="//cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
-    <![endif]-->
+@{Html.RenderPartial("~/Views/Shared/_PartialXiaopiaoControl.cshtml");}
+<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+  <script src="//cdn.bootcss.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+  <script src="//cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
 
 <div id="Head_Top">
 
@@ -48,6 +48,29 @@
 
                             </div>
                         </div>
+
+                    }
+                    else if (ViewData["loginMode"].ToString() == "2")
+                    {
+                        <input type="hidden" id="loginModeFlag" value="2" />
+                        @*<div class="form-group" id="divUserName">
+                                <div class="input-group">
+                                    <div class="input-group-addon">用户号</div>
+                                    <input class="form-control" type="number" id="UserCode" name="UserCode" onkeydown="if(event.keyCode==13) $('#UserPwd').focus();" placeholder="请输入编号" style="width:150px;">
+                                    <input class="form-control" type="number" id="UserCode" name="UserCode" onkeydown="noKeyNumbers(event);" placeholder="请输入编号" style="width:150px;">
+
+                                </div>
+                            </div>
+
+                            <div class="form-group" id="divUserPwd">
+                                <div class="input-group">
+                                    <div class="input-group-addon">密码</div>
+                                    <input class="form-control" type="password" id="UserPwd" name="UserPwd" onkeydown="if (event.keyCode == 13) btnAddOrder('3504013494');" placeholder="请输入密码" style="width:150px;">
+                                </div>
+                            </div>*@
+
+                        <input type="hidden" id="UserCode" name="UserCode" value="@ViewData["fcrimecode"]" />
+                        <input type="hidden" id="UserPwd" name="UserPwd" value="" />
 
                     }
                     else
@@ -119,7 +142,7 @@
                         {
                             <div class="input-group-addon">数量</div>
                         }
-                        
+
                         <input type="text" class="form-control" style="width:80px" id="inputGcount" onkeydown="if (event.keyCode == 13) gcountEnter();" placeholder="数量">
                     </div>
                 </div>
@@ -154,162 +177,185 @@
 
             </div>
 
-    <div class="row">
-        @if (ViewData["softNumerKeyBoard"].ToString() == "1")
-        {
-            <div class="col-sm-9">
-                <div>
-                    <table class="table table-striped">
-                        <thead>
-                            <tr><th>简码</th><th>品名</th><th>条码</th><th>单价</th><th>数量</th><th>金额</th><th>不限额标志</th><th>操作</th></tr>
-                        </thead>
-                        <tbody id="tbodyOrderList"></tbody>
+            <div class="row">
+                @if (ViewData["softNumerKeyBoard"].ToString() == "1")
+                {
+                    <div class="col-sm-9">
+                        <div>
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr><th>简码</th><th>品名</th><th>条码</th><th>单价</th><th>数量</th><th>金额</th><th>不限额标志</th><th>操作</th></tr>
+                                </thead>
+                                <tbody id="tbodyOrderList"></tbody>
 
-                    </table>
-                </div>
+                            </table>
+                        </div>
 
-            </div>
-        }
-        else
-        {
-            <div class="col-sm-12">
-                <div>
-                    <table class="table table-striped">
-                        <thead>
-                            <tr><th>简码</th><th>品名</th><th>条码</th><th>单价</th><th>数量</th><th>金额</th><th>不限额标志</th><th>操作</th></tr>
-                        </thead>
-                        <tbody id="tbodyOrderList"></tbody>
+                    </div>
+                }
+                else
+                {
+                    <div class="col-sm-12">
+                        <div>
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr><th>简码</th><th>品名</th><th>条码</th><th>单价</th><th>数量</th><th>金额</th><th>不限额标志</th><th>操作</th></tr>
+                                </thead>
+                                <tbody id="tbodyOrderList"></tbody>
 
-                    </table>
-                </div>
-            </div>
-         }
+                            </table>
+                        </div>
+                    </div>
+                }
 
-                    
+
                 @if (ViewData["softNumerKeyBoard"].ToString() == "1")
                 {
                     <div class="col-sm-3" id="div_SaleInputKeyBoard">
                         @{Html.RenderPartial("~/Views/Shopping/_PartialNumberKeyBoard.cshtml");}
                     </div>
-                    }
-                    
-                            
-                </div>
+                }
+
+
             </div>
+        </div>
 
 
 
 
-    <!-- 订单结算显示框（Modal） -->
-                    <div class="modal fade" id="myOrderInfo" tabindex="-1" role="dialog"
-                         aria-labelledby="myModalLabel" aria-hidden="true">
-                        <div class="modal-dialog">
-                            <div class="modal-content" style=" width:300px;">
-                                <div class="modal-header">
-                                    <button type="button" class="close"
-                                            data-dismiss="modal" aria-hidden="true">
-                                        &times;
-                                    </button>
-                                    <h4 class="modal-title" id="myModalLabel">
-                                        结算信息
-                                    </h4>
-                                </div>
-                                <div class="modal-body" id="orderPayInfo">
-
-                                </div>
-                                <div class="modal-footer">
-
-                                </div>
-                            </div><!-- /.modal-content -->
-                        </div>
+        <!-- 订单结算显示框（Modal） -->
+        <div class="modal fade" id="myOrderInfo" tabindex="-1" role="dialog"
+             aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content" style=" width:300px;">
+                    <div class="modal-header">
+                        <button type="button" class="close"
+                                data-dismiss="modal" aria-hidden="true">
+                            &times;
+                        </button>
+                        <h4 class="modal-title" id="myModalLabel">
+                            结算信息
+                        </h4>
                     </div>
-    <!-- /.modal -->
+                    <div class="modal-body" id="orderPayInfo">
 
-    <!-- 询问是否有未提交的订单处理（Modal） -->
-                    <div class="modal fade" id="askOrderHandle" tabindex="-1" role="dialog"
-                         aria-labelledby="myModalLabel" aria-hidden="true">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <button type="button" class="close"
-                                            data-dismiss="modal" aria-hidden="true">
-                                        &times;
-                                    </button>
-                                    <h4 class="modal-title" id="myModalLabel">
-                                        未提交订单处理
-                                    </h4>
-                                </div>
-                                <div class="modal-body">
-                                    <input type="hidden" id="currUserCardNo" />
-                                    <input type="hidden" id="currOrderInfo" />
-                                    <input type="hidden" id="currSaleSort" />
-                                    你有一个完成的订单是否要继续原先的交易？>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-default"
-                                            data-dismiss="modal" onclick="CancelCurrOrderInfo()">
-                                        取消
-                                    </button>
-                                    <button type="button" class="btn btn-primary" onclick="ContinueOrderInfo()">
-                                        确定
-                                    </button>
-                                </div>
-                            </div><!-- /.modal-content -->
-                        </div><!-- /.modal -->
                     </div>
+                    <div class="modal-footer">
 
-    <!-- 信息提示（Modal） -->
-                    <div class="modal fade" id="myPromptBox" tabindex="-1" role="dialog"
-                         aria-labelledby="myModalLabel" aria-hidden="true">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <button type="button" class="close"
-                                            data-dismiss="modal" aria-hidden="true">
-                                        &times;
-                                    </button>
-                                    <h4 class="modal-title">
-                                        信息提示
-                                    </h4>
-                                </div>
-                                <div class="modal-body" id="myPromptBoxInfo">
-                                    提示信息
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-default"
-                                            data-dismiss="modal">
-                                        确定
-                                    </button>
-
-                                </div>
-                            </div><!-- /.modal-content -->
-                        </div><!-- /.modal -->
                     </div>
+                </div><!-- /.modal-content -->
+            </div>
+        </div>
+        <!-- /.modal -->
+        <!-- 询问是否有未提交的订单处理（Modal） -->
+        <div class="modal fade" id="askOrderHandle" tabindex="-1" role="dialog"
+             aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close"
+                                data-dismiss="modal" aria-hidden="true">
+                            &times;
+                        </button>
+                        <h4 class="modal-title" id="myModalLabel">
+                            未提交订单处理
+                        </h4>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" id="currUserCardNo" />
+                        <input type="hidden" id="currOrderInfo" />
+                        <input type="hidden" id="currSaleSort" />
+                        你有一个完成的订单是否要继续原先的交易？>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default"
+                                data-dismiss="modal" onclick="CancelCurrOrderInfo()">
+                            取消
+                        </button>
+                        <button type="button" class="btn btn-primary" onclick="ContinueOrderInfo()">
+                            确定
+                        </button>
+                    </div>
+                </div><!-- /.modal-content -->
+            </div><!-- /.modal -->
+        </div>
 
-                    @if (ViewData["mset"] != null)
-    {
-        SelfhelpOrderMgr.Model.T_SHO_ManagerSet mset = ViewData["mset"] as SelfhelpOrderMgr.Model.T_SHO_ManagerSet;
-                        <input type="hidden" id="xiaoPiaoPageWidth" name="xiaoPiaoPageWidth" value="@mset.KeyMode" />
-                        <input type="hidden" id="xiaoPiaoFontSize" name="xiaoPiaoFontSize" value="@mset.MgrValue" />
-    }
-    @*小票模板*@
-                    @{Html.RenderPartial("~/Views/Shared/_PartialXiaopiaoTemplateBody.cshtml");}
+        <!-- 信息提示（Modal） -->
+        <div class="modal fade" id="myPromptBox" tabindex="-1" role="dialog"
+             aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close"
+                                data-dismiss="modal" aria-hidden="true">
+                            &times;
+                        </button>
+                        <h4 class="modal-title">
+                            信息提示
+                        </h4>
+                    </div>
+                    <div class="modal-body" id="myPromptBoxInfo">
+                        提示信息
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default"
+                                data-dismiss="modal">
+                            确定
+                        </button>
 
-                    @*填写号房信息*@
+                    </div>
+                </div><!-- /.modal-content -->
+            </div><!-- /.modal -->
+        </div>
 
-                    @{Html.RenderPartial("~/Views/Shopping/_Partial_InputRoomNo.cshtml");}
+        @if (ViewData["mset"] != null)
+        {
+            SelfhelpOrderMgr.Model.T_SHO_ManagerSet mset = ViewData["mset"] as SelfhelpOrderMgr.Model.T_SHO_ManagerSet;
+            <input type="hidden" id="xiaoPiaoPageWidth" name="xiaoPiaoPageWidth" value="@mset.KeyMode" />
+            <input type="hidden" id="xiaoPiaoFontSize" name="xiaoPiaoFontSize" value="@mset.MgrValue" />
+        }
+        @*小票模板*@
+        @{Html.RenderPartial("~/Views/Shared/_PartialXiaopiaoTemplateBody.cshtml");}
+
+        @*填写号房信息*@
+
+        @{Html.RenderPartial("~/Views/Shopping/_Partial_InputRoomNo.cshtml");}
 
 
 
 
 
 
-                    <script src="~/Scripts/myJs/minghuaICcardCommon.js"></script>
-                    <script src="~/Scripts/myJs/commonJs.js"></script>
-                    <script src="~/Scripts/myJs/opertorXiaopiaoFunc.js"></script>
-                    <script src="~/Scripts/myJs/MyNumerKeyBoard.js"></script>
-                    <script src="~/Scripts/myJs/orderCommon.js"></script>
-                    <script src="~/Scripts/myJs/orderSales.js"></script>
-                    <script src="~/Scripts/myJs/LodopFuncs.js"></script>
+        <script src="~/Scripts/myJs/minghuaICcardCommon.js"></script>
+        <script src="~/Scripts/myJs/commonJs.js"></script>
+        @*<script src="~/Scripts/myJs/opertorXiaopiaoFunc.js"></script>*@
+        @*<script src="~/Scripts/myJs/LodopFuncs.js"></script>*@
+
+        @if (ViewData["PrintPlusVer"] != null)
+        {
+            string printPlusVer = ViewData["PrintPlusVer"] as string;
+            if (printPlusVer == "1")
+            {
+                <script src="~/Scripts/myJs/LodopFuncs.js"></script>
+            }
+            else
+            {
+                <script src="~/Scripts/myJs/opertorXiaopiaoFunc.js"></script>
+            }
+        }
+        else
+        {
+            <script src="~/Scripts/myJs/opertorXiaopiaoFunc.js"></script>
+        }
+        <script src="~/Scripts/myJs/MyNumerKeyBoard.js"></script>
+        <script src="~/Scripts/myJs/orderCommon.js"></script>
+        <script src="~/Scripts/myJs/orderSales.js"></script>
 
 
+        <script type="text/javascript">
+            $(document).ready(function () {
+                if ($("#UserCode").val() != "" && $("#UserCode").val() != undefined) {
+                    getUserCardNo('selfOrder');
+                }
+            });
+        </script>

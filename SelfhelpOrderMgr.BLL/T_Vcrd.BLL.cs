@@ -210,9 +210,15 @@ namespace SelfhelpOrderMgr.BLL
                     {
                         model.CrtDate = DateTime.Parse(dt.Rows[n]["CrtDate"].ToString());
                     }
+
                     model.DType = dt.Rows[n]["DType"].ToString();
                     model.Depositer = dt.Rows[n]["Depositer"].ToString();
-                    model.PayMode = int.Parse( dt.Rows[n]["PayMode"].ToString());
+
+                    if (dt.Rows[n]["PayMode"].ToString() != "")
+                    {
+                        model.PayMode = int.Parse(dt.Rows[n]["PayMode"].ToString());
+                    }
+                    
 
                     modelList.Add(model);
                 }

@@ -179,6 +179,11 @@ namespace SelfhelpOrderMgr.BLL
             return _jifenDao.UpdateInDbFlag(bid, crtby, checkflag);
         }
 
+        public bool UpdateInDbFlag(string bid, string crtby, int checkflag,int modelJifenId)
+        {
+            return _jifenDao.UpdateInDbFlag(bid, crtby, checkflag,  modelJifenId);
+        }
+
         /// <summary>
         /// 主单退账
         /// </summary>

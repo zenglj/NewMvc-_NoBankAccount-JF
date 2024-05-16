@@ -38,5 +38,7 @@ namespace SelfhelpOrderMgr.Model
         //ATM服务清算字段
         public int? AtmSrvId { get; set; }
         public int AtmSrvPayFlag { get; set; }
+
+
     }
 }

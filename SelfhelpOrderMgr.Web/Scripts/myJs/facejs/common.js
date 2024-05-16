@@ -189,8 +189,13 @@ userFace.drawLoop = function () {
             // console.log(ctrack.getConvergence())
             // console.log(ctrack.getCurrentParameters())
             // return
+            //截取一段时间内的相片
             this.dataReconstitution(ctrack.getCurrentPosition());
+        } else if (this.faceFlag == '14') {
+            //住宿屏幕，直接拍照获取人脸信息
+            this.getuserface(ctrack.getCurrentPosition());
         }
+
     }
 }
 userFace.drawToCanvas = function (effect) {
@@ -300,6 +305,41 @@ userFace.twinkle = function (positions) {
                 //alert('眼睛验证通过') //不需要弹框zenglj 20211102改
                 this.getPhoto()
             }
+        }
+        this.last_nose_left = positions[62][0];
+        this.last_nose_top = positions[62][1];
+        this.last_dis_eye_norse = dis_eye_norse;
+        this.lastTime = new Date().getTime();
+
+    }
+}
+
+// 注视屏幕，不判断眨眼直接拍照zenglj 20240113
+userFace.getuserface = function (positions) {
+    if (positions.length == 0) {
+        return;
+    }
+    if (this.lastTime == 0 || (new Date().getTime() - this.lastTime > 10)) {
+        var xdiff1 = positions[62][0] - positions[24][0];
+        var ydiff1 = positions[62][1] - positions[24][1];
+        // 计算出做左眼睛上眼皮中间点距离鼻尖的距离
+        var dis_eye_norse1 = Math.pow((xdiff1 * xdiff1 + ydiff1 * ydiff1), 0.5);
+        var xdiff2 = positions[62][0] - positions[29][0];
+        var ydiff2 = positions[62][1] - positions[29][1];
+        // 计算出做左眼睛上眼皮中间点距离鼻尖的距离
+        var dis_eye_norse2 = Math.pow((xdiff2 * xdiff2 + ydiff2 * ydiff2), 0.5);
+        // 计算出左右两个眼睛距离同一处鼻尖的距离之和
+        var dis_eye_norse = (dis_eye_norse1 + dis_eye_norse2);
+        if (this.last_nose_left > 0 && this.last_nose_top > 0 && Math.abs(positions[62][0] - this.last_nose_left) < 0.5 &&
+            Math.abs(positions[62][1] - this.last_nose_top) < 0.5) {
+            console.log(dis_eye_norse, this.last_dis_eye_norse, Math.abs(dis_eye_norse - this.last_dis_eye_norse), dis_eye_norse * 1 / 60)
+
+            //if (this.last_dis_eye_norse > 1 && (Math.abs(dis_eye_norse - this.last_dis_eye_norse) > dis_eye_norse * 1 / 60)) {
+            //    //alert('眼睛验证通过') //不需要弹框zenglj 20211102改
+            //    this.getPhoto()
+            //}
+            //不判断直接拍照zenglj 20240113改
+            this.getPhoto()
         }
         this.last_nose_left = positions[62][0];
         this.last_nose_top = positions[62][1];

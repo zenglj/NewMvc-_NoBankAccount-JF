@@ -131,6 +131,11 @@ namespace SelfhelpOrderMgr.BLL
             return dapperDal.GetModelList<T, S>(strJsonWhere, orderField, topNum);
         }
 
+        public List<T> GetModelList<T, S>(string strJsonWhere, string orderField, int topNum = 10,string otherWhere="") where T : BaseModel
+        {
+            return dapperDal.GetModelList<T, S>(strJsonWhere, orderField, topNum, otherWhere);
+        }
+
         /// <summary>
         /// 获取查询Where条件
         /// </summary>
@@ -277,7 +282,11 @@ namespace SelfhelpOrderMgr.BLL
             return dapperDal.UpdatePartInfo<T>(dict, strwhere);
         }
 
-        public string ExecuteProc(string procName, Dictionary<string, string> dict)
+        public bool UpdatePartInfo<T>(object paramUpdateInfo, string strwhere, object paramWhere)
+        {
+            return dapperDal.UpdatePartInfo<T>(paramUpdateInfo, strwhere,paramWhere);
+        }
+            public string ExecuteProc(string procName, Dictionary<string, string> dict)
         {
             return dapperDal.ExecuteProc(procName, dict);
         }

@@ -182,11 +182,47 @@ namespace SelfhelpOrderMgr.Web.Controllers
                                     MacCode = reqJson.Data["MacCode"],
                                     TranDate = reqJson.Data["TranDate"],
                                     TranTime = reqJson.Data["TranTime"],
+                                    //20231228增加钞箱信息，百元张数、拾元张数、壹圆张数
+                                    CashBoxInfo= reqJson.Data["CashBoxInfo"] ==null?"": reqJson.Data["CashBoxInfo"]
                                 };
                                 //var _data=JsonConvert.DeserializeObject<reqAtmActionInfo>( ss);
                                 rs = this.Reconciliation(_data);
                             }
                             break;
+                        case "FaceCheck"://人脸验证（未修改完成)
+                            {
+                                var _data = new reqAtmFaceInfo()
+                                {
+                                    AtmSerialNo = reqJson.Data["TranDate"] + reqJson.Data["AtmSerialNo"],
+                                    F_AMOUNT = reqJson.Data["F_AMOUNT"],
+                                    MacCode = reqJson.Data["MacCode"],
+                                    TranDate = reqJson.Data["TranDate"],
+                                    TranTime = reqJson.Data["TranTime"],
+                                    FaceData=reqJson.Data["FaceData"]
+                                };
+                                //var _data=JsonConvert.DeserializeObject<reqAtmActionInfo>( ss);
+                                rs = this.FaceCheck(_data);
+                            }
+                            break;
+                        //case "PostCashBoxInfo"://钱箱信息（未修改完成)
+                        //    {
+                        //        var _data = new reqAtmCashBoxInfo()
+                        //        {
+                        //            AtmSerialNo = reqJson.Data["TranDate"] + reqJson.Data["AtmSerialNo"],
+                        //            F_AMOUNT = reqJson.Data["F_AMOUNT"],
+                        //            MacCode = reqJson.Data["MacCode"],
+                        //            TranDate = reqJson.Data["TranDate"],
+                        //            TranTime = reqJson.Data["TranTime"],
+                        //            CashBoxMoney= reqJson.Data["cashBoxMoney"],//钱箱含回收箱金额
+                        //            CashBoxMoneyNotReturn = reqJson.Data["CashBoxMoneyNotReturn"],//钱箱不含回收箱金额
+                        //            CashBoxReturnMoney = reqJson.Data["CashBoxReturnMoney"],//钱箱回收金额
+                        //            BoxDetial=Newtonsoft.Json.JsonConvert.DeserializeObject<List<T_Bank_ATMCashBoxDetail>>(reqJson.Data["BoxDetial"])
+
+                        //        };
+                        //        //var _data=JsonConvert.DeserializeObject<reqAtmActionInfo>( ss);
+                        //        rs = this.PostCashBoxInfo(_data);
+                        //    }
+                        //    break;
                         default:
                             {
                                 rs.Flag = false;
@@ -222,6 +258,101 @@ namespace SelfhelpOrderMgr.Web.Controllers
             {
                 return (rs);
             }
+
+            PageResult<ViewPaymentRecordExtend> rec;
+            ViewBankUserInfo model;
+            bll.GetPaymentRecordInfo(fcrimecode, 0, out rec, out model);
+
+            if (rec.rows.Count == 1)
+            {
+                if (rec.rows[0].AuditFlag == 1)
+                {
+                    rs.Flag = true;
+                    rs.ReMsg = "成功";
+                    rs.DataInfo = model;
+                }
+                else if (rec.rows[0].TranStatus >= 2)
+                {
+                    rs.Flag = false;
+                    rs.ReMsg = "已经取过款，不能重复支取!";
+                    rs.DataInfo = null;
+                }
+                else
+                {
+                    rs.Flag = false;
+                    rs.ReMsg = "结算余额未审核，不能支取，请与监狱管理民警联系!";
+                    rs.DataInfo = null;
+                }
+            }
+            else if (rec.rows.Count > 1)
+            {
+                rs.Flag = false;
+                rs.ReMsg = "出现重复的记录，不能支取，请与监狱管理民警联系!";
+                rs.DataInfo = null;
+            }
+            else
+            {
+                //var tranStatus = bll.QueryModel<ViewPaymentRecordExtend>("FCrimeCode", fcrimecode).TranStatus;
+                var payRec = bll.QueryList<ViewPaymentRecordExtend>("fcrimecode='"+ fcrimecode +"'").OrderBy(o=>o.TranStatus).FirstOrDefault();
+                rs.ReMsg = "没有找到相应的记录";
+                if (payRec == null)
+                {
+                    rs.ReMsg = "没有找到相应的记录";
+                }
+                else if (payRec.TranStatus == 2)
+                {
+                    rs.ReMsg = "对不起，不能重复取款";
+                }
+                else if (payRec.TranStatus >= 3)
+                {
+                    rs.ReMsg = "状态不正常，不能取款";
+                }
+                else
+                {
+                    rs.ReMsg = "没有找到相应的记录";
+                }
+
+                rs.Flag = false;
+                //rs.ReMsg = "没有找到相应的记录";
+                rs.DataInfo = null;
+            }
+
+
+
+            //====================================================
+            //3Des 加密方式======================================
+            string ss = jss.Serialize(rs.DataInfo);
+            System.Text.Encoding utf8 = System.Text.Encoding.UTF8;
+            //key为abcdefghijklmnopqrstuvwx的Base64编码
+            byte[] key = Convert.FromBase64String("YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4");
+            byte[] iv = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 };      //当模式为ECB时，IV无用
+            //byte[] data = utf8.GetBytes("中国ABCabc123");
+            byte[] data = utf8.GetBytes(ss);
+            System.Console.WriteLine("ECB模式:");
+            byte[] str1 = Des3PasswordHelper.Des3EncodeECB(key, iv, data);
+            byte[] str2 = Des3PasswordHelper.Des3DecodeECB(key, iv, str1);
+            //string encstr = System.Text.Encoding.UTF8.GetString(str1);
+            string encstr = Convert.ToBase64String(str1);
+            string decstr = System.Text.Encoding.UTF8.GetString(str2);
+            string decstrEnd = System.Text.Encoding.UTF8.GetString(str2).Replace("\0", "");
+
+            byte[] str3 = Convert.FromBase64String(encstr); //密文转数组
+            byte[] strEeee = Des3PasswordHelper.Des3DecodeECB(key, iv, str3);//解密得到明文数组
+            string decstrEEE = System.Text.Encoding.UTF8.GetString(strEeee);//数组转字符串
+            System.Console.WriteLine(Convert.ToBase64String(str1));
+            System.Console.WriteLine(System.Text.Encoding.UTF8.GetString(str2));
+            //rs.DataInfo = encstr;
+            //=================end====================================
+            //====================================================================
+
+            return (rs);
+        }
+
+
+
+        private ResultInfo GetCardInfoByFCode(string  fcrimecode)
+        {
+
 
             PageResult<ViewPaymentRecordExtend> rec;
             ViewBankUserInfo model;
@@ -285,7 +416,6 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
             return (rs);
         }
-
 
 
         private string CheckParamInfo(string cardCode, string fcrimecode)
@@ -428,6 +558,64 @@ namespace SelfhelpOrderMgr.Web.Controllers
             return this.rs;
         }
 
+
+        /// <summary>
+        /// 人脸识别
+        /// </summary>
+        /// <param name="reqJson"></param>
+        /// <returns></returns>
+        private ResultInfo FaceCheck(reqAtmFaceInfo reqJson)
+        {
+            Log4NetHelper.logger.Info(reqJson);
+            string strIp = IpAddressHelper.GetHostAddress();
+            //string title = "人脸识别";
+            //人脸识别检测
+            var _result = FaceCheckService.SendAndCheckFace("", reqJson.FaceData, "0001", null,0);
+            if (_result.Flag == false)
+            {
+                return _result;
+            }
+            //如果成功比对，读取相应的记录
+            var faceRs = (FaceCheckResult)_result.DataInfo;
+            if (faceRs.UserCode.Length < 10 || faceRs.typeFlag==1)
+            {
+                rs.ReMsg = "民警账户不能用于离监取款";
+                return rs;
+            }
+            Log4NetHelper.logger.Info(_result);
+            var ss = GetCardInfoByFCode(faceRs.UserCode);
+            return ss;
+            
+        }
+
+        //private ResultInfo PostCashBoxInfo(reqAtmCashBoxInfo reqJson)
+        //{
+        //    T_Bank_ATMCashBoxMain boxMain = new T_Bank_ATMCashBoxMain();
+        //    boxMain.ATMId = reqJson.AtmSerialNo;
+        //    boxMain.AtmName = reqJson.MacCode;
+        //    boxMain.CashBoxMoney = Convert.ToInt32( reqJson.cashBoxMoney);
+        //    boxMain.CashBoxMoneyNotReturn = Convert.ToInt32(reqJson.cashBoxMoneyNotReturn);
+        //    boxMain.CashBoxReturnMoney = Convert.ToInt32(reqJson.cashBoxReturnMoney);
+        //    boxMain.CrtDate = DateTime.Now;
+        //    List<T_Bank_ATMCashBoxDetail> boxDetail = reqJson.boxDetial;
+
+        //    using (TransactionScope ts = new TransactionScope())
+        //    {
+        //        var _box =this.bll.Insert(boxMain);
+        //        for (int i = 0; i < boxDetail.Count; i++)
+        //        {
+        //            boxDetail[i].MainId = _box.Id;
+        //        }
+        //        this.bll.Insert(boxDetail);
+
+        //        this.rs.Flag = true;
+        //        this.rs.DataInfo = "";
+        //        this.rs.ReMsg = "钞箱数据保存成功";
+                
+        //        ts.Complete();
+        //    }
+        //    return this.rs;
+        //}
         /// <summary>
         /// 更新出钞状态
         /// </summary>

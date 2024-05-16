@@ -66,7 +66,7 @@
             </table>
         </div>
         <div class="easyui-panel" title="信息编辑栏" data-options="iconCls:'icon-edit'" style="height:200px;padding:10px;background:#fafafa;">
-            <form id="ff" method="post">
+            <form id="ff" method="post" enctype="multipart/form-data">
                 <input type="hidden" id="selectTree" name="selectTree">
                 <table id="tbEdit">
                     <tr>
@@ -109,6 +109,9 @@
                         <td><input id="FUserChinaName" name="FUserChinaName" style="width:100px;" /></td>
                         <th align="right">管理卡：</th>
                         <td><input id="FManagerCard" name="FManagerCard" /></td>
+                        <th>选择相片</th>
+                        <td><input type="file" name="photo" /></td>
+
                     </tr>
                     <tr>
                         <td>　</td>

@@ -14,6 +14,7 @@ namespace SelfhelpOrderMgr.Model
         public decimal FMoneyOut { get; set; }
         public decimal FUserMoneyAll { get; set; }
         public decimal AmountC { get; set; }
+        public decimal AccPoints { get; set; }
 
     }
 }

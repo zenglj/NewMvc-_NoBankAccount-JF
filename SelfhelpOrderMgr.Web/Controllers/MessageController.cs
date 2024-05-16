@@ -94,27 +94,76 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
             if (Request.Files.Count > 0)
             {
-                HttpPostedFileBase f = Request.Files[0];
-                string fname = f.FileName;
-                string extName = Path.GetExtension(f.FileName);
-                if (!((".mht" == extName) || (".doc" == extName)))
+                List<string> fileNameList = new List<string>();
+                for (int i = 0; i < Request.Files.Count; i++)
                 {
-                    return Content("Err|文件类型不对,仅支持.mht和.doc，两种格式文件");
-                }
-                /* startIndex */
-                int index = fname.LastIndexOf("\\") + 1;
-                /* length */
-                int len = fname.Length - index;
-                fname = fname.Substring(index, len);
-                /* save to server */
-                string savePath = Server.MapPath("~/Upload/" + fname);
-                f.SaveAs(savePath);
+                    HttpPostedFileBase f = Request.Files[i];
+                    string fname = f.FileName;
+                    string extName = Path.GetExtension(f.FileName);
+                    if(Request.Files.Count>=2 && (extName== ".doc" || extName == ".docx" 
+                        //  || extName == ".xls" || extName == ".xlsx"
+                        || extName == ".pdf" || extName == ".mht"))
+                    {
+                        return Content("Err|不支持同时上传两个文件，请转成图片，谢谢！");
+                    }
+                    if (!((".mht" == extName) || (".doc" == extName) || (".docx" == extName) 
+                        //  || (".xls" == extName) || (".xlsx" == extName)
+                        || (".pdf" == extName) || (".jpg" == extName) || (".jepg" == extName) || (".png" == extName)))
+                    {
+                        return Content("Err|文件类型不对,仅支持.mht和.doc及图片，三种格式文件");
+                    }
+                    /* startIndex */
+                    int index = fname.LastIndexOf("\\") + 1;
+                    /* length */
+                    int len = fname.Length - index;
+                    fname = fname.Substring(index, len);
+                    /* save to server */
+                    string savePath = Server.MapPath("~/Upload/" + fname);
+                    f.SaveAs(savePath);
 
-                //获取MD5的文件名称
-                string md5FileName = MD5Process.GetMD5HashFromFile(savePath);
-                string lastName = Server.MapPath("~/Upload/") + md5FileName + extName;
-                f.SaveAs(lastName);
-                System.IO.File.Delete(savePath);
+                    //获取MD5的文件名称
+                    string md5FileName = MD5Process.GetMD5HashFromFile(savePath);
+                    string lastName = Server.MapPath("~/Upload/") + md5FileName + extName;
+                    f.SaveAs(lastName);
+                    System.IO.File.Delete(savePath);
+                    if(extName==".doc" || extName == ".docx")
+                    {
+                        var rs=DocxToPdfConvertHelper.ConvertWordToPdf(lastName, Server.MapPath("~/Upload/")+md5FileName + ".pdf");
+                        if (rs.Flag == true)
+                        {
+                            System.IO.File.Delete(lastName);
+                            fileNameList.Add("Upload/" + md5FileName + ".pdf");
+                        }
+                    }
+                    //else if (extName == ".xls" || extName == ".xlsx")
+                    //{
+                    //    var rs = DocxToPdfConvertHelper.ConvertExcelToPdf(lastName, Server.MapPath("~/Upload/") + md5FileName + ".pdf");
+                    //    if (rs.Flag == true)
+                    //    {
+                    //        System.IO.File.Delete(lastName);
+                    //        fileNameList.Add("Upload/" + md5FileName + ".pdf");
+                    //    }
+                    //}
+                    else
+                    {
+                        fileNameList.Add("Upload/" + md5FileName + extName);
+
+                    }
+
+                }
+
+                string fileNames = "";
+                foreach (var item in fileNameList)
+                {
+                    if (fileNames == "")
+                    {
+                        fileNames = item;
+                    }
+                    else
+                    {
+                        fileNames += ";" + item;
+                    }
+                }
 
                 T_NotifyFile model = new T_NotifyFile()
                 {
@@ -122,7 +171,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
                     FAbstract = FAbstract,
                     FAuthor = FAuthor,
                     FDate = DateTime.Now,
-                    LinkWebFile = "Upload/" + md5FileName + extName,
+                    //LinkWebFile = "Upload/" + md5FileName + extName,
+                    LinkWebFile= fileNames,
                     Remark = Remark
                 };
                 string addFlag = "|Update";

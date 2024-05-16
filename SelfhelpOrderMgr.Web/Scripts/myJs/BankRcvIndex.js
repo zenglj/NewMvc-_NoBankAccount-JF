@@ -146,6 +146,8 @@ function loadDetailTable() {
             { field: 'Remark', title: '备注', width: 100, sortable: true },
             { field: 'FCrimeCode', title: '狱号', width: 100, sortable: true },
             { field: 'FName', title: '罪犯姓名', sortable: true, width: 100 },
+            { field: 'FAreaName', title: '队别名称', sortable: true, width: 100 },
+            { field: 'FAreaCode', title: '队别代码', sortable: true, width: 100 },
             { field: 'Error', title: '错误信息', sortable: true, width: 100 },
             {
                 field: 'ImportFlag', title: '导入标志', width: 100, sortable: true, formatter: function (value, row, index) {
@@ -509,6 +511,45 @@ function btnExcelSave(id) {
         }
     });
 }
+
+
+function btnExcelOutHuiKuanRen(id) {
+
+    var strJson = "";
+    $("#crimeSearch tr td span input").each(function (index, element) {   //element-当前的元素,也可使用this选择器
+        if (typeof $(this).attr("name") != "undefined" && $(this).val().replace(/^\s*|\s*$/g, "") != "" && typeof $(this).val() != "undefined") {
+            console.log($(this).attr("name") + ":" + $(this).val());
+            if (strJson == "") {
+                strJson = "\"" + $(this).attr("name") + "\":\"" + $(this).val() + "\"";
+            } else {
+                strJson = strJson + "," + "\"" + $(this).attr("name") + "\":\"" + $(this).val() + "\"";
+            }
+        }
+    });
+    strJson = "{" + strJson + "}";
+
+    $('#test').datagrid('load', {
+        //FCode: $("#FCode").numberbox('getValue'),
+        //FName :$("#FName").textbox('getText'),
+        strJsonWhere: strJson
+    });
+
+
+    $.post("/BankRcv/ExcelHUIKuanRenInfo/", { "strJsonWhere": strJson }, function (data, status) {
+        if (status != "success") {
+            return false;
+        } else {
+            var words = data.split("|");
+            if (words[0] == "OK") {
+                window.open("/Upload/" + words[1]);
+            } else {
+                alert(data);
+            }
+
+        }
+    });
+}
+
 
 
 //月统计报表 期初 期间  期末

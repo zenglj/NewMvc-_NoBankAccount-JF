@@ -112,7 +112,7 @@ function SetAndDisplayUserInfo(words) {
         //}
         //$("#lblInfo").html("银行卡号：" + bankcardno);
         //console.log("111111111");
-        $("#lblInfo").html("旧烛光卡号：<del>" + BankCardFormat(rts.UserInfo.BankCardNo) + "</del><br/> 中银结算卡号：" + BankCardFormat(rts.UserCard.SecondaryBankCard));
+        //$("#lblInfo").html("旧烛光卡号：<del>" + BankCardFormat(rts.UserInfo.BankCardNo) + "</del><br/> 中银结算卡号：" + BankCardFormat(rts.UserCard.SecondaryBankCard));
         //console.log("22222222");
         $("#curMonthXFE").html(rts.UserInfo.Xiaofeimoney);
         $("#okUseAllMoney").html(rts.UserInfo.OkUseAllMoney);

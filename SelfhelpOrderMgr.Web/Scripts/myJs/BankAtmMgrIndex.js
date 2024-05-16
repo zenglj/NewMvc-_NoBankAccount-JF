@@ -144,6 +144,24 @@ function GetSearchJson(formId) {
 }
 
 
+function ExcelOutPrint() {
+    
+    var strJson = GetSearchJson('formPaySearch');
+
+    $.post("/BankAtmMgr/ExcelOutPrint", { "strJsonWhere": strJson }, function (data, status) {
+        if (data.Flag == true) {
+            window.open("/Upload/" + data.DataInfo);
+        }
+    }
+    );
+}
+
+function PrintDetailReport() {
+
+    var strJson = GetSearchJson('formPaySearch');
+
+    window.open("/BankAtmMgr/PrintDetailReport/?strJsonWhere=" + strJson);
+}
 
 //清空条件
 function btnClear() {

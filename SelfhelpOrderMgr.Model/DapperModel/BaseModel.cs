@@ -7,6 +7,7 @@ namespace SelfhelpOrderMgr.Model
 {
     public class BaseModel
     {
+        [System.ComponentModel.Description("Id")]
         public int Id { get; set; }
     }
 }

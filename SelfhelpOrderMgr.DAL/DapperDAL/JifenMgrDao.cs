@@ -147,7 +147,153 @@ namespace SelfhelpOrderMgr.DAL
             return false;
         }
 
+        /// <summary>
+        /// 积分导入，根据不同积分模板Id来导入数据, Bid '财务入账'
+        /// </summary>
+        /// <param name="bid"></param>
+        /// <param name="crtby"></param>
+        /// <param name="checkflag"></param>
+        /// <param name="modelJifenId">积分模板的Id</param>
+        /// <returns></returns>
+        public bool UpdateInDbFlag(string bid, string crtby, int checkflag,int modelJifenId)
+        {
+            #region 根据配置文件DepositInVcrdFlag设定项，获取Flag的值
+            T_SHO_ManagerSet mset = new T_SHO_ManagerSetDAL().GetModel("DepositInVcrdFlag");
+            int iflag = 0;//默认值VCRD Flag为0
+            //===去除Flag标志zenglj 20230709==Start=====================
+            //if (mset != null)
+            //{
+            //    if (mset.MgrValue == "-2")
+            //    {
+            //        iflag = -2;
+            //    }
+            //}
 
+            //===去除Flag标志zenglj 20230709==End=====================
+            #endregion
+            using (IDbConnection conn = new SqlConnection(SqlHelper.getConnstr()))
+            {
+                conn.Open();
+                IDbTransaction myTran = conn.BeginTransaction();
+                try
+                {
+                    StringBuilder strSql = new StringBuilder();
+                    #region 增加SQL脚本
+                    strSql.Append("declare @curYM varchar(10);");
+                    strSql.Append("declare @curYear varchar(10);");
+                    strSql.Append("declare @curMonth varchar(10);");
+                    strSql.Append("select  @curMonth='00'+ convert(varchar(10), month(getdate()));");
+                    strSql.Append("select  @curYear=substring( convert(varchar(20), year(getdate())),3,2);");
+                    strSql.Append("select  @curYM=@curYear+substring(@curMonth,len(@curMonth)-1,2);");
+
+                    if(modelJifenId==2)
+                    {
+                        //生产积分
+                        strSql.Append(@"insert into t_JF_Vcrd ([Vouno],[CardCode],[FCrimeCode],[DAmount],[CAmount],[CrtBy]
+                        ,[CrtDate],[DType],[Depositer],[Remark],[Flag]
+                        ,[FAreaCode],[FAreaName],[FCriminal],[Frealareacode]
+                        ,[FrealAreaName],[PType],[UDate],[OrigId],[CardType],[TypeFlag],[SubTypeFlag]
+                        ,[AccType],[CheckFlag],[CheckDate]
+                        ,[CheckBy],[pc],[CurUserAmount],[CurAllAmount],PayAuditFlag,BankInterfaceFlag)
+                        select 'VOUB'+substring( '00000'+convert(varchar(20),a.Id),len('00000'+convert(varchar(20),a.Id))-5,6)
+                        ,a.CardCode,a.FCrimeCode,isnull(a.AmountA,0) DAmount,0 CAmount,@CrtBy CrtBy
+                        ,getDate() CrtDate,'生产积分' as DType,'' Depositer,a.Remark,@vcrdFlag as Flag,a.FAreaCode,a.FAreaName,a.FCriminal,'' Frealareacode
+                        ,'' FrealAreaName,'' PType,b.Udate,a.BID OrigId,0 CardType,b.TypeFlag as TypeFlag,b.SubTypeFlag as SubTypeFlag
+                        ,0 AccType,@CheckFlag [CheckFlag],getDate() [CheckDate]
+                        ,@CrtBy [CheckBy],0 [pc],(c.AmountA+c.AmountB) [CurUserAmount]
+                        ,(c.AmountA+c.AmountB+c.AmountC)[CurAllAmount],0 as PayAuditFlag,0 as BankInterfaceFlag
+                        from t_JF_bonusdtl a,t_JF_bonus b,t_Criminal_Card c  
+                        where a.Bid=b.Bid and a.FCrimeCode=c.FCrimeCode and b.BID=@BID and isnull(a.FAMount,0)<>0 and c.cardflaga<>4;");
+                        //改造积分
+                        strSql.Append(@"insert into t_JF_Vcrd ([Vouno],[CardCode],[FCrimeCode],[DAmount],[CAmount],[CrtBy]
+                        ,[CrtDate],[DType],[Depositer],[Remark],[Flag]
+                        ,[FAreaCode],[FAreaName],[FCriminal],[Frealareacode]
+                        ,[FrealAreaName],[PType],[UDate],[OrigId],[CardType],[TypeFlag],[SubTypeFlag]
+                        ,[AccType],[CheckFlag],[CheckDate]
+                        ,[CheckBy],[pc],[CurUserAmount],[CurAllAmount],PayAuditFlag,BankInterfaceFlag)
+                        select 'VOUB'+substring( '00000'+convert(varchar(20),a.Id),len('00000'+convert(varchar(20),a.Id))-5,6)
+                        ,a.CardCode,a.FCrimeCode,isnull(a.AmountB,0) DAmount,0 CAmount,@CrtBy CrtBy
+                        ,getDate() CrtDate,'改造积分' as DType,'' Depositer,a.Remark,@vcrdFlag as Flag,a.FAreaCode,a.FAreaName,a.FCriminal,'' Frealareacode
+                        ,'' FrealAreaName,'' PType,b.Udate,a.BID OrigId,0 CardType,b.TypeFlag as TypeFlag,b.SubTypeFlag as SubTypeFlag
+                        ,0 AccType,@CheckFlag [CheckFlag],getDate() [CheckDate]
+                        ,@CrtBy [CheckBy],0 [pc],(c.AmountA+c.AmountB) [CurUserAmount]
+                        ,(c.AmountA+c.AmountB+c.AmountC)[CurAllAmount],0 as PayAuditFlag,0 as BankInterfaceFlag
+                        from t_JF_bonusdtl a,t_JF_bonus b,t_Criminal_Card c  
+                        where a.Bid=b.Bid and a.FCrimeCode=c.FCrimeCode and b.BID=@BID and isnull(a.FAMount,0)<>0 and c.cardflaga<>4;");
+                        //扣减积分
+                        //strSql.Append(@"insert into t_JF_Vcrd ([Vouno],[CardCode],[FCrimeCode],[DAmount],[CAmount],[CrtBy]
+                        //,[CrtDate],[DType],[Depositer],[Remark],[Flag]
+                        //,[FAreaCode],[FAreaName],[FCriminal],[Frealareacode]
+                        //,[FrealAreaName],[PType],[UDate],[OrigId],[CardType],[TypeFlag],[SubTypeFlag]
+                        //,[AccType],[CheckFlag],[CheckDate]
+                        //,[CheckBy],[pc],[CurUserAmount],[CurAllAmount],PayAuditFlag,BankInterfaceFlag)
+                        //select 'VOUB'+substring( '00000'+convert(varchar(20),a.Id),len('00000'+convert(varchar(20),a.Id))-5,6)
+                        //,a.CardCode,a.FCrimeCode,0 DAmount,isnull(a.grkj,0) CAmount,@CrtBy CrtBy
+                        //,getDate() CrtDate,'扣减积分' as DType,'' Depositer,a.Remark,@vcrdFlag as Flag,a.FAreaCode,a.FAreaName,a.FCriminal,'' Frealareacode
+                        //,'' FrealAreaName,'' PType,b.Udate,a.BID OrigId,0 CardType,b.TypeFlag as TypeFlag,b.SubTypeFlag as SubTypeFlag
+                        //,0 AccType,@CheckFlag [CheckFlag],getDate() [CheckDate]
+                        //,@CrtBy [CheckBy],0 [pc],(c.AmountA+c.AmountB) [CurUserAmount]
+                        //,(c.AmountA+c.AmountB+c.AmountC)[CurAllAmount],0 as PayAuditFlag,0 as BankInterfaceFlag
+                        //from t_JF_bonusdtl a,t_JF_bonus b,t_Criminal_Card c  
+                        //where a.Bid=b.Bid and a.FCrimeCode=c.FCrimeCode and b.BID=@BID and isnull(a.FAMount,0)<>0 and c.cardflaga<>4;");
+
+                    }
+                    else
+                    {
+                        strSql.Append(@"insert into t_JF_Vcrd ([Vouno],[CardCode],[FCrimeCode],[DAmount],[CAmount],[CrtBy]
+                        ,[CrtDate],[DType],[Depositer],[Remark],[Flag]
+                        ,[FAreaCode],[FAreaName],[FCriminal],[Frealareacode]
+                        ,[FrealAreaName],[PType],[UDate],[OrigId],[CardType],[TypeFlag],[SubTypeFlag]
+                        ,[AccType],[CheckFlag],[CheckDate]
+                        ,[CheckBy],[pc],[CurUserAmount],[CurAllAmount],PayAuditFlag,BankInterfaceFlag)
+                        select 'VOUB'+substring( '00000'+convert(varchar(20),a.Id),len('00000'+convert(varchar(20),a.Id))-5,6)
+                        ,a.CardCode,a.FCrimeCode,isnull(a.FAMount,0) DAmount,0 CAmount,@CrtBy CrtBy
+                        ,getDate() CrtDate,b.DType as DType,'' Depositer,a.Remark,@vcrdFlag as Flag,a.FAreaCode,a.FAreaName,a.FCriminal,'' Frealareacode
+                        ,'' FrealAreaName,'' PType,b.Udate,a.BID OrigId,0 CardType,b.TypeFlag as TypeFlag,b.SubTypeFlag as SubTypeFlag
+                        ,0 AccType,@CheckFlag [CheckFlag],getDate() [CheckDate]
+                        ,@CrtBy [CheckBy],0 [pc],(c.AmountA+c.AmountB) [CurUserAmount]
+                        ,(c.AmountA+c.AmountB+c.AmountC)[CurAllAmount],0 as PayAuditFlag,0 as BankInterfaceFlag
+                        from t_JF_bonusdtl a,t_JF_bonus b,t_Criminal_Card c  
+                        where a.Bid=b.Bid and a.FCrimeCode=c.FCrimeCode and b.BID=@BID and isnull(a.FAMount,0)<>0 and c.cardflaga<>4;");
+                    }
+
+
+                    if (iflag == 0)
+                    {
+                        strSql.Append(@"update t_Criminal_Card set AccPoints=AccPoints+b.Fmoney from (
+                            select FCrimeCode,sum(isnull(FAMount,0)) Fmoney from t_JF_bonusdtl where BID=@BID  and isnull(FAMount,0)<>0 group by fcrimecode 
+                            ) b where t_Criminal_Card.FCrimeCode=b.FCrimeCode  and t_Criminal_Card.cardflaga<>4;");
+                    }
+
+                    strSql.Append(@"update t_JF_bonusDTL set Flag=1 where BID=@BID 
+                    and fcrimecode in(select fcrimecode from t_Criminal_Card where cardflaga<>4);");
+                    strSql.Append(@"update t_JF_bonus set cnt=b.fcount,famount=b.fmoney,Flag=1,FPostBy=@CrtBy,FPostDate=getdate(),FPostFlag=1,MainStatus=9,TargetExaminerBy='' from (
+                select bid,count(*) fcount,sum(famount) fmoney from t_JF_bonusdtl 
+                where BID=@BID and flag=1 group by bid) b
+                where t_JF_bonus.BID=@BID and t_JF_bonus.BID=b.BID;");
+                    //strSql.Append("update t_bonusdtl set Remark='该记录财务入账时，已离监销户了' where flag=0 and bid=@BID;");
+                    strSql.Append(@"insert into T_ImportList(ImportType,fcrimecode,fname,amount,crtdt,crtby,remark,pc,notes)
+                select 4 ImportType,fcrimecode,fcriminal fname,famount amount,getdate() crtdate
+                ,crtby ,'该记录财务入账时，已离监销户了' remark,bid pc,fareaName notes
+                  from t_JF_bonusdtl where flag=0 and BID=@BID;");
+                    strSql.Append(@"delete from t_JF_bonusdtl where BID=@BID and flag=0;");
+                    #endregion
+
+
+                    object param = new { BID = bid, CrtBy = crtby, CheckFlag = checkflag, vcrdFlag = iflag };
+                    conn.Execute(strSql.ToString(), param, myTran);
+                    myTran.Commit();
+                    return true;
+                }
+                catch
+                {
+                    myTran.Rollback();
+                }
+            }
+            return false;
+        }
+
+        
 
         /// <summary>
         /// 主单退账
@@ -254,11 +400,17 @@ namespace SelfhelpOrderMgr.DAL
                     }
 
 
+                    //更新 AmountA+AmountB<>FMoney不一致的记录
+                    strSql.Append(@"update t_bonus_Temp set Notes ='生产积分+改造积分<>总积分' where AmountA+AmountB<>FMoney and t_bonus_Temp.Notes='' and t_bonus_Temp.Bid=@Bid;");
+
+
                     //更新 有两条及以上相同金额的记录
                     strSql.Append(@"update t_bonus_Temp set Notes='有两条及以上相同金额的记录'  from ( 
                         select bid,FCrimeCode,Fmoney,Count(*) FCount from t_bonus_Temp
 						group by bid,FCrimeCode,Fmoney having Count(*)>1) b
                         where t_bonus_Temp.FCrimeCode=B.FCrimeCode and t_bonus_Temp.bid=B.bid and t_bonus_Temp.Notes='' and t_bonus_Temp.Bid=@Bid;");
+
+
 
                     //写入到失败记录表
                     strSql.Append(@"insert into T_ImportList 
@@ -269,11 +421,11 @@ namespace SelfhelpOrderMgr.DAL
                     strSql.Append(@"insert into  t_JF_bonusdtl
                          (BID,FCRIMECODE,CARDCODE,FAMOUNT,FLAG,fareacode,fareaName,fcriminal,vouno
                         ,Frealareacode,FrealAreaName,remark,ptype,udate,crtby,crtdt,applyby,acctype,cardtype
-                        ,AmountC,cqbt,gwjt,ldjx,tbbz,grkj)
+                        ,AmountA,AmountB,AmountC,cqbt,gwjt,ldjx,tbbz,grkj)
                         select 
                         a.Bid BID,a.FCrimeCode FCRIMECODE,b.CardCodeA CARDCODE,a.FMoney FAMOUNT,0 FLAG,c.FAreaCode fareacode,d.FName fareaName,FCriminal fcriminal,'' vouno
                         ,'' Frealareacode,'' FrealAreaName,FRemark remark,e.Remark ptype,e.UDate udate,e.CrtBy crtby,getDate() crtdt,e.applyby applyby,1 acctype,0 cardtype
-                        ,a.FMoney*f.cpct/100 AmountC,0 cqbt,0 gwjt,0 ldjx,0 tbbz,0 grkj
+                        ,a.AmountA as AmountC,a.AmountB as AmountB,0 as AmountC,0 cqbt,0 gwjt,0 ldjx,0 tbbz,0 grkj
                         from t_bonus_Temp a,t_Criminal_Card b,t_Criminal c,t_Area d,T_JF_Bonus e,t_Cy_Type f
                         where a.Bid=@Bid and a.Notes='' 
                         and a.FCrimeCode=C.FCode and B.FCrimeCode=C.FCode and C.FAreaCode=D.FCode

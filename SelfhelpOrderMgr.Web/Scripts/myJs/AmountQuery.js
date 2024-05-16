@@ -60,7 +60,8 @@
         { field: 'amounta', title: '存款账户', width: 150 },
         { field: 'amountb', title: '报酬账户', width: 150 },
         { field: 'amountc', title: '留存金额', width: 150 },
-        { field: 'fmoney', title: '总余额', width: 150 }
+            { field: 'fmoney', title: '总余额', width: 150 },
+            { field: 'AccPoints', title: '积分', width: 150 }
         ]],
         pagination: true,
         rownumbers: true,

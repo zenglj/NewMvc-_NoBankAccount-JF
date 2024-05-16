@@ -98,7 +98,7 @@ function SetAndDisplayUserInfo(words) {
         if (rts.UserInfo.BankCardNo.length >=19) {
             bankcardno = rts.UserInfo.BankCardNo.substr(0, 4) + " " + rts.UserInfo.BankCardNo.substr(4, 4) + " " + rts.UserInfo.BankCardNo.substr(8, 4) + " " + rts.UserInfo.BankCardNo.substr(12, 4) + " " + rts.UserInfo.BankCardNo.substr(16,10);
         }
-        $("#lblInfo").html("银行卡号：" + bankcardno);
+        //$("#lblInfo").html("银行卡号：" + bankcardno);
         $("#curMonthXFE").html(rts.UserInfo.Xiaofeimoney);
         $("#okUseAllMoney").html(rts.UserInfo.OkUseAllMoney);
         $("#xiaofeiYuE").html(rts.UserInfo.NoXiaofeimoney);

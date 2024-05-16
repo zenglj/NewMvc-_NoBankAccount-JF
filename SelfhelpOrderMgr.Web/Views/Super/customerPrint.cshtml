@@ -69,23 +69,31 @@
 
             </div>
             @*@if (ViewData["operatorId"] != null)
-            {
-                if (ViewData["operatorId"].ToString() == "2")
                 {
-                    <div>
-                        <a href="#" id="btnSalesOrderReturn" class="easyui-linkbutton" iconcls="icon-redo" plain="true" onclick="SalesOrderReturn()">消费部分退货</a><label>|</label>
-                        <a href="#" id="btnSalesOrderReturn" class="easyui-linkbutton" iconcls="icon-reload" plain="true" onclick="SalesOrderAllReturn()">批量整单退货</a><label>|</label>
+                    if (ViewData["operatorId"].ToString() == "2")
+                    {
+                        <div>
+                            <a href="#" id="btnSalesOrderReturn" class="easyui-linkbutton" iconcls="icon-redo" plain="true" onclick="SalesOrderReturn()">消费部分退货</a><label>|</label>
+                            <a href="#" id="btnSalesOrderReturn" class="easyui-linkbutton" iconcls="icon-reload" plain="true" onclick="SalesOrderAllReturn()">批量整单退货</a><label>|</label>
 
-                    </div>
-                }
-            }*@
+                        </div>
+                    }
+                }*@
 
         </div>
 
         <div id="template"></div>
         <input type="hidden" id="PrintXPItemS" value="" />
+        <form id="testPrint1">
+            <table>
+                <tr>
+                    <td>dddd</td>
+                    <td>eeee</td>
+                </tr>
+            </table>
+        </form>
     </div>
-    
+
     <div data-options="region:'east',title:'查询条件',split:true" style="width:300px;">
         <div data-options="region:'north',title:'North Title',split:true" style="height:200px;">
             <form method="post">
@@ -183,7 +191,7 @@
                             <select id="Flag" name="Flag" class="easyui-combobox" style="width:190px;">
                                 <option value="">请选订单状态</option>
                                 <option value="1" selected="selected">正常</option>
-                                <option value="0" >撤单</option>
+                                <option value="0">撤单</option>
                             </select>
                         </td>
                     </tr>
@@ -218,11 +226,11 @@
     <div id="winTuiHuo" class="easyui-window" title="消费退货" style="width:800px;height:400px"
          data-options="iconCls:'icon-save',modal:true">
         消费单明细记录
-        
+
         <div>
             <div style="width:45%;float:left">
                 <table id="invDetails"></table>
-            </div>            
+            </div>
             <div style="width: 8%; float: left;padding:1%;">
                 <br /><br /><br />
                 退货数量:<input type="text" id="returnCount" style="width:50px;" class="easyui-numberbox" value="" data-options="min:0,precision:0" />
@@ -235,25 +243,43 @@
             <div style="width: 45%; float: left">
                 <table id="tuihuoDetail"></table>
                 <div>
-                     <strong>退货合计:</strong><input type="text" id="returnMoney" style="width:100px;" class="easyui-numberbox" value="" data-options="min:0,precision:2"/>
+                    <strong>退货合计:</strong><input type="text" id="returnMoney" style="width:100px;" class="easyui-numberbox" value="" data-options="min:0,precision:2" />
                     &nbsp&nbsp&nbsp&nbsp<a id="btnSubmitTuihuo" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-save'" onclick="btnSubmitTuihuo()">提交</a>
 
                 </div>
             </div>
-            
+
         </div>
         <div>
         </div>
-    </div>  
-    
+    </div>
+
     @if (ViewData["mset"] != null)
     {
         SelfhelpOrderMgr.Model.T_SHO_ManagerSet mset = ViewData["mset"] as SelfhelpOrderMgr.Model.T_SHO_ManagerSet;
         <input type="hidden" id="xiaoPiaoPageWidth" name="xiaoPiaoPageWidth" value="@mset.KeyMode" />
         <input type="hidden" id="xiaoPiaoFontSize" name="xiaoPiaoFontSize" value="@mset.MgrValue" />
     }
-    <script src="~/Scripts/myJs/LodopFuncs.js"></script>
-    <script src="~/Scripts/myJs/opertorXiaopiaoFunc.js"></script>
+
+    @*<script src="~/Scripts/myJs/opertorXiaopiaoFunc.js"></script>*@
+    @*<script src="~/Scripts/myJs/LodopFuncs.js"></script>*@
+
+    @if (ViewData["PrintPlusVer"] != null)
+    {
+        string printPlusVer = ViewData["PrintPlusVer"] as string;
+        if (printPlusVer == "1")
+        {
+            <script src="~/Scripts/myJs/LodopFuncs.js"></script>
+        }
+        else
+        {
+            <script src="~/Scripts/myJs/opertorXiaopiaoFunc.js"></script>
+        }
+    }
+    else
+    {
+        <script src="~/Scripts/myJs/opertorXiaopiaoFunc.js"></script>
+    }
     <script src="~/Scripts/myJs/commonJs.js"></script>
     <script src="~/Scripts/myJs/customerPrint.js"></script>
 </body>

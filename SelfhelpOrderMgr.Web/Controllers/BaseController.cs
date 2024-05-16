@@ -46,6 +46,20 @@ namespace SelfhelpOrderMgr.Web.Controllers
         }
 
 
-        
-	}
+        //保存上传的Excel文件
+        protected string SavePostExcelFile(HttpPostedFileBase f)
+        {
+            string fname = f.FileName;
+            /* startIndex */
+            int index = fname.LastIndexOf("\\") + 1;
+            /* length */
+            int len = fname.Length - index;
+            fname = fname.Substring(index, len);
+            /* save to server */
+            string savePath = Server.MapPath("~/Upload/" + fname);
+
+            f.SaveAs(savePath);
+            return savePath;
+        }
+    }
 }

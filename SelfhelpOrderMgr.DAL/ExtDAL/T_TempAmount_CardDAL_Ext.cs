@@ -54,7 +54,7 @@ namespace SelfhelpOrderMgr.DAL
                 //SqlHelper.ExecuteSql(sql);
                 //插入新记录
                 var p = new DynamicParameters();
-                sql = "select a.fcrimecode,b.fname,c.fname fareaName,a.cardflaga,a.SecondaryBankCard as bankaccno,a.amounta,a.amountb,a.amountc,(a.amounta+a.amountb+a.amountc) fmoney from t_criminal_card a,t_criminal b,t_area c where a.fcrimecode=b.fcode and b.fAreaCode=c.fcode and isnull(b.fflag,0)=0";
+                sql = "select a.fcrimecode,b.fname,c.fname fareaName,a.cardflaga,a.SecondaryBankCard as bankaccno,a.amounta,a.amountb,a.amountc,(a.amounta+a.amountb+a.amountc) fmoney,AccPoints from t_criminal_card a,t_criminal b,t_area c where a.fcrimecode=b.fcode and b.fAreaCode=c.fcode and isnull(b.fflag,0)=0";
                 if ("" != strFCrimeCode)
                 {
                     sql = sql + " and (a.fcrimecode=@FCode or a.bankaccno =@FCode)";

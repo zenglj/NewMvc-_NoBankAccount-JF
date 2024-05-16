@@ -24,5 +24,7 @@ namespace SelfhelpOrderMgr.Model
         public string fractnactacn { get; set; }
         public string fractnibkname { get; set; }
         public string fractnibknum { get; set; }
+        public string FAreaName { get; set; }
+        public string FAreaCode { get; set; }
     }
 }

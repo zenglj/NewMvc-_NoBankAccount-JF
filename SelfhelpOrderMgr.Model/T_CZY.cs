@@ -143,6 +143,7 @@ namespace SelfhelpOrderMgr.Model
             get { return _fmanagercard; }
             set { _fmanagercard = value; }
         }
-
+        //相片
+        public string Photo { get; set; }
     }
 }

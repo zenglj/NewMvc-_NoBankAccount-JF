@@ -83,7 +83,8 @@ $(function() {
         { field: 'JSMoney', title: '已结金额', width: 80, sortable: true },
         { field: 'AmountA', title: '存款账户', width: 80, sortable: true },
         { field: 'AmountB', title: '报酬账户', width: 80, sortable: true },
-        { field: 'AmountC', title: '留存账户', width: 80, sortable: true }
+            { field: 'AmountC', title: '留存账户', width: 80, sortable: true },
+            { field: 'AccPoints', title: '积分', width: 80, sortable: true }
         
         ]],
         pagination: true,

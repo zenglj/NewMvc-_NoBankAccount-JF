@@ -1,0 +1,452 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>代发记录</title>
+    @{Html.RenderPartial("~/Views/Shared/_PartialHeadPage.cshtml");}
+    <style type="text/css">
+        form {
+            margin: 0;
+            padding: 0;
+        }
+
+        .dv-table td {
+            border: 0;
+        }
+
+        .dv-table input {
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body class="easyui-layout">
+
+    <div data-options="region:'center',title:'家属信息'" style="padding:5px;height:95%;">
+
+        <table id="tbPay" class="easyui-datagrid" style="width:100%;height:200px" toolbar="#toolBarPay_11"></table>
+        <div id="toolBarPay_11" style="padding:5px;height:auto;">
+            <div style="margin-bottom:5px">
+                <a href="#" id="btnAdd" class="easyui-linkbutton" iconcls="icon-add" plain="true">创建家属信息</a><label>|</label>
+                @if (ViewData["id"].ToString() == "1")
+                {
+
+                }
+                else
+                {
+                    <a href="#" id="btnSubmit" class="easyui-linkbutton" iconcls="icon-edit" plain="true" onclick="SubmitMain()">编辑</a><label>|</label>
+                }
+
+                <a href="#" id="btnDel" class="easyui-linkbutton" iconcls="icon-cancel" plain="true" onclick="DeleteMain()">删除</a><label>|</label>
+                <a href="javascript:void(0)" id="mb" class="easyui-menubutton"
+                   data-options="menu:'#mmp',iconCls:'icon-print'">打印报表</a>
+                <div id="mmp" style="width:150px;">
+                    <div class="menu-sep"></div>
+
+                    <div data-options="iconCls:'icon-undo'" onclick="btnExcelDetailReport(0)">Excel导出明细</div>
+
+                    <div data-options="iconCls:'icon-reload'" onclick="btnPrintDetailReport(0)">打印明细报表</div>
+                    <div data-options="iconCls:'icon-reload'" onclick="btnPrintRepeatDetailReport(0)">身份证重复预警报表</div>
+                </div> <label>|</label>
+
+                <form id="ff" method="post" action="/upload" enctype="multipart/form-data">
+                    请选择Excel文件：<input type="file" name="file" /><a href="#" id="btnInport" class="easyui-linkbutton" iconcls="icon-reload" plain="true" onclick="ExcelInport()">开始导入</a>
+                </form>
+            </div>
+        </div>
+
+
+    </div>
+
+
+    <div id="winCustList" class="easyui-window" title="创建家属信息" style="width:500px;height:480px"
+         data-options="iconCls:'icon-reload',modal:true">
+        
+        <form method="post" id="createPayOrder">
+            <h2 style="margin-left:35%">---家属编辑---</h2>
+            <table style="margin-top: 20px; margin-left: 30px;">
+                <tr>
+                    <th align="right">Id：</th>
+                    <td align="left" style="width:350px">
+                        <input class="easyui-numberbox" id="editWinId" name="Id"
+                               data-options="min:0,precision:0,readonly:true" style="width:95%">
+                    </td>
+                </tr>
+                <tr>
+                    <th align="right">狱号：</th>
+                    <td align="left">
+                        <input class="easyui-textbox" id="editWinFCrimeCode" name="FCrimeCode"
+                               style="width:60%"><span style="color:palevioletred">*按回车验证显示姓名</span>
+                    </td>
+                </tr>
+                <tr>
+                    <th align="right">姓名：</th>
+                    <td align="left">
+                        <input class="easyui-textbox" id="editWinFName" name="FName" readonly="readonly"
+                               style="width:95%">
+                    </td>
+                </tr>
+                <tr>
+                    <th align="right">家属姓名：</th>
+                    <td align="left">
+                        <input class="easyui-textbox" id="editWinFamilyName" name="FamilyName"
+                               style="width:95%">
+                    </td>
+                </tr>
+                <tr>
+                    <th align="right">性别：</th>
+                    <td align="left">
+                        <select id="editWinFSex" name="FSex" class="easyui-combobox" data-options=" multiple:false" style="width:95%;">
+                            <option value="男" selected="selected">男</option>
+                            <option value="女">女</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th align="right">家属身份证号：</th>
+                    <td align="left">
+                        <input class="easyui-textbox" id="editWinFIdenNo" name="FIdenNo"
+                               style="width:95%">
+                    </td>
+                </tr>
+                <tr>
+                    <th align="right">亲属关系：</th>
+                    <td align="left">
+                        <select id="editWinRelation" name="Relation" class="easyui-combobox" data-options=" multiple:false" style="width:95%;">
+                            <option value="">请选择亲属关系</option>
+                            <option value="丈夫">丈夫</option>
+                            <option value="妻子">妻子</option>
+                            <option value="儿子">儿子</option>
+                            <option value="儿媳">儿媳</option>
+                            <option value="女儿">女儿</option>
+                            <option value="女婿">女婿</option>
+                            <option value="父亲">父亲</option>
+                            <option value="母亲">母亲</option>
+                            <option value="公公">公公</option>
+                            <option value="婆婆">婆婆</option>
+                            <option value="岳父">岳父</option>
+                            <option value="岳母">岳母</option>
+                            <option value="祖父">祖父</option>
+                            <option value="祖母">祖母</option>
+                            <option value="外祖父">外祖父</option>
+                            <option value="外祖母">外祖母</option>
+                            <option value="孙子">孙子</option>
+                            <option value="孙女">孙女</option>
+                            <option value="兄">兄</option>
+                            <option value="嫂">嫂</option>
+                            <option value="弟">弟</option>
+                            <option value="弟媳">弟媳</option>
+                            <option value="姐姐">姐姐</option>
+                            <option value="姐夫">姐夫</option>
+                            <option value="妹妹">妹妹</option>
+                            <option value="妹夫">妹夫</option>
+                            <option value="伯父">伯父</option>
+                            <option value="伯母">伯母</option>
+                            <option value="叔父">叔父</option>
+                            <option value="婶母">婶母</option>
+                            <option value="舅父">舅父</option>
+                            <option value="舅母">舅母</option>
+                            <option value="姨父">姨父</option>
+                            <option value="姨母">姨母</option>
+                            <option value="姑父">姑父</option>
+                            <option value="姑母">姑母</option>
+                            <option value="堂兄弟">堂兄弟</option>
+                            <option value="堂姐妹">堂姐妹</option>
+                            <option value="表兄弟">表兄弟</option>
+                            <option value="表姐妹">表姐妹</option>
+                            <option value="其他">其他</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th align="right">联系手机：</th>
+                    <td align="left">
+                        <input class="easyui-textbox" id="editWinCauseDesc" name="CauseDesc"
+                               style="width:95%">
+                    </td>
+                </tr>
+                <tr>
+                    <th align="right">家庭地址：</th>
+                    <td align="left">
+                        <input class="easyui-textbox" id="editWinFAddress" name="FAddress"
+                               style="width:95%">
+                    </td>
+                </tr>
+                <tr>
+                    <th align="right">授权码：</th>
+                    <td align="left">
+                        <input class="easyui-textbox" id="editWinUserAuthCode" name="UserAuthCode" readonly="readonly"
+                               style="width:55%"><a id="btnAuthCode" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-add'" onclick="CreateAuthCode()">生成</a>
+                    </td>
+                </tr>
+                <tr>
+                    <th align="right">银行卡号：</th>
+                    <td align="left">
+                        <input class="easyui-textbox" id="editWinBankCard" name="BankCard"
+                               style="width:95%">
+                    </td>
+                </tr>
+                <tr>
+                    <th align="right">开户行：</th>
+                    <td align="left">
+                        <input class="easyui-textbox" id="editWinOpeningBank" name="OpeningBank"
+                               style="width:95%">
+                    </td>
+                </tr>
+
+                <tr>
+                    <th align="right">其他备注：</th>
+                    <td align="left">
+                        <input class="easyui-textbox" id="editWinRemark" name="Remark"
+                               style="width:95%">
+                    </td>
+                </tr>
+                <tr>
+                    <th align="right"></th>
+                    <td align="center"><a id="btn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-save'" onclick="wLoadCrtPayMainList()">保存</a> <a id="A1" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-redo'" onclick="btnPayClear()">清空</a></td>
+                </tr>
+
+            </table>
+        </form>
+
+
+    </div>
+
+
+    <div data-options="region:'east',title:'查询条件',split:true" style="width:300px;">
+        <div data-options="region:'north',title:'North Title',split:true" style="height:580px;">
+            <form method="post" id="formPaySearch">
+                <table>
+                    <tr>
+                        <th align="right">Id：</th>
+                        <td align="left">
+                            <input class="easyui-numberbox" id="paySearchId" name="Id"
+                                   data-options="min:0,precision:0" style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">狱号：</th>
+                        <td align="left">
+                            <input class="easyui-textbox" id="paySearchFCrimeCode" name="FCrimeCode"
+                                   style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">姓名：</th>
+                        <td align="left">
+                            <input class="easyui-textbox" id="paySearchFName" name="FName"
+                                   style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">队别：</th>
+                        <td align="left">
+                            <select id="paySearchFAreaCode" name="FAreaCode" class="easyui-combobox" data-options=" multiple:false" style="width:190px;">
+                                <option value="">请选择</option>
+                                @if (ViewData["areas"] != null)
+                                {
+                                    var areas = ViewData["areas"] as Dictionary<string, string>;
+                                    foreach (var item in areas)
+                                    {
+                                        <option value="@item.Key">@item.Value</option>
+                                    }
+                                }
+
+                            </select>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th align="right">家属姓名：</th>
+                        <td align="left">
+                            <input class="easyui-textbox" id="paySearchFamilyName" name="FamilyName"
+                                   style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">性别：</th>
+                        <td align="left">
+                            <select id="paySearchFSex" name="FSex" class="easyui-combobox" data-options=" multiple:false" style="width:190px;">
+                                <option value="">请选择</option>
+                                <option value="男">男</option>
+                                <option value="女">女</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">家属关系：</th>
+                        <td align="left">
+                            <select id="paySearchRelation" name="Relation" class="easyui-combobox" data-options=" multiple:false" style="width:190px;">
+                                <option value="">请选择亲属关系</option>
+                                <option value="丈夫">丈夫</option>
+                                <option value="妻子">妻子</option>
+                                <option value="儿子">儿子</option>
+                                <option value="儿媳">儿媳</option>
+                                <option value="女儿">女儿</option>
+                                <option value="女婿">女婿</option>
+                                <option value="父亲">父亲</option>
+                                <option value="母亲">母亲</option>
+                                <option value="公公">公公</option>
+                                <option value="婆婆">婆婆</option>
+                                <option value="岳父">岳父</option>
+                                <option value="岳母">岳母</option>
+                                <option value="祖父">祖父</option>
+                                <option value="祖母">祖母</option>
+                                <option value="外祖父">外祖父</option>
+                                <option value="外祖母">外祖母</option>
+                                <option value="孙子">孙子</option>
+                                <option value="孙女">孙女</option>
+                                <option value="兄">兄</option>
+                                <option value="嫂">嫂</option>
+                                <option value="弟">弟</option>
+                                <option value="弟媳">弟媳</option>
+                                <option value="姐姐">姐姐</option>
+                                <option value="姐夫">姐夫</option>
+                                <option value="妹妹">妹妹</option>
+                                <option value="妹夫">妹夫</option>
+                                <option value="伯父">伯父</option>
+                                <option value="伯母">伯母</option>
+                                <option value="叔父">叔父</option>
+                                <option value="婶母">婶母</option>
+                                <option value="舅父">舅父</option>
+                                <option value="舅母">舅母</option>
+                                <option value="姨父">姨父</option>
+                                <option value="姨母">姨母</option>
+                                <option value="姑父">姑父</option>
+                                <option value="姑母">姑母</option>
+                                <option value="堂兄弟">堂兄弟</option>
+                                <option value="堂姐妹">堂姐妹</option>
+                                <option value="表兄弟">表兄弟</option>
+                                <option value="表姐妹">表姐妹</option>
+                                <option value="其他">其他</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">家属身份证：</th>
+                        <td align="left">
+                            <input class="easyui-textbox" id="paySearchFIdenNo" name="FIdenNo"
+                                   style="width:190px">
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th align="right">家属银行卡：</th>
+                        <td align="left">
+                            <input class="easyui-textbox" id="paySearchBankCard" name="BankCard"
+                                   style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">操作员：</th>
+                        <td align="left">
+                            <select id="paySearchCrtBy" name="CrtBy" class="easyui-combobox" data-options=" multiple:false" style="width:190px;">
+                                <option value="">请选择</option>
+                                @if (ViewData["czys"] != null)
+                                {
+                                    var czys = ViewData["czys"] as Dictionary<string, string>;
+                                    foreach (var item in czys)
+                                    {
+                                        <option value="@item.Key">@item.Value</option>
+                                    }
+                                }
+
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">创建起日：</th>
+                        <td align="left">
+                            <input class="easyui-datetimebox" id="paySearchCrtDate_Start" name="CrtDate_Start"
+                                   data-options="required:true,showSeconds:false" value="3/4/2010 00:00" style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">创建止日：</th>
+                        <td align="left">
+                            <input class="easyui-datetimebox" id="paySearchCrtDate_End" name="CrtDate_End"
+                                   data-options="required:true,showSeconds:false" value="3/4/2010 23:59" style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">原因：</th>
+                        <td align="left">
+                            <input class="easyui-textbox" id="paySearchCauseDesc" name="CauseDesc"
+                                   style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">金额：</th>
+                        <td align="left">
+                            <input class="easyui-textbox" id="paySearchAmount" name="Amount"
+                                   style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">原始单号：</th>
+                        <td align="left">
+                            <input class="easyui-textbox" id="paySearchHistoryOrderNO" name="HistoryOrderNO"
+                                   style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">修改人：</th>
+                        <td align="left">
+                            <select id="paySearchModBy" name="ModBy" class="easyui-combobox" data-options=" multiple:false" style="width:190px;">
+                                <option value="">请选择</option>
+                                @if (ViewData["czys"] != null)
+                                {
+                                    var czys = ViewData["czys"] as Dictionary<string, string>;
+                                    foreach (var item in czys)
+                                    {
+                                        <option value="@item.Key">@item.Value</option>
+                                    }
+                                }
+
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">修改起日：</th>
+                        <td align="left">
+                            <input class="easyui-datetimebox" id="paySearchModDate_Start" name="ModDate_Start"
+                                   data-options="required:true,showSeconds:false" value="3/4/2010 00:00" style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">修改止日：</th>
+                        <td align="left">
+                            <input class="easyui-datetimebox" id="paySearchModDate_End" name="ModDate_End"
+                                   data-options="required:true,showSeconds:false" value="3/4/2010 23:59" style="width:190px">
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th align="right">其他备注：</th>
+                        <td align="left">
+                            <input class="easyui-textbox" id="paySearchRemark" name="Remark"
+                                   style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right"></th>
+                        <td align="right"><a id="btn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-search'" onclick="btnPaySearch()">查询</a><a id="A1" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-redo'" onclick="btnPayClear()">清空</a></td>
+                    </tr>
+
+                </table>
+            </form>
+        </div>
+    </div>
+
+
+    <script src="~/Scripts/myJs/LodopFuncs.js"></script>
+    <script src="~/Scripts/EasyUI/jquery.easyui.datagrid-detailview.js"></script>
+    <script src="~/Scripts/myJs/CommonEasyUIHelper.js"></script>
+    <script src="~/Scripts/myJs/CommonFormHelper.js"></script>
+    <script src="~/Scripts/myJs/FamilyIndex.js"></script>
+</body>
+</html>

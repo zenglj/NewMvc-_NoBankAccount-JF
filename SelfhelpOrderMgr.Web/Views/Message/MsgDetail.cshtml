@@ -29,7 +29,41 @@
     @if (ViewData["newNotify"] != null)
     {
         SelfhelpOrderMgr.Model.T_NotifyFile nf = ViewData["newNotify"] as SelfhelpOrderMgr.Model.T_NotifyFile;
-        <iframe id="myIframe" style=" width:100%; height:400px;" src="/@nf.LinkWebFile" frameborder="0"></iframe>
+        string[] fileNames = nf.LinkWebFile.Split((char)59);
+        if (fileNames.Length == 1)
+        {
+            if (fileNames[0].EndsWith(".jpg") || fileNames[0].EndsWith(".JPG")
+                || fileNames[0].EndsWith(".jepg") || fileNames[0].EndsWith(".JEPG")
+                || fileNames[0].EndsWith(".png") || fileNames[0].EndsWith(".PNG"))
+            {
+
+                <ul class="list-group">
+                    <li class="list-group-item">
+                        <img src="/@fileNames[0]" alt="..." class="img-thumbnail">
+                    </li>
+
+                </ul>
+            }
+            else
+            {
+                <iframe id="myIframe" style=" width:100%; height:400px;" src="/@fileNames[0]" frameborder="0"></iframe>
+            }
+
+        }
+        else if (fileNames.Length >= 2)
+        {
+            <ul class="list-group">
+
+                @for (int i = 0; i < fileNames.Length; i++)
+                {
+                    <li class="text-center">
+                        <img src="/@fileNames[i]" alt="..." class="img-thumbnail">
+                    </li>
+                }
+            </ul>
+            @*<iframe id="myIframe" style=" width:100%; height:400px;" src="/@nf.LinkWebFile" frameborder="0"></iframe>*@
+        }
+
     }
     else
     {

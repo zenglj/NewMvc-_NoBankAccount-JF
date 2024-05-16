@@ -54,5 +54,7 @@ namespace SelfhelpOrderMgr.Model
         public string UserCyDesc { get; set; }//用户消费时的处遇描述（处遇+节日+领导特批）
         public string ErrInfo { get; set; }//错误信息
         public decimal JaRi_Cy_Money { get; set; }//节假日补助金额
+
+        public decimal JaRi_Cy_FTZSP_Money { get; set; }//节假日食品可用金额
     }
 }

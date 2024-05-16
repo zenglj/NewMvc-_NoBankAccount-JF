@@ -20,6 +20,14 @@ namespace SelfhelpOrderMgr.Web.Controllers
         string ip = "";
         public ActionResult Index()
         {
+            string strMode = "0";
+            T_SHO_ManagerSet LoginMode = new T_SHO_ManagerSetBLL().GetModel("LoginMode");
+            if (LoginMode != null)
+            {
+                strMode = LoginMode.MgrValue.ToString();
+            }
+            ViewData["LoginMode"] = strMode;
+
             string LoginFlag = Request["LoginFlag"];
             string managerCardNo = Request["managerCardNo"];
             string UserName = Request["UserName"];
@@ -34,7 +42,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
             ViewData["FManagerCard"] = managerCardNo;
             ViewData["UserName"] = UserName;
-
+            ViewData["fcrimecode"] = Request["fcrimecode"];
             List<T_Savetype> saveTypes = new T_SavetypeBLL().GetModelList("typeflag=1 and zzkk_flag=1");
             ViewData["saveTypes"] = saveTypes;
 
@@ -91,23 +99,31 @@ namespace SelfhelpOrderMgr.Web.Controllers
             string ip = System.Web.HttpContext.Current.Request.UserHostAddress;
             //string ip = System.Web.HttpContext.Current.Request.ServerVariables["REMOTE_ADDR"];
             string status = "Error|查询失败";
-            if (fcardCode.Length != 10)
-            {
-                return Content(status);
-            }
+
 
             List<T_CZY> czys = new T_CZYBLL().GetModelList("FManagerCard='" + FManagerCard + "'");
             if (czys.Count == 0)
             {
                 return Content("Error|无效的管理卡，请联系统民警");
             }
-            List<T_Criminal_card> cards = (List<T_Criminal_card>)new T_Criminal_cardBLL().GetModelList("CardCodeA='" + fcardCode.ToString() + "'");
-            if (cards.Count == 0)
+
+            string fcrimeCode = Request["fcrimecode"];
+            if (string.IsNullOrWhiteSpace(fcrimeCode))
             {
-                status = "Error|该卡找不对应人员信息";
-                return Content(status);
+                if (fcardCode.Length != 10 || fcardCode.Length != 11)
+                {
+                    return Content(status);
+                }
+
+                List<T_Criminal_card> cards = (List<T_Criminal_card>)new T_Criminal_cardBLL().GetModelList("CardCodeA='" + fcardCode.ToString() + "'");
+                if (cards.Count == 0)
+                {
+                    status = "Error|该卡找不对应人员信息";
+                    return Content(status);
+                }
+                fcrimeCode = cards[0].fcrimecode;
             }
-            string fcrimeCode = cards[0].fcrimecode;
+
             T_Criminal criminal = new T_CriminalBLL().GetCriminalXE_info(fcrimeCode, 1);
 
             List<T_Czy_area> criminals = new T_Czy_areaBLL().GetModelList("FFlag=2 and FCode='" + czys[0].FCode + "' and FAreaCode='" + criminal.FAreaCode + "' ");

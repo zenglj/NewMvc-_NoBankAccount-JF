@@ -11,7 +11,7 @@
     <input type="hidden" id="UserName" name="UserName" value="@ViewData["UserName"]" />
     <input type="hidden" id="FManagerCard" name="FManagerCard" value="@ViewData["FManagerCard"]" />
 
-    <input type="hidden" id="FCrimeCode" name="FCrimeCode" />
+    <input type="hidden" id="FCrimeCode" name="FCrimeCode" value="@ViewData["fcrimecode"]" />
     <input type="hidden" id="FIcCardCode" name="FIcCardCode" />
 </div>
 
@@ -32,7 +32,15 @@
                         <input type="hidden" id="orderFcrimeName" />
                         <input type="hidden" id="orderCyName" />
                         <input type="hidden" id="orderFareaName" />
-                        <a class="btn btn-large btn-primary btn-lg" href="#" role="button" onclick="btnQueryUserInfo('3504013494')">请先刷IC卡查询</a>
+                        @if (ViewData["LoginMode"].ToString() == "2")
+                        {
+                            <a class="btn btn-large btn-primary btn-lg" href="/Home/WebCamTest3?callback=/SelfDongJie/Index?managerCardNo=@ViewData["FManagerCard"]" role="button">请刷人脸识别</a>
+
+                        }
+                        else
+                        {
+                            <a class="btn btn-large btn-primary btn-lg" href="#" role="button" onclick="btnQueryUserInfo('3504013494')">请先刷IC卡查询</a>
+                        }
                     </div>
                 </div>
 
@@ -87,6 +95,31 @@
         <script src="~/Scripts/myJs/MyNumerKeyBoard.js"></script>
         <script src="~/Scripts/myJs/SelfDongJie.js"></script>
         <script type="text/javascript">
+            $(document).ready(function () {
+                // 此处填写页面加载完成后要执行的操作
+                if ($("#FManagerCard").val() != undefined && $("#FManagerCard").val() != "" && $("#FCrimeCode").val() != undefined && $("#FCrimeCode").val() != "") {
+                    $.post("/SelfDongJie/QueryUserInfo", { "fcrimecode": $("#FCrimeCode").val(), "checkFlag": "1", "FManagerCard": $("#FManagerCard").val(), "UserName": $("#UserName").val() }, function (data, status) {
+                        if ("success" != status) {
+                            return false;
+                        } else {
+                            var words = data.split("|")
+                            if (words[0] == "Error") {
+                                $("#lblInfo").html(data);
+                                $("#userNameInfo").html("对不起，没有查到您的账户信息，请与管教联系！");
+                                $("#btnSubmitKK").attr("disabled", "disabled");//禁用扣款提交按钮
+                                ClearUserDisplayInfo();
+                            } else if (words[0] == "There") {
+                                SetAndDisplayUserInfo(words[1]);
+                                $("#KKMoney").focus();
+                            }
+                            else {
+                                //SetAndDisplayCriminalInfo(words[1], saleSort);//显示抬头栏的账户余额信息
+                            }
+                        }
+                    });
+                }
+
+            });
             function changeRmbDX() {
                 if ($("#selSaveType").find("option:selected").val() == "") {
                     alert("请先选择一个扣款类型");

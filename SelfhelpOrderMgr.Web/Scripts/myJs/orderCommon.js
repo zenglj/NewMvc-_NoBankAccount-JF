@@ -29,6 +29,7 @@ function readCardNo() {
  
 //获取用户IC卡信息
 function getUserCardNo(saleSort) {
+    //alert(saleSort);
     var getUserCardNo = "";
     var userCode = $("#UserCode").val();
     var userPwd = $("#UserPwd").val();
@@ -39,7 +40,6 @@ function getUserCardNo(saleSort) {
             var words = data.split("|")
             if (words[0] == "OK") {
                 var cardNo = words[1];
-
                 $("#lblInfo").html(cardNo);
                 $.post("/Shopping/AddOrder", { "FCardCode": cardNo, "checkFlag": "1", "saleTypeId": $("#saleTypeId").val() }, function (data, status) {
                     if ("success" != status) {
@@ -73,6 +73,8 @@ function getUserCardNo(saleSort) {
         }
     });
 }
+
+
 
 
 //新增一个订单
@@ -161,6 +163,7 @@ function ContinueOrderInfo() {
 
 //显示抬头栏的账户余额信息
 function SetAndDisplayCriminalInfo(words, saleSort) {
+
     var rts = $.parseJSON(words);
     $("#orderFcrimeCode").val(rts.FCrimeCode);
     
@@ -293,7 +296,7 @@ function PayCheckSubmit() {
         alert("该订单金额为0不能提交");
         return false;
     }
-
+    
     $("#btnPayCheckSubmit").attr("disabled", "disabled");//禁用结算提交按钮
     $('#myOrderInfo').modal('hide');
     var fcrimecode = $("#orderFcrimeCode").val();
@@ -326,7 +329,10 @@ function PayCheckSubmit() {
                     var pItems = PrintXPItemS.split("|");
                     for (var i = 0; i < pItems.length; i++) {
                         var item = pItems[i];
-                        myTestHtml("#" + item, $("#xiaoPiaoPageWidth").val());
+                        //开始打印小票
+                        //myTestHtml("#" + item, $("#xiaoPiaoPageWidth").val());
+
+                        printXiaoPiaoXinxi(item, $("#xiaoPiaoPageWidth").val());
                         $.post("/Home/UpdatePrintCount", { "Invoices": inv.invoice.InvoiceNo }, function (data, status) {
                             if ("success" == data) {
                                 //alert(data);
@@ -339,10 +345,20 @@ function PayCheckSubmit() {
             //alert(data);
             $("#myPromptBoxInfo").html(words[1]);
             $("#myPromptBox").modal("show");
-            goSaleHead();
+            if ($("#loginModeFlag").val() == "2") {
+                setTimeout(function () {
+                    //do thing
+                    window.open("/Home/webcamtest3/1" + "?callback=/Shopping/Index/" + $("#saleTypeId").val()+"?", "_self");
+                }, 3000);
+            }
+            else {
+                goSaleHead();
+            }
         }
     });
 }
+
+
 
 //房间号录入检测验证
 function roomNoCheckInput(keyCode,id) {
@@ -470,7 +486,8 @@ function DoInsertBuyDetail(iallMoney, nowYue, saleSort) {
                     $("#goodInfoView").show();
                     $("#goodDetail").hide();
                     
-                    window.location.href("#topInfo");
+                    //window.location.href("#topInfo");
+                    window.location.href=("#topInfo");
                 } else {
                     $("#inputGtxm").val('');
                     $("#inputGname").val('');

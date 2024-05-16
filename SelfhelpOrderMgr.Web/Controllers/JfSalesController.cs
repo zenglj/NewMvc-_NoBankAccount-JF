@@ -88,6 +88,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
             T_SHO_ManagerSet loginMode = new T_SHO_ManagerSetBLL().GetModel("LoginMode");
             ViewData["loginMode"] = loginMode.MgrValue;
 
+            ViewData["fcrimecode"] = Request["fcrimecode"];//人脸传过来的编号
+
             T_SHO_ManagerSet softNumerKeyBoard = new T_SHO_ManagerSetBLL().GetModel("SoftNumerKeyBoard");
             if (softNumerKeyBoard == null)
             {
@@ -97,6 +99,18 @@ namespace SelfhelpOrderMgr.Web.Controllers
             {
                 ViewData["softNumerKeyBoard"] = softNumerKeyBoard.MgrValue;
             }
+
+
+            T_SHO_ManagerSet printPlusVer = new T_SHO_ManagerSetBLL().GetModel("PrintPlusVer");
+            if (printPlusVer == null || printPlusVer.MgrValue == "0")
+            {
+                ViewData["PrintPlusVer"] = "0";
+            }
+            else
+            {
+                ViewData["PrintPlusVer"] = "1";
+            }
+
             return View();
         }
 

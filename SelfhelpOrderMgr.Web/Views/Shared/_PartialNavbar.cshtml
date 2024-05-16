@@ -37,15 +37,35 @@
                     <ul class="dropdown-menu">
                         @if (ViewData["saleTypes"] != null)
                         {
+                            var loginMode = ViewData["loginMode"] as string;
                             foreach (SelfhelpOrderMgr.Model.T_SHO_SaleType saletype in ViewData["saleTypes"] as List<SelfhelpOrderMgr.Model.T_SHO_SaleType>)
                             {
-                                if (saletype.Id > 1)
+                                if (saletype.Id > 6)
                                 {
-                                    <li>@Html.ActionLink(saletype.PType, "PrintCkeck", "Home", new { id = saletype.Id, SaleMode = saletype.ControlName }, new { target = "_self" })</li>
+                                    @*<li>@Html.ActionLink(saletype.PType, "PrintCkeck", "Home", new { id = saletype.Id, SaleMode = saletype.ControlName }, new { target = "_self" })</li>*@
+                                    if (loginMode == "2")
+                                    {
+                                        <li>@Html.ActionLink(saletype.PType, "webcamtest3", "Home", new { id = saletype.Id, callback = "/" + saletype.ControlName + "/Index/" + saletype.Id + "?" }, new { target = "_self" })</li>
+                                    }
+                                    else
+                                    {
+                                        <li>@Html.ActionLink(saletype.PType, "PrintCkeck", "Home", new { id = saletype.Id, SaleMode = saletype.ControlName }, new { target = "_self" })</li>
+
+                                    }
                                 }
                                 else
                                 {
-                                    <li>@Html.ActionLink(saletype.PType, "Index", "Shopping", new { id = saletype.Id }, new { target = "_self" })</li>
+
+                                    if (loginMode == "2")
+                                    {
+                                        <li>@Html.ActionLink(saletype.PType, "webcamtest3", "Home", new { id = saletype.Id, callback = "/" + saletype.ControlName + "/Index/" + saletype.Id + "?" }, new { target = "_self" })</li>
+
+                                    }
+                                    else
+                                    {
+                                        <li>@Html.ActionLink(saletype.PType, "Index", "Shopping", new { id = saletype.Id }, new { target = "_self" })</li>
+
+                                    }
                                 }
                             }
                         }
@@ -56,6 +76,7 @@
                     <ul class="dropdown-menu">
                         @if (ViewData["saleTypes"] != null)
                         {
+                            var loginMode = ViewData["loginMode"] as string;
                             foreach (SelfhelpOrderMgr.Model.T_SHO_SaleType saletype in ViewData["saleTypes"] as List<SelfhelpOrderMgr.Model.T_SHO_SaleType>)
                             {
                                 string ctrName = "Sales";
@@ -63,13 +84,31 @@
                                 {
                                     ctrName = "JfSales";
                                 }
-                                if (saletype.Id > 1)
+                                if (saletype.Id > 6)
                                 {
-                                    <li>@Html.ActionLink(saletype.PType, "PrintCkeck", "Home", new { id = saletype.Id, SaleMode = ctrName }, new { target = "_self" })</li>
+                                    if (loginMode == "2")
+                                    {
+                                        <li>@Html.ActionLink(saletype.PType, "webcamtest3", "Home", new { id = saletype.Id, callback = "/" + ctrName + "/Index/" + saletype.Id + "?" }, new { target = "_self" })</li>
+                                    }
+                                    else
+                                    {
+                                        <li>@Html.ActionLink(saletype.PType, "PrintCkeck", "Home", new { id = saletype.Id, SaleMode = ctrName }, new { target = "_self" })</li>
+
+                                    }
                                 }
                                 else
                                 {
-                                    <li>@Html.ActionLink(saletype.PType, "Index", "Sales", new { id = saletype.Id }, new { target = "_self" })</li>
+                                    if (loginMode == "2")
+                                    {
+                                        @*<li>@Html.ActionLink(saletype.PType, "webcamtest3", "Home", new { id = saletype.Id, callback = "/Sales/Index/" + saletype.Id + "?" }, new { target = "_self" })</li>*@
+                                        <li>@Html.ActionLink(saletype.PType, "webcamtest3", "Home", new { id = saletype.Id, callback = "/" + ctrName + "/Index/" + saletype.Id + "?" }, new { target = "_self" })</li>
+
+                                    }
+                                    else
+                                    {
+                                        <li>@Html.ActionLink(saletype.PType, "Index", "Sales", new { id = saletype.Id }, new { target = "_self" })</li>
+
+                                    }
                                 }
                             }
                         }
@@ -79,27 +118,64 @@
                 @*<li>@Html.ActionLink("自助扣款", "Login", "SelfPayment")</li>*@
                 <li>@Html.ActionLink("通知公告", "Index", "Message")</li>
                 <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">其他应用 <span class="caret"></span></a>
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">扩展应用 <span class="caret"></span></a>
                     <ul class="dropdown-menu">
-                        @if (ViewData["areaFlag"] != null)
+                        @if (ViewData["loginMode"] != null)
                         {
-                            string areaflag = ViewData["areaFlag"] as string;
-                            if (areaflag == "1")
+                            var loginMode = ViewData["loginMode"] as string;
+                            if (ViewData["areaFlag"] != null)
                             {
-                                <li>@Html.ActionLink("队别调整", "areaLogin", "ComApp", new { id = 99, SaleMode = "Sales" }, new { target = "_self" })</li>
+                                string areaflag = ViewData["areaFlag"] as string;
+                                if (areaflag == "1")
+                                {
+                                    if (loginMode == "2")
+                                    {
+                                        <li>@Html.ActionLink("队别调整", "WebCamTest3", "Home", new { id = 99, SaleMode = "Sales", callback = "/ComApp/Index?", loginCheck = 2 }, new { target = "_self" })</li>
+
+                                    }
+                                    else
+                                    {
+                                        <li>@Html.ActionLink("队别调整", "areaLogin", "ComApp", new { id = 99, SaleMode = "Sales" }, new { target = "_self" })</li>
+
+                                    }
+                                }
                             }
-                        }
-                        <li>@Html.ActionLink("自助扣款", "Login", "SelfPayment", new { id = 101, SaleMode = "Sales" }, new { target = "_self" })</li>
-                        <li>@Html.ActionLink("资金冻结", "Login", "SelfDongJie", new { id = 102, SaleMode = "Sales" }, new { target = "_self" })</li>
-                        @if (ViewData["cyFlag"] != null)
-                        {
-                            string cyflag = ViewData["cyFlag"] as string;
-                            if (cyflag == "1")
+                            if (ViewData["cyFlag"] != null)
                             {
-                                <li>@Html.ActionLink("处遇变更", "ChuyiChange", "ComApp", new { id = 99, SaleMode = "Sales" }, new { target = "_self" })</li>
+                                string cyflag = ViewData["cyFlag"] as string;
+                                if (cyflag == "1")
+                                {
+                                    if (loginMode == "2")
+                                    {
+                                        <li>@Html.ActionLink("处遇变更", "WebCamTest3", "Home", new { id = 99, SaleMode = "Sales", callback = "/ComApp/Index?", loginCheck = 2, LoginFlag = 1 }, new { target = "_self" })</li>
+
+                                    }
+                                    else
+                                    {
+                                        <li>@Html.ActionLink("处遇变更", "ChuyiChange", "ComApp", new { id = 99, SaleMode = "Sales" }, new { target = "_self" })</li>
+
+                                    }
+                                }
                             }
+
+                            if (loginMode == "2")
+                            {
+                                <li>@Html.ActionLink("自助扣款", "WebCamTest3", "Home", new { id = 99, SaleMode = "Sales", callback = "/SelfPayment/Index?", loginCheck = 2, LoginFlag = 1 }, new { target = "_self" })</li>
+                                <li>@Html.ActionLink("资金冻结", "WebCamTest3", "Home", new { id = 99, SaleMode = "Sales", callback = "/SelfDongJie/Index?", loginCheck = 2, LoginFlag = 1 }, new { target = "_self" })</li>
+                                <li>@Html.ActionLink("出监账户维护", "WebCamTest3", "Home", new { id = 99, SaleMode = "Sales", callback = "/SelfDongJie/Index?", loginCheck = 2, LoginFlag = 1 }, new { target = "_self" })</li>
+                                <li>@Html.ActionLink("人脸采集", "WebCamTest3", "Home", new { id = 99, SaleMode = "Sales", callback = "/ComApp/FaceCollection?", loginCheck = 2, LoginFlag = 1 }, new { target = "_self" })</li>
+                            }
+                            else
+                            {
+                                <li>@Html.ActionLink("自助扣款", "Login", "SelfPayment", new { id = 101, SaleMode = "Sales" }, new { target = "_self" })</li>
+                                <li>@Html.ActionLink("资金冻结", "Login", "SelfDongJie", new { id = 102, SaleMode = "Sales" }, new { target = "_self" })</li>
+                                <li>@Html.ActionLink("出监账户维护", "PayeeLogin", "SelfDongJie", new { id = 102, SaleMode = "Sales" }, new { target = "_self" })</li>
+
+                            }
+                            <li>@Html.ActionLink("汇款人账户查询", "QueryAccount", "UserQuery", new { id = 102, SaleMode = "Sales" }, new { target = "_self" })</li>
+
                         }
-                        <li>@Html.ActionLink("出监账户维护", "PayeeLogin", "SelfDongJie", new { id = 102, SaleMode = "Sales" }, new { target = "_self" })</li>
+
 
                     </ul>
                 </li>

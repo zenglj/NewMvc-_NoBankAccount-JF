@@ -28,6 +28,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
         {
             T_SHO_ManagerSet loginMode = new T_SHO_ManagerSetBLL().GetModel("LoginMode");
             ViewData["loginMode"] = loginMode.MgrValue;
+            ViewData["fcrimecode"] = Request["fcrimecode"];
 
             T_SHO_ManagerSet softNumerKeyBoard = new T_SHO_ManagerSetBLL().GetModel("SoftNumerKeyBoard");
             if (softNumerKeyBoard == null)
@@ -76,13 +77,30 @@ namespace SelfhelpOrderMgr.Web.Controllers
             }
 
 
-            string vcrdWhere = "flag=0 and fcrimecode='" + criminal.FCode + "' and crtdate>='" + DateTime.Now.AddMonths(-3).ToShortDateString() + "'and crtdate<'" + DateTime.Now.AddDays(1).ToShortDateString() + "'";
+            string vcrdWhere = "flag=0 and fcrimecode='" + criminal.FCode + "' and crtdate>='" + DateTime.Now.AddMonths(-3).ToShortDateString() + "' and crtdate<'" + DateTime.Now.AddDays(1).ToShortDateString() + "'";
             if (!(string.IsNullOrWhiteSpace(startDate) && string.IsNullOrWhiteSpace(endDate)))
             {
                 vcrdWhere = "flag=0 and fcrimecode='" + criminal.FCode + "' and crtdate>='" + startDate + "'and crtdate<'" + Convert.ToDateTime(endDate).AddDays(1).ToShortDateString() + "'";
             }
 
             List<T_Vcrd> vcrds = new T_VcrdBLL().GetModelList(100, vcrdWhere, " CrtDate desc");
+            for (int i = 0; i < vcrds.Count; i++)
+            {
+
+                if (vcrds[i].TypeFlag == 51)
+                {
+                    if (!string.IsNullOrWhiteSpace(vcrds[i].Remark))
+                    {
+                        int ileft = vcrds[i].Remark.IndexOf("(");
+                        int iright = vcrds[i].Remark.IndexOf(")");
+                        string userName = vcrds[i].Remark.Substring(0, ileft);
+                        string phoneNum = vcrds[i].Remark.Substring(iright + 1, vcrds[i].Remark.Length - iright - 1);
+
+                        vcrds[i].Remark = userName.Substring(0, 1) + "*" + userName.Substring(2)
+                            + "(关系:**)" + phoneNum.Substring(0, 3) + "****" + phoneNum.Substring(7);
+                    }
+                }
+            }
 
             List<T_JF_Vcrd> jfvcrds = _jifenMgrService.QueryList<T_JF_Vcrd>(vcrdWhere);
             rtnQueryUserInfo userinfo = new rtnQueryUserInfo();
@@ -413,6 +431,80 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
         #endregion
 
+
+
+
+        #region 账户查询模块
+
+        public ActionResult QueryAccount()
+        {
+            T_SHO_ManagerSet loginMode = new T_SHO_ManagerSetBLL().GetModel("LoginMode");
+            ViewData["loginMode"] = loginMode.MgrValue;
+
+            T_SHO_ManagerSet softNumerKeyBoard = new T_SHO_ManagerSetBLL().GetModel("SoftNumerKeyBoard");
+            if (softNumerKeyBoard == null)
+            {
+                ViewData["softNumerKeyBoard"] = "0";
+            }
+            else
+            {
+                ViewData["softNumerKeyBoard"] = softNumerKeyBoard.MgrValue;
+            }
+            return View();
+
+        }
+
+        BaseDapperBLL _baseBLL = new BaseDapperBLL();
+
+        //查询用户的汇款人账户的信息
+        public ActionResult SearchAccountInfo()
+        {
+            ResultInfo rs = new ResultInfo();
+
+            string fcardCode = Request["FCardCode"];
+
+            string ip = System.Web.HttpContext.Current.Request.UserHostAddress;
+            string status = "Error|查询失败";
+            if (fcardCode.Length != 10)
+            {
+                return Content(status);
+            }
+            List<T_Criminal_card> cards = (List<T_Criminal_card>)new T_Criminal_cardBLL().GetModelList("CardCodeA='" + fcardCode.ToString() + "'");
+
+            if (cards.Count == 0)
+            {
+                rs.ReMsg = "Error|该卡找不对应人员信息";
+                return Json(rs);
+            }
+            string fcrimeCode = cards[0].fcrimecode;
+            T_Criminal criminal = new T_CriminalBLL().GetCriminalXE_info(fcrimeCode, 1);
+
+
+            List<T_Bank_Rcv> rcvs = _baseBLL.QueryList<T_Bank_Rcv>("select distinct fractname,fractnactacn,fractnibknum,fractnibkname from t_bank_rcv where fcrimecode=@fcrimecode", new { fcrimecode = fcrimeCode });
+
+            var scans = _baseBLL.QueryList<T_Bank_Rcv>("select distinct isnull(Familyname+'('+ relation +')','') fractname,PhoneNum fractnactacn,a.Source fractnibknum, a.Source as fractnibkname from T_Bank_Recharge a,t_bank_posdetail b where a.fcode=@fcrimecode and a.payls=b.orderNo", new { fcrimecode = fcrimeCode });
+
+            foreach (var item in scans)
+            {
+                rcvs.Add(item);
+            }
+
+            rtnQueryAccountInfo userinfo = new rtnQueryAccountInfo();
+            userinfo.UserInfo = criminal;
+            userinfo.rcvs = rcvs;
+
+            JavaScriptSerializer jss = new JavaScriptSerializer();
+
+            rs.Flag = true;
+            rs.ReMsg = "OK|获取成功";
+            rs.DataInfo = userinfo;
+
+            return Json(rs);
+        }
+
+        #endregion
+
+
     }
 
     //执行结果的返回状态
@@ -423,6 +515,15 @@ namespace SelfhelpOrderMgr.Web.Controllers
         public List<T_Vcrd> vcrds { get; set; }//存款记录
         public List<T_JF_Vcrd> jfvcrds { get; set; }//存款记录
         public string bankTimeMoney { get; set; }//银行实时余额
+
+    }
+
+
+    //执行结果的返回状态
+    public class rtnQueryAccountInfo
+    {
+        public T_Criminal UserInfo { get; set; }//犯人信息信息
+        public List<T_Bank_Rcv> rcvs { get; set; }//汇款人记录
 
     }
 }

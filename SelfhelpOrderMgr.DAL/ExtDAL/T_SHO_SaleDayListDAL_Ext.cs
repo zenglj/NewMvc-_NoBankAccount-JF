@@ -65,7 +65,7 @@ namespace SelfhelpOrderMgr.DAL
             StringBuilder strSql = new StringBuilder();
             strSql.Append("select top 1 * from (");
             strSql.Append(" select id,SaleTypeId, substring(convert(varchar(20),getdate(),120),1,8) + convert(varchar(2),startDay) as startDay ");
-            strSql.Append(" ,substring(convert(varchar(20),getdate(),120),1,8) + convert(varchar(2),EndDay) as EndDay   ");
+            strSql.Append(" , case when (day(GETDATE())>=EndDay) then substring(convert(varchar(20),getdate(),120),1,8) + convert(varchar(2),EndDay) else substring(convert(varchar(20),getdate(),120),1,8) + convert(varchar(2),(select day(GETDATE()))) end as EndDay   ");
             strSql.Append(" ,case a.remark when '' then '00:00-23:59' else a.remark end remark,a.LevelId ");
             strSql.Append(" from t_SHO_SaleDayList a,t_SHO_SaleType b ");
             strSql.Append(" where a.Ptype=b.id and a.PType=@SaleTypeId)c  ");

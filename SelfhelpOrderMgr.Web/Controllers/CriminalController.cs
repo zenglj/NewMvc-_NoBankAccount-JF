@@ -23,7 +23,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
     [LoginActionFilter]
     [CustomActionFilterAttribute]
     [MyLogActionFilterAttribute]
-    public class CriminalController : Controller
+    public class CriminalController : BaseController
     {
         //
         // GET: /Criminal/
@@ -994,21 +994,21 @@ namespace SelfhelpOrderMgr.Web.Controllers
             return Content("Err|导入失败，服务器没有接收到Excel文件");
         }
 
-        //保存上传的Excel文件
-        private string SavePostExcelFile(HttpPostedFileBase f)
-        {
-            string fname = f.FileName;
-            /* startIndex */
-            int index = fname.LastIndexOf("\\") + 1;
-            /* length */
-            int len = fname.Length - index;
-            fname = fname.Substring(index, len);
-            /* save to server */
-            string savePath = Server.MapPath("~/Upload/" + fname);
+        ////保存上传的Excel文件
+        //private string SavePostExcelFile(HttpPostedFileBase f)
+        //{
+        //    string fname = f.FileName;
+        //    /* startIndex */
+        //    int index = fname.LastIndexOf("\\") + 1;
+        //    /* length */
+        //    int len = fname.Length - index;
+        //    fname = fname.Substring(index, len);
+        //    /* save to server */
+        //    string savePath = Server.MapPath("~/Upload/" + fname);
             
-            f.SaveAs(savePath);
-            return savePath;
-        }
+        //    f.SaveAs(savePath);
+        //    return savePath;
+        //}
 
         public ActionResult ExcelChangeEdu()//Excel调整存款金额消费购买食品额度
         {

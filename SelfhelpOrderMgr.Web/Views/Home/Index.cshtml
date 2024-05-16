@@ -43,36 +43,86 @@
 
 
 <div class="row">
-    <div class="col-sm-3">
-        <div class="thumbnail" onclick="linkOpen('/Shopping/Index')">            
-            <img src="~/Content/images/Xbox.jpg" />
-            <div class="caption">
-                <h3 class="text-center">自助下单</h3>
-                <p>图文显示，自主选择，操作简单、快捷，具有良好的用户购物体验...</p>
-                <p class="text-center" ><a href="/Shopping/Index" class="button button-3d button-pill"><span class="glyphicon glyphicon glyphicon glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> 自助下单</a></p>
+    <input type="hidden" id="loginMode" value="@ViewData["loginMode"]" />
+    @if (ViewData["loginMode"] != null)
+    {
+        int loginmode = Convert.ToInt32( ViewData["loginMode"].ToString());
+        if (loginmode == 2)
+        {
+            <div class="col-sm-3">
+                <div class="thumbnail" onclick="linkOpen('/Home/webcamtest3/1?callback=/Shopping/Index?')">
+                    <img src="~/Content/images/Xbox.jpg" />
+                    <div class="caption">
+                        <h3 class="text-center">自助下单</h3>
+                        <p>图文显示，自主选择，操作简单、快捷，具有良好的用户购物体验...</p>
+                        <p class="text-center"><a href="/Home/webcamtest3/1?callback=/Shopping/Index?" class="button button-3d button-pill"><span class="glyphicon glyphicon glyphicon glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> 自助下单</a></p>
+
+                    </div>
+                </div>
             </div>
-        </div>
-    </div>
-    <div class="col-sm-3">
-        <div class="thumbnail" onclick="linkOpen('/UserQuery/Index')">
-            <img src="~/Content/images/MMD_TC.jpg" />
-            <div class="caption">
-                <h3 class="text-center">账户查询</h3>
-                <p>可以通过IC卡查询本人的账户余额及最新存款记录等...</p>
-                <p class="text-center"><a href="/UserQuery/Index" class="button button-3d button-pill"><span class="glyphicon glyphicon glyphicon glyphicon glyphicon-search" aria-hidden="true"></span> 账户查询</a></p>
+            <div class="col-sm-3">
+                <div class="thumbnail" onclick="linkOpen('/UserQuery/Index')">
+                    <img src="~/Content/images/MMD_TC.jpg" />
+                    <div class="caption">
+                        <h3 class="text-center">账户查询</h3>
+                        <p>可以通过IC卡查询本人的账户余额及最新存款记录等...</p>
+                        <p class="text-center"><a href="/UserQuery/Index" class="button button-3d button-pill"><span class="glyphicon glyphicon glyphicon glyphicon glyphicon-search" aria-hidden="true"></span> 账户查询</a></p>
+
+                    </div>
+                </div>
             </div>
-        </div>
-    </div>
-    <div class="col-sm-3">
-        <div class="thumbnail" onclick="linkOpen('/Sales/Index')">
-            <img src="~/Content/images/OFC_Outlook.jpg" />
-            <div class="caption">
-                <h3 class="text-center">代购销售</h3>
-                <p>为方便不会使用电脑人员，提供他人代购快速下单功能...</p>
-                <p class="text-center"><a href="/Sales/Index" class="button button-3d button-pill"><span class="glyphicon glyphicon glyphicon glyphicon glyphicon-heart" aria-hidden="true"></span> 代购销售</a></p>
+            <div class="col-sm-3">
+                <div class="thumbnail" onclick="linkOpen('/Home/webcamtest3/?callback=/Sales/Index?')">
+                    <img src="~/Content/images/OFC_Outlook.jpg" />
+                    <div class="caption">
+                        <h3 class="text-center">代购销售</h3>
+                        <p>为方便不会使用电脑人员，提供他人代购快速下单功能...</p>
+                        @*<p class="text-center"><a href="/Sales/Index" class="button button-3d button-pill"><span class="glyphicon glyphicon glyphicon glyphicon glyphicon-heart" aria-hidden="true"></span> 代购销售</a></p>*@
+                        <p class="text-center"><a href="/Home/webcamtest3/?callback=/Sales/Index?" class="button button-3d button-pill"><span class="glyphicon glyphicon glyphicon glyphicon glyphicon-heart" aria-hidden="true"></span> 代购销售</a></p>
+
+                    </div>
+                </div>
             </div>
-        </div>
-    </div>
+        }
+        else
+        {
+            <div class="col-sm-3">
+                <div class="thumbnail" onclick="linkOpen('/Shopping/Index')">
+                    <img src="~/Content/images/Xbox.jpg" />
+                    <div class="caption">
+                        <h3 class="text-center">自助下单</h3>
+                        <p>图文显示，自主选择，操作简单、快捷，具有良好的用户购物体验...</p>
+                        <p class="text-center"><a href="/Shopping/Index" class="button button-3d button-pill"><span class="glyphicon glyphicon glyphicon glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> 自助下单</a></p>
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <div class="thumbnail" onclick="linkOpen('/UserQuery/Index')">
+                    <img src="~/Content/images/MMD_TC.jpg" />
+                    <div class="caption">
+                        <h3 class="text-center">账户查询</h3>
+                        <p>可以通过IC卡查询本人的账户余额及最新存款记录等...</p>
+                        <p class="text-center"><a href="/UserQuery/Index" class="button button-3d button-pill"><span class="glyphicon glyphicon glyphicon glyphicon glyphicon-search" aria-hidden="true"></span> 账户查询</a></p>
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <div class="thumbnail" onclick="linkOpen('/Sales/Index')">
+                    <img src="~/Content/images/OFC_Outlook.jpg" />
+                    <div class="caption">
+                        <h3 class="text-center">代购销售</h3>
+                        <p>为方便不会使用电脑人员，提供他人代购快速下单功能...</p>
+                        @*<p class="text-center"><a href="/Sales/Index" class="button button-3d button-pill"><span class="glyphicon glyphicon glyphicon glyphicon glyphicon-heart" aria-hidden="true"></span> 代购销售</a></p>*@
+                        <p class="text-center"><a href="Sales/Index" class="button button-3d button-pill"><span class="glyphicon glyphicon glyphicon glyphicon glyphicon-heart" aria-hidden="true"></span> 代购销售</a></p>
+
+                    </div>
+                </div>
+            </div>
+        }
+    }
+
     <div class="col-sm-3">
         <div class="thumbnail" onclick="linkOpen('/Home/GoodsView')">
             <img src="~/Content/images/Win10.jpg" />
@@ -128,9 +178,19 @@
                         data-dismiss="modal">
                     取消
                 </button>
-                <button type="button" class="btn btn-primary" name="exe" onclick="Run('shutdown -s -t 1')">
-                    确认关闭
-                </button>
+                @if (ViewData["loginMode"].ToString() == "2")
+                {
+                    <button type="button" class="btn btn-primary" name="exe" onclick="CloseWebPage()">
+                        确认关闭
+                    </button>
+                }
+                else
+                {
+                    <button type="button" class="btn btn-primary" name="exe" onclick="Run('shutdown -s -t 1')">
+                        确认关闭
+                    </button>
+                }
+
             </div>
         </div><!-- /.modal-content -->
     </div><!-- /.modal -->
@@ -166,6 +226,7 @@
         }
 
         function closePC() {
+            
             var wscript = new ActiveXObject("WScript.Shell");
             if (wscript != null) {
                 wscript.SendKeys("{shutdown -s}");
@@ -195,7 +256,7 @@
             }
         }
         function Run(strPath) {
-            exe.value = strPath;
+            //exe.value = strPath;
             try {
                 var objShell = new ActiveXObject("wscript.shell");
                 objShell.Run(strPath);

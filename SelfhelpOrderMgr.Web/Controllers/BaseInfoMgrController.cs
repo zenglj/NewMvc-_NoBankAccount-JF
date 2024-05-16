@@ -600,7 +600,9 @@ namespace SelfhelpOrderMgr.Web.Controllers
                     new T_SavetypeBLL().Add(model);
                 }
             }
-            List<T_Savetype> models = new T_SavetypeBLL().GetModelList("");
+            //List<T_Savetype> models = new T_SavetypeBLL().GetModelList("UseType='"+ model.UseType +"'");
+            List<T_Savetype> models = new BaseDapperBLL().QueryList<T_Savetype>("select * from T_Savetype where UseType=@UseType",new { UseType =model.UseType});
+
             return models;
         }
 

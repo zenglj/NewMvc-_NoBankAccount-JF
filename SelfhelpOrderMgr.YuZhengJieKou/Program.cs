@@ -22,6 +22,7 @@ namespace SelfhelpOrderMgr.YuZhengJieKou
             string _baseUrl = AppLinkHelper.GetUrl();
             string _zfzt = AppLinkHelper.GetZfzt();
             string _searchDicts = AppLinkHelper.GetDicts();
+            string _pageSize = AppLinkHelper.GetPageSize();
 
             ServiceInterface srv = new ServiceInterface(username,password,_baseUrl,_zfzt);
 
@@ -38,12 +39,12 @@ namespace SelfhelpOrderMgr.YuZhengJieKou
                 Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(rs));
 
                 //获取人员基本信息
-                rs = srv.GetJbxxList(_zfzt);
+                rs = srv.GetJbxxList(_zfzt,Convert.ToInt32(_pageSize));
                 Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(rs));
 
 
                 //获取社会关系
-                rs = srv.GetShgxList();
+                rs = srv.GetShgxList( Convert.ToInt32(_pageSize));
                 Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(rs));
 
                 Console.WriteLine("恭喜！信息已经同步完成。");

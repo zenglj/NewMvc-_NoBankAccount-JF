@@ -12,12 +12,15 @@ using System.Web.Script.Serialization;
 
 namespace SelfhelpOrderMgr.Web.Controllers
 {
+                                     //LoginController
     public class ShoppingController : LoginController
     {
         JavaScriptSerializer jss = new JavaScriptSerializer();
         BaseDapperBLL _baseDapperBLL = new BaseDapperBLL();
         private int loginSaleId = 1;
         string strLoginUserName = "";
+        //IP地址最后3位
+        string strIpAddr = "自助机"+ GetIpAddressLastCode( System.Web.HttpContext.Current.Request.UserHostAddress);
         public ActionResult Index(int id = 1)//默认1是超市消费
         {
             //取消原来有在管理表设定的模式，改用在T_Sho_SaleType表设定
@@ -67,6 +70,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 }
             }
 
+
+            
 
             T_SHO_ManagerSet saleTimeSet = new T_SHO_ManagerSetBLL().GetModel("SaleTimeAreaFlag");
             if (saleTimeSet != null)
@@ -124,6 +129,10 @@ namespace SelfhelpOrderMgr.Web.Controllers
             T_SHO_ManagerSet loginMode = new T_SHO_ManagerSetBLL().GetModel("LoginMode");
             ViewData["loginMode"] = loginMode.MgrValue;
 
+            //ViewData["loginMode"] = 2;//2是人脸
+
+            ViewData["fcrimecode"] = Request["fcrimecode"];//人脸传过来的编号
+
             T_SHO_ManagerSet softNumerKeyBoard = new T_SHO_ManagerSetBLL().GetModel("SoftNumerKeyBoard");
             if (softNumerKeyBoard == null)
             {
@@ -132,6 +141,17 @@ namespace SelfhelpOrderMgr.Web.Controllers
             else
             {
                 ViewData["softNumerKeyBoard"] = softNumerKeyBoard.MgrValue;
+            }
+
+
+            T_SHO_ManagerSet printPlusVer = new T_SHO_ManagerSetBLL().GetModel("PrintPlusVer");
+            if(printPlusVer==null || printPlusVer.MgrValue == "0")
+            {
+                ViewData["PrintPlusVer"] = "0";
+            }
+            else
+            {
+                ViewData["PrintPlusVer"] = "1";
             }
 
             return View();
@@ -174,7 +194,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 }
                 return Content("OK|" + cardInfos[0].CardCode.ToString());
             }
-            return Content("Err|用户名或是密码有错");
+            return Content("Err|用户名信息不正确或已离监");
         }
 
         //增加订单的主单
@@ -407,41 +427,56 @@ namespace SelfhelpOrderMgr.Web.Controllers
             //验证是否在该管理卡权限范围内的人员
             T_SHO_ManagerSet mset = new T_SHO_ManagerSetBLL().GetModel(ip);
 
+            T_SHO_ManagerSet loginMode = new T_SHO_ManagerSetBLL().GetModel("LoginMode");
             //取得用户登录名称
-            string loginUserName = GetLoginUserName(mset);
-
-            if (string.IsNullOrEmpty(loginUserName))
+            string loginUserName ="";
+            if (loginMode.MgrValue == "2")
             {
-                #region 消费人员卡，是否可以在本机消费管理卡
-                T_SHO_ManagerSet mcardFlag = new T_SHO_ManagerSetBLL().GetModel("CheckManagerCardFlag");
-
-
-                if (mcardFlag != null)
-                {
-                    if (mcardFlag.MgrValue == "1")
-                    {
-                        if (mset == null)
-                        {
-                            return Content("Error|该机没有管理卡开通不能消费");
-                        }
-                        List<T_Criminal> cnls = new T_CriminalBLL().GetModelList(@" fareacode in (select fareacode from t_czy_area a,t_czy b where a.fcode=b.fcode and a.fflag=2 and b.fmanagerCard='" + mset.MgrValue + "' ) and fcode='" + criminal.FCode + "'");
-                        if (cnls.Count == 0)
-                        {
-                            return Content("Error|对不起，您不能在本机购物，请回到" + criminal.FAreaName + "购物，谢谢");
-                        }
-                    }
-                }
-                #endregion
-
+                loginUserName = strIpAddr;
             }
             else
             {
-                List<T_Criminal> cnlsByCookie = new T_CriminalBLL().GetModelList(@" fareacode in (select fareacode from t_czy_area a,t_czy b where a.fcode=b.fcode and a.fflag=2 and (b.fname='" + loginUserName + "' or b.fcode='" + loginUserName + "') ) and fcode='" + criminal.FCode + "'");
-                if (cnlsByCookie.Count == 0)
+                loginUserName = GetLoginUserName(mset);
+            }
+                
+            //不是人脸就要验证是否登录管理卡
+            if(loginMode.MgrValue!="2")
+            {
+                if (string.IsNullOrEmpty(loginUserName))
                 {
-                    return Content("Error|对不起，您不能在本机购物，请回到" + criminal.FAreaName + "购物，谢谢");
+                    #region 消费人员卡，是否可以在本机消费管理卡
+                    T_SHO_ManagerSet mcardFlag = new T_SHO_ManagerSetBLL().GetModel("CheckManagerCardFlag");
+
+
+                    if (mcardFlag != null)
+                    {
+                        if (mcardFlag.MgrValue == "1")
+                        {
+                            if (mset == null)
+                            {
+                                return Content("Error|该机没有管理卡开通不能消费");
+                            }
+                            List<T_Criminal> cnls = new T_CriminalBLL().GetModelList(@" fareacode in (select fareacode from t_czy_area a,t_czy b where a.fcode=b.fcode and a.fflag=2 and b.fmanagerCard='" + mset.MgrValue + "' ) and fcode='" + criminal.FCode + "'");
+                            if (cnls.Count == 0)
+                            {
+                                return Content("Error|对不起，您不能在本机购物，请回到" + criminal.FAreaName + "购物，谢谢");
+                            }
+                        }
+                    }
+                    #endregion
+
+                }
+                else
+                {
+                    List<T_Criminal> cnlsByCookie = new T_CriminalBLL().GetModelList(@" fareacode in (select fareacode from t_czy_area a,t_czy b where a.fcode=b.fcode and a.fflag=2 and (b.fname='" + loginUserName + "' or b.fcode='" + loginUserName + "') ) and fcode='" + criminal.FCode + "'");
+                    if (cnlsByCookie.Count == 0)
+                    {
+                        return Content("Error|对不起，您不能在本机购物，请回到" + criminal.FAreaName + "购物，谢谢");
+                    }
                 }
             }
+
+            
 
 
             //查询是有未提交的订单
@@ -498,11 +533,19 @@ namespace SelfhelpOrderMgr.Web.Controllers
             {
                 try
                 {
-                    loginUserName = Session["loginUserName"].ToString();
+                    if (Session["loginUserName"] != null)
+                    {
+                        loginUserName = Session["loginUserName"].ToString();
+                    }
+                    else
+                    {
+                        loginUserName = strIpAddr;
+                    }
+                        
                 }
                 catch
                 {
-
+                    loginUserName = strIpAddr;
                 }
 
             }
@@ -542,15 +585,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
             //T_Criminal criminal = new T_CriminalBLL().GetCriminalXE_info(fcrimeCode);
             T_SHO_SaleType saletype = new T_SHO_SaleTypeBLL().GetModel(Convert.ToInt32(saleTypeId));
             string crtby = "";
-            string cc = ".";
-            string[] ips = ip.Split(cc.ToCharArray());
-            //string ipLastCode = string.Format("000", ips[3]);
-            string ipLastCode = "001";
-            if (ips.Length > 3)
-            {
-                ipLastCode = "000" + ips[3];
-                ipLastCode = ipLastCode.Substring(ipLastCode.Length - 3);
-            }
+            string ipLastCode = GetIpAddressLastCode(ip);
             crtby = "IP_" + ipLastCode + "号机";
 
             T_SHO_ManagerSet mOpenMode = new T_SHO_ManagerSetBLL().GetModel("OpenMode");
@@ -607,6 +642,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
             return status;
         }
 
+        
 
         public ActionResult SearchGoodsInfo()
         {

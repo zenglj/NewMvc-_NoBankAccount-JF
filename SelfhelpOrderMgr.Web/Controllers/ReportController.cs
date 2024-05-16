@@ -1299,7 +1299,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
             string title = GetICCardTypeForTitle();
             DataTable dt = new CommTableInfoBLL().GetDataTable(strSql);
             string strFileName = new CommonClass().GB2312ToUTF8("CreateICard_List.xls");
-            strFileName = Server.MapPath("~/Upload/" + strFileName); ;
+            strFileName = Server.MapPath("~/Upload/" + strFileName); 
             //ExcelRender.RenderToExcel(dt, context, strFileName);
             ExcelRender.RenderToExcel(dt, title, strFileName);
             return Content("OK|" + "CreateICard_List.xls");

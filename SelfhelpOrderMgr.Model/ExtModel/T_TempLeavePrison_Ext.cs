@@ -12,6 +12,7 @@ namespace SelfhelpOrderMgr.Model
         public decimal AmountA { get; set; }
         public decimal AmountB { get; set; }
         public decimal AmountC { get; set; }
+        public decimal AccPoints { get; set; }
         //以下是出监人员银行卡信息
         public string OutBankCard { get; set; }//收款银行卡号
         public string BankUserName { get; set; }//收款人姓名

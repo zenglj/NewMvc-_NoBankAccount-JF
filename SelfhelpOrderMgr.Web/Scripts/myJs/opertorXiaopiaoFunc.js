@@ -44,7 +44,7 @@ function myAddHtml() {
     LODOP.PRINT_INIT("");
     LODOP.ADD_PRINT_HTM(10, 55, "100%", "100%", document.getElementById("textarea01").value);
 };
-function myTestHtml(tempName,pageWidth) {
+function myTestHtml(tempName, pageWidth) {
     LODOP = getLodop(document.getElementById('LODOP_OB'), document.getElementById('LODOP_EM'));
     LODOP.PRINT_INIT("");
     LODOP.SET_PRINT_PAGESIZE(3, pageWidth, 10, "");
@@ -54,10 +54,12 @@ function myTestHtml(tempName,pageWidth) {
         LODOP.ADD_PRINT_HTM(10, 1, "100%", "100%", $(tempName).html());
     }
     LODOP.PRINT();
-    //LODOP.PREVIEW();
+
+
+
 };
 
-function printMyAddHtml(e) {
+function printXiaoPiaoXinxi(e) {
     LODOP = getLodop(document.getElementById('LODOP_OB'), document.getElementById('LODOP_EM'));
     LODOP.PRINT_INIT("");
     LODOP.ADD_PRINT_HTM(10, 20, "100%", "100%", $("#" + e).html());

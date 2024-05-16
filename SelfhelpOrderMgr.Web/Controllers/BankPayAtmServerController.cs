@@ -18,6 +18,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
         //BaseDapperBLL _baseDapperBll = new BaseDapperBLL();
         //JavaScriptSerializer jss = new JavaScriptSerializer();
         // GET: BankPayAtmServer
+
+        int payMode = 1;//ATM取款的类型，值是1，这里测试先改为2=============
         public ActionResult Index(int id=0)
         {
             ViewData["id"] = id;
@@ -53,7 +55,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
             }
             else
             {
-                var sWhere = new { AtmSrvId = atmSrvId, AtmSrvPayFlag = 1 };
+                var sWhere = new { AtmSrvId = atmSrvId };
                 strJsonWhere = jss.Serialize(sWhere);
             }
 
@@ -76,7 +78,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 strJsonWhere ="{ \"Id\":\"0\"}";
             }
 
-            string otherQuery = "PayMode=2 and TranType=0 and TranStatus in(1,2) and isnull(AtmSrvPayFlag,0)=0";
+            string otherQuery = $"PayMode={payMode} and TranType=0 and TranStatus in(1,2) and isnull(AtmSrvPayFlag,0)=0";
 
             return GetPaymentRecord(page, rows, strJsonWhere, otherQuery);
         }
@@ -105,7 +107,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
         /// <returns></returns>
         public ActionResult DoCreatePayMain(string TotalDesc,string SelectIds)
         {
-            int payMode = 2;//ATM取款的类型，值是1，这里测试先改为2=============
+            //int payMode = 1;//ATM取款的类型，值是1，这里测试先改为2=============
             ResultInfo rs = new ResultInfo();
             if (string.IsNullOrWhiteSpace(SelectIds))
             {
@@ -131,7 +133,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
                 T_Bank_AtmServerPay model = new T_Bank_AtmServerPay {
                     CrtDate = DateTime.Now,
-                    CrtBy = Session["loginUserCode"].ToString(),
+                    CrtBy = Session["loginUserName"].ToString(),
                     Amount=selRecs.Sum(o=>o.Amount),
                     OrderStatus=0,
                     AuditBy="",
@@ -269,7 +271,9 @@ namespace SelfhelpOrderMgr.Web.Controllers
         {
 
             List<ViewPaymentRecordExtend> res = _baseDapperBll.GetModelList<ViewPaymentRecordExtend, ViewPaymentRecordExt_Search>(jss.Serialize(new { AtmSrvId=atmSrvId}), "Id asc", 10000);
+            T_Bank_AtmServerPay mainOrder = _baseDapperBll.GetModel<T_Bank_AtmServerPay>( Convert.ToInt32( atmSrvId));
 
+            ViewData["mainOrder"] = mainOrder;
             ViewData["res"] = res.Where(o => (o.TranStatus == 2 || o.TranStatus == 1)).ToList();
             return View();
         }

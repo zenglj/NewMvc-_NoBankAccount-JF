@@ -13,5 +13,7 @@ namespace SelfhelpOrderMgr.Web.Models
             : base("DefaultConnection")
         {
         }
+
+        public System.Data.Entity.DbSet<SelfhelpOrderMgr.Model.T_Bank_SubAccBalance> T_Bank_SubAccBalance { get; set; }
     }
 }

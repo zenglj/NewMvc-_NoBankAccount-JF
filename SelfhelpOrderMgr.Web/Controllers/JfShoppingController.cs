@@ -13,13 +13,16 @@ using System.Web.Script.Serialization;
 
 namespace SelfhelpOrderMgr.Web.Controllers
 {
-    public class JfShoppingController : Controller
+    public class JfShoppingController : LoginController
     {
         
         JifenMgrService _jifenMgrService = new JifenMgrService();
         JavaScriptSerializer jss = new JavaScriptSerializer();
         private int loginSaleId = 1;
         string strLoginUserName = "";
+        //IP地址最后3位
+        string strIpAddr = "自助机" + GetIpAddressLastCode(System.Web.HttpContext.Current.Request.UserHostAddress);
+
         // GET: JfShopping
         public ActionResult Index(int id = 1)//默认1是超市消费
         {
@@ -103,6 +106,10 @@ namespace SelfhelpOrderMgr.Web.Controllers
             T_SHO_ManagerSet loginMode = new T_SHO_ManagerSetBLL().GetModel("LoginMode");
             ViewData["loginMode"] = loginMode.MgrValue;
 
+            //ViewData["loginMode"] = 2;//2是人脸
+
+            ViewData["fcrimecode"] = Request["fcrimecode"];//人脸传过来的编号
+
             T_SHO_ManagerSet softNumerKeyBoard = new T_SHO_ManagerSetBLL().GetModel("SoftNumerKeyBoard");
             if (softNumerKeyBoard == null)
             {
@@ -111,6 +118,16 @@ namespace SelfhelpOrderMgr.Web.Controllers
             else
             {
                 ViewData["softNumerKeyBoard"] = softNumerKeyBoard.MgrValue;
+            }
+
+            T_SHO_ManagerSet printPlusVer = new T_SHO_ManagerSetBLL().GetModel("PrintPlusVer");
+            if (printPlusVer == null || printPlusVer.MgrValue == "0")
+            {
+                ViewData["PrintPlusVer"] = "0";
+            }
+            else
+            {
+                ViewData["PrintPlusVer"] = "1";
             }
 
             return View();
@@ -280,7 +297,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 T_AREA tarea = new T_AREABLL().GetModelList($"FCode ='{criminal.FAreaCode}'").FirstOrDefault();
                 if (tarea.JiFenCloseFlag == 1)
                 {
-                    return Content("Error|您所在队别已经停止【积分消费】了，请下个月再来购买");
+                    return Content("Error|您所在队别已经停止【积分兑换】了，请下个月再来购买");
                 }
             }
             catch
@@ -386,41 +403,57 @@ namespace SelfhelpOrderMgr.Web.Controllers
             //验证是否在该管理卡权限范围内的人员
             T_SHO_ManagerSet mset = new T_SHO_ManagerSetBLL().GetModel(ip);
 
+            T_SHO_ManagerSet loginMode = new T_SHO_ManagerSetBLL().GetModel("LoginMode");
             //取得用户登录名称
-            string loginUserName = GetLoginUserName(mset);
-
-            if (string.IsNullOrEmpty(loginUserName))
+            string loginUserName = "";
+            if (loginMode.MgrValue == "2")
             {
-                #region 消费人员卡，是否可以在本机消费管理卡
-                T_SHO_ManagerSet mcardFlag = new T_SHO_ManagerSetBLL().GetModel("CheckManagerCardFlag");
-
-
-                if (mcardFlag != null)
-                {
-                    if (mcardFlag.MgrValue == "1")
-                    {
-                        if (mset == null)
-                        {
-                            return Content("Error|该机没有管理卡开通不能消费");
-                        }
-                        List<T_Criminal> cnls = new T_CriminalBLL().GetModelList(@" fareacode in (select fareacode from t_czy_area a,t_czy b where a.fcode=b.fcode and a.fflag=2 and b.fmanagerCard='" + mset.MgrValue + "' ) and fcode='" + criminal.FCode + "'");
-                        if (cnls.Count == 0)
-                        {
-                            return Content("Error|对不起，您不能在本机购物，请回到" + criminal.FAreaName + "购物，谢谢");
-                        }
-                    }
-                }
-                #endregion
-
+                loginUserName = strIpAddr;
             }
             else
             {
-                List<T_Criminal> cnlsByCookie = new T_CriminalBLL().GetModelList(@" fareacode in (select fareacode from t_czy_area a,t_czy b where a.fcode=b.fcode and a.fflag=2 and (b.fname='" + loginUserName + "' or b.fcode='" + loginUserName + "') ) and fcode='" + criminal.FCode + "'");
-                if (cnlsByCookie.Count == 0)
+                loginUserName = GetLoginUserName(mset);
+            }
+
+            //不是人脸就要验证是否登录管理卡
+            if (loginMode.MgrValue != "2")
+            {
+                if (string.IsNullOrEmpty(loginUserName))
                 {
-                    return Content("Error|对不起，您不能在本机购物，请回到" + criminal.FAreaName + "购物，谢谢");
+                    #region 消费人员卡，是否可以在本机消费管理卡
+                    T_SHO_ManagerSet mcardFlag = new T_SHO_ManagerSetBLL().GetModel("CheckManagerCardFlag");
+
+
+                    if (mcardFlag != null)
+                    {
+                        if (mcardFlag.MgrValue == "1")
+                        {
+                            if (mset == null)
+                            {
+                                return Content("Error|该机没有管理卡开通不能消费");
+                            }
+                            List<T_Criminal> cnls = new T_CriminalBLL().GetModelList(@" fareacode in (select fareacode from t_czy_area a,t_czy b where a.fcode=b.fcode and a.fflag=2 and b.fmanagerCard='" + mset.MgrValue + "' ) and fcode='" + criminal.FCode + "'");
+                            if (cnls.Count == 0)
+                            {
+                                return Content("Error|对不起，您不能在本机购物，请回到" + criminal.FAreaName + "购物，谢谢");
+                            }
+                        }
+                    }
+                    #endregion
+
+                }
+                else
+                {
+                    List<T_Criminal> cnlsByCookie = new T_CriminalBLL().GetModelList(@" fareacode in (select fareacode from t_czy_area a,t_czy b where a.fcode=b.fcode and a.fflag=2 and (b.fname='" + loginUserName + "' or b.fcode='" + loginUserName + "') ) and fcode='" + criminal.FCode + "'");
+                    if (cnlsByCookie.Count == 0)
+                    {
+                        return Content("Error|对不起，您不能在本机购物，请回到" + criminal.FAreaName + "购物，谢谢");
+                    }
                 }
             }
+
+
+
 
 
             //查询是有未提交的订单
@@ -481,7 +514,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 }
                 catch
                 {
-
+                    loginUserName = strIpAddr;
                 }
 
             }

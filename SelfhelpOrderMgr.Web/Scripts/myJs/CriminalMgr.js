@@ -872,6 +872,7 @@ function btnBankCardEdit() {
     $("#FAmountAMoney").val("");
     $("#FAmountBMoney").val("");
     $("#FAmountCMoney").val("");
+    $("#FAccPoints").val("");
     GetUserBankInfo(row);
     $("#winBank").window('open');
 }
@@ -899,6 +900,7 @@ function GetUserBankInfo(row) {
                 }
                 $("#FAmountBMoney").val(card.AmountB);
                 $("#FAmountCMoney").val(card.AmountC);
+                $("#FAccPoints").val(card.AccPoints);
 
             } else {
                 $.messager.alert("提示", data);

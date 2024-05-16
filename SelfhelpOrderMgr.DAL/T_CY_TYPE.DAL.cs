@@ -31,9 +31,9 @@ namespace SelfhelpOrderMgr.DAL
         {
             StringBuilder strSql = new StringBuilder();
             strSql.Append("insert into T_CY_TYPE(");
-            strSql.Append("FCode,FdayLimitflag,FdaylimitAmt,FBamtMonth,FbamtmonthFlag,FAamtmonthflag,bpct,Fbonusflag,cpct,ftotamtmonthflag,ftotamtmonth,FName,totpct,FPower,FDinnerAFlag,FDinnerBFlag,payaccount,FTZSP_Money,FTZSP_Zero_Flag,JaRi_Cy_Money,FDesc,famtmonth,FamtLimit,fcamtlimit,flag,FLimittype,pct");
+            strSql.Append("FCode,FdayLimitflag,FdaylimitAmt,FBamtMonth,FbamtmonthFlag,FAamtmonthflag,bpct,Fbonusflag,cpct,ftotamtmonthflag,ftotamtmonth,FName,totpct,FPower,FDinnerAFlag,FDinnerBFlag,payaccount,FTZSP_Money,FTZSP_Zero_Flag,JaRi_Cy_Money,FDesc,famtmonth,FamtLimit,fcamtlimit,flag,FLimittype,pct,FTZSP_Zero_MaxMoney,JaRi_Cy_FTZSP_Money");
             strSql.Append(") values (");
-            strSql.Append("@FCode,@FdayLimitflag,@FdaylimitAmt,@FBamtMonth,@FbamtmonthFlag,@FAamtmonthflag,@bpct,@Fbonusflag,@cpct,@ftotamtmonthflag,@ftotamtmonth,@FName,@totpct,@FPower,@FDinnerAFlag,@FDinnerBFlag,@payaccount,@FTZSP_Money,@FTZSP_Zero_Flag,@JaRi_Cy_Money,@FDesc,@famtmonth,@FamtLimit,@fcamtlimit,@flag,@FLimittype,@pct");
+            strSql.Append("@FCode,@FdayLimitflag,@FdaylimitAmt,@FBamtMonth,@FbamtmonthFlag,@FAamtmonthflag,@bpct,@Fbonusflag,@cpct,@ftotamtmonthflag,@ftotamtmonth,@FName,@totpct,@FPower,@FDinnerAFlag,@FDinnerBFlag,@payaccount,@FTZSP_Money,@FTZSP_Zero_Flag,@JaRi_Cy_Money,@FDesc,@famtmonth,@FamtLimit,@fcamtlimit,@flag,@FLimittype,@pct,@FTZSP_Zero_MaxMoney,@JaRi_Cy_FTZSP_Money");
             strSql.Append(") ");
 
             SqlParameter[] parameters = {
@@ -63,8 +63,10 @@ namespace SelfhelpOrderMgr.DAL
                         new SqlParameter("@fcamtlimit", SqlDbType.Decimal,5) ,            
                         new SqlParameter("@flag", SqlDbType.Int,4) ,            
                         new SqlParameter("@FLimittype", SqlDbType.Int,4) ,            
-                        new SqlParameter("@pct", SqlDbType.Decimal,9)             
-              
+                        new SqlParameter("@pct", SqlDbType.Decimal,9),          
+                        new SqlParameter("@FTZSP_Zero_MaxMoney", SqlDbType.Decimal,9),
+                        new SqlParameter("@JaRi_Cy_FTZSP_Money", SqlDbType.Decimal,9)
+
             };
 
             parameters[0].Value = model.FCode;
@@ -93,7 +95,9 @@ namespace SelfhelpOrderMgr.DAL
             parameters[23].Value = model.fcamtlimit;
             parameters[24].Value = model.flag;
             parameters[25].Value = model.FLimittype;
-            parameters[26].Value = model.pct;
+            parameters[26].Value = model.pct; 
+            parameters[27].Value = model.FTZSP_Zero_MaxMoney;
+            parameters[28].Value = model.JaRi_Cy_FTZSP_Money;
             SqlHelper.ExecuteSql(strSql.ToString(), parameters);
 
         }
@@ -133,7 +137,10 @@ namespace SelfhelpOrderMgr.DAL
             strSql.Append(" fcamtlimit = @fcamtlimit , ");
             strSql.Append(" flag = @flag , ");
             strSql.Append(" FLimittype = @FLimittype , ");
-            strSql.Append(" pct = @pct  ");
+            strSql.Append(" pct = @pct , ");
+            strSql.Append(" FTZSP_Zero_MaxMoney = @FTZSP_Zero_MaxMoney , ");
+            strSql.Append(" JaRi_Cy_FTZSP_Money = @JaRi_Cy_FTZSP_Money ");
+            
             strSql.Append(" where FCode=@FCode  ");
 
             SqlParameter[] parameters = {
@@ -163,8 +170,11 @@ namespace SelfhelpOrderMgr.DAL
                         new SqlParameter("@fcamtlimit", SqlDbType.Decimal,5) ,            
                         new SqlParameter("@flag", SqlDbType.Int,4) ,            
                         new SqlParameter("@FLimittype", SqlDbType.Int,4) ,            
-                        new SqlParameter("@pct", SqlDbType.Decimal,9)             
-              
+                        new SqlParameter("@pct", SqlDbType.Decimal,9) ,
+                        new SqlParameter("@FTZSP_Zero_MaxMoney", SqlDbType.Decimal,9),
+                        new SqlParameter("@JaRi_Cy_FTZSP_Money", SqlDbType.Decimal,9)
+                        
+
             };
 
             parameters[0].Value = model.FCode;
@@ -193,7 +203,10 @@ namespace SelfhelpOrderMgr.DAL
             parameters[23].Value = model.fcamtlimit;
             parameters[24].Value = model.flag;
             parameters[25].Value = model.FLimittype;
-            parameters[26].Value = model.pct;
+            parameters[26].Value = model.pct; 
+            parameters[27].Value = model.FTZSP_Zero_MaxMoney;
+            parameters[28].Value = model.JaRi_Cy_FTZSP_Money;
+            
             int rows = SqlHelper.ExecuteSql(strSql.ToString(), parameters);
             if (rows > 0)
             {
@@ -240,7 +253,7 @@ namespace SelfhelpOrderMgr.DAL
         {
 
             StringBuilder strSql = new StringBuilder();
-            strSql.Append("select FCode, FdayLimitflag, FdaylimitAmt, FBamtMonth, FbamtmonthFlag, FAamtmonthflag, bpct, Fbonusflag, cpct, ftotamtmonthflag, ftotamtmonth, FName, totpct, FPower, FDinnerAFlag, FDinnerBFlag, payaccount, FTZSP_Money, FTZSP_Zero_Flag, JaRi_Cy_Money, FDesc, famtmonth, FamtLimit, fcamtlimit, flag, FLimittype, pct  ");
+            strSql.Append("select FCode, FdayLimitflag, FdaylimitAmt, FBamtMonth, FbamtmonthFlag, FAamtmonthflag, bpct, Fbonusflag, cpct, ftotamtmonthflag, ftotamtmonth, FName, totpct, FPower, FDinnerAFlag, FDinnerBFlag, payaccount, FTZSP_Money, FTZSP_Zero_Flag, JaRi_Cy_Money, FDesc, famtmonth, FamtLimit, fcamtlimit, flag, FLimittype, pct,FTZSP_Zero_MaxMoney ,JaRi_Cy_FTZSP_Money ");
             strSql.Append("  from T_CY_TYPE ");
             strSql.Append(" where FCode=@FCode ");
             SqlParameter[] parameters = {
@@ -349,7 +362,15 @@ namespace SelfhelpOrderMgr.DAL
                 {
                     model.pct = decimal.Parse(ds.Tables[0].Rows[0]["pct"].ToString());
                 }
-
+                if (ds.Tables[0].Rows[0]["FTZSP_Zero_MaxMoney"].ToString() != "")
+                {
+                    model.FTZSP_Zero_MaxMoney = decimal.Parse(ds.Tables[0].Rows[0]["FTZSP_Zero_MaxMoney"].ToString());
+                }
+                if (ds.Tables[0].Rows[0]["JaRi_Cy_FTZSP_Money"].ToString() != "")
+                {
+                    model.JaRi_Cy_FTZSP_Money = decimal.Parse(ds.Tables[0].Rows[0]["JaRi_Cy_FTZSP_Money"].ToString());
+                }
+                
                 return model;
             }
             else

@@ -67,6 +67,7 @@ function UserLoginCheck() {
     //var cardNo = readCardNo();
     var userName = $("#UserName1").val();
     var userPwd = $("#UserPwd1").val();
+    alert("111111111111");
     $("#managerCard").html("管理卡号：" + userName);
     if (userName != "") {
         $.post('/Home/PrintCkeckSignIn', { "userName": userName, "userPwd": userPwd },
@@ -78,6 +79,7 @@ function UserLoginCheck() {
                         console.log(data);
                         var ss = data.split("|");
                         if (ss[0] == "OK") {
+                            alert("ddddddddd:" + $("#saleTypeId").val());
                             if ($("#saleTypeId").val() == "100") {
                                 window.location.href = "/Home/PrintXiaoPiao?printFlag=LoginOK122342124121123131231122&managerCardNo=" + ss[1];
                             } else {

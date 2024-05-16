@@ -189,6 +189,8 @@ namespace SelfhelpOrderMgr.Model
             set { _printcount = value; }
         }
 
+        //积分
+        public decimal AccPoints { get; set; }
     }
 }
 

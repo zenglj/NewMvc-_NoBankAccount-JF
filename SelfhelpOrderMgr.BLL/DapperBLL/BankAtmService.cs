@@ -94,16 +94,28 @@ namespace SelfhelpOrderMgr.BLL
                 TranStatus = tranStatus
             };
             rec = base.GetPageList<ViewPaymentRecordExtend, ViewPaymentRecordExtend>("Id", this.jss.Serialize(where), 1, 1, "");
-            ViewPaymentRecordExtend row = rec.rows[0];
-            model = new ViewBankUserInfo
+            if (rec.rows.Count >= 1)
             {
-                Id = row.Id,
-                FCrimeCode = row.FCrimeCode,
-                FCrimeName = row.FCrimeName,
-                TranMoney = row.TranMoney,
-                TranStatus = row.TranStatus,
-                PurposeInfo = row.PurposeInfo
-            };
+                ViewPaymentRecordExtend row = rec.rows[0];
+                //增加传输IC卡号
+                T_Criminal_card _card = base.QueryModel<T_Criminal_card>("fcrimecode", row.FCrimeCode);
+                model = new ViewBankUserInfo
+                {
+                    Id = row.Id,
+                    FCrimeCode = row.FCrimeCode,
+                    FCrimeName = row.FCrimeName,
+                    CardCode = _card.cardcodea,
+                    TranMoney = row.TranMoney,
+                    TranStatus = row.TranStatus,
+                    PurposeInfo = row.PurposeInfo
+                };
+            }
+            else
+            {
+
+                model = new ViewBankUserInfo();
+            }
+            
 
         }
 
@@ -137,12 +149,12 @@ namespace SelfhelpOrderMgr.BLL
                     if (atm.MachineBalance == Convert.ToDecimal(reqJson.F_AMOUNT))
                     {
                         istatusFlag = 1;
-                        remark = title + "-成功|机器与记账都是:" + reqJson.F_AMOUNT;
+                        remark = title + "-成功|机器与记账都是:" + reqJson.F_AMOUNT+"。钞箱:"+reqJson.CashBoxInfo;
                     }
                     else
                     {
                         istatusFlag = -1;
-                        remark = string.Format("{0}-失败|机器金额为{1},记账为:{2},差额为{3}", new object[]
+                        remark = string.Format("{0}-失败|机器金额为{1},记账为:{2},差额为{3}" + "。钞箱:" + reqJson.CashBoxInfo, new object[]
                         {
                     title,
                     reqJson.F_AMOUNT,
@@ -354,8 +366,24 @@ namespace SelfhelpOrderMgr.BLL
         public string MacCode { get; set; }
         public string TranDate { get; set; }
         public string TranTime { get; set; }
+        public string CashBoxInfo { get; set; }//钞箱信息
 
     }
+
+    public class reqAtmFaceInfo: reqAtmActionInfo
+    {
+        public string FaceData { get; set; }
+
+    }
+
+    public class reqAtmCashBoxInfo : reqAtmActionInfo
+    {
+        public string CashBoxMoney { get; set; }
+        public string CashBoxMoneyNotReturn { get; set; }
+        public string CashBoxReturnMoney { get; set; }
+        public List<T_Bank_ATMCashBoxDetail> BoxDetial { get; set; } 
+    }
+
 
 
     /// <summary>
