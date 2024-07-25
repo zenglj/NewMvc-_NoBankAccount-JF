@@ -11,7 +11,7 @@ namespace SelfhelpOrderMgr.DAL
 {
     public partial class T_TempAmount_CardDAL
     {
-        public List<T_TempAmount_Card> GetSearchCardAmount(string strFCrimeCode, string strFCrimeName, string strAreaName, string cardStatus)
+        public List<T_TempAmount_Card> GetSearchCardAmount(string strFCrimeCode, string strFCrimeName, string strAreaName, string cardStatus,string otherWhere)
         {
             //string sql = "";
             ////删除临时表记录
@@ -70,12 +70,17 @@ namespace SelfhelpOrderMgr.DAL
                     sql = sql + " and c.fcode=@FAreaName";
                     p.Add("FAreaName",  strAreaName );
                 }
-                else if ("" != cardStatus && "000" != cardStatus)
+                else if (!string.IsNullOrWhiteSpace(cardStatus) && "000" != cardStatus)
                 {
                     sql = sql + " and a.cardflaga=@cardStatus";
                     p.Add("cardStatus", cardStatus );
                 }
                 //object param = new { FCode = strFCrimeCode, FName = string.Format("{0}%", strFCrimeName), FAreaName = strAreaName, cardStatus = cardStatus };
+
+                if (!string.IsNullOrWhiteSpace(otherWhere))
+                {
+                    sql = sql + " and " + otherWhere;
+                }
 
                 List<T_TempAmount_Card> lists = (List<T_TempAmount_Card>)conn.Query<T_TempAmount_Card>(sql, p);
 

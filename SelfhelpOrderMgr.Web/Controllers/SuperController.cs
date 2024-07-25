@@ -833,14 +833,14 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
 
             //验证用户的队别,如果设定了Vcrd验证用户队别，则要查看是否有相应的队别权限下的犯人才可以查询到
-            //T_SHO_ManagerSet mset = new T_SHO_ManagerSetBLL().GetModel("VcrdCheckUserManagerAarea");
-            //if (mset != null)
-            //{
-            //    if (mset.MgrValue == "1")
-            //    {
-            //        strWhere = strWhere + " and FAreaCode in  ( select fareaCode from t_czy_area where fflag=2 and fcode='" + LoginCode + "')";
-            //    }
-            //}
+            T_SHO_ManagerSet mset = new T_SHO_ManagerSetBLL().GetModel("VcrdCheckUserManagerAarea");
+            if (mset != null)
+            {
+                if (mset.MgrValue == "1")
+                {
+                    strWhere = strWhere + " and FAreaCode in  ( select fareaCode from t_czy_area where fflag=2 and fcode='" + LoginCode + "')";
+                }
+            }
             return strWhere;
 
         }

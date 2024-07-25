@@ -233,7 +233,7 @@ namespace SelfhelpOrderMgr.DAL
 		{
 
 			StringBuilder strSql = new StringBuilder();
-			strSql.Append("select seqno, AmountB, crtdate, crtby, remark, baltype, DEPOSITER, AmountC, bankamount, PayMode, CollectMoneyFlag, fcrimecode, PrintCount, vounoa, cardcodea, typeflagA, AmountA, vounob, cardcodeB, typeflagB ,AccPoints ");
+			strSql.Append("select seqno, AmountB, crtdate, crtby, remark, baltype, DEPOSITER, AmountC, bankamount, PayMode, CollectMoneyFlag, fcrimecode, PrintCount, vounoa, cardcodea, typeflagA, AmountA, vounob, cardcodeB, typeflagB ,AccPoints,AtmLuFeiAmount ");
 			strSql.Append("  from t_balanceList ");
 			strSql.Append(" where seqno=@seqno");
 			SqlParameter[] parameters = {
@@ -308,6 +308,12 @@ namespace SelfhelpOrderMgr.DAL
 				{
 					model.AccPoints = decimal.Parse(ds.Tables[0].Rows[0]["AccPoints"].ToString());
 				}
+
+				if (ds.Tables[0].Rows[0]["AtmLuFeiAmount"].ToString() != "")
+				{
+					model.AtmLuFeiAmount = decimal.Parse(ds.Tables[0].Rows[0]["AtmLuFeiAmount"].ToString());
+				}
+				
 				return model;
 			}
 			else

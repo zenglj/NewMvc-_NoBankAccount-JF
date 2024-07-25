@@ -123,6 +123,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
             }
             ViewData["goods"] = goods;
 
+            var ssd=Newtonsoft.Json.JsonConvert.SerializeObject(goods);
             T_SHO_ManagerSet mset = new T_SHO_ManagerSetBLL().GetModel("XiaoPiaoStyle");
             ViewData["mset"] = mset;
 

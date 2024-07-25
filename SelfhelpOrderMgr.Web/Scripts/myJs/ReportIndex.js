@@ -327,7 +327,8 @@ function btnSearch() {
         BankFlags: selBankFlags,
         FFlags: selFFlags,
         CheckFlag:$("#FCheckFlag").combobox('getValue'),
-        CardTypeFlag: $("#CardTypeFlag").combobox('getValue')
+        CardTypeFlag: $("#CardTypeFlag").combobox('getValue'),
+        PayMode: $("#PayMode").combobox('getValue'),
     });
 
 
@@ -450,6 +451,7 @@ function getSearchCondition() {
     strSearchWhere = strSearchWhere + "&BankFlags=" + selBankFlags;
     strSearchWhere = strSearchWhere + "&FFlags=" + selFFlags;
     strSearchWhere = strSearchWhere + "&CardTypeFlag=" + $("#CardTypeFlag").combobox('getValue');
+    strSearchWhere = strSearchWhere + "&PayMode=" + $("#PayMode").combobox('getValue');
 
     return strSearchWhere;
 }
@@ -529,7 +531,8 @@ function getSearchObjCondition() {
         AccTypes: selAccTypes,
         BankFlags: selBankFlags,
         FFlags: selFFlags,
-        CardTypeFlag:$("#CardTypeFlag").combobox('getValue')
+        CardTypeFlag: $("#CardTypeFlag").combobox('getValue'),
+        PayMode: $("#PayMode").combobox('getValue')
     };
     
     return objWhere;
@@ -552,7 +555,8 @@ function btnClear() {
     $("#FAreaName").combobox('clear');
     $("#FCrtBy").combobox('clear');
     $("#FCriminalFlag").combobox('clear');
-    $("#CardTypeFlag").combobox('clear');    
+    $("#CardTypeFlag").combobox('clear');
+    $("#PayMode").combobox('clear');
 }
 
 //A4打印消费单

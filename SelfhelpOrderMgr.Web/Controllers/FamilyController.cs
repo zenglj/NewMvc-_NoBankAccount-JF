@@ -4,6 +4,7 @@ using NPOI.XSSF.UserModel;
 using SelfhelpOrderMgr.BLL;
 using SelfhelpOrderMgr.Common;
 using SelfhelpOrderMgr.Model;
+using SelfhelpOrderMgr.Web.CommonHeler;
 using SelfhelpOrderMgr.Web.Models;
 using System;
 using System.Collections.Generic;
@@ -51,7 +52,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 strJsonWhere = base.jss.Serialize(sWhere);
             }
 
-            PageResult<ViewFamilyInfo> list = _baseDapperBll.GetPageList<ViewFamilyInfo, ViewFamilyInfo_Search>("Id", strJsonWhere, page, rows);
+            PageResult<ViewFamilyInfo> list = _baseDapperBll.GetPageList<ViewFamilyInfo, ViewFamilyInfo_Search>("Id", strJsonWhere, page, rows, " FAreaCode in( select FAreaCode from t_czy_area where fflag=2 and fcode='"+ base.loginUserCode +"')");
 
             EasyUiPageResult<ViewFamilyInfo> rs = new EasyUiPageResult<ViewFamilyInfo>()
             {
@@ -83,6 +84,13 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 return Json(rs);
             }
 
+            var ls = _baseDapperBll.QueryList<T_Czy_area>("select *from t_czy_Area where fcode=@FCode and FAreaCode=@FAreaCode and FFlag=2", new { FCode = base.loginUserCode ,FAreaCode=model.FAreaCode});
+            if (ls == null || ls.Count<=0)
+            {
+                rs.ReMsg = "Err|您没有该用户的队别管理权限";
+                return Json(rs);
+            }
+
             rs.Flag = true;
             rs.ReMsg = "OK|查询成功";
             rs.DataInfo = model.FName;
@@ -107,6 +115,19 @@ namespace SelfhelpOrderMgr.Web.Controllers
             try
             {
                 T_Criminal_Family model = Newtonsoft.Json.JsonConvert.DeserializeObject<T_Criminal_Family>(strJsonWhere);
+
+                if (model.FIdenNo.Length == 18)
+                {
+                    var errInfo = IdentityCardHelper.CheckIdenCard(model.FSex, model.FIdenNo);
+                    if (errInfo != "")
+                    {
+                        rs.Flag = false;
+                        rs.ReMsg = errInfo;
+                        return Json(rs);
+                    }
+
+                }
+
                 if (model.Id == 0)
                 {
                     if (!string.IsNullOrWhiteSpace(model.FCrimeCode))
@@ -273,7 +294,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                     //NPOI.SS.UserModel.Sheet
                     int rows = sheet.LastRowNum;
                     int ErrNums = 0;
-                    if (rows < 2)
+                    if (rows < 1)
                     {
                         return Content("Err|Excel表为空表,无数据!");
                     }
@@ -286,6 +307,11 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
                         List<T_Criminal_Family> fls = new List<T_Criminal_Family>();
                         List<T_Criminal_Family> errfls = new List<T_Criminal_Family>();
+
+                        //获取用户的队别的管理权限
+                        var arrAreacodes = _baseDapperBll.QueryList<T_Czy_area>("select * from T_Czy_area where fflag=2 and fcode=@FCode", new { FCode = base.loginUserCode })
+                                    .Select(o=>o.fareacode).ToArray<string>();
+                        
 
                         for (int i = 1; i <= rows; i++)
                         {
@@ -347,6 +373,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                             _family.CrtDate = DateTime.Now;
                             _family.Remark = FName;
 
+
                             try
                             {//如果金额有
                                 if (string.IsNullOrWhiteSpace(FCrimeCode))
@@ -362,6 +389,12 @@ namespace SelfhelpOrderMgr.Web.Controllers
                                     _family.Remark = $"编号:{FCrimeCode}不存在";
                                     errfls.Add(_family);
 
+                                }
+                                else if (!arrAreacodes.Contains(_criminal.FAreaCode))
+                                {
+                                    _family.Remark = $"编号:{FCrimeCode},姓名:{FName},和您没有该犯的【队别管理权限】 不一致";
+                                    _family.OpeningBank = FName;
+                                    errfls.Add(_family);
                                 }
                                 else if (_criminal != null && _criminal.FName != FName.Trim())
                                 {
@@ -387,7 +420,14 @@ namespace SelfhelpOrderMgr.Web.Controllers
                                     _family.Remark = $"编号:{FCrimeCode},姓名:{FName},手机【{PhoneNum}】 长度不正确";
                                     errfls.Add(_family);
                                 }
-                                else if (FCrimeCode != "" && (FIdenNo.Length >=8 && FIdenNo.Length >= 14 || FIdenNo.Length ==18))
+                                else if (FIdenNo.Length == 18 && IdentityCardHelper.CheckIdenCard(FSex, FIdenNo) != "")
+                                {
+                                    var errInfo = IdentityCardHelper.CheckIdenCard(FSex, FIdenNo);
+                                    _family.OpeningBank = FName;
+                                    _family.Remark = $"编号:{FCrimeCode},姓名:{FName},身份证【{errInfo}】 不正确";
+                                    errfls.Add(_family);
+                                }
+                                else if (FCrimeCode != "" && (FIdenNo.Length >=8 && FIdenNo.Length <= 14 || FIdenNo.Length ==18))
                                 {
                                     fls.Add(_family);
                                     //Log4NetHelper.logger.Info("Excel导入,操作员：" + Session["loginUserName"].ToString() + ",修改一个用户信息，ID=" + FCode + ",用户名为：" + FName + ",处遇为：" + FCyName + ",队别名为：" + FAreaName + "");

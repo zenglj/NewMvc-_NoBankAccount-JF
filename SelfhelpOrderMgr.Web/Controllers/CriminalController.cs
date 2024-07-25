@@ -27,7 +27,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
     {
         //
         // GET: /Criminal/
-        JavaScriptSerializer jss = new JavaScriptSerializer();
+        //JavaScriptSerializer jss = new JavaScriptSerializer();
         
         public ActionResult Index(int id=1)
         {
@@ -93,6 +93,10 @@ namespace SelfhelpOrderMgr.Web.Controllers
             }
 
             ViewData["id"] = id;
+
+            
+
+            ViewData["userPower"] = base.loginUserPrivate;
             //测试一下
             //List<T_Criminal> lists =  DapperHelperBLL<T_Criminal>.GetAll("select * from t_criminal where fcycode=@fcycode", new { fcycode = "3" });
             return View();
@@ -102,7 +106,21 @@ namespace SelfhelpOrderMgr.Web.Controllers
         public ActionResult GetSearchUsers(string strJsonWhere, string orderField = " id asc ", int page = 1, int rows = 10)
         {
 
-            PageResult<ViewCriminalInfo> rs = new T_Bank_DepositListBLL().GetPageList<ViewCriminalInfo, ViewCriminalInfoExt_Search>(orderField, strJsonWhere, page, rows);
+            T_SHO_ManagerSet mset = new T_SHO_ManagerSetBLL().GetModel("VcrdCheckUserManagerAarea");
+
+            string strWhere = "";
+            if (mset != null)
+            {
+                if (mset.MgrValue == "1")
+                {
+                    strWhere = " FAreaCode in (  select fareaCode from t_czy_area where fflag=2 and fcode='" + base.loginUserCode + "')";
+                }
+            }
+
+            PageResult<ViewCriminalInfo> rs = new T_Bank_DepositListBLL().GetPageList<ViewCriminalInfo, ViewCriminalInfoExt_Search>(orderField, strJsonWhere, page, rows
+                //, $" FAreaCode in(select FAreaCode from t_czy_area where fcode ='{base.loginUserCode}'  and fflag=2)"
+                , strWhere
+                );
             return Json(rs);
 
             #region 老旧方式--停用了
@@ -318,7 +336,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
         public ActionResult SaveCriminal(string txtFCode, string txtFName, string txtFSex
             , string txtFAreaCode, string txtFCyCode, string txtFAddr, string txtFIdenNo, string txtFCrimeCode,
             string txtFTerm, string txtFInDate, string txtFOuDate, string txtFlimitFlag, string txtFlimitAmt,
-            string txtFDesc, string doType)
+            string txtFDesc, string doType,string amount)
         {
             //string txtFCode = Request["txtFCode"];
             //string txtFName = Request["txtFName"];
@@ -382,17 +400,28 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 if (doType != "add")
                 {
                     T_SHO_ManagerSet cyMset = new T_SHO_ManagerSetBLL().GetModel("criminalChangeSetByCy");
-                    if (cyMset != null)
+                    if (base.loginUserPrivate == "1")
                     {
-                        if (cyMset.MgrValue == "0")
-                        {
-                            criminal.FCYCode = txtFCyCode;
-                        }
-                        else
-                        {
-                            criminal.FCYCode = oldCriminal.FCYCode;
-                        }
+                        criminal.FCYCode = txtFCyCode;
+                        criminal.FCYCode = oldCriminal.FCYCode;
+                        criminal.amount = string.IsNullOrWhiteSpace(amount) == true ? 0 : Convert.ToDecimal(amount);
                     }
+                    else
+                    {
+                        if (cyMset != null)
+                        {
+                            if (cyMset.MgrValue == "0")
+                            {
+                                criminal.FCYCode = txtFCyCode;
+                            }
+                            else
+                            {
+                                criminal.FCYCode = oldCriminal.FCYCode;
+                            }
+                        }
+                        criminal.amount = 0;
+                    }
+                    
                     T_SHO_ManagerSet areaMset = new T_SHO_ManagerSetBLL().GetModel("criminalChangeSetByArea");
                     if (areaMset != null)
                     {
@@ -408,8 +437,17 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 }
                 else
                 {
+                    if (base.loginUserPrivate == "1")
+                    {
+                        criminal.amount = string.IsNullOrWhiteSpace(amount) == true ? 0 : Convert.ToDecimal(amount);
+                    }
+                    else
+                    {
+                        criminal.amount = 0;
+                    }
                     criminal.FAreaCode = txtFAreaCode;
                     criminal.FCYCode = txtFCyCode;
+                    
                 }
 
                 criminal.FAddr = txtFAddr;
@@ -510,6 +548,10 @@ namespace SelfhelpOrderMgr.Web.Controllers
         [PowerCheckFilterAttribute]//权限验证
         public ActionResult DelCriminal(string txtFCode)
         {
+            if (base.loginUserPrivate != "1")
+            {
+                return Content("Err|对不起，您没有删除人员的权限，请与管理员联系！");
+            }
                         
             //string txtFCode = Request["txtFCode"];
             if (string.IsNullOrEmpty(txtFCode))

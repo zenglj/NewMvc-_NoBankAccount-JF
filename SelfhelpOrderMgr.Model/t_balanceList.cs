@@ -191,6 +191,9 @@ namespace SelfhelpOrderMgr.Model
 
         //积分
         public decimal AccPoints { get; set; }
+
+        //ATM路费取现金额
+        public decimal AtmLuFeiAmount { get; set; }
     }
 }
 

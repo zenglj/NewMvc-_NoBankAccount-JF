@@ -99,6 +99,9 @@ function loadDetailTable() {
             },
             
             { field: 'MacId', title: '机器号', sortable: true, width: 100 },
+            { field: 'FCode', title: '狱政号', sortable: true, width: 100 },
+            { field: 'FName', title: '姓名', sortable: true, width: 100 },
+            { field: 'FAreaName', title: '队别', sortable: true, width: 100 },
 
             { field: 'Remark', title: '备注', sortable: true, width: 300 }
         ]],

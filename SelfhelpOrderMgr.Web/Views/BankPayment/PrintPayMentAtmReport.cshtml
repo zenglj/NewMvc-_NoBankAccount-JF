@@ -16,7 +16,7 @@
 <body>
     <div class="container-fluid">
         <div class="page-header ">
-            <h1 class="text-center">离监结算款支付方式对账表 <small>分类统计报表</small></h1>
+            <h1 class="text-center">离监领/付款(ATM机)对账表 <small>分类统计报表</small></h1>
 
         </div>
         <div class="row">
@@ -52,25 +52,25 @@
                             @foreach (var item in gp)
                             {
                                 string strPayMode = "[现金]";
-                                if(item.PayMode == 1)
+                                if (item.PayMode == 1)
                                 {
                                     strPayMode = "[ATM机]";
                                 }
-                                else if(item.PayMode == 2)
+                                else if (item.PayMode == 2)
                                 {
                                     strPayMode = "[转账]";
                                 }
-                            <tr style="font-size:large">
-                                <th>汇总</th>
-                                <th>@strPayMode</th>
-                                <th colspan="2">取款合计：</th>
-                                <td>@res.Sum(o => o.TranMoney)</td>
-                                <th colspan="2">零钞合计：</th>
-                                <td>@res.Sum(o => (o.Amount - o.TranMoney))</td>
-                                <th colspan="2">支付总合计：</th>
-                                <td>@res.Sum(o => o.Amount)</td>
-                                <td colspan="4"></td>
-                            </tr>
+                                <tr style="font-size:large">
+                                    <th>汇总</th>
+                                    <th>@strPayMode</th>
+                                    <th colspan="2">取款合计：</th>
+                                    <td>@res.Sum(o => o.TranMoney)</td>
+                                    <th colspan="2">零钞合计：</th>
+                                    <td>@res.Sum(o => (o.Amount - o.TranMoney))</td>
+                                    <th colspan="2">支付总合计：</th>
+                                    <td>@res.Sum(o => o.Amount)</td>
+                                    <td colspan="1"></td>
+                                </tr>
                             }
 
 
@@ -84,8 +84,8 @@
                                 <th>取款整钱</th>
                                 <th style="width:7%">支付零钱</th>
                                 <th>结算金额</th>
-                                <th>结果</th>
-                                <th style="width:5%">类型</th>
+                                @*<th>结果</th>
+                                <th style="width:5%">类型</th>*@
                                 <th style="width:6%">审核人</th>
                                 <th>结算日期</th>
                                 <th>摘要备注</th>
@@ -205,9 +205,9 @@
                                         <td>@item.TranMoney</td>
                                         <td>@ceAmount</td>
                                         <td>@item.Amount</td>
-                                        <td>@strFlag</td>
+                                        @*<td>@strFlag</td>
 
-                                        <td>@strTrantype</td>
+                                        <td>@strTrantype</td>*@
 
                                         <td>@item.AuditBy</td>
                                         <td>@item.Crtdate.ToString("yyyyMMdd")</td>
@@ -227,12 +227,8 @@
                                     <td>@sTranMoney</td>
                                     <td>@sCeAmount</td>
                                     <td>@sAmount</td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-
-                                    <td></td>
-                                    <td></td>
+                                    <td colspan="3">人民币(大写):@SelfhelpOrderMgr.Web.CommonHeler.MoneyConverter.ConvertToChineseMoney(sAmount.ToString())</td>
+                                    
                                 </tr>
                             }
 
@@ -261,6 +257,14 @@
 
                     </table>
                 }
+
+                <br />
+                <div class="row">
+                    <div class="col-sm-3"><strong>监狱领导：</strong></div>
+                    <div class="col-sm-3"><strong>财务：</strong></div>
+                    <div class="col-sm-3"><strong>部门负责人：</strong></div>
+                    <div class="col-sm-3"><strong>制表：</strong></div>
+                </div>
             </div>
             <div class="col-sm-2">
 

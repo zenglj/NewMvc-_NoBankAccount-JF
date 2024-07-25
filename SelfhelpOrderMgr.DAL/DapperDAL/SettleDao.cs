@@ -54,26 +54,64 @@ namespace SelfhelpOrderMgr.DAL
             var strJsonWhere = jss.Serialize(oWhere);
             T_Bank_PaymentRecord rec=new T_Bank_PaymentRecord();
             List<T_Bank_PaymentRecord> recs = this.GetModelList<T_Bank_PaymentRecord, T_Bank_PaymentRecord>(strJsonWhere,"Id",10);
-            if (recs.Count ==1)
+            T_SHO_ManagerSet mySet = new T_SHO_ManagerSetDAL().GetModel("JieSuanLuFeiQuXian");
+            if(mySet!=null && mySet.MgrValue == "1")
             {
-                rec = recs[0];
-                if (rec.TranStatus > 0)
+                if (recs.Count == 2)
+                {
+                    rec = recs[0];
+                    if (rec.TranStatus > 0)
+                    {
+                        rs.Flag = false;
+                        rs.ReMsg = msg;
+                        return rs;
+                    }
+                }
+                else if (recs.Count > 2)
                 {
                     rs.Flag = false;
-                    rs.ReMsg = msg;
+                    rs.ReMsg = $"错误，存在{recs.Count}条的离监付款记录，无法恢复，请以管理员联系";
                     return rs;
                 }
-            }
-            else if (recs.Count >1 )
-            {
-                rs.Flag = false;
-                rs.ReMsg = $"错误，存在{recs.Count}条的离监付款记录，无法恢复，请以管理员联系";
-                return rs;
+                if (recs.Count == 1)
+                {
+                    rec = recs[0];
+                    if (rec.TranStatus > 0)
+                    {
+                        rs.Flag = false;
+                        rs.ReMsg = msg;
+                        return rs;
+                    }
+                }
+                else
+                {
+
+                }
             }
             else
             {
+                if (recs.Count == 1)
+                {
+                    rec = recs[0];
+                    if (rec.TranStatus > 0)
+                    {
+                        rs.Flag = false;
+                        rs.ReMsg = msg;
+                        return rs;
+                    }
+                }
+                else if (recs.Count > 1)
+                {
+                    rs.Flag = false;
+                    rs.ReMsg = $"错误，存在{recs.Count}条的离监付款记录，无法恢复，请以管理员联系";
+                    return rs;
+                }
+                else
+                {
 
+                }
             }
+            
             
 
             //恢复在押
@@ -166,8 +204,41 @@ namespace SelfhelpOrderMgr.DAL
             //        ,sum(case when acctype=2 then damount-camount else 0 end) C
             //        ,sum(case when acctype=3 then damount-camount else 0 end) D
             //         from t_vcrd where flag=0 and fcrimecode=@fcrimecode group by fcrimecode) b where a.fcrimecode=b.fcrimecode;");
+
+            //删除ATM记录
+            strSql.Append(@"delete from T_Bank_PaymentDetail where MainId in(
+                    select Id from T_Bank_PaymentRecord a,(
+                    select top 1 fcrimecode,(AmountA+AmountB+AmountC) as TranAmount,AtmLuFeiAmount as AtmAmount,crtdate from  t_balanceList where fcrimecode =@fcrimecode Order by SeqNo Desc
+                    ) b
+                    where a.FCrimeCode=b.fcrimecode and a.Amount=b.TranAmount and CONVERT(varchar(10), a.Crtdate,120)=CONVERT(varchar(10), b.crtdate,120)
+                    and a.AuditFlag=0 and isnull(a.TranStatus,0)<=0
+                    );");
+            strSql.Append(@"delete from T_Bank_PaymentRecord where FCrimeCode=@fcrimecode and Id in(
+                select Id from T_Bank_PaymentRecord a,(
+                select top 1 fcrimecode,(AmountA+AmountB+AmountC) as TranAmount,AtmLuFeiAmount as AtmAmount,crtdate from  t_balanceList where fcrimecode =@fcrimecode Order by SeqNo Desc
+                ) b
+                where a.FCrimeCode=b.fcrimecode and a.Amount=b.TranAmount and CONVERT(varchar(10), a.Crtdate,120)=CONVERT(varchar(10), b.crtdate,120)
+                and a.AuditFlag=0 and isnull(a.TranStatus,0)<=0
+                );");
+            //删除转账记录
+            strSql.Append(@"delete from T_Bank_PaymentDetail where MainId in(
+                select Id from T_Bank_PaymentRecord a,(
+                select top 1 fcrimecode,(AmountA+AmountB+AmountC) as TranAmount,AtmLuFeiAmount as AtmAmount,crtdate from  t_balanceList where fcrimecode =@fcrimecode Order by SeqNo Desc
+                ) b
+                where a.FCrimeCode=b.fcrimecode and a.Amount=b.TranAmount and CONVERT(varchar(10), a.Crtdate,120)=CONVERT(varchar(10), b.crtdate,120)
+                and a.PayMode=2 
+                and a.AuditFlag=0 and isnull(a.TranStatus,0)<=0
+                );");
+            strSql.Append(@"delete from T_Bank_PaymentRecord where FCrimeCode=@fcrimecode and Id in(
+                select Id from T_Bank_PaymentRecord a,(
+                select top 1 fcrimecode,(AmountA+AmountB+AmountC) as TranAmount,AtmLuFeiAmount as AtmAmount,crtdate from  t_balanceList where fcrimecode =@fcrimecode Order by SeqNo Desc
+                ) b
+                where a.FCrimeCode=b.fcrimecode and a.Amount=b.AtmAmount and CONVERT(varchar(10), a.Crtdate,120)=CONVERT(varchar(10), b.crtdate,120)
+                and a.PayMode=1 
+                and a.AuditFlag=0 and isnull(a.TranStatus,0)<=0
+                );");
             strSql.Append(@"update t_Criminal_Card set cardflaga=1,amounta=b.a,amountb=b.b,amountc=b.c,AccPoints=b.d from t_Criminal_Card a,(
-                    select top 1 fcrimecode,amounta as A,amountb as B,amountc as C ,AccPoints as D from t_balanceList where fcrimecode=@fcrimecode order by Seqno desc) b where a.fcrimecode=b.fcrimecode;");
+                    select top 1 fcrimecode,amounta as A,amountb as B,amountc+isnull(AtmLuFeiAmount,0) as C ,AccPoints as D from t_balanceList where fcrimecode=@fcrimecode order by Seqno desc) b where a.fcrimecode=b.fcrimecode;");
             strSql.Append("delete t_balanceList where fcrimecode =@fcrimecode and Seqno=(select top 1 Seqno t_balanceList where fcrimecode =@fcrimecode Order by SeqNo Desc);");
         }
 

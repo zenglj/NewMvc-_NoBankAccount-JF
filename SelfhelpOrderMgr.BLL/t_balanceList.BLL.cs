@@ -162,6 +162,11 @@ namespace SelfhelpOrderMgr.BLL
 						model.AccPoints = decimal.Parse(dt.Rows[0]["AccPoints"].ToString());
 					}
 
+					if (dt.Rows[0]["AtmLuFeiAmount"].ToString() != "")
+					{
+						model.AtmLuFeiAmount = decimal.Parse(dt.Rows[0]["AtmLuFeiAmount"].ToString());
+					}
+					
 					modelList.Add(model);
 				}
 			}

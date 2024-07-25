@@ -227,7 +227,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
             if (Request.Files.Count > 0)
             {
                 photo = Request.Files[0];
-                if (photo != null)
+                if (photo != null && !string.IsNullOrWhiteSpace( photo.FileName))
                 {
                     //byte[] imageBytes = null;
 
@@ -241,6 +241,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                     //return base64String;
 
                     photoFileName = photo.FileName;
+
                     string savePath = Server.MapPath("~/Upload/" + photoFileName);
                     photo.SaveAs(savePath);
                     string base64String =Base64ToImageHelper.ImgToBase64StringByReturn(savePath);

@@ -950,7 +950,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 if (good.Ffreeflag == 1)//如果是非限制商品
                 {
                     strFreeFlag = "1";
-                    if (criminal.OkUseAllMoney >= (order.FAmount + model.GAmount))
+                    //criminal.OkUseAllMoney
+                    if (criminal.AccPoints >= (order.FAmount + model.GAmount))
                     {
                         //执行订单明细记录插入
                         status = DoAddOrderDetail(status, model, strFreeFlag);

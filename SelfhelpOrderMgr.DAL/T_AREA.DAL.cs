@@ -73,7 +73,8 @@ namespace SelfhelpOrderMgr.DAL
             strSql.Append(" FID = @FID , ");
             strSql.Append(" URL = @URL , ");
             strSql.Append(" FTZSP_Money = @FTZSP_Money , ");
-            strSql.Append(" SaleCloseFlag = @SaleCloseFlag  ");
+            strSql.Append(" SaleCloseFlag = @SaleCloseFlag , ");
+            strSql.Append(" JiFenCloseFlag = @JiFenCloseFlag  ");
             strSql.Append(" where FCode=@FCode  ");
 
             SqlParameter[] parameters = {
@@ -83,8 +84,9 @@ namespace SelfhelpOrderMgr.DAL
                         new SqlParameter("@FID", SqlDbType.VarChar,50) ,            
                         new SqlParameter("@URL", SqlDbType.VarChar,50) ,            
                         new SqlParameter("@FTZSP_Money", SqlDbType.Decimal,9) ,            
-                        new SqlParameter("@SaleCloseFlag", SqlDbType.Int,4)             
-              
+                        new SqlParameter("@SaleCloseFlag", SqlDbType.Int,4),
+                        new SqlParameter("@JiFenCloseFlag", SqlDbType.Int,4)
+
             };
 
             parameters[0].Value = model.FCode;
@@ -94,6 +96,7 @@ namespace SelfhelpOrderMgr.DAL
             parameters[4].Value = model.URL;
             parameters[5].Value = model.FTZSP_Money;
             parameters[6].Value = model.SaleCloseFlag;
+            parameters[7].Value = model.JiFenCloseFlag;
             int rows = SqlHelper.ExecuteSql(strSql.ToString(), parameters);
             if (rows > 0)
             {
@@ -140,7 +143,7 @@ namespace SelfhelpOrderMgr.DAL
         {
 
             StringBuilder strSql = new StringBuilder();
-            strSql.Append("select FCode, FName, ID, FID, URL, FTZSP_Money, SaleCloseFlag  ");
+            strSql.Append("select FCode, FName, ID, FID, URL, FTZSP_Money, SaleCloseFlag ,JiFenCloseFlag ");
             strSql.Append("  from T_AREA ");
             strSql.Append(" where FCode=@FCode ");
             SqlParameter[] parameters = {
@@ -166,7 +169,11 @@ namespace SelfhelpOrderMgr.DAL
                 {
                     model.SaleCloseFlag = int.Parse(ds.Tables[0].Rows[0]["SaleCloseFlag"].ToString());
                 }
-
+                if (ds.Tables[0].Rows[0]["JiFenCloseFlag"].ToString() != "")
+                {
+                    model.JiFenCloseFlag = int.Parse(ds.Tables[0].Rows[0]["JiFenCloseFlag"].ToString());
+                }
+                
                 return model;
             }
             else

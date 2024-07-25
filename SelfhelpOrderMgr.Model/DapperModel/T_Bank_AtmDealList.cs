@@ -17,6 +17,26 @@ namespace SelfhelpOrderMgr.Model
         /// </summary>
         [System.ComponentModel.Description("流水号")]
         public string AtmSerialNo {get;set;}
+
+
+        /// <summary>
+        /// 狱号
+        /// </summary>
+        [System.ComponentModel.Description("狱号")]
+        public string FCode { get; set; }
+
+        /// <summary>
+        /// 姓名
+        /// </summary>
+        [System.ComponentModel.Description("姓名")]
+        public string FName { get; set; }
+
+        /// <summary>
+        /// 队别
+        /// </summary>
+        [System.ComponentModel.Description("队别")]
+        public string FAreaName { get; set; }
+
         /// <summary>
         /// 动作类型
         /// </summary>

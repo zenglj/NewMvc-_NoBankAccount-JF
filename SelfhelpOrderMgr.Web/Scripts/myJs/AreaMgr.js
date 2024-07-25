@@ -47,6 +47,7 @@ var SaleTypes = [{ "value": "1", "text": "超市消费" }, { "value": "2", "text
 
 //默认是0为开，1为关
 var FlagTypes = [{ "value": "0", "text": "开" }, { "value": "1", "text": "关" }];
+var JiFenFlagTypes = [{ "value": "0", "text": "开" }, { "value": "1", "text": "关" }];
 
 function unitformatter(value, rowData, rowIndex) {
     if (value == 0) {
@@ -68,6 +69,17 @@ function FlagFormatter(value, rowData, rowIndex) {
         }
     }
 }
+
+function JiFenFlagFormatter(value, rowData, rowIndex) {
+
+    for (var i = 0; i < JiFenFlagTypes.length; i++) {
+        if (JiFenFlagTypes[i].value == value) {
+            return JiFenFlagTypes[i].text;
+        }
+    }
+}
+
+
 
 function loadTableList() {
     //载入列表清单
@@ -102,7 +114,7 @@ function loadTableList() {
                 field: 'SaleCloseFlag', width: 60, sortable: true, title: '消费开单状态', formatter: FlagFormatter, editor: { type: 'combobox', options: { data: FlagTypes, valueField: "value", textField: "text" } }
             },
             {
-                field: 'JiFenCloseFlag', width: 60, sortable: true, title: '积分消费状态', formatter: FlagFormatter, editor: { type: 'combobox', options: { data: FlagTypes, valueField: "value", textField: "text" } }
+                field: 'JiFenCloseFlag', width: 60, sortable: true, title: '积分消费状态', formatter: JiFenFlagFormatter, editor: { type: 'combobox', options: { data: JiFenFlagTypes, valueField: "value", textField: "text" } }
             }]]
     });
 }

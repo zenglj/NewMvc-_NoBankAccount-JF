@@ -549,7 +549,7 @@ namespace SelfhelpOrderMgr.DAL
                 select stockid from t_stock where invoiceno in(" + strInvoices + "));");//删除出库单明细
             strSql.Append(@"Delete from t_stock where InvoiceNo in (" + strInvoices + ");");//删除主出库单
             strSql.Append(@"update t_Criminal_Card set AccPoints=AccPoints+b.Fmoney from
-                (select FcrimeCode,sum(Camount) Fmoney from t_JF_Vcrd where OrigId in (" + strInvoices + @") and Flag=0  and isnull(BankFlag,0)<=0 
+                (select FcrimeCode,sum(Camount-Damount) Fmoney from t_JF_Vcrd where OrigId in (" + strInvoices + @") and Flag=0  and isnull(BankFlag,0)<=0 
                 group by FcrimeCode) b
                 where t_Criminal_Card.FCrimeCode=b.FCrimeCode;");//更新账户余额
             strSql.Append(@"update t_JF_Vcrd set flag=1,delby=@crtby,deldate=getdate() where OrigId in(" + strInvoices + ") and Flag=0  and isnull(BankFlag,0)=0;");//删除VCrd的记录
@@ -636,7 +636,7 @@ namespace SelfhelpOrderMgr.DAL
                     ,TYPEFLAG,acctype,Bankflag,checkflag,checkby,pc,curUserAmount
                     ,curAllAmount,PayAuditFlag,[FinancePayFlag],[BankInterfaceFlag])
                     select 'V'+InvoiceNo as VOUNO,cardcode,fcrimecode,amount as DAMOUNT,0 as CAMOUNT,@CrtBy as CrtBy,CRTDATE
-                    ,'积分退货' as DTYPE,'' as DEPOSITER,REMARK,flag,fareacode,fareaName,fcriminal,Frealareacode,FrealAreaName
+                    ,'积分退货' as DTYPE,'' as DEPOSITER,REMARK,0 as flag,fareacode,fareaName,fcriminal,Frealareacode,FrealAreaName
                     ,ptype,getdate() as udate,'TH' + [InvoiceNo] as origid,cardtype,TYPEFLAG,0 as acctype,0 as Bankflag,checkflag
                     ,@CrtBy as checkby,0 as pc,0 as curUserAmount,0 as curAllAmount,0 as PayAuditFlag,0 as [FinancePayFlag],0 as [BankInterfaceFlag] 
                     from T_JF_Invoice where INVOICENO in(" + strInvoices + ");");

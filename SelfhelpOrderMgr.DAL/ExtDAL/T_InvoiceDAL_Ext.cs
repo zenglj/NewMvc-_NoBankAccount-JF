@@ -517,7 +517,7 @@ namespace SelfhelpOrderMgr.DAL
                 select stockid from t_stock where invoiceno in(" + strInvoices + "));");//删除出库单明细
             strSql.Append(@"Delete from t_stock where InvoiceNo in (" + strInvoices + ");");//删除主出库单
             strSql.Append(@"update t_Criminal_Card set AmountA=AmountA+b.Fmoney from
-                (select FcrimeCode,sum(Camount) Fmoney from t_Vcrd where OrigId in (" + strInvoices + @") and Flag=0  and isnull(BankFlag,0)<=0 and AccType=0
+                (select FcrimeCode,sum(Camount-Damount) Fmoney from t_Vcrd where OrigId in (" + strInvoices + @") and Flag=0  and isnull(BankFlag,0)<=0 and AccType=0
                 group by FcrimeCode) b
                 where t_Criminal_Card.FCrimeCode=b.FCrimeCode;
                 update t_Criminal_Card set AmountB=AmountB+b.Fmoney from
@@ -620,7 +620,7 @@ namespace SelfhelpOrderMgr.DAL
                     ,TYPEFLAG,acctype,Bankflag,checkflag,checkby,pc,curUserAmount
                     ,curAllAmount,PayAuditFlag,[FinancePayFlag],[BankInterfaceFlag])
                     select 'V'+InvoiceNo as VOUNO,cardcode,fcrimecode,amountB as DAMOUNT,0 as CAMOUNT,@CrtBy as CrtBy,CRTDATE
-                    ,'积分退货' as DTYPE,'' as DEPOSITER,REMARK,flag,fareacode,fareaName,fcriminal,Frealareacode,FrealAreaName
+                    ,'积分退货' as DTYPE,'' as DEPOSITER,REMARK,0 as flag,fareacode,fareaName,fcriminal,Frealareacode,FrealAreaName
                     ,ptype,getdate() as udate,'TH' + [InvoiceNo] as origid,cardtype,TYPEFLAG,0 as acctype,0 as Bankflag,checkflag
                     ,@CrtBy as checkby,0 as pc,0 as curUserAmount,0 as curAllAmount,0 as PayAuditFlag,0 as [FinancePayFlag],0 as [BankInterfaceFlag] 
                     from T_Invoice where AmountB<>0 and INVOICENO in(" + strInvoices + ");");

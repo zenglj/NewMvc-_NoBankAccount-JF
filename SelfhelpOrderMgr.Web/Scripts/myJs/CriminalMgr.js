@@ -160,6 +160,7 @@ function loadDetailTable() {
             { field: 'CardCode', title: 'IC卡', sortable: true, width: 100 },
             { field: 'BankCardNo', title: '旧烛光卡', sortable: true, width: 200 },
             { field: 'SecondaryBankCard', title: '新结算银行卡', sortable: true, width: 200 },
+            { field: 'amount', title: '最大存款金额', sortable: true, width: 200 },
             { field: 'TP_YingYangCan_Money', title: '特批金额', sortable: true, width: 200 },
             {
                 field: 'RSB_Flag', title: '入监/所包', width: 120, sortable: true, formatter: function (value, row, index) {
@@ -216,14 +217,24 @@ function setDataRowInfo(rowData) {
     $("#txtFDesc").textbox("setValue", rowData.FDesc);
     $("#txtFInDate").val(getShortTime(rowData.FInDate));
     $("#txtFOuDate").val(getShortTime(rowData.FOuDate));
+    $("#MaxMoney").textbox("setValue", rowData.amount);
     $("#TP_YingYangCan_Money").textbox("setValue", rowData.TP_YingYangCan_Money);
 
-    if ($("#areaMset").val() == "0") {
+    if ($("#userPower").val() == "1") {
         $("#txtFAreaCode").combobox('enable');
-    }
-    if ($("#cyMset").val() == "0") {
         $("#txtFCyCode").combobox('enable');
+        $("#MaxMoney").combobox('enable');
     }
+    else {
+        if ($("#areaMset").val() == "0") {
+            $("#txtFAreaCode").combobox('enable');
+        }
+        if ($("#cyMset").val() == "0") {
+            $("#txtFCyCode").combobox('enable');
+        }
+        $("#MaxMoney").combobox('disabled');
+    }
+    
 
 }
 
@@ -477,7 +488,8 @@ function btnSaveCriminal() {
                                 FOuDate: criminal.FOuDate,
                                 FIdenNo: criminal.FIdenNo,
                                 FSex: criminal.FSex,
-                                FDesc: criminal.FDesc
+                                FDesc: criminal.FDesc,
+                                amount:criminal.amount
                             });
                         }
                     }

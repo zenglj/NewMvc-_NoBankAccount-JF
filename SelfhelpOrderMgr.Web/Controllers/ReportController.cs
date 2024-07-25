@@ -680,13 +680,13 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         if(intFlag==0)
                         {
                             //队别名称改回从Vcrd取
-                            strSql.Append("select FCrimeCode,FCriminal,a.FAreaName,Sum(Damount) Damount,Sum(Camount) Camount,b.Remark from T_VCrd a" +
+                            strSql.Append("select FCrimeCode,FCriminal,b.FAreaName,Sum(Damount) Damount,Sum(Camount) Camount,b.Remark from T_VCrd a" +
                                 ",(Select FCode ,FAreaName=(select fname from t_area where fcode=e.FAreaCode),case when isnull(e.fflag,0)=1 then '离监' when isnull(e.fflag,0)=2 then '保外' else '在押' end as Remark from T_Criminal e ) b   ");
 
                         }else
                         {
                             //队别名称改回从Vcrd取
-                            strSql.Append("select FCrimeCode 编号,FCriminal 姓名,a.FAreaName 队别,Sum(Damount) 收入,Sum(Camount) 支出,Sum(Damount-Camount) 余额,b.Remark 备注 from T_VCrd a" +
+                            strSql.Append("select FCrimeCode 编号,FCriminal 姓名,b.FAreaName 队别,Sum(Damount) 收入,Sum(Camount) 支出,Sum(Damount-Camount) 余额,b.Remark 备注 from T_VCrd a" +
                                 ",(Select FCode ,FAreaName=(select fname from t_area where fcode=e.FAreaCode),case when isnull(e.fflag,0)=1 then '离监' when isnull(e.fflag,0)=2 then '保外' else '在押' end as Remark from T_Criminal e ) b  ");
                         }
                         strSql.Append(" Where a.fcrimecode=b.FCode and " + strWhere);
@@ -1022,22 +1022,30 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         
                         if (intFlag == 0)
                         {
-                            strSql.Append("select b.*,a.AmountA,a.AmountB,a.AmountC,a.PayMode from t_balanceList a,(");
-                            strSql.Append("select Top 5000 FCrimeCode,FCriminal,Dtype,FAreaName,FAreaCode,convert(varchar(10), CrtDate,120) as CrtDate ,BankFlag,Remark from T_VCrd  ");
+                            //strSql.Append("select b.*,a.AmountA,a.AmountB,a.AmountC,a.PayMode from t_balanceList a,(");
+                            strSql.Append(@"select Top 5000 FCrimeCode,FCriminal,'离监取款' as Dtype,FAreaName,FAreaCode,convert(varchar(10), CrtDate,120) as CrtDate ,PayMode,Remark
+                                        , sum(case acctype when 0 then CAMOUNT-DAMOUNT else 0 end) AmountA
+                                        , sum(case acctype when 1 then CAMOUNT-DAMOUNT else 0 end) AmountB
+                                        , sum(case acctype when 2 then CAMOUNT-DAMOUNT else 0 end) AmountC
+                                        , sum(case acctype when 3 then CAMOUNT-DAMOUNT else 0 end) AccPoints from T_VCrd  ");
                         }
                         else
                         {
-                            strSql.Append("select b.*,a.AmountA,a.AmountB,a.AmountC,a.PayMode from t_balanceList a,(");
-                            strSql.Append("select Top 200000 FCrimeCode 编号,FCriminal 姓名,Dtype 类型,FAreaName 队别,FAreaCode 队别号,convert(varchar(10), CrtDate,120) 日期,BankFlag 银行标志,Remark 备注 from T_VCrd  ");
+                            //strSql.Append("select b.*,a.AmountA,a.AmountB,a.AmountC,a.PayMode from t_balanceList a,(");
+                            strSql.Append(@"select Top 200000 FCrimeCode 编号,FCriminal 姓名,'离监取款' 类型,FAreaName 队别,FAreaCode 队别号,convert(varchar(10), CrtDate,120) 日期,PayMode 支付模式,Remark 备注
+                                    , sum(case acctype when 0 then CAMOUNT-DAMOUNT else 0 end) 存款
+                                    , sum(case acctype when 1 then CAMOUNT-DAMOUNT else 0 end) 劳酬
+                                    , sum(case acctype when 2 then CAMOUNT-DAMOUNT else 0 end) 留存
+                                    , sum(case acctype when 3 then CAMOUNT-DAMOUNT else 0 end) 积分兑换 from T_VCrd  ");
                         }
                         strSql.Append(" Where " + strWhere);
                         strSql.Append(" and typeflag in(5,6) ");
-                        strSql.Append(" group by FCrimeCode,FCriminal,Dtype,FAreaName,FAreaCode,convert(varchar(10), CrtDate,120),BankFlag,Remark ) b ");
-                        strSql.Append(" where a.fcrimecode =b.fcrimecode and CONVERT(varchar(10), a.crtdate,120)=b.CrtDate");
+                        strSql.Append(" group by FCrimeCode,FCriminal,FAreaName,FAreaCode,convert(varchar(10), CrtDate,120),PayMode,Remark ");
+                        //strSql.Append(" where a.fcrimecode =b.fcrimecode and CONVERT(varchar(10), a.crtdate,120)=b.CrtDate");
 
-                        strSql.Append(" Order by PayMode,FAreaCode,b.Crtdate ;");
+                        strSql.Append(" Order by PayMode,FAreaCode,convert(varchar(10), CrtDate,120) ;");
 
-
+                        strSql.ToString();
 
                         title = "出监结算统计报表";
                         return;

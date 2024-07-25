@@ -1,0 +1,231 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>NewPrintOutPrisonReport</title>
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+    @*<link href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.cs" rel="stylesheet" />*@
+
+    
+</head>
+<body>
+    <div>
+        <div class="row">
+            <div class="col-md-2"></div>
+            <div class="col-md-8">
+
+                <div>
+                    @if (ViewData["prove"] != null)
+                    {
+                        string strPayMode = "未知方式";
+                        string strRemark = "特别提示:请仔细核对结算单上的收款人账号、姓名、开户行信息，如因信息错误导致无法汇款到账，刑释人员需本人到监狱补办结算领款手续！";
+                        string strIdenNo = "_______________________________";
+                        string strUnitName = "监狱";
+
+                        SelfhelpOrderMgr.Model.t_BankProve prove = ViewData["prove"] as SelfhelpOrderMgr.Model.t_BankProve;
+                        SelfhelpOrderMgr.Model.t_balanceList bal=ViewData["balanceList"] as SelfhelpOrderMgr.Model.t_balanceList;
+                        if (prove.PayMode == 0)
+                        {
+                            strPayMode = "现金领取";
+                        }
+                        else if (prove.PayMode == 1)
+                        {
+                            strPayMode = "狱内ATM机取款";
+                            strRemark = "特别提示:您选择的取款方式：狱内ATM取款，请使用本人IC和本结算单的取款密码【 " + prove.WithdrawalPassword + " 】，到狱内ATM机上取款，请注意保管密码，不用泄露！ATM取款机处设配有全天候监控，您取完款后，IC卡自动回收";
+
+                        }
+                        else if (prove.PayMode == 2)
+                        {
+                            strPayMode = "转账支付";
+                        }
+                        else if (prove.PayMode == 5)
+                        {
+                            strPayMode = "放弃领款";
+                        }
+                        if (string.IsNullOrWhiteSpace(prove.FIdenNo) == false)
+                        {
+                            strIdenNo = prove.FIdenNo;
+                        }
+                        if (string.IsNullOrWhiteSpace(prove.UnitName) == false)
+                        {
+                            strUnitName = prove.UnitName;
+                        }
+                        string strPrintTitle = "";
+                        if (prove.PrintCount > 1)
+                        {
+                            strPrintTitle = "第" + prove.PrintCount + "次补打";
+                        }
+                        <div>
+                            <h3 class="text-center">罪犯离监账上余额领取申请报告<small>@strPrintTitle</small></h3>
+
+                            <h3 class="text-left"><span>@strUnitName</span>财务科:</h3>
+
+                            <p>
+                                <strong>　　</strong>本人<u> <strong>@prove.fname</strong> </u>是<u> <strong>@prove.fareaName</strong> </u>罪犯，
+                                身份证号：<u> <strong>@strIdenNo</strong>  </u>
+                                ,狱证编号：<u> <strong>@prove.fcode</strong>  </u>
+                                ,结算卡账号：<u> <strong>@prove.BankCode</strong>  </u>,将于_____年_____月_____日刑满释放，特申请将本人离监结算后的账上余额<strong><span id="jsMoney3"></span> (¥: @prove.CardMoney),其中积分兑换(¥:@bal.AccPoints)</strong>
+                                @if (prove.PayMode == 2)
+                                {
+                                    <span>转至亲属账户：收款人姓名：</span><u> <strong>@prove.BankUserName</strong> </u> <span>(与本人系</span><u> <strong> @prove.OutBankRemark </strong>  </u><span>),开户行名称：</span><u> <strong>@prove.OpeningBank</strong>  </u>
+                                    <span>,银行账号：</span><u> <strong>@prove.OutBankCard</strong>  。</u>
+                                }
+                                else if (prove.PayMode == 1)
+                                {
+                                    <span>,将通过<strong><u>@strPayMode</u></strong>方式支取全部金额。</span>
+                                }
+                                else
+                                {
+                                    <span>,将通过<strong><u>@strPayMode</u></strong>方式支取全部金额。</span>
+                                }
+                            </p>
+                            <p>　　<strong>本人对以上信息的准确性负责，如因此产生的一切经济法律责任，由本人自行承担。</strong></p>
+
+                            <br />
+                            <h5 style="text-align:right">申请人(签字按手印):　　　　　　　　　　　</h5>
+                            <h5 style="text-align:right">　　　年　　月　　日　　　</h5>
+
+                        </div>
+                        <br />
+                        <hr />
+                        <br />
+
+                        <div>
+
+
+                            <table>
+
+                                <tr style="height:20px;">
+                                    <td style="width:600px;">审批栏:</td>
+                                    <td style="width:600px;text-align:right;">_____年_____月_____日 </td>
+                                </tr>
+                            </table>
+                            <table class="table table-bordered">
+                                <tr style="height:20px;">
+                                    <td style="width:150px;">同意该犯申请</td>
+                                    <td colspan="3"></td>
+                                </tr>
+                                <tr style="height:20px;">
+                                    <td style="width:150px;">经办民警</td>
+                                    <td></td>
+                                    <td style="width:150px;">监区领导</td>
+                                    <td></td>
+                                </tr>
+                                <tr style="height:20px;">
+                                    <td style="width:150px;">供应站经办</td>
+                                    <td></td>
+                                    <td style="width:150px;">供应站负责人</td>
+                                    <td></td>
+                                </tr>
+                                <tr style="height:20px;">
+                                    <td style="width:150px;">生卫科长</td>
+                                    <td colspan="3"></td>
+
+                                </tr>
+
+                            </table>
+
+                        </div>
+
+                        <br />
+                        <hr />
+                        <br />
+
+                        <div>
+                            <h3 class="text-center">消费一卡通结算凭证<small>@strPrintTitle</small></h3>
+
+                            <table>
+                                <tr style="height:20px;">
+                                    <td style="width:600px;">单位:@prove.fareaName</td>
+                                    <td style="width:300px;">日期：@prove.crtDate.ToShortDateString()</td>
+                                    <td style="width:200px;">(第二联 存档)</td>
+                                </tr>
+                            </table>
+                            <table class="table table-bordered">
+                                <tr>
+                                    <td>狱政编号:</td>
+                                    <th>@prove.fcode</th>
+                                    <td>学员姓名:</td>
+                                    <th colspan="2">@prove.fname</th>
+                                    <td rowspan="4" style="width:100px; line-height:100px;">相片</td>
+                                </tr>
+                                <tr>
+                                    <td>结算模式:</td>
+
+                                    <th colspan="4">@strPayMode</th>
+                                </tr>
+                                <tr>
+                                    <td>收款人姓名:</td>
+                                    <th>@prove.BankUserName </th>
+                                    <td>关系:</td>
+                                    <th>@prove.OutBankRemark</th>
+
+                                </tr>
+                                <tr>
+                                    <td>收款账号:</td>
+                                    <th colspan="4">@prove.OutBankCard</th>
+
+
+                                </tr>
+                                <tr>
+                                    <td>开户银行名称:</td>
+                                    <th colspan="5">@prove.OpeningBank</th>
+
+                                </tr>
+                                <tr>
+                                    <td>结算余额:</td>
+                                    <th colspan="5"> <span id="jsMoney2"></span>(@prove.CardMoney ) <input type="hidden" id="jsMoney" value="@prove.CardMoney" /></th>
+
+                                </tr>
+                                <tr>
+                                    <th colspan="6">
+                                        @if (prove != null)
+                                        {
+                                            string strRemarkInfo = "备注:该服刑人员一卡通余额:" + prove.CardMoney + "元，已通过【" + strPayMode + "】结清并收回IC卡";
+                                            if (prove.PayMode == 1)
+                                            {
+                                                strRemarkInfo = "备注:您的一卡通余额:" + prove.CardMoney + "元,已通过【" + strPayMode + "】结清，请在释放当日持IC卡到本监内的ATM上取结余款，取款密码是:" + prove.WithdrawalPassword + ",请妥善保管避免泄露及丢失。";
+                                            }
+                                            else if (prove.PayMode == 2)
+                                            {
+                                                strRemarkInfo = "备注:您的一卡通余额:" + prove.CardMoney + "元(其中积分兑换"+ bal.AccPoints +"元),已通过【" + strPayMode + "】结清，余额将汇到您指定的银行账户：" + prove.OutBankCard + "(" + prove.BankUserName + "),开户行:" + prove.OpeningBank;
+
+                                            }
+                                                                            
+                                            <p>@strRemarkInfo</p>
+                                        }</th>
+                                    </table>
+                            <table>
+                                <tr><td style="width:500px;">罪犯：</td><td>经办人：</td></tr>
+                            </table>
+
+
+                        </div>
+
+
+                    }
+                </div>
+                <div class="col-md-2"></div>
+            </div>
+        </div>
+    </div>
+    <script src="~/Scripts/jquery-1.11.3.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <script src="~/Scripts/myJs/commonJs.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            var jsmoney = $("#jsMoney").val();
+            $("#jsMoney1").html("人民币:" + DX(jsmoney) + "");
+            $("#jsMoney2").html("人民币:" + DX(jsmoney) + "");
+            $("#jsMoney3").html("人民币:" + DX(jsmoney) + "");
+
+        });
+    </script>
+</body>
+</html>

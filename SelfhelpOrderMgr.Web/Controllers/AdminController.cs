@@ -110,6 +110,11 @@ namespace SelfhelpOrderMgr.Web.Controllers
                             //写入Cookie
                             Response.Cookies.Set(cookieCode);
 
+                            HttpCookie cookiePrivate = new HttpCookie("loginUserAdmin", user.FPRIVATE.ToString());
+                            cookiePrivate.Expires = DateTime.Now.AddHours(4);
+                            //写入Cookie
+                            Response.Cookies.Set(cookieCode);
+
                             strCookieLogin = "COOKIE";
                             Session["loginUserAdmin"] = user.FPRIVATE;
                             Session["loginUserCode"] = user.FCode;

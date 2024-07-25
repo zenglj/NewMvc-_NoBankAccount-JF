@@ -235,8 +235,10 @@
     <Compile Include="CommonHeler\DocxToPdfConvertHelper.cs" />
     <Compile Include="CommonHeler\ExcelRender.cs" />
     <Compile Include="CommonHeler\HardwareInfo.cs" />
+    <Compile Include="CommonHeler\IdentityCardHelper.cs" />
     <Compile Include="CommonHeler\LicenseHelper.cs" />
     <Compile Include="CommonHeler\MD5Process.cs" />
+    <Compile Include="CommonHeler\MoneyConverter.cs" />
     <Compile Include="CommonHeler\RegexHelper.cs" />
     <Compile Include="CommonHeler\SocketHelper.cs" />
     <Compile Include="CommonHeler\WebServiceHelper.cs" />
@@ -1255,7 +1257,7 @@
     <Content Include="Views\BankRcv\BankYearReport.cshtml" />
     <Content Include="Views\BankPayment\PrintPaymentReport.cshtml" />
     <Content Include="Views\BankPayment\PrintPaymentMonthReport.cshtml" />
-    <Content Include="Views\Infomgr\NewPrintOutPrisonReport.cshtml" />
+    <Content Include="Views\Infomgr\NewPrintOutPrisonReport-zzjy.cshtml" />
     <Content Include="Views\Power\LogMgr.cshtml" />
     <Content Include="Views\JfShopping\Index.cshtml" />
     <Content Include="Views\Laobao\CSJY_PrintReportList.cshtml" />
@@ -1305,6 +1307,9 @@
     <Content Include="Views\Family\PrintRepeatDetailReport.cshtml" />
     <Content Include="Views\BankAtmMgr\PrintDetailReport.cshtml" />
     <Content Include="Views\Home\WebCamTest3_压缩.cshtml" />
+    <Content Include="Views\Infomgr\NewPrintOutPrisonReport -一般.cshtml" />
+    <Content Include="Views\Infomgr\NewPrintOutPrisonReport - LJJY.cshtml" />
+    <Content Include="Views\Infomgr\NewPrintOutPrisonReport.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

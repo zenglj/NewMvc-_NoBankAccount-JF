@@ -132,7 +132,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
                     return Content("Err|您传入错误的参数");
             }
 
-            List<T_Invoice> phds = new T_InvoiceBLL().GetModelList("Invoiceno in(" + strSql.ToString() + ")");
+            List<T_JF_Invoice> phds = _jifenMgrService.GetPageList<T_JF_Invoice>("Id desc ","",1,10000, "Invoiceno in(" + strSql.ToString() + ")")
+                .rows;
 
 
 

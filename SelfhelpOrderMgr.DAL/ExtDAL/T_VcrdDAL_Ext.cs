@@ -76,7 +76,8 @@ namespace SelfhelpOrderMgr.DAL
                 List<T_CommonTypeTab> mainType;
                 //List<T_CommonTypeTab> subType;
                 int i = 0;
-                if (iType == 0)
+                if (iType == 2)//取
+
                 {
                     strSql.Append(@"select ID,FType,FCode,FName,FRemark from T_CommonTypeTab where FTYpe='CWKM' and FRemark='支';");
                     mainType= (List<T_CommonTypeTab>)conn.Query<T_CommonTypeTab>(strSql.ToString());
@@ -84,13 +85,15 @@ namespace SelfhelpOrderMgr.DAL
                     //strSql.Append(@"select 0 ID ,'' FType,FCode,FName,'' FRemark from T_SaveType where TypeFlag=1;");
                     //subType= (List<T_CommonTypeTab>)conn.Query<T_CommonTypeTab>(strSql.ToString());              
                 }
-                else
+                if (iType == 1)//存
                 {
                     strSql.Append(@"select ID,FType,FCode,FName,FRemark from T_CommonTypeTab where FTYpe='CWKM' and FRemark='收';");
                     mainType = (List<T_CommonTypeTab>)conn.Query<T_CommonTypeTab>(strSql.ToString());
-                    //strSql = new StringBuilder();
-                    //strSql.Append(@"select 0 ID ,'' FType,FCode,FName,'' FRemark from T_SaveType where TypeFlag=0;");
-                    //subType = (List<T_CommonTypeTab>)conn.Query<T_CommonTypeTab>(strSql.ToString());
+                }
+                else
+                {
+                    strSql.Append(@"select ID,FType,FCode,FName,FRemark from T_CommonTypeTab where FTYpe='CWKM';");
+                    mainType = (List<T_CommonTypeTab>)conn.Query<T_CommonTypeTab>(strSql.ToString());
                 }
                 foreach (T_CommonTypeTab savetype in mainType)
                 {

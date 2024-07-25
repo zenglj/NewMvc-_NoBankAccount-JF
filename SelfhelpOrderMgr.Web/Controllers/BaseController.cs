@@ -1,5 +1,6 @@
 ﻿using SelfhelpOrderMgr.BLL;
 using SelfhelpOrderMgr.Common;
+using SelfhelpOrderMgr.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +15,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
     {
         protected string loginUserCode;
         protected string loginUserName ;
+        protected string loginUserPrivate;
+        
         protected JavaScriptSerializer jss = new JavaScriptSerializer();
         protected BaseDapperBLL _baseDapperBll = new BaseDapperBLL();
         protected override void OnActionExecuting(ActionExecutingContext filterContext)
@@ -31,8 +34,12 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 {
                     Session["loginUserCode"] = Request.Cookies["loginUserCode"].Value;
                     Session["loginUserName"] = Request.Cookies["loginUserName"].Value;
+                    Session["loginUserAdmin"] = Request.Cookies["loginUserAdmin"].Value;
                     loginUserName = Session["loginUserName"].ToString();
                     loginUserCode = Session["loginUserCode"].ToString();
+                    var user=_baseDapperBll.QueryModel<T_CZY>("FCode", Session["loginUserCode"].ToString());
+                    
+                    loginUserPrivate= user.FPRIVATE.ToString();
                 }
                 //filterContext.HttpContext.Response.Redirect("/Admin/Index");
                 
@@ -41,6 +48,9 @@ namespace SelfhelpOrderMgr.Web.Controllers
             {
                 loginUserName = Session["loginUserName"].ToString();
                 loginUserCode = Session["loginUserCode"].ToString();
+                //loginUserPrivate = Session["loginUserAdmin"].ToString();
+                var user = _baseDapperBll.QueryModel<T_CZY>("FCode", Session["loginUserCode"].ToString());
+                loginUserPrivate = user.FPRIVATE.ToString();
                 base.OnActionExecuting(filterContext);
             }
         }

@@ -106,6 +106,11 @@ namespace SelfhelpOrderMgr.BLL
                         model.SaleCloseFlag = int.Parse(dt.Rows[n]["SaleCloseFlag"].ToString());
                     }
 
+                    if (dt.Rows[n]["JiFenCloseFlag"].ToString() != "")
+                    {
+                        model.JiFenCloseFlag = int.Parse(dt.Rows[n]["JiFenCloseFlag"].ToString());
+                    }
+                    
 
                     modelList.Add(model);
                 }

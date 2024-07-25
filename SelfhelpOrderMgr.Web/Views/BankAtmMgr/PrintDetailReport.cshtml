@@ -39,12 +39,16 @@
                             @if (ViewData["res"] != null)
                             {
                                 var ls = ViewData["res"] as List<SelfhelpOrderMgr.Model.T_Bank_AtmDealList>;
-                                var sumCunMoney = ls.Where(o => o.ChangeAmount > 0).Sum(s => s.ChangeAmount);
-                                var sumQuMoney = ls.Where(o => o.ChangeAmount <= 0).Sum(s => s.ChangeAmount);
+                                //var sumCunMoney = ls.Where(o => o.ChangeAmount > 0).Sum(s => s.ChangeAmount);
+                                //var sumQuMoney = ls.Where(o => o.ChangeAmount <= 0).Sum(s => s.ChangeAmount);
+                                var sumCunMoney = ls.Where(o => o.ActionType=="清机" || o.ActionType == "加钞"
+                                || o.ActionType == "对账" || o.ActionType == "长款"
+                                ).Sum(s => s.ChangeAmount);
+                                var sumQuMoney = ls.Where(o => o.ActionType == "取款" || o.ActionType == "冲正").Sum(s => s.ChangeAmount);
                                 var sAmount = ls.Sum(s => s.ChangeAmount);
                             <tr>
                                 <th>统计</th>
-                                <th>期初余额:@ls[0].MachineBalance</th>
+                                <th>期初余额:@(ls[0].MachineBalance-ls[0].ChangeAmount)</th>
                                 <th>存入</th>
                                 <th>@sumCunMoney</th>
                                 <th>取出</th>
@@ -53,23 +57,25 @@
                                 <th>@sAmount</th>
                                 <th>期末余额</th>
                                 <th>@ls[ls.Count - 1].MachineBalance</th>
-
+                                <th></th>
 
                             </tr>
                             }
-                                <tr>
-                                    <th>Id</th>
-                                    <th>流水号</th>
-                                    <th>类型</th>
-                                    <th>存入</th>
-                                    <th>取出</th>
-                                    <th>变动金额</th>
-                                    <th>机器余额</th>
-                                    <th>日期</th>
-                                    <th>状态</th>
-                                    <th>备注</th>
+                        <tr>
+                            <th>Id</th>
+                            <th>流水号</th>
 
-                                </tr>
+                            <th>类型</th>
+                            <th>存入</th>
+                            <th>取出</th>
+                            <th>变动金额</th>
+                            <th>机器余额</th>
+                            <th>日期</th>
+                            <th>状态</th>
+                            <th>取款人员</th>
+                            <th>备注</th>
+
+                        </tr>
                             </thead>
                         <tbody>
                             @if (ViewData["res"] != null)
@@ -83,9 +89,22 @@
 
                                 decimal sumCunMoney = 0;
                                 decimal sumQuMoney = 0;
+                                string strUserinfo = "";
                                 foreach (var item in ls)
                                 {
-                                    if (item.ChangeAmount > 0)
+                                    if (item.ActionType == "冲正")
+                                    {
+                                        cunMoney = 0;
+                                        quMoney = 0-item.ChangeAmount;
+                                        sumQuMoney += quMoney;
+                                    }
+                                    else if (item.ActionType == "清机")
+                                    {
+                                        cunMoney = item.ChangeAmount;
+                                        quMoney = 0;
+                                        sumCunMoney += cunMoney;
+                                    }
+                                    else if (item.ActionType == "对账")
                                     {
                                         cunMoney = item.ChangeAmount;
                                         quMoney = 0;
@@ -93,15 +112,31 @@
                                     }
                                     else
                                     {
-                                        cunMoney = 0;
-                                        quMoney = 0-item.ChangeAmount;
-                                        sumQuMoney += quMoney;
+                                        if (item.ChangeAmount > 0)
+                                        {
+                                            cunMoney = item.ChangeAmount;
+                                            quMoney = 0;
+                                            sumCunMoney += cunMoney;
+                                        }
+                                        else
+                                        {
+                                            cunMoney = 0;
+                                            quMoney = 0 - item.ChangeAmount;
+                                            sumQuMoney += quMoney;
+                                        }
                                     }
+
                                     sAmount += item.ChangeAmount;
+
+                                    if (!string.IsNullOrWhiteSpace(item.FCode))
+                                    {
+                                        strUserinfo = item.FCode+":"+item.FName+"("+item.FAreaName+")";
+                                    }
 
                             <tr>
                                 <td class="text-center">@rowId</td>
                                 <td>@item.AtmSerialNo</td>
+
                                 <td>@item.ActionType</td>
                                 <td>@cunMoney</td>
                                 <td>@quMoney</td>
@@ -109,6 +144,9 @@
                                 <td>@item.MachineBalance</td>
                                 <td>@item.CrtDate.ToString("yyyyMMdd HHmmss")</td>
                                 <td>@item.StatusFlag</td>
+
+                                <td>@strUserinfo</td>
+
                                 <td>@item.Remark</td>
                             </tr>
                                     rowId++;
@@ -118,6 +156,7 @@
                             <th>合计</th>
                             <th>期初余额:@ls[0].MachineBalance</th>
                             <th></th>
+                            
                             <th>@sumCunMoney</th>
                             <th>@sumQuMoney</th>
                             <th>变动金额</th>
@@ -125,7 +164,7 @@
                             <th>期末余额</th>
                             <th>@ls[ls.Count - 1].MachineBalance</th>
                             <th></th>
-                            
+
 
                         </tr>
                             }

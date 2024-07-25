@@ -244,6 +244,16 @@ namespace SelfhelpOrderMgr.Model
             get { return _settlemode; }
             set { _settlemode = value; }
         }
+
+        /// <summary>
+        /// MaxMoney 最大存款金额
+        /// </summary>		
+        private decimal _maxmoney;
+        public decimal MaxMoney
+        {
+            get { return _maxmoney; }
+            set { _maxmoney = value; }
+        }
     }
 }
 

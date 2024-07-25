@@ -24,7 +24,9 @@ namespace SelfhelpOrderMgr.Web.Controllers
         JavaScriptSerializer jss = new JavaScriptSerializer();
         BaseDapperBLL _baseDapperBLL = new BaseDapperBLL();
 
-        string strWherePay = " and isnull(FinancePayFlag,0)=0 and flag=0 and CAmount<>0 and Dtype in(select FName from T_CommonTypeTab where FTYpe='CWKM' and FRemark='支')";
+        //string strWherePay = " and isnull(FinancePayFlag,0)=0 and flag=0 and CAmount<>0 and Dtype in(select FName from T_CommonTypeTab where FTYpe='CWKM' and FRemark='支')";
+        string strWherePay = " and isnull(FinancePayFlag,0)=0 and flag=0 and CAmount<>0 and Dtype in(select FName from T_CommonTypeTab where FTYpe='CWKM')";
+
         public ActionResult Index(int id = 1)
         {
             //监区队别
@@ -94,6 +96,10 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
         public JsonResult GetPayList(string strJsonWhere, string orderField = " Id asc ", int page = 1, int rows = 10)
         {
+            if (string.IsNullOrWhiteSpace(strJsonWhere))
+            {
+                strJsonWhere = "";
+            }
             var paramWhere = Newtonsoft.Json.JsonConvert.DeserializeObject<T_Bank_Rcv_Search>(strJsonWhere);
 
             PageResult<T_SHO_FinancePay> _r =_baseDapperBll.GetPageList<T_SHO_FinancePay, T_SHO_FinancePay_Search>(orderField, strJsonWhere, page, rows);
@@ -686,7 +692,15 @@ namespace SelfhelpOrderMgr.Web.Controllers
         public ActionResult AccForm()
         {
             //获取银行最新的余额
-            ResultInfo rs = new BankEnterpriseSerice().GetBankCardDateBalance(DateTime.Now.AddDays(-7), DateTime.Now.AddDays(-1));
+            try
+            {
+                //无法联网不用开启
+                ResultInfo rs = new BankEnterpriseSerice().GetBankCardDateBalance(DateTime.Now.AddDays(-7), DateTime.Now.AddDays(-1));
+
+            }
+            catch
+            {
+            }
 
             T_Bank_DateBalance bal = _baseDapperBll.QueryList<T_Bank_DateBalance>("select Top 1 * from T_Bank_DateBalance order by baldat desc", null).FirstOrDefault();
 
@@ -709,7 +723,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
 
             //超市消费
-            decimal superBal = new CommTableInfoBLL().ExtSqlGetModel<decimal>("select isnull(sum(camount-damount),0) from T_vcrd where flag=0 and DTYPE in('超市消费','消费退货') and isnull(FinancePayFlag,0)=0", null);
+            decimal superBal = new CommTableInfoBLL().ExtSqlGetModel<decimal>("select isnull(sum(camount-damount),0) from T_vcrd where flag=0 and DTYPE in('超市消费','消费退货','水果消费','水果退货') and isnull(FinancePayFlag,0)=0", null);
                         
             _baseDapperBll.UpdatePartInfo<T_Bank_SubAccBalance>(
                 new { AccountBalance = superBal, AccountDate = DateTime.Now }
@@ -723,6 +737,15 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 new { AccountBalance = hospitalBal, AccountDate = DateTime.Now }
                     , " AccountName=@AccountName "
                     , new { AccountName = "HospitalAccount" });
+
+
+            //罚金账户
+            decimal forfeitBal = new CommTableInfoBLL().ExtSqlGetModel<decimal>("select isnull(sum(camount-damount),0) from T_vcrd where flag=0 and DTYPE in('中院罚金','高院罚金') and isnull(FinancePayFlag,0)=0", null);
+
+            _baseDapperBll.UpdatePartInfo<T_Bank_SubAccBalance>(
+                new { AccountBalance = forfeitBal, AccountDate = DateTime.Now }
+                    , " AccountName=@AccountName "
+                    , new { AccountName = "ForfeitAccount" });
 
 
             List<T_Bank_SubAccBalance> ls = _baseDapperBLL.GetModelList<T_Bank_SubAccBalance>("");

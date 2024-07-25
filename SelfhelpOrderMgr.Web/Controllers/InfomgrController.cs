@@ -23,7 +23,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
     [LoginActionFilter]
     [CustomActionFilterAttribute]
     [MyLogActionFilterAttribute]
-    public class InfomgrController : Controller
+    public class InfomgrController : BaseController
     {
         protected BaseDapperBLL _baseDapperBll = new BaseDapperBLL();
         JavaScriptSerializer jss = new JavaScriptSerializer();
@@ -293,7 +293,9 @@ namespace SelfhelpOrderMgr.Web.Controllers
         public ActionResult AmountQuery()
         {
             #region 加载队别信处
-            List<T_AREA> areas = (List<T_AREA>)new T_AREABLL().GetModelList("");
+            //List<T_AREA> areas = (List<T_AREA>)new T_AREABLL().GetModelList("");
+            List<T_AREA> areas = _baseDapperBll.QueryList<T_AREA>("select * from t_area where fcode in (select fareaCode from t_Czy_area where fflag=2 and FCode=@FCode)",new { FCode=base.loginUserCode });
+
             Dictionary<string, string> userAreas = new Dictionary<string, string>();
             foreach (T_AREA area in areas)
             {
@@ -365,7 +367,16 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
                 strSql.Append(" and b.cardflaga=@cardStatus");
             }
-            object param = new { FCode = strFCrimeCode, FName = strFCrimeName, FAreaName = strAreaName, StartDate = StartDate, EndDate = EndDate, cardStatus = cardStatus };
+
+            T_SHO_ManagerSet mset = new T_SHO_ManagerSetBLL().GetModel("VcrdCheckUserManagerAarea");
+            if (mset != null)
+            {
+                if (mset.MgrValue == "1")
+                {
+                    strSql.Append(" and FAreaCode in (  select fareaCode from t_czy_area where fflag=2 and fcode=@loginUserCode) ");
+                }
+            }
+            object param = new { FCode = strFCrimeCode, FName = strFCrimeName, FAreaName = strAreaName, StartDate = StartDate, EndDate = EndDate, cardStatus = cardStatus, loginUserCode=base.loginUserCode };
             List<T_XFGSList> cards = new CommTableInfoBLL().GetXFGSList(strSql.ToString(), param);
 
             ViewData["StartDate"] = StartDate;
@@ -455,10 +466,20 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
                 strSql.Append(" and b.cardflaga=" + cardStatus );
             }
-            object param = new { FCode = strFCrimeCode, FName = strFCrimeName, FAreaName = strAreaName, StartDate = StartDate, EndDate = EndDate, cardStatus = cardStatus };
-            List<T_XFGSList> cards = new CommTableInfoBLL().GetXFGSList(strSql.ToString(), param);
 
-            DataTable dt = new CommTableInfoBLL().GetDataTable(strSql.ToString());
+            T_SHO_ManagerSet mset = new T_SHO_ManagerSetBLL().GetModel("VcrdCheckUserManagerAarea");
+            if (mset != null)
+            {
+                if (mset.MgrValue == "1")
+                {
+                    strSql.Append(" and FAreaCode in (  select fareaCode from t_czy_area where fflag=2 and fcode=@loginUserCode) ");
+                }
+            }
+
+            object param = new { FCode = strFCrimeCode, FName = strFCrimeName, FAreaName = strAreaName, StartDate = StartDate, EndDate = EndDate, cardStatus = cardStatus, loginUserCode=base.loginUserCode };
+            //List<T_XFGSList> cards = new CommTableInfoBLL().GetXFGSList(strSql.ToString(), param);
+
+            DataTable dt = new CommTableInfoBLL().GetDataTable(strSql.ToString(),param);
             string strFileName = new CommonClass().GB2312ToUTF8(LoginUserName + "_ExcelList.xls");
             strFileName = Server.MapPath("~/Upload/" + strFileName); 
             ExcelRender.RenderToExcel(dt, "余额公示报表("+StartDate + "~" + EndDate + ")", strFileName);
@@ -478,7 +499,20 @@ namespace SelfhelpOrderMgr.Web.Controllers
             string sort = Request["sort"];
             string strAreaName = Request["fAreaName"];
             string cardStatus = Request["cardStatus"];//IC卡的状态
-            List<T_TempAmount_Card> cards = new T_TempAmount_CardBLL().GetSearchCardAmount(strFCrimeCode, strFCrimeName, strAreaName,cardStatus);
+
+            string otherWhere = "";
+            T_SHO_ManagerSet mset = new T_SHO_ManagerSetBLL().GetModel("VcrdCheckUserManagerAarea");
+            if (mset != null)
+            {
+                if (mset.MgrValue == "1")
+                {
+                    otherWhere = " FAreaCode in (  select fareaCode from t_czy_area where fflag=2 and fcode='"+ base.loginUserCode +"') ";
+                }
+            }
+
+
+            //List<T_TempAmount_Card> cards = new T_TempAmount_CardBLL().GetSearchCardAmount(strFCrimeCode, strFCrimeName, strAreaName,cardStatus);
+            List<T_TempAmount_Card> cards = new T_TempAmount_CardBLL().GetSearchCardAmount(strFCrimeCode, strFCrimeName, strAreaName, cardStatus,otherWhere);
 
             return cards;
         }
@@ -753,7 +787,9 @@ namespace SelfhelpOrderMgr.Web.Controllers
                     case 5://放弃领款
                         {
                             rtnReustl = new T_TempLeavePrisonBLL().ExcuteStoredProcedure(FCode, LoginUserName);
-                            new CommTableInfoBLL().ExecSql($"update T_balancelist set PayMode=5 where fcrimecode='{FCode}'");
+                            //new CommTableInfoBLL().ExecSql($"update T_balancelist set PayMode=5 where fcrimecode='{FCode}'");
+                            _baseDapperBll.ExecuteSql($"update T_balancelist set PayMode=5 where fcrimecode=@FCode and convert(varchar(10),crtdate,120)=@Today;" 
+                                +$" update t_vcrd set PayMode=5 where fcrimecode=@FCode and typeflag in(5,6) and convert(varchar(10),crtdate,120)=@Today;",new { FCode = FCode , Today =DateTime.Today.ToString("yyyy-MM-dd")});
                         }
                         break;
                     case 3://只做挂失
@@ -862,7 +898,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
             }
             //验证是否存在多条结算的记录
             List<T_Bank_PaymentRecord> recs = new T_Bank_PaymentRecordBLL().GetModelList<T_Bank_PaymentRecord, T_Bank_PaymentRecord>(jss.Serialize(new { FCrimeCode = strFCode }),"Id",10);
-            if (recs.Count > 1)
+            if (recs.Count > 2)
             {
                 rs.ReMsg = "Err|存在多条结算的记录，无法恢复";
                 return Json(rs);
@@ -1310,7 +1346,18 @@ namespace SelfhelpOrderMgr.Web.Controllers
             string ip = System.Web.HttpContext.Current.Request.UserHostAddress;
             //string fcode = Request["FCode"];
             string fcode = FCode;
-            ViewData["prove"] = "";            
+            ViewData["prove"] = "";
+
+            //20240529增加ATM路费的功能======START============
+            var msetLufei = _baseDapperBll.QueryList<T_SHO_ManagerSet>(" select * from T_SHO_ManagerSet where  KeyName=@KeyName", new { KeyName = "JieSuanLuFeiQuXian" })
+                            .FirstOrDefault();
+
+            var payAtmRec = _baseDapperBll.QueryList<T_Bank_PaymentRecord>(" select * from T_Bank_PaymentRecord where  FCrimeCode=@FCrimeCode and PayMode=@PayMode and PurposeInfo like '%' + @PurposeInfo + '%'", new { FCrimeCode = fcode, PayMode = 1, PurposeInfo = "刑释路费" })
+                    .OrderByDescending(o => o.Id).FirstOrDefault();
+            ViewData["atmLufeiRec"] = payAtmRec;
+            ViewData["lufeiFlag"] = msetLufei == null ? "0" : msetLufei.MgrValue;
+            //20240529增加ATM路费的功能======End============
+
 
             t_balanceList bal = new t_balanceListBLL().GetModelList("fcrimecode='" + fcode + "'").OrderByDescending(s => s.seqno).ToList()[0];
             string sss = new T_TempLeavePrisonBLL().InsertBankProve(fcode, bal.PayMode);
@@ -1353,6 +1400,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
                         ViewData["balanceList"] = _baseDapperBll.QueryList<t_balanceList>(" select * from t_BalanceList where  FCrimeCode=@FCrimeCode", new { FCrimeCode = fcode })
                             .OrderByDescending(o => o.seqno).FirstOrDefault();
+
+                        
 
                         //return Content("Err|该犯已经结算过，禁止重复结算打印单，请联系管理员");
                         return View();
@@ -1420,6 +1469,10 @@ namespace SelfhelpOrderMgr.Web.Controllers
             
             ViewData["balanceList"] = _baseDapperBll.QueryList<t_balanceList>(" select * from t_BalanceList where  FCrimeCode=@FCrimeCode",new { FCrimeCode=fcode })
                             .OrderByDescending(o => o.seqno).FirstOrDefault();
+
+
+            
+
             return View();
             //return new PartialViewAsPdf();
         }

@@ -155,6 +155,15 @@ namespace SelfhelpOrderMgr.Web.Controllers
                     model.SaleCloseFlag = Convert.ToInt32(o["SaleCloseFlag"].ToString());
                 }
 
+                if (o["JiFenCloseFlag"].ToString() == "")//设定监区许可消费开关
+                {
+                    model.JiFenCloseFlag = 0;
+                }
+                else
+                {
+                    model.JiFenCloseFlag = Convert.ToInt32(o["JiFenCloseFlag"].ToString());
+                }
+
 
                 T_AREA m = new T_AREABLL().GetModel(model.FCode);
                 //if (m != null)

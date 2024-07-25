@@ -33,16 +33,8 @@
                         SelfhelpOrderMgr.Model.T_Bank_PaymentRecord atmLufeiRec = ViewData["atmLufeiRec"] as SelfhelpOrderMgr.Model.T_Bank_PaymentRecord;
                         decimal lufeiAtmMoney = 0;
                         string lufeiAtmPwd = "";
-                        if(prove.PayMode == 2)
-                        {
-                            lufeiAtmMoney = atmLufeiRec == null ? 0 : atmLufeiRec.Amount;
-                            lufeiAtmPwd = atmLufeiRec == null ? "" : atmLufeiRec.WithdrawalPassword;
-                        }
-                        else
-                        {
-                            lufeiAtmMoney = bal.AtmLuFeiAmount;
-                        }
-
+                        lufeiAtmMoney = atmLufeiRec == null ? 0 : atmLufeiRec.Amount;
+                        lufeiAtmPwd = atmLufeiRec == null ? "" : atmLufeiRec.WithdrawalPassword;
 
 
                         if (prove.PayMode == 0)
@@ -87,7 +79,7 @@
                                     <strong>　　</strong>本人<u> <strong>@prove.fname</strong> </u>是<u> <strong>@prove.fareaName</strong> </u>罪犯，
                                     身份证号：<u> <strong>@strIdenNo</strong>  </u>
                                     ,狱证编号：<u> <strong>@prove.fcode</strong>  </u>
-                                    ,结算卡账号：<u> <strong>@prove.BankCode</strong>  </u>,将于_____年_____月_____日刑满释放，监狱ATM机已<strong>发放路费(¥:@(lufeiAtmMoney))</strong>，现申请将本人离监结算后的账上余额<strong><span id="jsMoney3"></span> (¥: @(prove.CardMoney))</strong>
+                                    ,结算卡账号：<u> <strong>@prove.BankCode</strong>  </u>,将于_____年_____月_____日刑满释放，监狱ATM机已<strong>发放路费(¥:@lufeiAtmMoney)</strong>，现申请将本人离监结算后的账上余额<strong><span id="jsMoney3"></span> (¥: @(prove.CardMoney))</strong>
                                     @if (prove.PayMode == 2)
                                     {
                                         <span>转至亲属账户：收款人姓名：</span><u> <strong>@prove.BankUserName</strong> </u> <span>(与本人系</span><u> <strong> @prove.OutBankRemark </strong>  </u><span>),开户行名称：</span><u> <strong>@prove.OpeningBank</strong>  </u>
@@ -101,8 +93,6 @@
                                     {
                                         <span>,将通过<strong><u>@strPayMode</u></strong>方式支取全部金额。</span>
                                     }
-
-                                    结算金额总计<strong>¥:@(prove.CardMoney+lufeiAtmMoney)</strong>。
                                 </p>
                                 <p>　　<strong>本人对以上信息的准确性负责，如因此产生的一切经济法律责任，由本人自行承担。</strong></p>
 
@@ -216,15 +206,8 @@
 
                             <th colspan="1">@strPayMode</th>
                             <td>路费:</td>
-                            @if (prove.PayMode == 0)
-                            {
-                                <th colspan="2">现金领取</th>
-                            }
-                            else
-                            {
-                                <th colspan="2">狱内ATM机领取</th>
-                            }
 
+                            <th colspan="2">狱内ATM机领取</th>
                         </tr>
                         <tr>
                             <td>收款人姓名:</td>
@@ -260,10 +243,10 @@
                             <th colspan="6">
                                 @if (prove != null)
                                 {
-                                    string strRemarkInfo = "备注:该服刑人员一卡通余额:" + (prove.CardMoney + lufeiAtmMoney) + "元，已通过【" + strPayMode + "】结清并收回IC卡";
+                                    string strRemarkInfo = "备注:该服刑人员一卡通余额:" + prove.CardMoney + "元，已通过【" + strPayMode + "】结清并收回IC卡";
                                     if (prove.PayMode == 1)
                                     {
-                                        strRemarkInfo = "备注:您的一卡通(含路费)总余额:" + (prove.CardMoney+ lufeiAtmMoney) + "元,已通过【" + strPayMode + "】结清，请在释放当日持IC卡到本监内的ATM上取结余款，取款密码是:" + prove.WithdrawalPassword + ",请妥善保管避免泄露及丢失。";
+                                        strRemarkInfo = "备注:您的一卡通余额:" + prove.CardMoney + "元,已通过【" + strPayMode + "】结清，请在释放当日持IC卡到本监内的ATM上取结余款，取款密码是:" + prove.WithdrawalPassword + ",请妥善保管避免泄露及丢失。";
                                     }
                                     else if (prove.PayMode == 2)
                                     {
