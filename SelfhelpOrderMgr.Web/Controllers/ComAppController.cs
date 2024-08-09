@@ -480,14 +480,18 @@ namespace SelfhelpOrderMgr.Web.Controllers
             string managerCardNo = Request["managerCardNo"];
             string UserName = Request["UserName"];
             ViewData["FaceMode"] = Request["FaceMode"];
-            //if (string.IsNullOrEmpty(LoginFlag) == true)
-            //{
-            //    return View("Login");
-            //}
-            //else if ("LoginOK122342124121123131231122" != LoginFlag)
-            //{
-            //    return View("Login");
-            //}
+
+            //防止修改编号来实现购物
+            if (managerCardNo != null && managerCardNo.ToString().Contains("|"))
+            {
+                string[] words = managerCardNo.ToString().Split(new char[] { '|' }); // 使用逗号和分号作为分隔符
+
+                if (MD5ProcessHelper.GetMD5(words[0]) == words[1])
+                {
+                    managerCardNo = words[0];
+                }
+            }
+
 
             ViewData["FManagerCard"] = managerCardNo;
             ViewData["UserName"] = UserName;
@@ -504,8 +508,20 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
             ViewData["areas"] = areas;
 
-            ViewData["fcrimecode"] = Request["fcrimecode"];
+            //ViewData["fcrimecode"] = Request["fcrimecode"];
+            var fcodeInfo = Request["fcrimecode"];
+            string fcode = "";
 
+            if (fcodeInfo != null && fcodeInfo.ToString().Contains("|"))
+            {
+                string[] words = fcodeInfo.ToString().Split(new char[] { '|' }); // 使用逗号和分号作为分隔符
+
+                if (MD5ProcessHelper.GetMD5(words[0]) == words[1])
+                {
+                    fcode = words[0];
+                }
+            }
+            ViewData["fcrimecode"] = fcode;
 
             T_SHO_ManagerSet mset = new T_SHO_ManagerSetBLL().GetModel("LoginMode");
             ViewData["LoginMode"] = mset.MgrValue;

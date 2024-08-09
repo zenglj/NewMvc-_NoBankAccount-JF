@@ -2247,8 +2247,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 case 0:
                     {
                         strSql.Append("select b.FAreaName FAreaName,a.SPShortCode SPShortCode,a.gname GName");
-                        strSql.Append(" ,isnull(a.Remark,'') Remark,a.gtxm GTXM,abs(sum(a.qty* b.fifoflag)) FCount");
-                        strSql.Append(" ,abs(sum(a.amount * b.fifoflag)) FMoney ");
+                        strSql.Append(" ,isnull(a.Remark,'') Remark,a.gtxm GTXM,0-(sum(a.qty* b.fifoflag)) FCount");
+                        strSql.Append(" ,0-(sum(a.amount * b.fifoflag)) FMoney ");
                         //获取商品相关信息的子条件
                         GetGoodSubWhere(GoodsType, GoodName, GoodGTXM, SpShortCode, strWhere, strSql, startTime, endTime, Flag);
                         strSql.Append(" group by b.FAreaName,a.SPShortCode,a.gname,isnull(a.Remark,''),a.gtxm");
@@ -2259,8 +2259,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 case 1:
                     {
                         strSql.Append("select b.FAreaName FAreaName,isnull(RoomNo,'')  RoomNo,a.SPShortCode SPShortCode,a.gname GName");
-                        strSql.Append(" ,isnull(a.Remark,'') Remark,a.gtxm GTXM,abs(sum(a.qty * b.fifoflag)) FCount");
-                        strSql.Append(" ,abs(sum(a.amount * b.fifoflag)) FMoney ");
+                        strSql.Append(" ,isnull(a.Remark,'') Remark,a.gtxm GTXM,0-(sum(a.qty * b.fifoflag)) FCount");
+                        strSql.Append(" ,0-(sum(a.amount * b.fifoflag)) FMoney ");
                         //获取商品相关信息的子条件
                         GetGoodSubWhere(GoodsType, GoodName, GoodGTXM, SpShortCode, strWhere, strSql, startTime, endTime, Flag);
                         strSql.Append("group by b.FAreaName,isnull(RoomNo,''),a.SPShortCode,a.gname,isnull(a.Remark,''),a.gtxm");
@@ -2270,8 +2270,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 case 2:
                     {
                         strSql.Append("select '' FAreaName,a.SPShortCode SPShortCode,a.gname GName");
-                        strSql.Append(" ,isnull(a.Remark,'') Remark,a.gtxm GTXM,abs(sum(a.qty * b.fifoflag)) FCount");
-                        strSql.Append(" ,abs(sum(a.amount * b.fifoflag)) FMoney ");
+                        strSql.Append(" ,isnull(a.Remark,'') Remark,a.gtxm GTXM,0-(sum(a.qty * b.fifoflag)) FCount");
+                        strSql.Append(" ,0-(sum(a.amount * b.fifoflag)) FMoney ");
                         //获取商品相关信息的子条件
                         GetGoodSubWhere(GoodsType, GoodName, GoodGTXM, SpShortCode, strWhere, strSql, startTime, endTime, Flag);
                         strSql.Append(" group by a.SPShortCode,a.gname,isnull(a.Remark,''),a.gtxm");
@@ -2295,9 +2295,9 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 case 4:
                     {
                         strSql.Append("select a.gtxm,a.spshortcode,a.gname +'('+ isnull(d.GStandard,'') +')' as gname,a.gdj ");
-                        strSql.Append(@", convert(numeric(18,0),abs(sum( case when b.fifoflag=-1 then  a.qty else 0 end))) xfCount,abs(sum(case when b.fifoflag=-1 then a.amount else 0 end)) xfMoney,
-                                convert(numeric(18,0),abs(sum( case when b.fifoflag=1 then  a.qty else 0 end))) thCount,abs(sum(case when b.fifoflag=1 then a.amount else 0 end)) thMoney ");
-                        strSql.Append(",abs(sum(a.qty * b.fifoflag)) FCount,abs(sum(a.amount * b.fifoflag)) FMoney ");
+                        strSql.Append(@", convert(numeric(18,0),0-(sum( case when b.fifoflag=-1 then  a.qty else 0 end))) xfCount,0-(sum(case when b.fifoflag=-1 then a.amount else 0 end)) xfMoney,
+                                convert(numeric(18,0),0-(sum( case when b.fifoflag=1 then  a.qty else 0 end))) thCount,0-(sum(case when b.fifoflag=1 then a.amount else 0 end)) thMoney ");
+                        strSql.Append(",0-(sum(a.qty * b.fifoflag)) FCount,0-(sum(a.amount * b.fifoflag)) FMoney ");
                         //获取商品相关信息的子条件
                         GetGoodSubWhere(GoodsType, GoodName, GoodGTXM, SpShortCode, strWhere, strSql, startTime, endTime, Flag, 0);
                         strSql.Append(" group by a.gname +'('+ isnull(d.GStandard,'') +')',a.gtxm,a.spshortcode,a.gdj ");
@@ -2307,7 +2307,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 case 5:
                     {
                         strSql.Append("select a.invoiceno,a.fcrimecode,b.fcriminal,a.gname,a.gtxm,a.spshortcode,c.senddate,c.bankflag,a.gdj ");
-                        strSql.Append(",abs(sum(a.qty * b.fifoflag)) FCount,abs(sum(a.amount * b.fifoflag)) FMoney ");
+                        strSql.Append(",0-(sum(a.qty * b.fifoflag)) FCount,0-(sum(a.amount * b.fifoflag)) FMoney ");
                         //获取商品相关信息的子条件
                         GetGoodSubWhere(GoodsType, GoodName, GoodGTXM, SpShortCode, strWhere, strSql, startTime, endTime, Flag, 1);
 
@@ -2590,12 +2590,12 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         //strSql.Append(" ,abs(sum(a.amount * b.fifoflag)) FMoney ");
 
 
-                        strSql.Append("select b.FAreaName 队别,a.SPShortCode 货号,a.gname 品名");
-                        strSql.Append(" ,isnull(a.Remark,'') 规格,a.gtxm 条码,d.GUnit 单位,a.gdj 单价,convert(numeric(18," + strPointNum + @"),abs(isnull(sum(a.qty * b.fifoflag),0))) 数量");
-                        strSql.Append(" ,abs(sum(a.amount * b.fifoflag)) 金额 ");
+                        strSql.Append("select b.FAreaName 队别,a.SPShortCode 货号,a.gname+'/'+isnull(d.GStandard,'') [品名/规格]");
+                        strSql.Append(" ,isnull(a.Remark,'') 型号,a.gtxm 条码,d.GUnit 单位,a.gdj 单价,convert(numeric(18," + strPointNum + @"),0-(isnull(sum(a.qty * b.fifoflag),0))) 数量");
+                        strSql.Append(" ,0-(sum(a.amount * b.fifoflag)) 金额 ");
                         //获取商品相关信息的子条件
                         GetGoodSubWhere(GoodsType, GoodName, GoodGTXM, SpShortCode, strWhere, strSql, startTime, endTime, Flag, 0);
-                        strSql.Append(" group by b.FAreaName,a.SPShortCode,a.gname,isnull(a.Remark,''),a.gtxm,d.GUnit,a.gdj ");
+                        strSql.Append(" group by b.FAreaName,a.SPShortCode,a.gname,isnull(d.GStandard,''),isnull(a.Remark,''),a.gtxm,d.GUnit,a.gdj ");
 
 
                         DataTable dt = new CommTableInfoBLL().GetDataTable(strSql.ToString());
@@ -2608,7 +2608,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 case 1:
                     {
                         strSql.Append(@"select 队别
-                            , 货号,品名 , 规格,单位, 单价 
+                            , 货号,[品名/规格] , 型号,单位, 单价 
                             ,case sum( [1号房] ) when 0 then '' else convert(varchar(10), sum( [1号房] )) end as [1号房]
                             ,case sum( [2号房] ) when 0 then '' else convert(varchar(10), sum( [2号房] )) end as [2号房]
                             ,case sum( [3号房] ) when 0 then '' else convert(varchar(10), sum( [3号房] )) end as [3号房]
@@ -2629,30 +2629,30 @@ namespace SelfhelpOrderMgr.Web.Controllers
                             ,sum([1号房]+[2号房]+[3号房]+[4号房]+[5号房]+[6号房]+[7号房]+[8号房]+[9号房]+[10号房]+[11号房]+[12号房]+[13号房]+[14号房]+[15号房]+[16号房]+[未知号房]) as 数量
                             ,convert(numeric(18,2),sum([1号房]+[2号房]+[3号房]+[4号房]+[5号房]+[6号房]+[7号房]+[8号房]+[9号房]+[10号房]+[11号房]+[12号房]+[13号房]+[14号房]+[15号房]+[16号房]+[未知号房])*[单价]) as 金额
                             from (");
-                        strSql.Append("select b.FAreaName 队别,a.SPShortCode 货号,a.gname 品名");
-                        strSql.Append(" ,isnull(a.Remark,'') 规格,a.SPShortCode 简码,a.gtxm 条码,d.GUnit 单位,a.gdj 单价");
-                        strSql.Append(" ,case isnull(roomno,'') when 1 then convert(numeric(18," + strPointNum + @"),abs(sum(a.qty * b.fifoflag)))  else 0 end as '1号房'");
-                        strSql.Append(" ,case isnull(roomno,'') when 2 then convert(numeric(18," + strPointNum + @"),abs(sum(a.qty * b.fifoflag)))  else 0 end as '2号房'");
-                        strSql.Append(" ,case isnull(roomno,'') when 3 then convert(numeric(18," + strPointNum + @"),abs(sum(a.qty * b.fifoflag)))  else 0 end as '3号房'");
-                        strSql.Append(" ,case isnull(roomno,'') when 4 then convert(numeric(18," + strPointNum + @"),abs(sum(a.qty * b.fifoflag)))  else 0 end as '4号房'");
-                        strSql.Append(" ,case isnull(roomno,'') when 5 then convert(numeric(18," + strPointNum + @"),abs(sum(a.qty * b.fifoflag)))  else 0 end as '5号房'");
-                        strSql.Append(" ,case isnull(roomno,'') when 6 then convert(numeric(18," + strPointNum + @"),abs(sum(a.qty * b.fifoflag)))  else 0 end as '6号房'");
-                        strSql.Append(" ,case isnull(roomno,'') when 7 then convert(numeric(18," + strPointNum + @"),abs(sum(a.qty * b.fifoflag)))  else 0 end as '7号房'");
-                        strSql.Append(" ,case isnull(roomno,'') when 8 then convert(numeric(18," + strPointNum + @"),abs(sum(a.qty * b.fifoflag)))  else 0 end as '8号房'");
-                        strSql.Append(" ,case isnull(roomno,'') when 9 then convert(numeric(18," + strPointNum + @"),abs(sum(a.qty * b.fifoflag)))  else 0 end as '9号房'");
-                        strSql.Append(" ,case isnull(roomno,'') when 10 then convert(numeric(18," + strPointNum + @"),abs(sum(a.qty * b.fifoflag)))  else 0 end as '10号房'");
-                        strSql.Append(" ,case isnull(roomno,'') when 11 then convert(numeric(18," + strPointNum + @"),abs(sum(a.qty * b.fifoflag)))  else 0 end as '11号房'");
-                        strSql.Append(" ,case isnull(roomno,'') when 12 then convert(numeric(18," + strPointNum + @"),abs(sum(a.qty * b.fifoflag)))  else 0 end as '12号房'");
-                        strSql.Append(" ,case isnull(roomno,'') when 13 then convert(numeric(18," + strPointNum + @"),abs(sum(a.qty * b.fifoflag)))  else 0 end as '13号房'");
-                        strSql.Append(" ,case isnull(roomno,'') when 14 then convert(numeric(18," + strPointNum + @"),abs(sum(a.qty * b.fifoflag)))  else 0 end as '14号房'");
-                        strSql.Append(" ,case isnull(roomno,'') when 15 then convert(numeric(18," + strPointNum + @"),abs(sum(a.qty * b.fifoflag)))  else 0 end as '15号房'");
-                        strSql.Append(" ,case isnull(roomno,'') when 16 then convert(numeric(18," + strPointNum + @"),abs(sum(a.qty * b.fifoflag)))  else 0 end as '16号房'");
-                        strSql.Append(" ,case isnull(roomno,'') when '' then convert(numeric(18," + strPointNum + @"),abs(sum(a.qty * b.fifoflag)))  else 0 end as '未知号房'");
-                        strSql.Append(" ,abs(sum(a.amount * b.fifoflag)) 金额 ");
+                        strSql.Append("select b.FAreaName 队别,a.SPShortCode 货号,a.gname+'/'+isnull(d.GStandard,'') [品名/规格]");
+                        strSql.Append(" ,isnull(a.Remark,'') 型号,a.SPShortCode 简码,a.gtxm 条码,d.GUnit 单位,a.gdj 单价");
+                        strSql.Append(" ,case isnull(roomno,'') when 1 then convert(numeric(18," + strPointNum + @"),0-(sum(a.qty * b.fifoflag)))  else 0 end as '1号房'");
+                        strSql.Append(" ,case isnull(roomno,'') when 2 then convert(numeric(18," + strPointNum + @"),0-(sum(a.qty * b.fifoflag)))  else 0 end as '2号房'");
+                        strSql.Append(" ,case isnull(roomno,'') when 3 then convert(numeric(18," + strPointNum + @"),0-(sum(a.qty * b.fifoflag)))  else 0 end as '3号房'");
+                        strSql.Append(" ,case isnull(roomno,'') when 4 then convert(numeric(18," + strPointNum + @"),0-(sum(a.qty * b.fifoflag)))  else 0 end as '4号房'");
+                        strSql.Append(" ,case isnull(roomno,'') when 5 then convert(numeric(18," + strPointNum + @"),0-(sum(a.qty * b.fifoflag)))  else 0 end as '5号房'");
+                        strSql.Append(" ,case isnull(roomno,'') when 6 then convert(numeric(18," + strPointNum + @"),0-(sum(a.qty * b.fifoflag)))  else 0 end as '6号房'");
+                        strSql.Append(" ,case isnull(roomno,'') when 7 then convert(numeric(18," + strPointNum + @"),0-(sum(a.qty * b.fifoflag)))  else 0 end as '7号房'");
+                        strSql.Append(" ,case isnull(roomno,'') when 8 then convert(numeric(18," + strPointNum + @"),0-(sum(a.qty * b.fifoflag)))  else 0 end as '8号房'");
+                        strSql.Append(" ,case isnull(roomno,'') when 9 then convert(numeric(18," + strPointNum + @"),0-(sum(a.qty * b.fifoflag)))  else 0 end as '9号房'");
+                        strSql.Append(" ,case isnull(roomno,'') when 10 then convert(numeric(18," + strPointNum + @"),0-(sum(a.qty * b.fifoflag)))  else 0 end as '10号房'");
+                        strSql.Append(" ,case isnull(roomno,'') when 11 then convert(numeric(18," + strPointNum + @"),0-(sum(a.qty * b.fifoflag)))  else 0 end as '11号房'");
+                        strSql.Append(" ,case isnull(roomno,'') when 12 then convert(numeric(18," + strPointNum + @"),0-(sum(a.qty * b.fifoflag)))  else 0 end as '12号房'");
+                        strSql.Append(" ,case isnull(roomno,'') when 13 then convert(numeric(18," + strPointNum + @"),0-(sum(a.qty * b.fifoflag)))  else 0 end as '13号房'");
+                        strSql.Append(" ,case isnull(roomno,'') when 14 then convert(numeric(18," + strPointNum + @"),0-(sum(a.qty * b.fifoflag)))  else 0 end as '14号房'");
+                        strSql.Append(" ,case isnull(roomno,'') when 15 then convert(numeric(18," + strPointNum + @"),0-(sum(a.qty * b.fifoflag)))  else 0 end as '15号房'");
+                        strSql.Append(" ,case isnull(roomno,'') when 16 then convert(numeric(18," + strPointNum + @"),0-(sum(a.qty * b.fifoflag)))  else 0 end as '16号房'");
+                        strSql.Append(" ,case isnull(roomno,'') when '' then convert(numeric(18," + strPointNum + @"),0-(sum(a.qty * b.fifoflag)))  else 0 end as '未知号房'");
+                        strSql.Append(" ,0-(sum(a.amount * b.fifoflag)) 金额 ");
                         //获取商品相关信息的子条件
                         GetGoodSubWhere(GoodsType, GoodName, GoodGTXM, SpShortCode, strWhere, strSql, startTime, endTime, Flag);
-                        strSql.Append("group by b.FAreaName,isnull(roomno,''),a.SPShortCode,a.gname,isnull(a.Remark,''),a.gtxm,d.GUnit,a.gdj ");
-                        strSql.Append(") as t group by 队别, 货号,品名 , 规格, 单位, 单价  ");
+                        strSql.Append("group by b.FAreaName,isnull(roomno,''),a.SPShortCode,a.gname,isnull(d.GStandard,''),isnull(a.Remark,''),a.gtxm,d.GUnit,a.gdj ");
+                        strSql.Append(") as t group by 队别, 货号,[品名/规格] ,型号, 单位, 单价  ");
                         strSql.Append(" order by 队别, 货号 ");
                         DataTable dt = new CommTableInfoBLL().GetDataTable(strSql.ToString());
                         string strFileName = new CommonClass().GB2312ToUTF8("RoomGoodInfo.xls");
@@ -2664,13 +2664,13 @@ namespace SelfhelpOrderMgr.Web.Controllers
                     }
                 case 2:
                     {
-                        strSql.Append("select '' 队别,a.SPShortCode 货号,a.gname 品名");
-                        strSql.Append(" ,isnull(a.Remark,'') 规格,a.gtxm 条码,d.GUnit 单位,a.gdj 单价,convert(numeric(18," + strPointNum + @"),abs(sum(a.qty * b.fifoflag))) 数量");
-                        strSql.Append(" ,abs(sum(a.amount * b.fifoflag)) 金额 ");
+                        strSql.Append("select '' 队别,a.SPShortCode 货号,a.gname+'/'+isnull(d.GStandard,'') [品名/规格]");
+                        strSql.Append(" ,isnull(a.Remark,'') 型号,a.gtxm 条码,d.GUnit 单位,a.gdj 单价,convert(numeric(18," + strPointNum + @"),0-(sum(a.qty * b.fifoflag))) 数量");
+                        strSql.Append(" ,0-(sum(a.amount * b.fifoflag)) 金额 ");
                         //获取商品相关信息的子条件
                         GetGoodSubWhere(GoodsType, GoodName, GoodGTXM, SpShortCode, strWhere, strSql, startTime, endTime, Flag);
-                        strSql.Append(" group by a.SPShortCode,a.gname,isnull(a.Remark,''),a.gtxm,d.GUnit,a.gdj");
-                        strSql.Append(" order by a.SPShortCode,a.gname,isnull(a.Remark,''),a.gtxm,d.GUnit,a.gdj");
+                        strSql.Append(" group by a.SPShortCode,a.gname,d.GStandard,isnull(a.Remark,''),a.gtxm,d.GUnit,a.gdj");
+                        strSql.Append(" order by a.SPShortCode,a.gname,d.GStandard,isnull(a.Remark,''),a.gtxm,d.GUnit,a.gdj");
                         DataTable dt = new CommTableInfoBLL().GetDataTable(strSql.ToString());
                         string strFileName = new CommonClass().GB2312ToUTF8("GCodeGoodInfo.xls");
                         strFileName = Server.MapPath("~/Upload/" + strFileName); ;
@@ -2688,8 +2688,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         strSql.Append("from ( ");
 
                         strSql.Append("select '' FAreaName,d.gtype SPShortCode,e.fname GName");
-                        strSql.Append(" ,'' Remark,'' GTXM,abs(sum(a.qty * b.fifoflag)) FCount");
-                        strSql.Append(",abs(sum(a.amount * b.fifoflag)) FMoney  ");
+                        strSql.Append(" ,'' Remark,'' GTXM,0-(sum(a.qty * b.fifoflag)) FCount");
+                        strSql.Append(",0-(sum(a.amount * b.fifoflag)) FMoney  ");
                         //获取商品相关信息的子条件
                         GetGoodSubWhere(GoodsType, GoodName, GoodGTXM, SpShortCode, strWhere, strSql, startTime, endTime, Flag);
                         strSql.Append(" and b.fifoflag=-1");
@@ -2721,9 +2721,9 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 case 4:
                     {
                         strSql.Append("select a.gtxm 条码,a.spshortcode 店内码,a.gname+'('+ isnull(d.GStandard,'') +')' [品名/规格],a.gdj 单价 ");
-                        strSql.Append(@", convert(numeric(18,0),abs(sum( case when b.fifoflag=-1 then  a.qty else 0 end))) 消费量,abs(sum(case when b.fifoflag=-1 then a.amount else 0 end)) 消费额,
-                                convert(numeric(18,0),abs(sum( case when b.fifoflag=1 then  a.qty else 0 end))) 退货量,abs(sum(case when b.fifoflag=1 then a.amount else 0 end)) 退货额 ");
-                        strSql.Append(",convert(numeric(18," + strPointNum + @"),abs(sum(a.qty * b.fifoflag)))  实售量,abs(sum(a.amount * b.fifoflag))  实售额 ");
+                        strSql.Append(@", convert(numeric(18,0),0-(sum( case when b.fifoflag=-1 then  a.qty else 0 end))) 消费量,0-(sum(case when b.fifoflag=-1 then a.amount else 0 end)) 消费额,
+                                convert(numeric(18,0),0-(sum( case when b.fifoflag=1 then  a.qty else 0 end))) 退货量,0-(sum(case when b.fifoflag=1 then a.amount else 0 end)) 退货额 ");
+                        strSql.Append(",convert(numeric(18," + strPointNum + @"),0-(sum(a.qty * b.fifoflag)))  实售量,0-(sum(a.amount * b.fifoflag))  实售额 ");
                         //获取商品相关信息的子条件
                         GetGoodSubWhere(GoodsType, GoodName, GoodGTXM, SpShortCode, strWhere, strSql, startTime, endTime, Flag, 0);
                         strSql.Append(" group by a.gname +'('+ isnull(d.GStandard,'') +')',a.gtxm,a.spshortcode,a.gdj ");
@@ -2737,12 +2737,12 @@ namespace SelfhelpOrderMgr.Web.Controllers
                     }
                 case 5:
                     {
-                        strSql.Append("select a.invoiceno 流水号,a.fcrimecode 编号,b.fcriminal 姓名,a.gname 货名,a.gtxm 条码,a.spshortcode 店内码,c.senddate 回款日期,c.bankflag 回款状态,a.gdj 单价 ");
-                        strSql.Append(",convert(numeric(18," + strPointNum + @"),abs(sum(a.qty * b.fifoflag)))  数量,abs(sum(a.amount * b.fifoflag))  金额 ");
+                        strSql.Append("select a.invoiceno 流水号,a.fcrimecode 编号,b.fcriminal 姓名,b.fareaName 队别,a.gname 货名,a.gtxm 条码,a.spshortcode 店内码,c.senddate 回款日期,c.bankflag 回款状态,a.gdj 单价 ");
+                        strSql.Append(",convert(numeric(18," + strPointNum + @"),0-(sum(a.qty * b.fifoflag)))  数量,0-(sum(a.amount * b.fifoflag))  金额 ");
                         //获取商品相关信息的子条件
                         GetGoodSubWhere(GoodsType, GoodName, GoodGTXM, SpShortCode, strWhere, strSql, startTime, endTime, Flag, 1);
 
-                        strSql.Append(" group by a.invoiceno,a.fcrimecode,b.fcriminal,a.gname,a.gtxm,a.spshortcode,c.senddate,c.bankflag,a.gdj ");
+                        strSql.Append(" group by a.invoiceno,a.fcrimecode,b.fcriminal,b.fareaName,a.gname,a.gtxm,a.spshortcode,c.senddate,c.bankflag,a.gdj ");
                         //strSql.Append(" order by c.bankflag,a.invoiceno,a.fcrimecode,b.fcriminal,a.gname,a.gtxm,a.spshortcode,c.senddate,a.gdj ");
 
                         //增加显示银行卡号
@@ -2754,7 +2754,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         string strFileName = new CommonClass().GB2312ToUTF8("DetailGoodInfo.xls");
                         strFileName = Server.MapPath("~/Upload/" + strFileName); ;
                         //ExcelRender.RenderToExcel(dt, context, strFileName);
-                        ExcelRender.RenderToExcel(dt, dt.Rows[0][0].ToString() + "商品销售明细清单", 10, strFileName);
+                        ExcelRender.RenderToExcel(dt, dt.Rows[0][0].ToString() + "商品销售明细清单", 11, strFileName);
                         return Content("OK|DetailGoodInfo.xls");
                     }
                 case 6:
@@ -2783,12 +2783,12 @@ namespace SelfhelpOrderMgr.Web.Controllers
                     }
                 case 7:
                     {
-                        strSql.Append("select b.FAreaName 队别,isnull(RoomNo,'')  房号,a.SPShortCode 简码,a.gname 品名");
-                        strSql.Append(" ,isnull(a.Remark,'') 规格,a.gtxm 条码,abs(sum(a.qty * b.fifoflag)) 数量");
-                        strSql.Append(" ,abs(sum(a.amount * b.fifoflag)) 金额 ");
+                        strSql.Append("select b.FAreaName 队别,isnull(RoomNo,'')  房号,a.SPShortCode 简码,a.gname+'/'+isnull(d.GStandard,'') [品名/规格]");
+                        strSql.Append(" ,isnull(a.Remark,'') 型号,a.gtxm 条码,0-(sum(a.qty * b.fifoflag)) 数量");
+                        strSql.Append(" ,0-(sum(a.amount * b.fifoflag)) 金额 ");
                         //获取商品相关信息的子条件
                         GetGoodSubWhere(GoodsType, GoodName, GoodGTXM, SpShortCode, strWhere, strSql, startTime, endTime, Flag);
-                        strSql.Append(" group by b.FAreaName,isnull(RoomNo,''),a.SPShortCode,a.gname,isnull(a.Remark,''),a.gtxm ");
+                        strSql.Append(" group by b.FAreaName,isnull(RoomNo,''),isnull(d.GStandard,''),a.SPShortCode,a.gname,isnull(a.Remark,''),a.gtxm ");
                         strSql.Append(" order by b.FAreaName,isnull(RoomNo,''),a.SPShortCode ");
 
                         DataTable dt = new CommTableInfoBLL().GetDataTable(strSql.ToString());

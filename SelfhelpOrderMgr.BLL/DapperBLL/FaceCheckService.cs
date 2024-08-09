@@ -86,8 +86,9 @@ namespace SelfhelpOrderMgr.BLL
                         {
                             string strRecv = Encoding.UTF8.GetString(msgByte, 0, length);
                             rs = Newtonsoft.Json.JsonConvert.DeserializeObject<ResultInfo>(strRecv);
-                            rs.DataInfo = Newtonsoft.Json.JsonConvert.DeserializeObject<FaceCheckResult>(rs.DataInfo.ToString());
-
+                            var model = Newtonsoft.Json.JsonConvert.DeserializeObject<FaceCheckResult>(rs.DataInfo.ToString());
+                            model.UserCode = $"{model.UserCode}|{MD5ProcessHelper.GetMD5(model.UserCode)}";
+                            rs.DataInfo = model;
 
                             //stringdata = ("人脸比对结果：" + Encoding.UTF8.GetString(msgByte, 0, length));
 

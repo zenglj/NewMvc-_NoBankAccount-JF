@@ -382,6 +382,7 @@ namespace SelfhelpOrderMgr.YuZhengJieKou
             Console.WriteLine(subUrl);
             string _res = HttpHelper.HttpPostByJson(_baseurl + subUrl, "", token);
 
+            Log4NetHelper.logger.Info(_res);
             ReqResultInfo<YzglzfdkJbxx> _result = Newtonsoft.Json.JsonConvert.DeserializeObject<ReqResultInfo<YzglzfdkJbxx>>(_res);
 
             if (_result.rows == null || _result.rows.Count==0)
@@ -423,17 +424,15 @@ namespace SelfhelpOrderMgr.YuZhengJieKou
             {
                 foreach (var item in _result.rows)
                 {
-
                     string sex = "男";
                     if (item.xb == "2")
                     {
                         sex = "女";
                     }
-                    if(item.syzm=="null")
+                    if (item.syzm == "null")
                     {
                         item.syzm = "";
                     }
-
                     //Type type = typeof(YzglzfdkJbxx); // 获取要遍历的类型
                     //PropertyInfo[] properties = type.GetProperties(); // 获取所有公共属性（包括只读）
                     //foreach (var property in properties)
@@ -467,7 +466,7 @@ namespace SelfhelpOrderMgr.YuZhengJieKou
                     //}
                     //catch (Exception ex)
                     //{
-                        
+
                     //    Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject( item));
 
                     //    Console.WriteLine($"本行错误信息：{ex.Message}");
@@ -477,11 +476,11 @@ namespace SelfhelpOrderMgr.YuZhengJieKou
 
                     //}
 
-                    string strTemp = $"insert into YzglTempJbxx (FCode,FName,FIdenNo,FAge,FSex,FAddr,FCrimeCode,FCYCode,FTerm,FInDate,FOuDate,FAreaCode, gz , gw,zfZt,jtqh,csrq,sybq,sfSd,sfSe,sfSh,sfSk,sfSq) values('{item.zfbh}','{item.zfxm}','{item.zjHm}','{0}','{sex}','{item.jtmx}','{item.syzm}','{item.fgdj}','{item.xq}','{item.rjrq}','{item.xqzr}','{item.deptId}', '{item.gz}' , '{item.gw}', '{item.zfZt}','{item.jtqh}','{item.csrq}','{item.sybq}','{item.sfSd}','{item.sfSe}','{item.sfSh}','{item.sfSk}','{item.sfSq}');";
+                    string strTemp = $"insert into YzglTempJbxx (FCode,FName,FIdenNo,FAge,FSex,FAddr,FCrimeCode,FCYCode,FTerm,FInDate,FOuDate,FAreaCode, gz , gw,zfZt,jtqh,csrq,sybq,sfSd,sfSe,sfSh,sfSk,sfSq) values('{SqlEscapeHelper.SqlEscape(item.zfbh)}','{SqlEscapeHelper.SqlEscape(item.zfxm)}','{SqlEscapeHelper.SqlEscape(item.zjHm)}','{0}','{SqlEscapeHelper.SqlEscape(sex)}','{SqlEscapeHelper.SqlEscape(item.jtmx)}','{SqlEscapeHelper.SqlEscape(item.syzm)}','{SqlEscapeHelper.SqlEscape(item.fgdj)}','{SqlEscapeHelper.SqlEscape(item.xq)}','{SqlEscapeHelper.SqlEscape(item.rjrq)}','{SqlEscapeHelper.SqlEscape(item.xqzr)}','{SqlEscapeHelper.SqlEscape(item.deptId)}', '{SqlEscapeHelper.SqlEscape(item.gz)}' , '{SqlEscapeHelper.SqlEscape(item.gw)}', '{SqlEscapeHelper.SqlEscape(item.zfZt)}','{SqlEscapeHelper.SqlEscape(item.jtqh)}','{SqlEscapeHelper.SqlEscape(item.csrq)}','{SqlEscapeHelper.SqlEscape(item.sybq)}','{SqlEscapeHelper.SqlEscape(item.sfSd)}','{SqlEscapeHelper.SqlEscape(item.sfSe)}','{SqlEscapeHelper.SqlEscape(item.sfSh)}','{SqlEscapeHelper.SqlEscape(item.sfSk)}','{SqlEscapeHelper.SqlEscape(item.sfSq)}');\r\n";
                     strInsertInfo.Append(strTemp);
 
                 }
-                
+
                 new CommTableInfoBLL().ExecSql(strInsertInfo.ToString());//创建部门临时表
 
                 //改为参数化查询方式
@@ -492,16 +491,16 @@ namespace SelfhelpOrderMgr.YuZhengJieKou
                 //    FName = o.zfxm,
                 //    FIdenNo = o.zjHm,
                 //    FAge = 0,
-                //    FSex = o.xb=="2"?"女":"男",
+                //    FSex = o.xb == "2" ? "女" : "男",
                 //    FAddr = o.jtmx,
-                //    FCrimeCode=o.syzm,
-                //    FCYCode=o.fgdj,
+                //    FCrimeCode = o.syzm,
+                //    FCYCode = o.fgdj,
                 //    //,FTerm,FInDate,FOuDate,FAreaCode, gz , gw,zfZt,jtqh,csrq,sybq
-                //    FTerm=o.xq,
+                //    FTerm = o.xq,
                 //    //FInDate = o.rjrq!=""?Convert.ToDateTime( o.rjrq): DBNull,
                 //    FInDate = o.xqzr != "null" ? Convert.ToDateTime(o.rjrq) : Convert.ToDateTime("1900-01-01"),
 
-                //    FOuDate = o.xqzr!="null"?Convert.ToDateTime(o.xqzr) : Convert.ToDateTime("1900-01-01"),
+                //    FOuDate = o.xqzr != "null" ? Convert.ToDateTime(o.xqzr) : Convert.ToDateTime("1900-01-01"),
                 //    FAreaCode = o.deptId,
                 //    gz = o.gz,
                 //    gw = o.gw,
@@ -653,14 +652,14 @@ namespace SelfhelpOrderMgr.YuZhengJieKou
                 {
                     id = o.id,
                     zfbh = o.zfbh,
-                    FamilyName=o.xm,
+                    FamilyName= SqlEscapeHelper.SqlEscape(o.xm),
                     FSex=o.xb=="2"?"女":"男",
-                    FRelation=o.gxlb,
-                    FIdenNo=o.zjhm,
-                    FBirthday=o.csrq,
-                    FAddr=o.jtmx,
-                    jtqh=o.jtqh,
-                    FTel=o.dh
+                    FRelation= SqlEscapeHelper.SqlEscape(o.gxlb),
+                    FIdenNo= SqlEscapeHelper.SqlEscape(o.zjhm),
+                    FBirthday= SqlEscapeHelper.SqlEscape(o.csrq),
+                    FAddr= SqlEscapeHelper.SqlEscape(o.jtmx),
+                    jtqh= SqlEscapeHelper.SqlEscape(o.jtqh),
+                    FTel= SqlEscapeHelper.SqlEscape(o.dh)
                 }).ToList();
 
                 new BaseDapperBLL().ExecuteSql(strTemp, selList);

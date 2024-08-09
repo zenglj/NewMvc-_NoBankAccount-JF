@@ -979,8 +979,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                                 dtUserAdd = SetPersonInfoByFZJY();//福州监狱模板
                                 drTemp = ReadExcelPersonInfoByFZJY(sheet, rows, dtUserAdd, drTemp);//福州监狱模板
                                 modeId = 1;
-                            }
-                            if (mset.MgrValue == "2")
+                            }else if(mset.MgrValue == "2")
                             {
                                 //编号,姓名,性别,队别,处遇,身份证号,罪名,案号,备注
                                 dtUserAdd = SetPersonInfoByZZJY();//漳州监狱模板
@@ -1386,17 +1385,19 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 }
                 catch
                 {
-                    break;
+
                 }
-                
-                if (iType == 0)
-                {
-                    FCrimeCode = Convert.ToString(row.GetCell(4).NumericCellValue);//数字型 excel列名【名称不能变,否则就会出错】
-                }
-                else
+
+                try
                 {
                     FCrimeCode = row.GetCell(4).StringCellValue;//文本型 excel列名【名称不能变,否则就会出错】
+
                 }
+                catch 
+                {
+
+                }
+
 
 
                 string FCyName = Convert.ToString(checkValue(row.GetCell(5))); //处遇级别

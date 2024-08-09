@@ -27,8 +27,25 @@ namespace SelfhelpOrderMgr.Web.Controllers
         public ActionResult Index()
         {
             T_SHO_ManagerSet loginMode = new T_SHO_ManagerSetBLL().GetModel("LoginMode");
+
+            var fcodeInfo = Request["fcrimecode"];
+            string fcode = "";
+
+            if (fcodeInfo != null && fcodeInfo.ToString().Contains("|"))
+            {
+                string[] words = fcodeInfo.ToString().Split(new char[] { '|' }); // 使用逗号和分号作为分隔符
+                
+                if (MD5ProcessHelper.GetMD5(words[0]) == words[1])
+                {
+                    fcode = words[0];
+                }
+            }
+            ViewData["fcrimecode"] = fcode;
+
             ViewData["loginMode"] = loginMode.MgrValue;
-            ViewData["fcrimecode"] = Request["fcrimecode"];
+            //ViewData["fcrimecode"] = Request["fcrimecode"];
+            
+
 
             T_SHO_ManagerSet softNumerKeyBoard = new T_SHO_ManagerSetBLL().GetModel("SoftNumerKeyBoard");
             if (softNumerKeyBoard == null)

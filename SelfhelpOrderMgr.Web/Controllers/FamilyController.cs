@@ -347,10 +347,10 @@ namespace SelfhelpOrderMgr.Web.Controllers
                             string FSex = "男";  //队别
                             try
                             {
-                                FSex = Convert.ToString(row.GetCell(4).StringCellValue);//家属性别
+                                FSex = Convert.ToString(row.GetCell(4).StringCellValue).Trim();//家属性别
                             }
                             catch { }
-                            string Relation = row.GetCell(5)?.StringCellValue;//家属关系
+                            string Relation = row.GetCell(5)?.StringCellValue.Trim();//家属关系
                             _celltype = row.GetCell(6)?.CellType;
                             string PhoneNum = _celltype.ToString() == "Numeric" ? row.GetCell(6)?.NumericCellValue.ToString() : row.GetCell(6)?.StringCellValue;//手机号码
                             PhoneNum = PhoneNum?.Trim();

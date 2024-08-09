@@ -102,7 +102,20 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 id = LoginMode.MgrValue.ToString();
             }
             ViewData["LoginMode"] = id;
-            ViewData["managerCardNo"] =Request["managerCardNo"];
+
+            string managerCardNo = Request["managerCardNo"];
+            //防止修改编号来实现购物
+            if (managerCardNo != null && managerCardNo.ToString().Contains("|"))
+            {
+                string[] words = managerCardNo.ToString().Split(new char[] { '|' }); // 使用逗号和分号作为分隔符
+
+                if (MD5ProcessHelper.GetMD5(words[0]) == words[1])
+                {
+                    managerCardNo = words[0];
+                }
+            }
+            ViewData["managerCardNo"] = managerCardNo;
+
 
             //List<T_Vcrd> vcrds = new T_VcrdBLL().GetModelList("Flag=0 and Bankflag=1 and CAmount>0 and SendDate<'" + DateTime.Today.ToString() + "'");
             //ViewData["vcrdCount"] = vcrds.Count;
@@ -495,6 +508,19 @@ namespace SelfhelpOrderMgr.Web.Controllers
             string printFlag = Request["printFlag"];
             string managerCardNo = Request["managerCardNo"];
 
+            //防止修改编号来实现购物
+            if (managerCardNo != null && managerCardNo.ToString().Contains("|"))
+            {
+                string[] words = managerCardNo.ToString().Split(new char[] { '|' }); // 使用逗号和分号作为分隔符
+
+                if (MD5ProcessHelper.GetMD5(words[0]) == words[1])
+                {
+                    managerCardNo = words[0];
+                }
+            }
+            ViewData["managerCardNo"] = managerCardNo;
+
+
             //如果是人脸，则模拟管理登录
             if (LoginMode.MgrValue == "2")
             {
@@ -546,7 +572,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
             List<T_GoodsType> goodsTypes = new T_GoodsTypeBLL().GetModelList("");
             ViewData["goodsTypes"] = goodsTypes;
 
-            ViewData["managerCardNo"] = managerCardNo;
+            
 
             T_SHO_ManagerSet mset = new T_SHO_ManagerSetBLL().GetModel("XiaoPiaoStyle");
             ViewData["mset"] = mset;

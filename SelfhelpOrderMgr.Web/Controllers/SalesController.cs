@@ -1,4 +1,5 @@
 ﻿using SelfhelpOrderMgr.BLL;
+using SelfhelpOrderMgr.Common;
 using SelfhelpOrderMgr.Model;
 using System;
 using System.Collections.Generic;
@@ -88,7 +89,22 @@ namespace SelfhelpOrderMgr.Web.Controllers
             T_SHO_ManagerSet loginMode = new T_SHO_ManagerSetBLL().GetModel("LoginMode");
             ViewData["loginMode"] = loginMode.MgrValue;
 
-            ViewData["fcrimecode"] = Request["fcrimecode"];//人脸传过来的编号
+            //防止修改编号来实现购物
+            //ViewData["fcrimecode"] = Request["fcrimecode"];//人脸传过来的编号
+            var fcodeInfo = Request["fcrimecode"];
+            string fcode = "";
+
+            if (fcodeInfo != null && fcodeInfo.ToString().Contains("|"))
+            {
+                string[] words = fcodeInfo.ToString().Split(new char[] { '|' }); // 使用逗号和分号作为分隔符
+
+                if (MD5ProcessHelper.GetMD5(words[0]) == words[1])
+                {
+                    fcode = words[0];
+                }
+            }
+            ViewData["fcrimecode"] = fcode;
+
 
             T_SHO_ManagerSet softNumerKeyBoard = new T_SHO_ManagerSetBLL().GetModel("SoftNumerKeyBoard");
             if (softNumerKeyBoard == null)

@@ -250,6 +250,10 @@ namespace SelfhelpOrderMgr.Web.Controllers
                     op.Photo = photoFileName;
 
                 }
+                else
+                {
+                    op.Photo = "";
+                }
             }
 
             
