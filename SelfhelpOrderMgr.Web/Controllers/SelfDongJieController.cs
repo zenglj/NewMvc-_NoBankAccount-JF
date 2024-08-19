@@ -110,7 +110,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
             string fcrimeCode = Request["fcrimecode"];
             if (string.IsNullOrWhiteSpace(fcrimeCode))
             {
-                if (fcardCode.Length != 10 || fcardCode.Length != 11)
+                if (!(fcardCode.Length == 10 || fcardCode.Length == 11))
                 {
                     return Content(status);
                 }

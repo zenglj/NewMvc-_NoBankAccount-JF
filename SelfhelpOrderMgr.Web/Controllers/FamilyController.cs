@@ -5,6 +5,7 @@ using SelfhelpOrderMgr.BLL;
 using SelfhelpOrderMgr.Common;
 using SelfhelpOrderMgr.Model;
 using SelfhelpOrderMgr.Web.CommonHeler;
+using SelfhelpOrderMgr.Web.Filters;
 using SelfhelpOrderMgr.Web.Models;
 using System;
 using System.Collections.Generic;
@@ -16,6 +17,7 @@ using System.Web;
 using System.Web.Mvc;
 namespace SelfhelpOrderMgr.Web.Controllers
 {
+    [MyLogActionFilterAttribute]
     public class FamilyController : BaseController
     {
 
@@ -311,7 +313,9 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         //获取用户的队别的管理权限
                         var arrAreacodes = _baseDapperBll.QueryList<T_Czy_area>("select * from T_Czy_area where fflag=2 and fcode=@FCode", new { FCode = base.loginUserCode })
                                     .Select(o=>o.fareacode).ToArray<string>();
-                        
+
+                        //白名单数量限制
+                        T_SHO_ManagerSet wfamilySet = _baseDapperBll.QueryModel<T_SHO_ManagerSet>("KeyName", "WhiteFamilyCount");
 
                         for (int i = 1; i <= rows; i++)
                         {
@@ -429,7 +433,23 @@ namespace SelfhelpOrderMgr.Web.Controllers
                                 }
                                 else if (FCrimeCode != "" && (FIdenNo.Length >=8 && FIdenNo.Length <= 14 || FIdenNo.Length ==18))
                                 {
-                                    fls.Add(_family);
+                                    var userFamilies = _baseDapperBll.GetModelList<T_Criminal_Family>(
+                                        Newtonsoft.Json.JsonConvert.SerializeObject( new { FCrimeCode =FCrimeCode} ));
+
+                                    
+                                    //判断是否超过白名单的限制数量
+                                    if(wfamilySet!=null && wfamilySet.KeyMode == 1 && userFamilies.Count+1>Convert.ToInt32(wfamilySet.MgrValue))
+                                    {
+                                        _family.OpeningBank = FName;
+                                        _family.Remark = $"编号:{FCrimeCode},姓名:{FName},超过系统白名单人数{wfamilySet.MgrValue}";
+                                        errfls.Add(_family);
+                                    }
+                                    else
+                                    {
+                                        fls.Add(_family);
+                                    }
+                                    
+
                                     //Log4NetHelper.logger.Info("Excel导入,操作员：" + Session["loginUserName"].ToString() + ",修改一个用户信息，ID=" + FCode + ",用户名为：" + FName + ",处遇为：" + FCyName + ",队别名为：" + FAreaName + "");
                                 }
                                 else
