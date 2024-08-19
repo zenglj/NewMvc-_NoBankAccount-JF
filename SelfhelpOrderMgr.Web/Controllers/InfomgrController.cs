@@ -1374,6 +1374,9 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 prove.UnitName = mset.MgrName;
             }
 
+            ViewData["vcrd"] = _baseDapperBll.QueryList<T_Vcrd>(" select * from T_Vcrd where flag=0 and FCrimeCode=@FCrimeCode and CrtDate>=@CrtDate", new { FCrimeCode = fcode, CrtDate = DateTime.Now.AddMonths(-2) })
+                           .OrderBy(o => o.CrtDate).ToList();
+
             if (bal.PrintCount > 1)
             {
                 T_SHO_ManagerSet msetOnlyOne = new T_SHO_ManagerSetBLL().GetModel("settlementPrintOnlyOne");
@@ -1401,7 +1404,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         ViewData["balanceList"] = _baseDapperBll.QueryList<t_balanceList>(" select * from t_BalanceList where  FCrimeCode=@FCrimeCode", new { FCrimeCode = fcode })
                             .OrderByDescending(o => o.seqno).FirstOrDefault();
 
-                        
+                       
 
                         //return Content("Err|该犯已经结算过，禁止重复结算打印单，请联系管理员");
                         return View();

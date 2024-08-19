@@ -760,12 +760,12 @@ namespace SelfhelpOrderMgr.Web.Controllers
                     }
                 case 5:
                     {
-                        strSql.Append("select a.invoiceno 流水号,a.fcrimecode 编号,b.fcriminal 姓名,a.gname 货名,a.gtxm 条码,a.spshortcode 店内码,c.senddate 回款日期,c.bankflag 回款状态,a.gdj 单价 ");
+                        strSql.Append("select a.invoiceno 流水号,a.fcrimecode 编号,b.fcriminal 姓名,b.fareaName 队别,a.gname 货名,a.gtxm 条码,a.spshortcode 店内码,c.senddate 回款日期,c.bankflag 回款状态,a.gdj 单价 ");
                         strSql.Append(",convert(numeric(18," + strPointNum + @"),abs(sum(a.qty * b.fifoflag)))  数量,abs(sum(a.amount * b.fifoflag))  金额 ");
                         //获取商品相关信息的子条件
                         GetGoodSubWhere(GoodsType, GoodName, GoodGTXM, SpShortCode, strWhere, strSql, startTime, endTime, Flag, 1);
 
-                        strSql.Append(" group by a.invoiceno,a.fcrimecode,b.fcriminal,a.gname,a.gtxm,a.spshortcode,c.senddate,c.bankflag,a.gdj ");
+                        strSql.Append(" group by a.invoiceno,a.fcrimecode,b.fcriminal,b.fareaName,a.gname,a.gtxm,a.spshortcode,c.senddate,c.bankflag,a.gdj ");
                         //strSql.Append(" order by c.bankflag,a.invoiceno,a.fcrimecode,b.fcriminal,a.gname,a.gtxm,a.spshortcode,c.senddate,a.gdj ");
 
                         //增加显示银行卡号
@@ -801,7 +801,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         string strFileName = new CommonClass().GB2312ToUTF8("rowAreaGoodGroupBy.xls");
                         strFileName = Server.MapPath("~/Upload/" + strFileName); ;
                         //ExcelRender.RenderToExcel(dt, context, strFileName);
-                        ExcelRender.RenderToExcel(dt, dt.Rows[0][0].ToString() + "横向队别商品报表", 10, strFileName);
+                        ExcelRender.RenderToExcel(dt, dt.Rows[0][0].ToString() + "横向队别商品报表",  strFileName);
                         return Content("OK|rowAreaGoodGroupBy.xls");
                     }
                 case 7:

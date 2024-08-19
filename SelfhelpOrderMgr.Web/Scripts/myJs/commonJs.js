@@ -29,14 +29,14 @@ function getShortTime(nS) {
     var snS = nS.substr(6);
     snS = snS.substr(0, snS.length - 2);
     var shortDt = new Date(parseInt(snS));
-    return shortDt.getFullYear() + "-" + (parseInt(shortDt.getMonth()) + 1) + "-" + shortDt.getDate()
+    return (1900+shortDt.getYear()) + "-" + (parseInt(shortDt.getMonth()) + 1) + "-" + shortDt.getDate()
 }
 
 function getLongTime(nS) {
     var snS = nS.substr(6);
     snS = snS.substr(0, snS.length - 2);
     var shortDt = new Date(parseInt(snS));
-    return shortDt.getFullYear() + "-" + (parseInt(shortDt.getMonth()) + 1) + "-" + shortDt.getDate() + " " + shortDt.getHours() + ":" + shortDt.getMinutes() + " " + shortDt.getSeconds()
+    return (1900+shortDt.getYear()) + "-" + (parseInt(shortDt.getMonth()) + 1) + "-" + shortDt.getDate() + " " + shortDt.getHours() + ":" + shortDt.getMinutes() + " " + shortDt.getSeconds()
 }
 
 //获取两个时间差
@@ -63,14 +63,14 @@ function getTimeDiff(nSStart, nSEnd) {
 
 
 function getDateLongTime(shortDt) {
-    return shortDt.getFullYear() + "-" + (parseInt(shortDt.getMonth()) + 1) + "-" + shortDt.getDate() + " " + shortDt.getHours() + ":" + shortDt.getMinutes() + ":" + shortDt.getSeconds()
+    return (1900+shortDt.getYear()) + "-" + (parseInt(shortDt.getMonth()) + 1) + "-" + shortDt.getDate() + " " + shortDt.getHours() + ":" + shortDt.getMinutes() + ":" + shortDt.getSeconds()
 }
 
 function getTime(/** timestamp=0 **/) {
     var ts = arguments[0] || 0;
     var t, y, m, d, h, i, s;
     t = ts ? new Date(ts * 1000) : new Date();
-    y = t.getFullYear();
+    y = (1900+t.getYear());
     m = t.getMonth() + 1;
     d = t.getDate();
     h = t.getHours();

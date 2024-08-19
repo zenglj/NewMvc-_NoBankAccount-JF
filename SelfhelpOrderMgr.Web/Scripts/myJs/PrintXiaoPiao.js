@@ -44,7 +44,7 @@
                                 + "<table style='font-size:" + $("#xiaoPiaoFontSize").val() + "px; width:200px;'>"
                                 + "<tbody>"
                                 + "<tr><td>单号：" + inv.invoice.InvoiceNo + "</td></tr>"
-                                + "<tr><td>日期：" + getLongTime(inv.invoice.OrderDate) + "</td></tr>"
+                                    + "<tr><td>日期：" + inv.invoice.OrderDate + "</td></tr>"
                                 + "<tr><td>编号：" + inv.invoice.FCrimeCode + "</td></tr>"
                                 + "<tr><td>姓名：" + inv.invoice.FCriminal + "</td></tr>"
                                 + "<tr><td colspan='2'>队别：" + inv.invoice.FAreaName + "（房号:" + inv.invoice.RoomNo + "）</td></tr>"

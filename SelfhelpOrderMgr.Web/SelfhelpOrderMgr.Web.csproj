@@ -1309,6 +1309,9 @@
     <Content Include="Views\Home\WebCamTest3_压缩.cshtml" />
     <Content Include="Views\Infomgr\NewPrintOutPrisonReport -一般.cshtml" />
     <Content Include="Views\Infomgr\NewPrintOutPrisonReport - LJJY.cshtml" />
+    <Content Include="Views\Infomgr\NewPrintOutPrisonReport-1.cshtml" />
+    <Content Include="Views\Infomgr\NewPrintOutPrisonReportQZnew.cshtml" />
+    <Content Include="Views\Infomgr\NewPrintOutPrisonReport-22.cshtml" />
     <Content Include="Views\Infomgr\NewPrintOutPrisonReport.cshtml" />
   </ItemGroup>
   <ItemGroup>

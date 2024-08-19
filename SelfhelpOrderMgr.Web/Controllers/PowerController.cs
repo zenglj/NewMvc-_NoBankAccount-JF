@@ -260,6 +260,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
             string strRes = "";
             if (czy != null)
             {
+                
                 new T_CZYBLL().Update(op);
                 strRes = "Update";
                 Log4NetHelper.logger.Info("操作员：" + Session["loginUserName"].ToString() + ",修改了一个用户，ID=" + op.FCode + ",用户名为：" + op.FName);
@@ -267,6 +268,12 @@ namespace SelfhelpOrderMgr.Web.Controllers
             }
             else
             {
+                new T_CZYBLL().GetModelList(" FName='" + op.FName + "'");
+                var ss = _baseDapperBLL.QueryList<T_CZY>("select * from T_CZY where FName=@FName", new { FName = op.FName });
+                if (ss.Count > 0)
+                {
+                    return Content("Error.用户名已经存在了");
+                }
                 new T_CZYBLL().Add(op);
                 strRes = "Insert";
                 Log4NetHelper.logger.Info("操作员：" + Session["loginUserName"].ToString() + ",新增了一个用户，ID=" + op.FCode + ",用户名为：" + op.FName);

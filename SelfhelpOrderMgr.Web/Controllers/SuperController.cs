@@ -2778,7 +2778,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         string strFileName = new CommonClass().GB2312ToUTF8("rowAreaGoodGroupBy.xls");
                         strFileName = Server.MapPath("~/Upload/" + strFileName); ;
                         //ExcelRender.RenderToExcel(dt, context, strFileName);
-                        ExcelRender.RenderToExcel(dt, dt.Rows[0][0].ToString() + "横向队别商品报表", 10, strFileName);
+                        ExcelRender.RenderToExcel(dt, dt.Rows[0][0].ToString() + "横向队别商品报表", strFileName);
                         return Content("OK|rowAreaGoodGroupBy.xls");
                     }
                 case 7:
