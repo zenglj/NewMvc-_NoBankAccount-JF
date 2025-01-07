@@ -11,10 +11,22 @@ $(function () {
     $("#paySearchAuditDate_End").datetimebox('clear');
     $("#paySearchPayDate_Start").datetimebox('clear');
     $("#paySearchPayDate_End").datetimebox('clear');
+    //建档日期
+    $("#wselCrtDate_Start").datetimebox('clear');
+    $("#wselCrtDate_End").datetimebox('clear');
+
 
     //创建付款主单的条件
-    $("#wselTranDate_Start").datetimebox('clear');
-    $("#wselTranDate_End").datetimebox('clear');
+
+    
+    var today = new Date(); // 获取今天的日期
+    var thirtyDaysAgo = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 30); // 计算30天前的日期
+
+    $('#wselTranDate_Start').datetimebox('setValue', formatDate(thirtyDaysAgo)); // 设置datetimebox的值为30天前的日期
+
+
+    //$("#wselTranDate_Start").datetimebox('clear');
+    //$("#wselTranDate_End").datetimebox('clear');
 
     
 
@@ -37,7 +49,12 @@ $(function () {
 }); 
 
 
-
+function formatDate(date) {
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
 
 
 function loadPayGrid() {
@@ -304,7 +321,7 @@ function loadCrtPayRecDetail() {
         //title: '银企直联支付记录',
         //iconCls: 'icon-save',
         //width: 900,
-        height: $(window).height() * 0.3,
+        height: $(window).height() * 0.6,
         queryParams: {
             Id: 0
         },

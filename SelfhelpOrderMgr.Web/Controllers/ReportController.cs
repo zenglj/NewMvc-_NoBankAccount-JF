@@ -721,7 +721,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         strSql.Append(" Where " + strWhere);
                         strSql.Append(" group by FAreaName,DType ");
                         strSql.Append(" Order by FAreaName,DType ;");
-                        title = "用户个人记录清单";
+                        title = "按队别汇总总表";
                     } break;
                 case 4://按队别分类清表
                     {
@@ -735,7 +735,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         }
                         strSql.Append(" Where " + strWhere);
                         strSql.Append(" Order by FAreaCode,FAreaName,FCriminal,CrtDate ;");
-                        title = "用户个人记录清单";
+                        title = "按队别分类清表";
                     } break;
                 case 5://按存取类型汇总总表
                     {

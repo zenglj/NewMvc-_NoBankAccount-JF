@@ -332,7 +332,9 @@ function PayCheckSubmit() {
                         //开始打印小票
                         //myTestHtml("#" + item, $("#xiaoPiaoPageWidth").val());
 
-                        printXiaoPiaoXinxi(item, $("#xiaoPiaoPageWidth").val());
+                        printXiaoPiaoXinxi("#" + item, $("#xiaoPiaoPageWidth").val());
+
+
                         $.post("/Home/UpdatePrintCount", { "Invoices": inv.invoice.InvoiceNo }, function (data, status) {
                             if ("success" == data) {
                                 //alert(data);

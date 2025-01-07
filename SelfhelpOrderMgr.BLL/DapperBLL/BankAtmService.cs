@@ -514,7 +514,7 @@ namespace SelfhelpOrderMgr.BLL
             else
             {
                 this.rs.Flag = false;
-                this.rs.ReMsg = "没有找到相应的记录";
+                this.rs.ReMsg = "密码不对或没有相应的记录";
             }
             return this.rs;
         }

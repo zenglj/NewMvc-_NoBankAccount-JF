@@ -1,6 +1,7 @@
 ﻿using SelfhelpOrderMgr.BLL;
 using SelfhelpOrderMgr.Common;
 using SelfhelpOrderMgr.Model;
+using SelfhelpOrderMgr.Web.CommonHeler;
 using SelfhelpOrderMgr.Web.Filters;
 using System;
 using System.Collections.Generic;
@@ -64,7 +65,76 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
             return View();
         }
-        
+        public ActionResult faceLogin()
+        {
+            T_SHO_ManagerSet mset = new T_SHO_ManagerSetBLL().GetModel("LoginMode");
+            ViewData["LoginMode"] = mset.MgrValue;
+
+            return View();
+        }
+        public ActionResult faceLoginCheck(string managerCardNo)
+        {
+            // ip地址验证
+            string ipCheckResult = RegexHelper.RegexIpAddressCheck(IpAddressHelper.GetHostAddress());
+            if (!string.IsNullOrWhiteSpace(ipCheckResult))
+                return Content($"Error|{ipCheckResult}");
+
+            List<T_CZY> users = new T_CZYBLL().GetModelList("FManagerCard='" + managerCardNo + "'");
+            string status = "Error|无效的管理卡";
+            if (users.Count > 0)
+            {
+                T_CZY user = users[0];
+                if (string.IsNullOrEmpty(user.FManagerCard) == false)
+                {
+                    ip = System.Web.HttpContext.Current.Request.UserHostAddress;
+                    Log4NetHelper.logger.Info("人脸采集登录,操作员：" + user.FName + "管理卡号:" + user.FManagerCard + ",登录时间=" + DateTime.Now.ToString() + ",登录IP为：" + ip + "");
+
+                    status = "OK|登录成功|" + user.FUserChinaName;
+                }
+            }
+            return Content(status);
+        }
+        public ActionResult faceLoginCheckSignIn(string userName,string userPwd)
+        {
+            // ip地址验证
+            string ipCheckResult = RegexHelper.RegexIpAddressCheck(IpAddressHelper.GetHostAddress());
+            if (!string.IsNullOrWhiteSpace(ipCheckResult))
+                return Content($"Error|{ipCheckResult}");
+
+            if (string.IsNullOrEmpty(userName))
+            {
+                return Content("Error|用户名不能为空");
+            }
+            if (string.IsNullOrEmpty(userPwd))
+            {
+                return Content("Error|密码不能为空");
+            }
+
+            List<T_CZY> users = new T_CZYBLL().GetModelList("(FName='" + userName + "' or FCode='" + userName + "') and FPWD='" + userPwd + "'");
+            string status = "Error|用户名和密码不正确";
+            if (users.Count == 1)
+            {
+                T_CZY user = users[0];
+
+                string ip = System.Web.HttpContext.Current.Request.UserHostAddress;
+                Log4NetHelper.logger.Info("人脸采集登录,操作员：" + userName + ",登录时间=" + DateTime.Now.ToString() + ",登录IP为：" + ip + "");
+
+                T_SysOperationLog log = new T_SysOperationLog()
+                {
+                    ControlName = "ComApp",
+                    ActionName = "faceLoginCheck",
+                    CrtDate = DateTime.Now,
+                    Remark = "人脸采集登录" + ",IP:" + ip,
+                    ReqJson = "操作员：" + userName,
+                    RtnJson = "OK",
+                    UserCode = userName
+                };
+                new BaseDapperBLL().Insert<T_SysOperationLog>(log);
+                status = "OK|" + users[0].FManagerCard.ToString();
+            }
+            return Content(status);
+        }
+
         public ActionResult LoginCheck()
         {
             string LoginFlag = Request["LoginFlag"];
@@ -481,6 +551,42 @@ namespace SelfhelpOrderMgr.Web.Controllers
             string UserName = Request["UserName"];
             ViewData["FaceMode"] = Request["FaceMode"];
 
+            string fuserCode = Request["fcrimecode"];
+
+            ViewData["FFaceResult"] = "";
+            if (fuserCode != null)
+            {
+                string[] strCodes = fuserCode.Split((char)124);
+                if (Request["FaceMode"] != null && Request["FaceMode"].ToString()=="0002")
+                {
+                    if(MD5ProcessHelper.GetMD5(strCodes[0]) == strCodes[1])
+                    {
+                        ViewData["FFaceResult"] = "OK|人脸采集成功";
+                    }
+                    else
+                    {
+                        ViewData["FFaceResult"]= "Err|人脸采集失败";
+                    }
+                    
+                }
+                else if (Request["FaceMode"] != null && Request["FaceMode"].ToString() == "0001")
+                {
+                    if (MD5ProcessHelper.GetMD5(strCodes[0]) == strCodes[1])
+                    {
+                        ViewData["FFaceResult"] = "OK|人脸比对测试成功";
+                    }
+                    else
+                    {
+                        ViewData["FFaceResult"] = "Err|人脸比对测试失败";
+                    }
+                }
+            }
+            
+
+
+            T_SHO_ManagerSet mset = new T_SHO_ManagerSetBLL().GetModel("LoginMode");
+            ViewData["LoginMode"] = mset.MgrValue;
+
             //防止修改编号来实现购物
             if (managerCardNo != null && managerCardNo.ToString().Contains("|"))
             {
@@ -492,8 +598,15 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 }
             }
 
-
-            ViewData["FManagerCard"] = managerCardNo;
+            if (mset.MgrValue =="2")
+            {
+                ViewData["FManagerCard"] = managerCardNo;
+            }
+            else
+            {
+                ViewData["FManagerCard"] = managerCardNo == null ? new T_CZYBLL().GetModel("102").FManagerCard : managerCardNo;
+            }
+            
             ViewData["UserName"] = UserName;
 
             //List<T_AREA> areas = new T_AREABLL().GetModelList("");
@@ -523,8 +636,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
             }
             ViewData["fcrimecode"] = fcode;
 
-            T_SHO_ManagerSet mset = new T_SHO_ManagerSetBLL().GetModel("LoginMode");
-            ViewData["LoginMode"] = mset.MgrValue;
+            
             return View();
         }
 

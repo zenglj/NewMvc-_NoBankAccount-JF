@@ -635,7 +635,7 @@ namespace SelfhelpOrderMgr.DAL
                     ,REMARK,flag,fareacode,fareaName,fcriminal,Frealareacode,FrealAreaName,ptype,udate,origid,cardtype
                     ,TYPEFLAG,acctype,Bankflag,checkflag,checkby,pc,curUserAmount
                     ,curAllAmount,PayAuditFlag,[FinancePayFlag],[BankInterfaceFlag])
-                    select 'V'+InvoiceNo as VOUNO,cardcode,fcrimecode,amount as DAMOUNT,0 as CAMOUNT,@CrtBy as CrtBy,CRTDATE
+                    select 'V'+InvoiceNo as VOUNO,cardcode,fcrimecode,amount as DAMOUNT,0 as CAMOUNT,@CrtBy as CrtBy,getdate() as CRTDATE
                     ,'积分退货' as DTYPE,'' as DEPOSITER,REMARK,0 as flag,fareacode,fareaName,fcriminal,Frealareacode,FrealAreaName
                     ,ptype,getdate() as udate,'TH' + [InvoiceNo] as origid,cardtype,TYPEFLAG,0 as acctype,0 as Bankflag,checkflag
                     ,@CrtBy as checkby,0 as pc,0 as curUserAmount,0 as curAllAmount,0 as PayAuditFlag,0 as [FinancePayFlag],0 as [BankInterfaceFlag] 

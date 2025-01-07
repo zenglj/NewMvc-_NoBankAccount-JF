@@ -27,103 +27,107 @@
     <![endif]-->
 </head>
 <body>
-    <h1>存款来源账户查询！</h1>
-    <object id=MWRFATL style="WIDTH: 0px; HEIGHT: 0px"
-            codebase=eyeFZ.cab#version =1,0,0,1
-            classid=CLSID:CD851DCA-5D3C-4DA9-A0F7-DE018FDC0A7F></object>@*加载数明华读卡器控件*@
-    <div class="form-inline" style=" text-align:right;">
-        <input type="hidden" id="orderFcrimeCode" />
-        <input type="hidden" id="orderFcrimeName" />
-        <input type="hidden" id="orderCyName" />
-        <input type="hidden" id="orderFareaName" />
-        @if (ViewData["loginMode"].ToString() == "1")
-        {
-            <div class="form-group">
-                <div class="input-group">
-                    <div class="input-group-addon">用户号</div>
-                    <input class="form-control" type="number" id="userCode" name="userCode" placeholder="用户号" onkeydown="if(event.keyCode==13) $('#UserPwd').focus();" style="width:150px;">
+    <div class="container">
+        <h1>存款来源账户查询！</h1>
+        <object id=MWRFATL style="WIDTH: 0px; HEIGHT: 0px"
+                codebase=eyeFZ.cab#version =1,0,0,1
+                classid=CLSID:CD851DCA-5D3C-4DA9-A0F7-DE018FDC0A7F></object>@*加载数明华读卡器控件*@
+                <div class="form-inline" style=" text-align:right;">
+                    <input type="hidden" id="orderFcrimeCode" />
+                    <input type="hidden" id="orderFcrimeName" />
+                    <input type="hidden" id="orderCyName" />
+                    <input type="hidden" id="orderFareaName" />
+                    @if (ViewData["loginMode"].ToString() == "1")
+                    {
+                        <div class="form-group">
+                            <div class="input-group">
+                                <div class="input-group-addon">用户号</div>
+                                <input class="form-control" type="number" id="userCode" name="userCode" placeholder="用户号" onkeydown="if(event.keyCode==13) $('#UserPwd').focus();" style="width:150px;">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="input-group">
+                                <div class="input-group-addon">密码</div>
+                                <input class="form-control" type="password" id="UserPwd" name="UserPwd" placeholder="密码" onkeydown="if (event.keyCode == 13) $('#btnSearch').focus();" style="width:150px;">
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-primary" id="btnSearch" onclick="UserLoginCheck()">查询</button>
+
+
+                    }
+                    else
+                    {
+                        <a class="btn btn-large btn-primary " href="#" role="button" onclick="btnQueryUserInfo('3504013494')">读卡IC卡</a>
+                    }
+
                 </div>
-            </div>
-            <div class="form-group">
-                <div class="input-group">
-                    <div class="input-group-addon">密码</div>
-                    <input class="form-control" type="password" id="UserPwd" name="UserPwd" placeholder="密码" onkeydown="if (event.keyCode == 13) $('#btnSearch').focus();" style="width:150px;">
+                <h3 id="userNameInfo">你好, 【<span id="searchUserName">张三</span>】. 您的汇款主要来源账户有如下几个：</h3>
+
+
+
+                <div class="row">
+                    @if (ViewData["softNumerKeyBoard"].ToString() == "1")
+                    {
+                        <div class="col-sm-9">
+                            <div class="alert alert-danger" role="alert" id="lblInfo">银行账号：</div>
+
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>汇款人</th>
+                                        <th>汇款账号</th>
+                                        <th>联行号</th>
+                                        <th>汇款银行</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody id="tbodyAccount">
+                                    <tr>
+                                        <td>汇款人</td>
+                                        <td>汇款账号</td>
+                                        <td>联行号</td>
+                                        <td>汇款银行</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+
+                        </div>
+                        <div class="col-sm-3" id="div_UserQueryKeyBoard">
+                            @{Html.RenderPartial("~/Views/Shopping/_PartialNumberKeyBoard.cshtml");}
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="col-sm-12">
+                            <div class="alert alert-danger" role="alert" id="lblInfo">银行账号：</div>
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>汇款人</th>
+                                        <th>汇款账号</th>
+                                        <th>联行号</th>
+                                        <th>汇款银行</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody id="tbodyAccount">
+                                    <tr>
+                                        <td>汇款人</td>
+                                        <td>汇款账号</td>
+                                        <td>联行号</td>
+                                        <td>汇款银行</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                        </div>
+                    }
+
                 </div>
-            </div>
-            <button type="button" class="btn btn-primary" id="btnSearch" onclick="UserLoginCheck()">查询</button>
-
-
-        }
-        else
-        {
-            <a class="btn btn-large btn-primary " href="#" role="button" onclick="btnQueryUserInfo('3504013494')">读卡IC卡</a>
-        }
-
-    </div>
-    <h3 id="userNameInfo">你好, 【<span id="searchUserName">张三</span>】. 您的汇款主要来源账户有如下几个：</h3>
-    
-
-
-    <div class="row">
-        @if (ViewData["softNumerKeyBoard"].ToString() == "1")
-        {
-            <div class="col-sm-9">
-            <div class="alert alert-danger" role="alert" id="lblInfo">银行账号：</div>
-
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>汇款人</th>
-                        <th>汇款账号</th>
-                        <th>联行号</th>
-                        <th>汇款银行</th>
-                    </tr>
-                </thead>
-                
-                <tbody id="tbodyAccount">
-                    <tr>
-                        <td>汇款人</td>
-                        <td>汇款账号</td>
-                        <td>联行号</td>
-                        <td>汇款银行</td>
-                    </tr>
-                </tbody>
-            </table>
-
-           
-        </div>
-        <div class="col-sm-3" id="div_UserQueryKeyBoard">
-            @{Html.RenderPartial("~/Views/Shopping/_PartialNumberKeyBoard.cshtml");}
-        </div>
-        }
-        else
-        {
-            <div class="col-sm-12">
-                <div class="alert alert-danger" role="alert" id="lblInfo">银行账号：</div>
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>汇款人</th>
-                            <th>汇款账号</th>
-                            <th>联行号</th>
-                            <th>汇款银行</th>
-                        </tr>
-                    </thead>
-
-                    <tbody id="tbodyAccount">
-                        <tr>
-                            <td>汇款人</td>
-                            <td>汇款账号</td>
-                            <td>联行号</td>
-                            <td>汇款银行</td>
-                        </tr>
-                    </tbody>
-                </table>
 
             </div>
-        }
-        
-    </div>
+
     
 
 

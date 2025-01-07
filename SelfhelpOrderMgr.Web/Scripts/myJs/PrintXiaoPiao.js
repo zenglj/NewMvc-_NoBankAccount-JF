@@ -204,7 +204,13 @@ function printMulXiaoPiao()//打印多个小票
     for (var i = 0; i < pItems.length; i++) {
         var item = pItems[i];
         //myTestHtml("#"+item,$("#xiaoPiaoPageWidth").val());
-        printXiaoPiaoXinxi(item, $("#xiaoPiaoPageWidth").val());
+        //printXiaoPiaoXinxi(item, $("#xiaoPiaoPageWidth").val());
+
+        if ($("#printPlusVer").val() == "1") {
+            printXiaoPiaoXinxi("#" +item, $("#xiaoPiaoPageWidth").val());
+        } else {
+            printXiaoPiaoXinxi("#" + item, $("#xiaoPiaoPageWidth").val());
+        }
     }
 
     var selectRows = $("#InvoiceNos").val();

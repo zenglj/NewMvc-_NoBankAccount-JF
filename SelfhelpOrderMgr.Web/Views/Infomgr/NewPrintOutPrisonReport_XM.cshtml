@@ -1,0 +1,133 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>NewPrintOutPrisonReport</title>
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+    @*<link href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.cs" rel="stylesheet" />*@
+
+    <style>
+        #tb01 {
+            border: 3px solid black;
+            border-collapse: collapse; /* 移除双边框效果 */
+        }
+
+            #tb01 th, #tb01 td {
+                border: 2px solid black;
+                border-collapse: collapse; /* 移除双边框效果 */
+            }
+    </style>
+
+</head>
+<body>
+    <div>
+        <div class="row">
+            <div class="col-md-2"></div>
+            <div class="col-md-8">
+
+                <div>
+                    @if (ViewData["prove"] != null)
+                    {
+                        string strPayMode = "未知方式";
+                        string strRemark = "特别提示:请仔细核对结算单上的收款人账号、姓名、开户行信息，如因信息错误导致无法汇款到账，刑释人员需本人到监狱补办结算领款手续！";
+                        string strIdenNo = "_______________________________";
+                        string strUnitName = "监狱";
+
+                        SelfhelpOrderMgr.Model.t_BankProve prove = ViewData["prove"] as SelfhelpOrderMgr.Model.t_BankProve;
+                        SelfhelpOrderMgr.Model.t_balanceList bal = ViewData["balanceList"] as SelfhelpOrderMgr.Model.t_balanceList;
+                        if (prove.PayMode == 0)
+                        {
+                            strPayMode = "现金领取";
+                        }
+                        else if (prove.PayMode == 1)
+                        {
+                            strPayMode = "狱内ATM机取款";
+                            strRemark = "特别提示:您选择的取款方式：狱内ATM取款，请使用本人IC和本结算单的取款密码【 " + prove.WithdrawalPassword + " 】，到狱内ATM机上取款，请注意保管密码，不用泄露！ATM取款机处设配有全天候监控，您取完款后，IC卡自动回收";
+
+                        }
+                        else if (prove.PayMode == 2)
+                        {
+                            strPayMode = "转账支付";
+                        }
+                        else if (prove.PayMode == 5)
+                        {
+                            strPayMode = "放弃领款";
+                        }
+                        if (string.IsNullOrWhiteSpace(prove.FIdenNo) == false)
+                        {
+                            strIdenNo = prove.FIdenNo;
+                        }
+                        if (string.IsNullOrWhiteSpace(prove.UnitName) == false)
+                        {
+                            strUnitName = prove.UnitName;
+                        }
+
+
+                    <div>
+
+                        <h3 class="text-center">福建省厦门监狱离监结算凭证(财务)</h3>
+
+                        <table>
+                            <tr width="100%">
+                                <td width="600px">日期:@bal.crtdate.ToShortDateString()</td>
+                                <td>单位:元</td>
+                            </tr>
+                        </table>
+                        <table id="tb01" class="table table-bordered input-lg">
+                            <tr >
+                                <td>姓名:</td>
+                                <td>@prove.fname</td>
+                                <td>狱政编号:</td>
+                                <td>@prove.fcode</td>
+                            </tr>
+                            <tr>
+                                <td>单位:</td>
+                                <td>@prove.fareaName</td>
+                                <td>监区审批:</td>
+                                <td></td>
+                            </tr>
+
+                            <tr>
+                                <td>结算余额:</td>
+                                <td colspan="3">零用金余额：<u>@(bal.AmountA+bal.AmountB+bal.AmountC)</u> + 积分：<u>@bal.AccPoints</u> </td>
+                            </tr>
+                            <tr>
+                                <td>结算余额:</td>
+                                <td colspan="3"><span id="jsMoney1"></span>(¥@prove.CardMoney ) <input type="hidden" id="jsMoney" value="@prove.CardMoney" /></td>
+                            </tr>
+
+                        </table>
+                        <table>
+                            <tr width="100%" class="input-lg">
+                                <td width="300px">离监取款人(签字)：</td>
+                                <td width="300px">审核会计：</td>
+                                <td>操作员：</td>
+                            </tr>
+                        </table>
+
+                    </div>
+
+                    }
+                </div>
+                <div class="col-md-2"></div>
+            </div>
+        </div>
+    </div>
+    <script src="~/Scripts/jquery-1.11.3.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <script src="~/Scripts/myJs/commonJs.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            var jsmoney = $("#jsMoney").val();
+            $("#jsMoney1").html("人民币:" + DX(jsmoney) + "");
+
+        });
+    </script>
+</body>
+</html>

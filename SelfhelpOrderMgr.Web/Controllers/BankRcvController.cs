@@ -718,6 +718,10 @@ namespace SelfhelpOrderMgr.Web.Controllers
             string strCountTime = string.Format("统计期间:{0}--{1}", s.CreateDate_Start, s.CreateDate_End);
 
             DataTable dt = new CommTableInfoBLL().GetDataTable(strSql.ToString());
+            if (dt.Rows.Count <= 0)
+            {
+                return Content("Err|没有查到记录,请点击[查询]按钮重新查询");
+            }
             string strFileName = new CommonClass().GB2312ToUTF8(strLoginName + "_BankRcvList.xls");
             strFileName = Server.MapPath("~/Upload/" + strFileName); ;
 

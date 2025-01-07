@@ -92,6 +92,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                             break;
                         case "AtmWithdrawMoney"://取款
                             {
+                                Log4NetHelper.logger.Info("进入取款模块:");
                                 var _data = new ReqWithDrawal()
                                 {
                                     AtmSerialNo = reqJson.Data["TranDate"] + reqJson.Data["AtmSerialNo"],
@@ -103,6 +104,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                                     WithdrawalPassword = reqJson.Data["WithdrawalPassword"],
                                 };
                                 //var _data=JsonConvert.DeserializeObject<reqAtmActionInfo>( ss);
+                                Log4NetHelper.logger.Info($"取款的数据:{Newtonsoft.Json.JsonConvert.SerializeObject(_data)}");
                                 rs = this.AtmWithdrawMoney(_data);
                             }
                             break;
@@ -187,6 +189,21 @@ namespace SelfhelpOrderMgr.Web.Controllers
                                 };
                                 //var _data=JsonConvert.DeserializeObject<reqAtmActionInfo>( ss);
                                 rs = this.Reconciliation(_data);
+                            }
+                            break;
+                        case "FaceCheck"://人脸验证（未修改完成)
+                            {
+                                var _data = new reqAtmFaceInfo()
+                                {
+                                    AtmSerialNo = reqJson.Data["TranDate"] + reqJson.Data["AtmSerialNo"],
+                                    F_AMOUNT = reqJson.Data["F_AMOUNT"],
+                                    MacCode = reqJson.Data["MacCode"],
+                                    TranDate = reqJson.Data["TranDate"],
+                                    TranTime = reqJson.Data["TranTime"],
+                                    FaceData = reqJson.Data["FaceData"]
+                                };
+                                //var _data=JsonConvert.DeserializeObject<reqAtmActionInfo>( ss);
+                                rs = this.FaceCheck(_data);
                             }
                             break;
                         default:
@@ -289,6 +306,72 @@ namespace SelfhelpOrderMgr.Web.Controllers
         }
 
 
+        private ResultInfo GetCardInfoByFCode(string fcrimecode)
+        {
+
+
+            PageResult<ViewPaymentRecordExtend> rec;
+            ViewBankUserInfo model;
+            bll.GetPaymentRecordInfo(fcrimecode, 0, out rec, out model);
+
+            if (rec.rows.Count == 1)
+            {
+                if (rec.rows[0].AuditFlag == 1)
+                {
+                    rs.Flag = true;
+                    rs.ReMsg = "成功";
+                    rs.DataInfo = model;
+                }
+                else
+                {
+                    rs.Flag = false;
+                    rs.ReMsg = "结算余额未审核，不能支取，请与监狱管理民警联系!";
+                    rs.DataInfo = null;
+                }
+            }
+            else if (rec.rows.Count > 1)
+            {
+                rs.Flag = false;
+                rs.ReMsg = "出现重复的记录，不能支取，请与监狱管理民警联系!";
+                rs.DataInfo = null;
+            }
+            else
+            {
+                rs.Flag = false;
+                rs.ReMsg = "没有找到相应的记录";
+                rs.DataInfo = null;
+            }
+
+
+
+            //====================================================
+            //3Des 加密方式======================================
+            string ss = jss.Serialize(rs.DataInfo);
+            System.Text.Encoding utf8 = System.Text.Encoding.UTF8;
+            //key为abcdefghijklmnopqrstuvwx的Base64编码
+            byte[] key = Convert.FromBase64String("YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4");
+            byte[] iv = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 };      //当模式为ECB时，IV无用
+            //byte[] data = utf8.GetBytes("中国ABCabc123");
+            byte[] data = utf8.GetBytes(ss);
+            System.Console.WriteLine("ECB模式:");
+            byte[] str1 = Des3PasswordHelper.Des3EncodeECB(key, iv, data);
+            byte[] str2 = Des3PasswordHelper.Des3DecodeECB(key, iv, str1);
+            //string encstr = System.Text.Encoding.UTF8.GetString(str1);
+            string encstr = Convert.ToBase64String(str1);
+            string decstr = System.Text.Encoding.UTF8.GetString(str2);
+            string decstrEnd = System.Text.Encoding.UTF8.GetString(str2).Replace("\0", "");
+
+            byte[] str3 = Convert.FromBase64String(encstr); //密文转数组
+            byte[] strEeee = Des3PasswordHelper.Des3DecodeECB(key, iv, str3);//解密得到明文数组
+            string decstrEEE = System.Text.Encoding.UTF8.GetString(strEeee);//数组转字符串
+            System.Console.WriteLine(Convert.ToBase64String(str1));
+            System.Console.WriteLine(System.Text.Encoding.UTF8.GetString(str2));
+            //rs.DataInfo = encstr;
+            //=================end====================================
+            //====================================================================
+
+            return (rs);
+        }
 
         private string CheckParamInfo(string cardCode, string fcrimecode)
         {
@@ -330,15 +413,21 @@ namespace SelfhelpOrderMgr.Web.Controllers
             decimal money = Convert.ToDecimal(reqJson.F_AMOUNT);
             string fcrimecode = "";
             fcrimecode = this.CheckParamInfo(cardCode, fcrimecode);
+            Log4NetHelper.logger.Info($"检查参数结果:{fcrimecode},{this.rs.ReMsg}");
             if (this.rs.ReMsg != "未处理")
             {
                 return this.rs;
             }
+            Log4NetHelper.logger.Info("准备执行取款操作:");
             using (TransactionScope ts = new TransactionScope())
             {
+                Log4NetHelper.logger.Info("进入取款事务:");
                 this.rs = this.bll.WithdrawalOperation(money, reqJson.WithdrawalPassword, fcrimecode, 0, 1, "出账成功，待ATM机出钞", "出账");
+                Log4NetHelper.logger.Info($"取款记录查询结果:{Newtonsoft.Json.JsonConvert.SerializeObject(this.rs)}");
+
                 if (this.rs.Flag)
                 {
+                    Log4NetHelper.logger.Info("开始取款事务:");
                     string title = "取款";
                     string strIp = IpAddressHelper.GetHostAddress();
                     reqAtmActionInfo expr_8E = new reqAtmActionInfo();
@@ -350,10 +439,12 @@ namespace SelfhelpOrderMgr.Web.Controllers
                     expr_8E.TranTime = now.ToString("hhmmss");
                     expr_8E.MacCode = reqJson.MacCode;
 
+                    Log4NetHelper.logger.Info("开始取款人员信息查询:");
                     T_Criminal criminal = this.bll.QueryList<T_Criminal>("select b.FName as FAreaName,a.* from t_criminal a,t_area b where a.FAreaCode=b.FCode and a.FCode=@FCode", new { FCode = fcrimecode }).First();
                     reqAtmActionInfo oInsertJson = expr_8E;
                     //20240529 增加ATM记录的人员队别信息
                     //this.bll.InsertATMOperationREC(oInsertJson, strIp, title);
+                    Log4NetHelper.logger.Info("写入取款记录:");
                     this.bll.InsertATMOperationREC(oInsertJson,criminal,strIp, title);
                 }
                 ts.Complete();
@@ -511,7 +602,40 @@ namespace SelfhelpOrderMgr.Web.Controllers
             return this.rs;
         }
 
+        /// <summary>
+        /// 人脸识别
+        /// </summary>
+        /// <param name="reqJson"></param>
+        /// <returns></returns>
+        private ResultInfo FaceCheck(reqAtmFaceInfo reqJson)
+        {
+            //Log4NetHelper.logger.Info(reqJson);
+            Log4NetHelper.logger.Info($"接收到人脸识别的请求:{Newtonsoft.Json.JsonConvert.SerializeObject(reqJson).Substring(0,500)}");
+            string strIp = IpAddressHelper.GetHostAddress();
+            //string title = "人脸识别";
+            //人脸识别检测
+            var _result = FaceCheckService.SendAndCheckFace("", reqJson.FaceData, "0001", null);
+            Log4NetHelper.logger.Info("查看人脸的检查结果");
+            Log4NetHelper.logger.Info(Newtonsoft.Json.JsonConvert.SerializeObject( _result));
+            if (_result.Flag == false)
+            {
+                return _result;
+            }
+            //如果成功比对，读取相应的记录
+            var faceRs = (FaceCheckResult)_result.DataInfo;
+            if (faceRs.UserCode.Length < 10 || faceRs.typeFlag == 1)
+            {
+                rs.ReMsg = "民警账户不能用于离监取款";
+                return rs;
+            }
+            Log4NetHelper.logger.Info("人脸比对成功的请求用户编号");
+            Log4NetHelper.logger.Info("请求查询ATM记录的编号："+faceRs.UserCode);
+            string[] fcodes = faceRs.UserCode.Split((char)124);
+            Log4NetHelper.logger.Info("请求查询ATM记录的狱政编号：" + fcodes[0]);
+            var ss = GetCardInfoByFCode(fcodes[0]);
+            return ss;
 
+        }
 
     }
 }

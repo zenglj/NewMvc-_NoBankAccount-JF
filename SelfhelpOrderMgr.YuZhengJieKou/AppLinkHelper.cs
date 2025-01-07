@@ -15,6 +15,7 @@ namespace SelfhelpOrderMgr.YuZhengJieKou
         private readonly static string zfzt = ConfigurationSettings.AppSettings["zfzt"];
         private readonly static string searchDicts = ConfigurationSettings.AppSettings["searchDicts"];
         private readonly static string pageSize = ConfigurationSettings.AppSettings["pageSize"];
+        private readonly static string faceServiceUrl = ConfigurationSettings.AppSettings["FaceServiceUrl"];
 
         //获取apiUrl
         public static string GetUrl()
@@ -49,6 +50,12 @@ namespace SelfhelpOrderMgr.YuZhengJieKou
         public static string GetPageSize()
         {
             return pageSize;
+        }
+
+        //获取人脸注册服务器URL
+        public static string GetFaceServiceUrl()
+        {
+            return faceServiceUrl;
         }
     }
 

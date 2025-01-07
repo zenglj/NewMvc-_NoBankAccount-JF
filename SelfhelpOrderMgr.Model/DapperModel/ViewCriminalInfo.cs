@@ -19,6 +19,10 @@ namespace SelfhelpOrderMgr.Model
         /// 银行卡开卡标志
         /// </summary>
         public string BankOpenFlag { get; set; }
+        /// <summary>
+        /// 人脸采集标志
+        /// </summary>
+        public int faceFlag { get; set; }
 
     }
 }

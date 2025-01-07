@@ -7,6 +7,9 @@ $(function () {
     $("#paySearchModDate_Start").datetimebox('clear');
     $("#paySearchModDate_End").datetimebox('clear');
 
+    $("#paySearchCrtDate_Start").datetimebox('clear');
+    $("#paySearchCrtDate_End").datetimebox('clear');
+
     //动态改变行颜色
     $('#tbPay').datagrid({
         rowStyler: function (index, row) {

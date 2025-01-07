@@ -98,11 +98,19 @@ function loadDetailTable() {
         pageList: [5, 10, 20, 50, 100,1000,5000],
         frozenColumns: [[//DataGrid表格排序列
             { field: 'ck', checkbox: true },
-            { title: '编号', field: 'FCode', width: 80, sortable: true },
+            { title: '编号', field: 'FCode', width: 110, sortable: true },
             { field: 'FName', title: '姓名', sortable: true, width: 100 }
         ]],
         columns: [[//DataGrid表格数据列
-
+            {
+                field: 'faceFlag', title: '脸谱采集', width: 120, sortable: true, formatter: function (value, row, index) {
+                    if (row.faceFlag == "1") {
+                        return "是";
+                    } else {
+                        return "否";
+                    }
+                }
+            },
             { field: 'CyName', title: '处遇', sortable: true, width: 100 },
             { field: 'FAreaName', title: '队别', width: 100, sortable: true },
             { field: 'FSex', title: '性别', width: 100, sortable: true },
@@ -1147,4 +1155,32 @@ function btnRSB_Koukuan() {
 
         }
     }
+}
+
+
+
+function btnFaceSave() {
+
+    var rowData = $("#test").datagrid('getSelected');
+    if (rowData != null) {
+        $("#faceUserCode").val(rowData.FCode);
+        $('#ffFaceGather').form({
+            url: "/Face/FaceGather",
+            onSubmit: function () {
+                // do some check
+                // return false to prevent submit;
+            },
+            success: function (data) {
+                var _dataObj = JSON.parse(data);
+                console.log(_dataObj);
+                $.messager.alert("提示", _dataObj.ReMsg);
+            }
+        });
+        // submit the form
+        $('#ffFaceGather').submit();
+    } else {
+        $.messager.alert("提示", "请选择一条记录");
+    }
+
+
 }

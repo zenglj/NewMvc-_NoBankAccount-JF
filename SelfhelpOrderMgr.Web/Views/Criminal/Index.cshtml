@@ -72,6 +72,7 @@
                     }
 
                     <div data-options="iconCls:'icon-remove',plain:true" onclick="btnRSB_Koukuan()">扣入监/所款</div>
+                    <div data-options="iconCls:'icon-save',plain:true" onclick="$('#winFaceGather').window('open');$('#ffFaceGather').form('clear');">脸谱采集</div>
                 </div>
 
             </div>
@@ -360,6 +361,21 @@
         </div>
     </div>
 
+    <div id="winFaceGather" class="easyui-window" title="脸谱采集" style="width:400px;height:200px"
+         data-options="iconCls:'icon-save',modal:true">
+        <form id="ffFaceGather" method="post" enctype="multipart/form-data" style="padding:20px;">
+            <div style="padding-bottom:10px;">
+                <input type="hidden" id="faceUserCode" name="fcrimecode" value="" />
+                <label for="name">脸谱相片:</label>
+                <input type="file" id="pic" name="pic" formenctype="multipart/form-data" />
+            </div>
+            <div style="padding-bottom:10px;">
+                <a id="btnFaceSave" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-reload'" onclick="btnFaceSave()">注册脸谱</a>
+            </div>
+            <div><label id="lblFaceInfo"></label></div>
+        </form>
+    </div>
+
     <div id="win" class="easyui-window" title="Excel 文件导入" style="width:400px;height:200px"
          data-options="iconCls:'icon-save',modal:true">
         <form id="ffExcel" method="post" enctype="multipart/form-data">
@@ -527,7 +543,7 @@
                 <tr>
                     <th align="right">可选家属汇入账号:</th>
                     <td>
-                        <input id="SelBankCard" name="SelBankCard" value="请选择" style="width:300px" >
+                        <input id="SelBankCard" name="SelBankCard" value="请选择" style="width:300px">
                         <label>可用'家属账号'</label>
                     </td>
                 </tr>

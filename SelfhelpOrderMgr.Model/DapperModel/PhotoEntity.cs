@@ -25,6 +25,11 @@ namespace SelfhelpOrderMgr.Model
         public string photoBase64Data { get; set; }
 
         /// <summary>
+        /// redis 存储相片Base64数据的uuidKey
+        /// </summary>
+        public string rdsUuidKey { get; set; }
+
+        /// <summary>
         /// 注册类型，0是犯人，1是民警
         /// </summary>
         public int TypeFlag { get; set; }

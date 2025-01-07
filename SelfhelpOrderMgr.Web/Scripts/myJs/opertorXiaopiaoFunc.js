@@ -55,14 +55,39 @@ function myTestHtml(tempName, pageWidth) {
     }
     LODOP.PRINT();
 
-
-
 };
 
-function printXiaoPiaoXinxi(e) {
+function printMyAddHtml(e) {
     LODOP = getLodop(document.getElementById('LODOP_OB'), document.getElementById('LODOP_EM'));
     LODOP.PRINT_INIT("");
     LODOP.ADD_PRINT_HTM(10, 20, "100%", "100%", $("#" + e).html());
     LODOP.PREVIEW();
 };
+
+
+function printXiaoPiaoXinxi(tempName, pageWidth) {
+    LODOP = getLodop(document.getElementById('LODOP_OB'), document.getElementById('LODOP_EM'));
+    LODOP.PRINT_INIT("");
+    LODOP.SET_PRINT_PAGESIZE(3, pageWidth, 10, "");
+    if (tempName == "") {
+        LODOP.ADD_PRINT_HTM(10, 1, "100%", "100%", $("#template").html());
+    } else {
+        LODOP.ADD_PRINT_HTM(10, 1, "100%", "100%", $(tempName).html());
+    }
+    LODOP.PRINT();
+};
+
+//自定义打印小票函数
+//function printXiaoPiaoXinxi(itemId, pageWidth) {
+//    //alert(pageWidth);
+//    LODOP = getLodop();
+//    LODOP.PRINT_INIT("打印控件功能演示_Lodop功能_表单一");
+//    LODOP.SET_PRINT_STYLE("FontSize", 24);
+//    LODOP.SET_PRINT_STYLE("Bold", 1);
+//    LODOP.SET_PRINT_PAGESIZE(3, pageWidth, 10, "");
+//    //LODOP.ADD_PRINT_TEXT(50, 231, 260, 39, "打印页面部分内容");
+//    //LODOP.ADD_PRINT_HTM(88, 200, 350, 600, document.getElementById(itemId).innerHTML);
+//    LODOP.ADD_PRINT_HTM(10, 1, "100%", "100%", document.getElementById(itemId).innerHTML);
+//    LODOP.PRINT();
+//}
 //---------------------------------Lodop打印小票相关操作函数 结束-------------------------------------

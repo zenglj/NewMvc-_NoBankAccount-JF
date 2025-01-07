@@ -4,195 +4,261 @@
 
 <!-- Bootstrap -->
 <style type="text/css">
-    <!--
+
     .MoneyFontColor {
         color: #FF4400;
     }
-    -->
+
+
+    .costom-nav {
+        background-color: #f2f2f2; /* 设置背景颜色 */
+        border: 1px solid #dee2e6; /* 设置边框样式 */
+        /*border-radius: 0.25rem;*/ /* 可选：设置圆角 */
+    }
+
+
+        .costom-nav > li {
+            border-bottom: 1px solid #ddd; /* 设置边框的粗细、样式和颜色 */
+            margin-bottom: -1px; /* 为了防止边框间的间隙 */
+        }
+
+    .bg-huise {
+        background-color: #F3F4F7; /* 设置背景灰色 */
+    }
+
+    .scrollable-div {
+        height: 600px; /* 设置div的高度 */
+        overflow-y: auto; /* 启用垂直滚动条 */
+    }
+
+
+    .thumbnail-3d {
+        border: none;
+        border-radius: 5px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.1), 0 3px 4px rgba(0, 0, 0, 0.1);
+        -webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.1), 0 3px 4px rgba(0, 0, 0, 0.1);
+        -moz-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.1), 0 3px 4px rgba(0, 0, 0, 0.1);
+    }
+
+        .thumbnail-3d .caption {
+            background-color: #fff;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+            .thumbnail-3d .caption:hover {
+                background-color: #f5f5f5;
+            }
 </style>
-<div id="Head_Top">
 
-    <h1 id="topInfo" class="text-center">@ViewData["ptype"],欢迎您选购本站商品！</h1>
 
-    <h3 class="text-center"><small>这些商品是监狱或省局规定的目录产品，所有商品都是来自正规渠道,并与市场价格进行比对过的</small></h3>
-    <hr />
-    <object id=MWRFATL style="WIDTH: 0px; HEIGHT: 0px"
-            codebase=eyeFZ.cab#version =1,0,0,1
-            classid=CLSID:CD851DCA-5D3C-4DA9-A0F7-DE018FDC0A7F></object> @*加载数明华读卡器控件*@
-            @{Html.RenderPartial("~/Views/Shared/_PartialXiaopiaoControl.cshtml");}
+<div class="container-fluid bg-huise">
 
-            <div class="row">
-                <div class="col-md-9">
-                    <div class="form-inline">
-                        <div class="text-center">
-                            <input type="hidden" id="saleTypeId" value="@ViewData["saleTypeId"]" />
-                            <input type="hidden" id="orderFcrimeCode" />
-                            <input type="hidden" id="orderFcrimeName" />
-                            <input type="hidden" id="orderCyName" />
-                            <input type="hidden" id="orderFareaName" />
 
-                            @if (ViewData["loginMode"].ToString() == "1")
-                            {
-                                <input type="hidden" id="loginModeFlag" value="1" />
-                                <div class="form-group" id="divUserName">
-                                    <div class="input-group">
-                                        <div class="input-group-addon">账号</div>
-                                        <input class="form-control" type="number" id="UserCode" name="UserCode" onkeydown="if(event.keyCode==13) $('#UserPwd').focus();" placeholder="请输入编号" style="width:130px;">
+    <div id="Head_Top" class="row">
+
+        <div>
+            <h1 id="topInfo" class="text-center">@ViewData["ptype"],欢迎您选购本站商品！</h1>
+
+            <h3 class="text-center"><small>这些商品是监狱或省局规定的目录产品，所有商品都是来自正规渠道,并与市场价格进行比对过的</small></h3>
+            <hr />
+
+            <object id=MWRFATL style="WIDTH: 0px; HEIGHT: 0px"
+                    codebase=eyeFZ.cab#version =1,0,0,1
+                    classid=CLSID:CD851DCA-5D3C-4DA9-A0F7-DE018FDC0A7F></object> @*加载数明华读卡器控件*@
+                    @{Html.RenderPartial("~/Views/Shared/_PartialXiaopiaoControl.cshtml");}
+                    <div class="row">
+                        <div class="col-md-9">
+                            <div class="form-inline">
+                                <div class="text-center">
+                                    <input type="hidden" id="saleTypeId" value="@ViewData["saleTypeId"]" />
+                                    <input type="hidden" id="orderFcrimeCode" />
+                                    <input type="hidden" id="orderFcrimeName" />
+                                    <input type="hidden" id="orderCyName" />
+                                    <input type="hidden" id="orderFareaName" />
+
+                                    @if (ViewData["loginMode"].ToString() == "1")
+                                    {
+                                        <input type="hidden" id="loginModeFlag" value="1" />
+                                        <div class="form-group" id="divUserName">
+                                            <div class="input-group">
+                                                <div class="input-group-addon">账号</div>
+                                                <input class="form-control" type="number" id="UserCode" name="UserCode" onkeydown="if(event.keyCode==13) $('#UserPwd').focus();" placeholder="请输入编号" style="width:130px;">
+                                            </div>
+                                        </div>
+                                        <div class="form-group" id="divUserPwd">
+                                            <div class="input-group">
+                                                <div class="input-group-addon">密码</div>
+                                                <input class="form-control" type="password" id="UserPwd" name="UserPwd" onkeydown="if (event.keyCode == 13) btnAddOrder('3504013494');" placeholder="请输入密码" style="width:110px;">
+                                            </div>
+                                        </div>
+
+
+                                    }
+                                    else if (ViewData["loginMode"].ToString() == "2")
+                                    {
+                                        <input type="hidden" id="loginModeFlag" value="2" />
+
+                                        <input type="hidden" id="UserCode" name="UserCode" value="@ViewData["fcrimecode"]" />
+                                        <input type="hidden" id="UserPwd" name="UserPwd" value="" />
+                                    }
+                                    else
+                                    {
+                                        <input type="hidden" id="loginModeFlag" value="0" />
+                                        <a class="btn btn-primary" href="#" role="button" onclick="btnAddOrder('3504013494')">读卡IC卡</a>
+                                    }
+
+                                    <div class="form-group">
+                                        <label class="sr-only" for="exampleInputAmount">Amount (in dollars)</label>
+                                        <div class="input-group">
+                                            <div class="input-group-addon">订单号</div>
+                                            <input type="text" class="form-control" style="width:100px;" disabled="disabled" id="orderNumber" placeholder="订单号">
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="form-group" id="divUserPwd">
-                                    <div class="input-group">
-                                        <div class="input-group-addon">密码</div>
-                                        <input class="form-control" type="password" id="UserPwd" name="UserPwd" onkeydown="if (event.keyCode == 13) btnAddOrder('3504013494');" placeholder="请输入密码" style="width:110px;">
+                                    <div class="form-group">
+                                        <label class="sr-only" for="exampleInputAmount">Amount (in dollars)</label>
+                                        <div class="input-group">
+                                            <div class="input-group-addon">金额</div>
+                                            <span id="orderMoney" class="form-control" style=" width:70px;">0.00</span>
+                                        </div>
                                     </div>
+                                    <a class="btn btn-info" href="#" role="button" onclick="btnMyOrder()"><span class="glyphicon glyphicon-zoom-in" aria-hidden="true"></span>我的订单</a>
+                                    <a class="btn btn-warning" href="#" role="button" onclick="DisplayPayModel()"><span class="glyphicon glyphicon-yen" aria-hidden="true"></span>去结算</a>
                                 </div>
 
 
-                            }
-                            else if (ViewData["loginMode"].ToString() == "2")
-                            {
-                                <input type="hidden" id="loginModeFlag" value="2" />
-
-                                <input type="hidden" id="UserCode" name="UserCode" value="@ViewData["fcrimecode"]" />
-                                <input type="hidden" id="UserPwd" name="UserPwd" value="" />
-                            }
-                            else
-                            {
-                                <input type="hidden" id="loginModeFlag" value="0" />
-                                <a class="btn btn-primary" href="#" role="button" onclick="btnAddOrder('3504013494')">读卡IC卡</a>
-                            }
-
-                            <div class="form-group">
-                                <label class="sr-only" for="exampleInputAmount">Amount (in dollars)</label>
-                                <div class="input-group">
-                                    <div class="input-group-addon">订单号</div>
-                                    <input type="text" class="form-control" style="width:100px;" disabled="disabled" id="orderNumber" placeholder="订单号">
-                                </div>
                             </div>
-                            <div class="form-group">
-                                <label class="sr-only" for="exampleInputAmount">Amount (in dollars)</label>
-                                <div class="input-group">
-                                    <div class="input-group-addon">金额</div>
-                                    <span id="orderMoney" class="form-control" style=" width:70px;">0.00</span>
-                                </div>
-                            </div>
-                            <a class="btn btn-info" href="#" role="button" onclick="btnMyOrder()"><span class="glyphicon glyphicon-zoom-in" aria-hidden="true"></span>我的订单</a>
-                            <a class="btn btn-warning" href="#" role="button" onclick="DisplayPayModel()"><span class="glyphicon glyphicon-yen" aria-hidden="true"></span>去结算</a>
                         </div>
-                        <div style="text-align:right; " id="criminalCyInfo">
+                        <div class="col-md-3">
+                            <div class="form-inline ">
+                                <div class="form-group text-right ">
+                                    <label class="sr-only" for="exampleInputAmount">Amount (in dollars)</label>
+                                    <div class="input-group">
+                                        <div class="input-group-addon">商品编号</div>
+                                        <input type="text" class="form-control" id="gtxmSearchBox" onkeydown="setTooltip1()" onkeyup="    setTooltip()" onkeypress="    if (event.keyCode == 13) btnGoodsSearch();" style="width:80px;" placeholder="编码">
+                                    </div>
+                                </div>
+                                <a href="#" role="button" class="btn btn-primary" onclick="btnGoodsSearch()">查询</a>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="row alert alert-info">
+
+                        <div class="col-sm-9" style="text-align:right; " id="criminalCyInfo">
                             你好，张三疯 <span class="label label-default">普管</span>,本月消费限额：<span class="label label-default" id="xiaofeiYuE">200.00</span>,账户可用余额：<span class="label label-default" id="okUseAllMoney">600.00</span>,本月已经消费：<span class="label label-warning" id="curMonthXFE">0.00</span>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-3">
-                    <div class="form-inline ">
-                        <div class="form-group text-right ">
-                            <label class="sr-only" for="exampleInputAmount">Amount (in dollars)</label>
-                            <div class="input-group">
-                                <div class="input-group-addon">商品编号</div>
-                                <input type="text" class="form-control" id="gtxmSearchBox" onkeydown="setTooltip1()" onkeyup="    setTooltip()" onkeypress="    if (event.keyCode == 13) btnGoodsSearch();" style="width:80px;" placeholder="编码">
-                            </div>
-                        </div>
-                        <a href="#" role="button" class="btn btn-primary" onclick="btnGoodsSearch()">查询</a>
-                    </div>
-                </div>
 
-            </div>
 
-            <div>
-                <ul id="myTab" class="nav nav-tabs">
-                    @if (ViewData["types"] != null)
-                    {
-                        int i = 1;
-                        foreach (SelfhelpOrderMgr.Model.T_GoodsType type in ViewData["types"] as List<SelfhelpOrderMgr.Model.T_GoodsType>)
-                        {
-                            if (i == 1)
-                            {
-                                <li class="active"><a href="#@type.Fcode" data-toggle="tab">@type.Fname</a></li>
-                            }
-                            else
-                            {
-                                <li><a href="#@type.Fcode" data-toggle="tab">@type.Fname</a></li>
-                            }
-                            i++;
-                        }
-                    }
-                </ul>
-            </div>
-            <div id="myTabContent" class="tab-content">
 
-                @if (ViewData["types"] != null)
-                {
-                    foreach (SelfhelpOrderMgr.Model.T_GoodsType type in ViewData["types"] as List<SelfhelpOrderMgr.Model.T_GoodsType>)
-                    {
-                        <div class="tab-pane fade in active" id="@type.Fcode">
-                            <div class="row">
-                                @if (ViewData["goods"] != null)
+                <div class="row">
+                    <div class="col-sm-2">
+                        <div>
+                            <ul id="myTab" class="nav nav-tabs nav-pills nav-stacked costom-nav text-center">
+                                @if (ViewData["types"] != null)
                                 {
-                                    foreach (SelfhelpOrderMgr.Model.T_Goods good in ViewData["goods"] as List<SelfhelpOrderMgr.Model.T_Goods>)
+                                    int i = 1;
+                                    foreach (SelfhelpOrderMgr.Model.T_GoodsType type in ViewData["types"] as List<SelfhelpOrderMgr.Model.T_GoodsType>)
                                     {
-                                        if (@good.GTYPE == @type.Fcode)
+                                        if (i == 1)
                                         {
-                                            <div class="col-md-2">
-                                                <div class="thumbnail" onclick="btnBuy('@good.GTXM|@good.GDJ|@good.GNAME|@good.Ffreeflag|@good.Xgsl|@good.GStandard|@good.src|@good.Balance')">
-
-                                                    @if (string.IsNullOrEmpty(good.src))
-                                                    {
-                                                        <img class="lazy" src="@good.data" width="300" height="150" data-src="" alt="gulpjs">
-                                                    }
-                                                    else
-                                                    {
-                                                        <img class="lazy" src="@good.src" width="300" height="150" data-src="" alt="gulpjs">
-                                                    }
-                                                    <div class="" onclick="btnBuy('@good.GTXM|@good.GDJ|@good.GNAME|@good.Ffreeflag|@good.Xgsl|@good.GStandard|@good.src|@good.Balance')">
-
-                                                        <h3 style="height:70px; text-align:center;">
-                                                            <span class="MoneyFontColor"><small class="MoneyFontColor">¥</small> @good.GDJ 元</span><br />
-                                                            @if (good.GNAME.Length >= 8)
-                                                            {
-                                                                <a href="#goodDetail">
-                                                                    <span><small> @good.GNAME.Substring(0, 8) </small></span><br>
-                                                                    <span style="font-size:small">
-                                                                        条码：@good.GTXM
-                                                                    </span>
-                                                                </a>
-                                                            }
-                                                            else
-                                                            {
-                                                                <a href="#goodDetail">
-                                                                    <span>
-                                                                        <small> @good.GNAME</small> <br>
-                                                                    </span>
-                                                                    <span style="font-size:small">
-                                                                        条码：@good.GTXM
-                                                                    </span>
-                                                                </a>
-                                                            }
-
-                                                        </h3>
-                                                        <h4 style="text-align:center">
-                                                            <button class="btn btn-default" type="button">
-                                                                简码
-                                                                <span class="badge">@good.SPShortCode</span>
-                                                            </button>
-                                                        </h4>
-
-                                                    </div>
-                                                </div>
-                                            </div>
+                                            <li class="active"><a href="#@type.Fcode" data-toggle="tab"><span style="font-size:larger">@type.Fname</span></a></li>
                                         }
+                                        else
+                                        {
+                                            <li><a href="#@type.Fcode" data-toggle="tab"><span style="font-size:larger">@type.Fname</span></a></li>
+                                        }
+                                        i++;
                                     }
                                 }
-                            </div>
+                            </ul>
                         </div>
-                    }
-                }
+                    </div>
+                    <div class="col-sm-10 scrollable-div" style="padding-top:20px;">
+                        <div id="myTabContent" class="tab-content">
 
+                            @if (ViewData["types"] != null)
+                            {
+                                foreach (SelfhelpOrderMgr.Model.T_GoodsType type in ViewData["types"] as List<SelfhelpOrderMgr.Model.T_GoodsType>)
+                                {
+                                    <div class="tab-pane fade in active" id="@type.Fcode">
+                                        <div class="row">
+                                            @if (ViewData["goods"] != null)
+                                            {
+                                                foreach (SelfhelpOrderMgr.Model.T_Goods good in ViewData["goods"] as List<SelfhelpOrderMgr.Model.T_Goods>)
+                                                {
+                                                    if (@good.GTYPE == @type.Fcode)
+                                                    {
+                                                        <div class="col-md-2">
+                                                            <div class="thumbnail thumbnail-3d" onclick="btnBuy('@good.GTXM|@good.GDJ|@good.GNAME|@good.Ffreeflag|@good.Xgsl|@good.GStandard|@good.src|@good.Balance')">
+
+                                                                @if (string.IsNullOrEmpty(good.src))
+                                                                {
+                                                                    <img class="lazy" src="@good.data" width="300" height="150" data-src="" alt="gulpjs">
+                                                                }
+                                                                else
+                                                                {
+                                                                    <img class="lazy" src="@good.src" width="300" height="150" data-src="" alt="gulpjs">
+                                                                }
+                                                                <div class="" onclick="btnBuy('@good.GTXM|@good.GDJ|@good.GNAME|@good.Ffreeflag|@good.Xgsl|@good.GStandard|@good.src|@good.Balance')">
+
+                                                                    <h3 style="height:70px; text-align:center;">
+                                                                        <span class="MoneyFontColor"><small class="MoneyFontColor">¥</small> @good.GDJ 元</span><br />
+                                                                        @if (good.GNAME.Length >= 8)
+                                                                        {
+                                                                            <a href="#goodDetail">
+                                                                                <span><small> @good.GNAME.Substring(0, 8) </small></span><br>
+                                                                                <span style="font-size:small">
+                                                                                    条码：@good.GTXM
+                                                                                </span>
+                                                                            </a>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <a href="#goodDetail">
+                                                                                <span>
+                                                                                    <small> @good.GNAME</small> <br>
+                                                                                </span>
+                                                                                <span style="font-size:small">
+                                                                                    条码：@good.GTXM
+                                                                                </span>
+                                                                            </a>
+                                                                        }
+
+                                                                    </h3>
+                                                                    <h4 style="text-align:center">
+                                                                        <button class="btn btn-default" type="button">
+                                                                            简码
+                                                                            <span class="badge">@good.SPShortCode</span>
+                                                                        </button>
+                                                                    </h4>
+
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                }
+                                            }
+                                        </div>
+                                    </div>
+                                }
+                            }
+
+                        </div>
+
+                    </div>
+                </div>
             </div>
+
+
+
 
 
 
         </div>
+
 
 
 
@@ -529,17 +595,21 @@
             string printPlusVer = ViewData["PrintPlusVer"] as string;
             if (printPlusVer == "1")
             {
+                <input id="printPlusVer" hidden="hidden" value="1" />
                 <script src="~/Scripts/myJs/LodopFuncs.js"></script>
             }
             else
             {
-                <script src="~/Scripts/myJs/opertorXiaopiaoFunc.js"></script>
+                <input id="printPlusVer" hidden="hidden" value="0" />
+                <script src="~/Scripts/myJs/LodopFuncs6.198.js"></script>
             }
         }
         else
         {
-            <script src="~/Scripts/myJs/opertorXiaopiaoFunc.js"></script>
+            <input id="printPlusVer" hidden="hidden" value="0" />
+            <script src="~/Scripts/myJs/LodopFuncs6.198.js"></script>
         }
+        <script src="~/Scripts/myJs/opertorXiaopiaoFunc.js"></script>
         <script src="~/Scripts/myJs/LodopFuncs.js"></script>
         <script src="~/Scripts/myJs/orderCommon.js"></script>
         <script src="~/Scripts/myJs/orderShopping.js"></script>

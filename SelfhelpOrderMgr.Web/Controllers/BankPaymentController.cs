@@ -450,6 +450,7 @@ SELECT  [Id]
 	  ,[FCrimeName] as 姓名
       ,[FCrimeCode] as 编号
       ,[FAreaName] as 监区
+      ,[FAddr_tmp] as 原监区
       ,case [TranType] when 0 then '公转私' when 1 then '公转私' else '其他' end 转账方式
       ,case [PayMode] when 0 then '现金/网点' when 1 then 'ATM取款' else '转账' end 结算方式
       ,[Amount] as 结算金额
@@ -482,7 +483,7 @@ SELECT  [Id]
             string strFileName = new CommonClass().GB2312ToUTF8(strLoginName + "_BankPayList.xls");
             strFileName = Server.MapPath("~/Upload/" + strFileName); ;
 
-            ExcelRender.RenderToExcel(dt, title, 12, strFileName, mul_lan, strCountTime);
+            ExcelRender.RenderToExcel(dt, title, 13, strFileName, mul_lan, strCountTime);
             return Content("OK|" + strLoginName + "_BankPayList.xls");
         }
 

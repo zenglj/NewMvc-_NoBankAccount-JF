@@ -270,7 +270,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
             {
                 return Content(status);
             }
-            if (fcardCode.Length != 10)
+            if (!(fcardCode.Length == 10|| fcardCode.Length == 11))
             {
                 return Content(status);
             }
@@ -1135,6 +1135,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
 
             userRoomNo = Convert.ToInt32(userRoomNo).ToString(); //改为一位数
+
             string ipaddr = System.Web.HttpContext.Current.Request.UserHostAddress;
 
             //验证是否在该管理卡权限范围内的人员
@@ -1321,6 +1322,12 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 saleTimeArea = saleIdTimeArea;
             }
             ViewData["saleTimeArea"] = saleTimeArea;
+            return View();
+        }
+
+        public ActionResult TestPage()
+        {
+
             return View();
         }
     }

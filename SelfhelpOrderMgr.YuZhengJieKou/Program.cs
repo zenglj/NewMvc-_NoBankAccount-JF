@@ -1,4 +1,6 @@
-﻿using System;
+﻿using SelfhelpOrderMgr.Common;
+using SelfhelpOrderMgr.YuZhengJieKou.Model;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -23,6 +25,10 @@ namespace SelfhelpOrderMgr.YuZhengJieKou
             string _zfzt = AppLinkHelper.GetZfzt();
             string _searchDicts = AppLinkHelper.GetDicts();
             string _pageSize = AppLinkHelper.GetPageSize();
+            string _faceServiceUrl = AppLinkHelper.GetFaceServiceUrl();
+
+
+
 
             ServiceInterface srv = new ServiceInterface(username,password,_baseUrl,_zfzt);
 
@@ -39,13 +45,18 @@ namespace SelfhelpOrderMgr.YuZhengJieKou
                 Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(rs));
 
                 //获取人员基本信息
-                rs = srv.GetJbxxList(_zfzt,Convert.ToInt32(_pageSize));
+                rs = srv.GetJbxxList(_zfzt, Convert.ToInt32(_pageSize));
                 Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(rs));
 
 
                 //获取社会关系
-                rs = srv.GetShgxList( Convert.ToInt32(_pageSize));
+                rs = srv.GetShgxList(Convert.ToInt32(_pageSize));
                 Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(rs));
+
+                //获取罪犯的媒体信息
+                rs = srv.GetMtxxList(_faceServiceUrl);
+                Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(rs));
+                
 
                 Console.WriteLine("恭喜！信息已经同步完成。");
             }

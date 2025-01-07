@@ -187,18 +187,18 @@ function getLodop(oOBJECT, oEMBED) {
 }
 
 
-//自定义打印小票函数
-function printXiaoPiaoXinxi(itemId, pageWidth) {
-    //alert(pageWidth);
-    LODOP = getLodop();
-    LODOP.PRINT_INIT("打印控件功能演示_Lodop功能_表单一");
-    LODOP.SET_PRINT_STYLE("FontSize", 24);
-    LODOP.SET_PRINT_STYLE("Bold", 1);
-    LODOP.SET_PRINT_PAGESIZE(3, pageWidth, 10, "");
-    //LODOP.ADD_PRINT_TEXT(50, 231, 260, 39, "打印页面部分内容");
-    //LODOP.ADD_PRINT_HTM(88, 200, 350, 600, document.getElementById(itemId).innerHTML);
-    LODOP.ADD_PRINT_HTM(10, 1, "100%", "100%", document.getElementById(itemId).innerHTML);
-    LODOP.PRINT();
-}
+////自定义打印小票函数
+//function printXiaoPiaoXinxi(itemId, pageWidth) {
+//    //alert(pageWidth);
+//    LODOP = getLodop();
+//    LODOP.PRINT_INIT("打印控件功能演示_Lodop功能_表单一");
+//    LODOP.SET_PRINT_STYLE("FontSize", 24);
+//    LODOP.SET_PRINT_STYLE("Bold", 1);
+//    LODOP.SET_PRINT_PAGESIZE(3, pageWidth, 10, "");
+//    //LODOP.ADD_PRINT_TEXT(50, 231, 260, 39, "打印页面部分内容");
+//    //LODOP.ADD_PRINT_HTM(88, 200, 350, 600, document.getElementById(itemId).innerHTML);
+//    LODOP.ADD_PRINT_HTM(10, 1, "100%", "100%", document.getElementById(itemId).innerHTML);
+//    LODOP.PRINT();
+//}
 
 

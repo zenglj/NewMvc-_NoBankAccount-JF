@@ -34,14 +34,20 @@ namespace SelfhelpOrderMgr.BLL
 
                 byte[] msgByte = new byte[1024 * 1024 * 8];
                 int length = 0;
-
+                //生成uuid 用于存放在的Redis数据库中，db1
+                //string rdsUuidKey = Guid.NewGuid().ToString();
+                string rdsUuidKey =$"{IpAddressHelper.GetHostAddress()}-{MD5ProcessHelper.GetMD5(imageSrc)}"  ;
+                RedisHelper.Set(1, rdsUuidKey, imageSrc, TimeSpan.FromMinutes(5));
                 PhotoEntity photo = new PhotoEntity()
                 {
                     fcrimeCode = fcrimecode,
-                    photoBase64Data = imageSrc,
+                    //photoBase64Data = imageSrc,
+                    photoBase64Data="", //不传相片的Base64了，存在Redis中
+                    rdsUuidKey = rdsUuidKey,
                     TypeFlag = typeFlag,
                     FAreaCode = fareaCode
                 };
+
 
                 if (_criminal != null)
                 {
@@ -49,7 +55,9 @@ namespace SelfhelpOrderMgr.BLL
                     {
                         fcrimeCode = fcrimecode,
                         photoName = fcrimecode + ".png",
-                        photoBase64Data = imageSrc,
+                        //photoBase64Data = imageSrc,
+                        photoBase64Data = "", //不传相片的Base64了，存在Redis中
+                        rdsUuidKey = rdsUuidKey,
                         TypeFlag = typeFlag,
                         FAreaCode = fareaCode
 
@@ -65,10 +73,13 @@ namespace SelfhelpOrderMgr.BLL
                     //imageSrc = "0001" + imageSrc;//增加报文头
                     //imageSrc = "0001" + Newtonsoft.Json.JsonConvert.SerializeObject(photo);//增加报文头
                     //faceMode 人脸模式:0001是验证,0002是注册
-                    imageSrc = faceMode + Newtonsoft.Json.JsonConvert.SerializeObject(photo);//增加报文头
-                                                                                             //Log4NetHelper.logger.Info("发送人脸的报文,系统：" + imageSrc );
+                    //imageSrc = faceMode + Newtonsoft.Json.JsonConvert.SerializeObject(photo);//增加报文头
+                    string sendString = faceMode + Newtonsoft.Json.JsonConvert.SerializeObject(photo);//增加报文头
+                                                                                                      //Log4NetHelper.logger.Info("发送人脸的报文,系统：" + imageSrc );
+                                                                                                      //增加报文的长度头
+                    sendString = (sendString.Length + 6).ToString("000000") + sendString;
 
-                    byte[] orgByte = Encoding.Default.GetBytes(imageSrc);
+                    byte[] orgByte = Encoding.Default.GetBytes(sendString);
 
                     sendsocket.Send(orgByte);
 

@@ -1337,7 +1337,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
 
         
-
+        //[MyLogActionFilterAttribute]
         //public ActionResult CheckFace()
         public ActionResult CheckFace(string fcrimecode, string imageSrc, string faceMode = "0001", int loginCheck = 1)
         {

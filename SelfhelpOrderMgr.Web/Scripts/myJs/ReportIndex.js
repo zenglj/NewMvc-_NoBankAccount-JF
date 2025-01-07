@@ -170,6 +170,7 @@ function loadDetailTable() {
             { field: 'CAmount', title: '支(元)', width: 100, sortable: true },
             { field: 'DType', title: '类型', width: 100, sortable: true },
             { field: 'CrtBy', title: '操作员', width: 100, sortable: true },
+            { field: 'Depositer', title: '经办', width: 100, sortable: true },
             { field: 'FCheckFlag', title: '审核标志', width: 100, sortable: true, formatter: function (value, row, index) {
                 if (row.DAmount != 0) {
                     if (row.CheckFlag == 0) {

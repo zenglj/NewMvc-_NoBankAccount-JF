@@ -30,148 +30,6 @@
     <div class="easyui-tabs" style="width:100%;height:900px;">
 
 
-        <div title="应付款管理" style="padding:10px;" class="easyui-layout">
-            <div data-options="region:'center',title:'代发记录'" style="padding:5px;height:95%;">
-                @*@{Html.RenderPartial("~/Views/Shared/_PartialXiaopiaoControl.cshtml");}*@
-
-                <table id="test" style="padding:5px;height:590px;" toolbar="#tb"></table>
-                <div id="template"></div>
-
-                <div id="tb" style="padding:5px;height:auto">
-                    <div style="margin-bottom:5px">
-
-                        付款摘要<input id="payPurposeInfo" name="PurposeInfo" class="easyui-textbox" style="width:190px">|
-                        支付方式:
-                        <select id="ccPaySelect" class="easyui-combobox" name="dept" style="width:200px;">
-                            <option value="1">公对公</option>
-                            <option value="2">快捷代发</option>
-                        </select>
-
-                        <a href="#" class="easyui-linkbutton" iconcls="icon-reload" onclick="btnPaySubmit()">生成付款</a>
-
-                        <label id="schSumMoney" style="float:right;font-size:1.2em;">结果金额: ____________</label>
-                    </div>
-                </div>
-            </div>
-
-            <div data-options="region:'east',title:'查询条件',split:true" style="width:300px;">
-                <div data-options="region:'north',title:'North Title',split:true" style="height:600px;">
-                    <form method="post" id="formVcrdSearch">
-                        <table>
-                            <tr>
-                                <th align="right">编号：</th>
-                                <td align="left">
-                                    <input class="easyui-numberbox" id="vcrdSearchFCrimeCode" name="FCrimeCode"
-                                           data-options="min:0,precision:0" style="width:190px">
-                                </td>
-                            </tr>
-                            <tr>
-                                <th align="right">姓名：</th>
-                                <td align="left">
-                                    <input id="vcrdSearchFCriminal" name="FCriminal" class="easyui-textbox" style="width:190px">
-                                </td>
-                            </tr>
-                            <tr>
-                                <th align="right">开始时间：</th>
-                                <td align="left">
-                                    <input class="easyui-datetimebox" id="vcrdSearchCrtDate_Start" name="CrtDate_Start"
-                                           data-options="required:true,showSeconds:false" value="3/4/2010 00:00" style="width:190px">
-                                </td>
-                            </tr>
-                            <tr>
-                                <th align="right">结束时间：</th>
-                                <td align="left">
-                                    <input class="easyui-datetimebox" id="vcrdSearchCrtDate_End" name="CrtDate_End"
-                                           data-options="required:true,showSeconds:false" value="3/4/2010 23:59" style="width:190px">
-                                </td>
-                            </tr>
-                            <tr>
-                                <th align="right">队别：</th>
-                                <td align="left">
-                                    <select id="vcrdSearchFAreaCode" name="FAreaCode" class="easyui-combobox" style="width:190px;">
-                                        <option value="" selected="selected">请选择队别</option>
-                                        @if (ViewData["areas"] != null)
-                                        {
-                                            foreach (SelfhelpOrderMgr.Model.T_AREA area in ViewData["areas"] as List<SelfhelpOrderMgr.Model.T_AREA>)
-                                            {
-                                                <option value="@area.FCode">@area.FName</option>
-                                            }
-                                        }
-                                    </select>
-                                </td>
-                            </tr>
-                            <tr><th>存/取款类型</th></tr>
-                            <tr>
-                                <th align="right">取：</th>
-                                <td align="left">
-                                    <select id="vcrdSearchDType" name="DType" class="easyui-combobox" data-options=" multiple:false" style="width:190px;">
-                                        <option value="" selected="selected">请选择</option>
-                                        @if (ViewData["paytypes"] != null)
-                                        {
-                                            foreach (string paytype in ViewData["paytypes"] as List<string>)
-                                            {
-                                                <option value="@paytype">@paytype</option>
-                                            }
-                                        }
-                                    </select>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th align="right">操作员：</th>
-                                <td align="left">
-                                    <select id="vcrdSearchCrtBy" name="CrtBy" class="easyui-combobox" style="width:190px;">
-                                        <option value="" selected="selected">请选择</option>
-                                        @if (ViewData["crtbys"] != null)
-                                        {
-                                            foreach (string crtby in ViewData["crtbys"] as List<string>)
-                                            {
-                                                <option value="@crtby">@crtby</option>
-                                            }
-                                        }
-                                    </select>
-                                </td>
-                            </tr>
-
-                            <tr>
-                                <th align="right">资金账户：</th>
-                                <td align="left">
-                                    <select id="vcrdSearchAccType" name="AccType" class="easyui-combobox" data-options=" multiple:false" style="width:190px;">
-                                        <option value="0">存款账户</option>
-                                        <option value="1">报酬账户</option>
-                                        <option value="2">留存账户</option>
-                                    </select>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th align="right">审核状态：</th>
-                                <td align="left">
-                                    <select id="vcrdSearchPayAuditFlag" name="PayAuditFlag" class="easyui-combobox" data-options=" multiple:false" style="width:190px;">
-                                        <option value="0">未审核</option>
-                                        <option value="1">已审核</option>
-                                        <option value="2">已传送</option>
-                                        <option value="3">已到账</option>
-                                    </select>
-                                </td>
-                            </tr>
-
-                            <tr>
-                                <th align="right">备注：</th>
-                                <td align="left">
-                                    <input id="vcrdSearchRemark" name="Remark" class="easyui-textbox" style="width:190px;">
-                                </td>
-                            </tr>
-                            <tr>
-                                <th align="right"></th>
-                                <td align="right"><a id="btn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-search'" onclick="btnSearch()">查询</a><a id="A1" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-redo'" onclick="btnClear()">清空</a></td>
-                            </tr>
-                        </table>
-                    </form>
-                </div>
-            </div>
-
-        </div>
-
-
         <div title="支付记录查询" style="padding:10px;" class="easyui-layout">
             <div data-options="region:'center',title:'转账结算记录'" style="padding:5px;height:800px;">
 
@@ -425,6 +283,150 @@
             </div>
 
         </div>
+
+        <div title="应付款管理" style="padding:10px;" class="easyui-layout">
+            <div data-options="region:'center',title:'代发记录'" style="padding:5px;height:95%;">
+                @*@{Html.RenderPartial("~/Views/Shared/_PartialXiaopiaoControl.cshtml");}*@
+
+                <table id="test" style="padding:5px;height:590px;" toolbar="#tb"></table>
+                <div id="template"></div>
+
+                <div id="tb" style="padding:5px;height:auto">
+                    <div style="margin-bottom:5px">
+
+                        付款摘要<input id="payPurposeInfo" name="PurposeInfo" class="easyui-textbox" style="width:190px">|
+                        支付方式:
+                        <select id="ccPaySelect" class="easyui-combobox" name="dept" style="width:200px;">
+                            <option value="1">公对公</option>
+                            <option value="2">快捷代发</option>
+                        </select>
+
+                        <a href="#" class="easyui-linkbutton" iconcls="icon-reload" onclick="btnPaySubmit()">生成付款</a>
+
+                        <label id="schSumMoney" style="float:right;font-size:1.2em;">结果金额: ____________</label>
+                    </div>
+                </div>
+            </div>
+
+            <div data-options="region:'east',title:'查询条件',split:true" style="width:300px;">
+                <div data-options="region:'north',title:'North Title',split:true" style="height:600px;">
+                    <form method="post" id="formVcrdSearch">
+                        <table>
+                            <tr>
+                                <th align="right">编号：</th>
+                                <td align="left">
+                                    <input class="easyui-numberbox" id="vcrdSearchFCrimeCode" name="FCrimeCode"
+                                           data-options="min:0,precision:0" style="width:190px">
+                                </td>
+                            </tr>
+                            <tr>
+                                <th align="right">姓名：</th>
+                                <td align="left">
+                                    <input id="vcrdSearchFCriminal" name="FCriminal" class="easyui-textbox" style="width:190px">
+                                </td>
+                            </tr>
+                            <tr>
+                                <th align="right">开始时间：</th>
+                                <td align="left">
+                                    <input class="easyui-datetimebox" id="vcrdSearchCrtDate_Start" name="CrtDate_Start"
+                                           data-options="required:true,showSeconds:false" value="3/4/2010 00:00" style="width:190px">
+                                </td>
+                            </tr>
+                            <tr>
+                                <th align="right">结束时间：</th>
+                                <td align="left">
+                                    <input class="easyui-datetimebox" id="vcrdSearchCrtDate_End" name="CrtDate_End"
+                                           data-options="required:true,showSeconds:false" value="3/4/2010 23:59" style="width:190px">
+                                </td>
+                            </tr>
+                            <tr>
+                                <th align="right">队别：</th>
+                                <td align="left">
+                                    <select id="vcrdSearchFAreaCode" name="FAreaCode" class="easyui-combobox" style="width:190px;">
+                                        <option value="" selected="selected">请选择队别</option>
+                                        @if (ViewData["areas"] != null)
+                                        {
+                                            foreach (SelfhelpOrderMgr.Model.T_AREA area in ViewData["areas"] as List<SelfhelpOrderMgr.Model.T_AREA>)
+                                            {
+                                                <option value="@area.FCode">@area.FName</option>
+                                            }
+                                        }
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr><th>存/取款类型</th></tr>
+                            <tr>
+                                <th align="right">取：</th>
+                                <td align="left">
+                                    <select id="vcrdSearchDType" name="DType" class="easyui-combobox" data-options=" multiple:false" style="width:190px;">
+                                        <option value="" selected="selected">请选择</option>
+                                        @if (ViewData["paytypes"] != null)
+                                        {
+                                            foreach (string paytype in ViewData["paytypes"] as List<string>)
+                                            {
+                                                <option value="@paytype">@paytype</option>
+                                            }
+                                        }
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th align="right">操作员：</th>
+                                <td align="left">
+                                    <select id="vcrdSearchCrtBy" name="CrtBy" class="easyui-combobox" style="width:190px;">
+                                        <option value="" selected="selected">请选择</option>
+                                        @if (ViewData["crtbys"] != null)
+                                        {
+                                            foreach (string crtby in ViewData["crtbys"] as List<string>)
+                                            {
+                                                <option value="@crtby">@crtby</option>
+                                            }
+                                        }
+                                    </select>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th align="right">资金账户：</th>
+                                <td align="left">
+                                    <select id="vcrdSearchAccType" name="AccType" class="easyui-combobox" data-options=" multiple:false" style="width:190px;">
+                                        <option value="0">存款账户</option>
+                                        <option value="1">报酬账户</option>
+                                        <option value="2">留存账户</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th align="right">审核状态：</th>
+                                <td align="left">
+                                    <select id="vcrdSearchPayAuditFlag" name="PayAuditFlag" class="easyui-combobox" data-options=" multiple:false" style="width:190px;">
+                                        <option value="0">未审核</option>
+                                        <option value="1">已审核</option>
+                                        <option value="2">已传送</option>
+                                        <option value="3">已到账</option>
+                                    </select>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th align="right">备注：</th>
+                                <td align="left">
+                                    <input id="vcrdSearchRemark" name="Remark" class="easyui-textbox" style="width:190px;">
+                                </td>
+                            </tr>
+                            <tr>
+                                <th align="right"></th>
+                                <td align="right"><a id="btn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-search'" onclick="btnSearch()">查询</a><a id="A1" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-redo'" onclick="btnClear()">清空</a></td>
+                            </tr>
+                        </table>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+
+
+
 
 
     </div>

@@ -26,7 +26,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
         // GET: /CashPay/
         JavaScriptSerializer jss = new JavaScriptSerializer();
         private int auditFlag ;
-        
+
+        BaseDapperBLL _baseDapperBLL = new BaseDapperBLL();
         public ActionResult Index(int id=1)
         {
             
@@ -336,6 +337,26 @@ namespace SelfhelpOrderMgr.Web.Controllers
             {
                 return Content("Err|你传的是错误的参数");
             }
+
+            //20241126增加验路费是否重复发放
+            if(savetypes[0].fname.Contains("路费"))
+            {
+                var oldVcrds = _baseDapperBLL.QueryList<T_Vcrd>("select * from t_Vcrd where flag=0 and fcrimecode=@fcrimecode and (DType like '%'+@lufei+'%') and crtdate>=@crtdate", new { fcrimecode=strFCode, lufei = "路费", crtdate =DateTime.Today.AddMonths(-3)});
+                if (oldVcrds.Count > 0)
+                {
+                    return Content("Err|不能重复发放【释放路费】");
+                }
+            }
+            else if(savetypes[0].fname.Contains("离监劳动报酬"))
+            {
+                var oldVcrds = _baseDapperBLL.QueryList<T_Vcrd>("select * from t_Vcrd where flag=0 fcrimecode=@fcrimecode and (DType like '%'+@lijianBaochou+'%') and crtdate>=@crtdate", new { fcrimecode=strFCode, lijianBaochou = "离监劳动报酬", crtdate = DateTime.Today.AddMonths(-3) });
+                if (oldVcrds.Count > 0)
+                {
+                    return Content("Err|不能重复发发【离监劳动报酬】");
+                }
+            }
+
+
 
             List<T_Vcrd> vcrd = new T_VcrdBLL().UserCunKouKuan(strFCode, savePayFlag, Convert.ToDecimal(strFMoney), savetypes[0], strLoginName, strRemark, strApply, "", auditFlag);
 

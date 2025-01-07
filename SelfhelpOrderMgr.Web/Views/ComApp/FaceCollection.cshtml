@@ -24,7 +24,9 @@
                 <div class="col-sm-10"></div>
                 <div class="col-sm-2">
                     <input type="hidden" id="FaceMode" value="@ViewData["FaceMode"]" />
+                    <input type="hidden" id="FFaceResult" value="@ViewData["FFaceResult"]" />
 
+                    
                     @if (ViewData["LoginMode"] != null && ViewData["LoginMode"].ToString() == "1")
                     {
                         string loginMode = ViewData["LoginMode"].ToString();
@@ -112,7 +114,7 @@
 
                                 <div class="row">
                                     <div class="col-sm-10">
-                                        <button type="button" id="btnQueryUserInfo" class="btn btn-danger btn-lg"  onclick="btnQueryUserInfo()">下一步</button>
+                                        <button type="button" id="btnQueryUserInfo" class="btn btn-danger btn-lg" onclick="btnQueryUserInfo()">下一步</button>
                                     </div>
 
                                 </div>
@@ -145,7 +147,41 @@
                                 <div class="row">
                                     <div class="col-sm-10">
                                         @*<a class="btn btn-large btn-primary btn-lg" href="/Home/WebCamTest3?callback=/ComApp/Index?managerCardNo=@ViewData["FManagerCard"]&FaceMode=0002&FUserCode=3511022677" role="button">人脸采集</a>*@
-                                        <button class="btn btn-large btn-primary btn-lg"  role="button" onclick="btnFaceCollection()" >人脸采集</button>
+                                        <button class="btn btn-large btn-primary btn-lg" role="button" onclick="btnFaceCollection()">人脸采集</button>
+
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <button class="btn btn-warning" role="button" onclick="btnBackStep()">返回上一步</button>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div id="divFaceCheck" style="display:none">
+                        <h3>请核对正确信息 ：</h3>
+                        <div>
+                            <div>
+                                <div class="form-group">
+                                    <div class="input-group">
+                                        <div class="input-group-addon">提示信息：</div>
+                                        <label id="renlianCaijiJieguo" class="form-control input-lg">采集通过，点击下一步进行人脸验证测试。</label>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+
+                                    <p class="help-block">操作提示：<span id="rmbDX"></span></p>
+                                    <p class="help-block">　　　　　1、先读IC卡，读完显示相应的信息.</p>
+                                    <p class="help-block">　　　　　2、选择调往队别后,点【保存】,完成操作.</p>
+
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-sm-10">
+                                        @*<a class="btn btn-large btn-primary btn-lg" href="/Home/WebCamTest3?callback=/ComApp/Index?managerCardNo=@ViewData["FManagerCard"]&FaceMode=0002&FUserCode=3511022677" role="button">人脸采集</a>*@
+                                        <button class="btn btn-large btn-primary btn-lg" role="button" onclick="btnFaceCheck()">人脸比对测试</button>
 
                                     </div>
                                     <div class="col-sm-2">
@@ -164,9 +200,9 @@
                                 <div class="form-group">
                                     <div class="input-group">
                                         <div class="input-group-addon">提示信息：</div>
-                                        <label class="form-control input-lg">恭喜您，采集完成！</label>
+                                        <label id="renlianCeshiJieguo" class="form-control input-lg">恭喜您，采集完成！</label>
                                     </div>
-                                    
+
                                 </div>
                                 <div class="form-group">
 
@@ -178,7 +214,7 @@
 
                                 <div class="row">
                                     <div class="col-sm-10">
-                                        <button type="button" id="btnFinsh" class="btn btn-primary btn-lg"  onclick="btnFinish()">完成采集</button>
+                                        <button type="button" id="btnFinsh" class="btn btn-primary btn-lg" onclick="btnFinish()">完成采集</button>
                                     </div>
                                     <div class="col-sm-2">
                                         <a href="/Home/Index" class="btn btn-default" role="button">返回主页</a>
@@ -188,6 +224,7 @@
                             </div>
                         </div>
                     </div>
+
                 </div>
             </div>
         </div>
@@ -223,8 +260,26 @@
                 //}
 
                 if ($("#FaceMode").val() == "0002") {
+                    if ($("#FFaceResult").val().includes("OK")) {
+                        $("#renlianCaijiJieguo").html($("#FFaceResult").val() + "，请点击先一步测试人脸");
+                    } else {
+                        $("#renlianCaijiJieguo").html($("#FFaceResult").val());
+                    }
+                    
                     $("#divQuery").hide();
                     $("#divFace").hide();
+                    $("#divFaceCheck").show();
+                    $("#divFinsh").hide();
+
+                } else if ($("#FaceMode").val() == "0001") {
+                    if ($("#FFaceResult").val().includes("OK")) {
+                        $("#renlianCeshiJieguo").html($("#FFaceResult").val() + "。恭喜您，采集完成！");
+                    } else {
+                        $("#renlianCeshiJieguo").html($("#FFaceResult").val());
+                    }
+                    $("#divQuery").hide();
+                    $("#divFace").hide();
+                    $("#divFaceCheck").hide();
                     $("#divFinsh").show();
 
                 }
@@ -267,23 +322,25 @@
                 window.open("/Home/WebCamTest3?callback=/ComApp/FaceCollection?managerCardNo=" + $("#MgrCardNo").val() + "&FaceMode=0002&FUserCode=" + $("#queryFCode").val(),"_self");
             }
 
-            function btnFinish() {
-                $("#divQuery").show();
-                $("#divFace").hide();
-                $("#divFinsh").hide();
-                $("#FaceMode").val("");
+            //打开链接
+            function btnFaceCheck() {
+                window.open("/Home/WebCamTest3?callback=/ComApp/FaceCollection?managerCardNo=" + $("#MgrCardNo").val() + "&FaceMode=0001&FUserCode=" + $("#queryFCode").val(), "_self");
             }
 
             function btnFinish() {
                 $("#divQuery").show();
                 $("#divFace").hide();
+                $("#divFaceCheck").hide();
                 $("#divFinsh").hide();
                 $("#FaceMode").val("");
             }
+
+
 
             function btnBackStep() {
                 $("#divQuery").show();
                 $("#divFace").hide();
+                $("#divFaceCheck").hide();
                 $("#divFinsh").hide();
             }
 

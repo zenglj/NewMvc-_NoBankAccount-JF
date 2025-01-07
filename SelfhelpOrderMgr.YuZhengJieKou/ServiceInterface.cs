@@ -680,12 +680,13 @@ namespace SelfhelpOrderMgr.YuZhengJieKou
 
 
         /// <summary>
-        /// 获取历次判决对象
+        /// 查询罪犯媒体信息
         /// </summary>
+        /// <param name="faceServiceUrl"></param>
         /// <returns></returns>
-        public ResultInfo GetZuifanLcpjList()
+        public ResultInfo GetMtxxList(string faceServiceUrl)
         {
-            string subUrl = $"api/getFjjnList";
+            string subUrl = $"api/getMtxxList";
             ResultInfo rs = new ResultInfo();
             int pageSize = 100;
             int pageNum = 1;
@@ -694,46 +695,37 @@ namespace SelfhelpOrderMgr.YuZhengJieKou
 
             try
             {
+                //string zfbh = "35010002482";
 
-
-                string sql = @"IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[YzglTempJbxx]') AND type in (N'U'))
-                            DROP TABLE [dbo].[YzglTempJbxx]
-                            GO
-
-                            CREATE TABLE [dbo].[YzglTempJbxx](
-	                            [FCode] [varchar](20) NOT NULL,
-	                            [FName] [varchar](50) NULL,
-	                            [FIdenNo] [varchar](20) NULL,
-	                            [FAge] [int] NULL,
-	                            [FSex] [varchar](8) NULL,
-	                            [FAddr] [varchar](128) NULL,
-	                            [FCrimeCode] [varchar](10) NULL,
-	                            [FCYCode] [varchar](4) NULL,
-	                            [FTerm] [varchar](20) NULL,
-	                            [FInDate] [datetime] NULL,
-	                            [FOuDate] [datetime] NULL,
-	                            [FAreaCode] [varchar](10) NULL,
-	                            [gz] [varchar](100) NULL,
-	                            [gw] [varchar](100) NULL,
-                             CONSTRAINT [PK_YzglTempJbxx] PRIMARY KEY CLUSTERED 
-                            (
-	                            [FCode] ASC
-                            )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
-                            ) ON [PRIMARY]
-                            ";
-
-                new CommTableInfoBLL().ExecSql(sql);//创建人员临时表
-
-
-                //先查询一次
-                ReqResultInfo<YzglzfdkJbxx> _result = PostGetLcpj(ref subUrl, rs, pageSize, pageNum);
-                //接着根据总条数，进行循环，直到全部获取完成
-                while (rs.Flag == true && _result.total > pageNum * pageSize)
+                var list=new CommTableInfoBLL().GetList<ViewCriminalInfo>("select *from ViewCriminalInfo where faceFlag=0 and (FOuDate<GETDATE() and DATEADD(day,30, FOuDate)>GETDATE())",null);//近一个月要离监的人员
+                if(list!=null && list.Count > 0)
                 {
-                    pageNum++;
-                    PostGetJbxx(ref subUrl, rs, pageSize, pageNum);
-                }
+                    foreach (var item in list)
+                    {
+                        ReqResultInfo<YzglzfdkMtxx> _result = PostGetMtxx(ref subUrl, rs, pageSize, pageNum, item.FCode);
+                        if (_result.total > 0)
+                        {
+                            YzglFileList picBase64 = null;
+                            if (_result.rows[0].fileList.Count > 0)
+                            {
+                                picBase64 = _result.rows[0].fileList[0];
+                                //压缩数据
+                                string compessBase64 = Base64ConvertHelper.ConvertBase64ImageToSmallerSize(picBase64.base64Data, 450, 600);
+                                //保存压缩后的相片;
+                                string filePath = System.IO.Directory.GetCurrentDirectory() + "\\FaceDir\\";
+                                var sss = Base64ConvertHelper.Base64StringToImage(compessBase64, $"{filePath}{item.FCode}_{item.FName}.{picBase64.format}");
 
+                                //上传到服务器，通过http请求的方式
+                                string postData = $"fcrimecode={item.FCode}&base64Image={compessBase64}";
+                                string _res = HttpHelper.HttpPostByJson(faceServiceUrl, postData, token);
+                                ResultInfo _postResult = Newtonsoft.Json.JsonConvert.DeserializeObject<ResultInfo>(_res);
+
+                            }
+                        }
+                    }
+                    rs.Flag = true;
+                    rs.ReMsg = $"OK|注册人脸{list.Count} 个";
+                }
             }
             catch (Exception e)
             {
@@ -743,38 +735,15 @@ namespace SelfhelpOrderMgr.YuZhengJieKou
             return rs;
         }
 
-        private ReqResultInfo<YzglzfdkJbxx> PostGetLcpj(ref string subUrl, ResultInfo rs, int pageSize, int pageNum)
+        private ReqResultInfo<YzglzfdkMtxx> PostGetMtxx(ref string subUrl, ResultInfo rs, int pageSize, int pageNum,string zfbh)
         {
-            subUrl = $"{subUrl}?pageNum={pageNum}&pageSize={pageSize}";
+            subUrl = $"{subUrl}?pageNum={pageNum}&pageSize={pageSize}&zfbh={zfbh}";
             string _res = HttpHelper.HttpPostByJson(_baseurl + subUrl, "", token);
 
-            ReqResultInfo<YzglzfdkJbxx> _result = Newtonsoft.Json.JsonConvert.DeserializeObject<ReqResultInfo<YzglzfdkJbxx>>(_res);
+            //string _res = ReadTxtHelper.ReadTxtFile("D:/Mtxx01.txt");
+            //ReqResultInfo<YzglzfdkMtxx> _result = Newtonsoft.Json.JsonConvert.DeserializeObject<ReqResultInfo<YzglzfdkMtxx>>(_res);
 
-            //string YzglTempDept = "";
-            //string strPrec = "insert into YzglTempDept (FCode,FName) values(,)";
-            StringBuilder strInsertInfo = new StringBuilder();
-            if (_result.rows.Count > 0)
-            {
-                foreach (var item in _result.rows)
-                {
-                    string sex = "男";
-                    if (item.xb == "1")
-                    {
-                        sex = "女";
-                    }
-                    string strTemp = $"insert into YzglTempJbxx (FCode,FName,FIdenNo,FAge,FSex,FAddr,FCrimeCode,FCYCode,FTerm,FInDate,FOuDate,FAreaCode, gz , gw) values({item.zfbh},{item.zfxm},{item.zjHm},{0},{sex},{item.jtmx},{item.syzm},{item.fgdj},{item.xq},{item.rjrq},{item.xqzr},{item.deptId}, {item.gz} , {item.gw});";
-                    strInsertInfo.Append(strTemp);
-                }
-                new CommTableInfoBLL().ExecSql(strInsertInfo.ToString());//创建部门临时表
-
-                rs.ReMsg = "插入人员记录成功";
-                rs.Flag = true;
-                rs.DataInfo = "";
-            }
-            else
-            {
-                rs.ReMsg = "Err|记录数为0";
-            }
+            ReqResultInfo<YzglzfdkMtxx> _result = Newtonsoft.Json.JsonConvert.DeserializeObject<ReqResultInfo<YzglzfdkMtxx>>(_res);
 
             return _result;
         }

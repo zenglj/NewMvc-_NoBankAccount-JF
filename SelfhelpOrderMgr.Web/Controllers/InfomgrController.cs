@@ -694,7 +694,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
         /// <param name="FOuDate"></param>
         /// <returns></returns>
         [MyLogActionFilterAttribute]
-        public ActionResult NoBankCardLeavePrisonList(int payMode, string FCode, string FName, string FOuDate)
+        public ActionResult NoBankCardLeavePrisonList(int payMode, string FCode, string FName, string FOuDate,string depositer="")
         {
             string LoginUserName = Session["loginUserCode"] == null ? string.Empty : Session["LoginUserName"].ToString();
             
@@ -774,6 +774,12 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         break;
                     case 1://ATM机现金结算
                         {
+                            var card = _baseDapperBll.QueryModel<T_Criminal_card>("FCrimeCode", FCode);
+                            var mset = _baseDapperBll.QueryModel<T_SHO_ManagerSet>("KeyName", "ATM-WithdrawMaxMoney");
+                            if(mset!=null && mset.KeyMode==1 )
+                            if ((card.AmountA + card.AmountB + card.AmountC)>= decimal.Parse( mset.MgrValue)){
+                                return Content("Err|ATM取现金额不能超过【" + mset.MgrValue + "】");
+                            }
                             rtnReustl = new T_TempLeavePrisonBLL().ExcuteStoredProc_NoBankCard(FCode, LoginUserName, payMode);
                             //ATM机现金结算
                         }
@@ -801,6 +807,10 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         {
                             return Content("Err|未定义的动作方式【" + payMode + "】");
                         }
+                }
+                if (rtnReustl.StartsWith("OK") && depositer!="")
+                {//更新vcrd的经办人
+                    _baseDapperBll.UpdatePartInfo<T_Vcrd>(new { Depositer = depositer}, " typeflag=5 and fcrimecode=@FCrimeCode and crtdate>=@CrtDate", new { FCrimeCode = FCode, CrtDate = DateTime.Today.AddDays(-7) });
                 }
             }
             

@@ -12,6 +12,7 @@ namespace SelfhelpOrderMgr.DAL
 {
     public partial class T_InvoiceDAL
     {
+        BaseDapperDAL _baseDapperDAL = new BaseDapperDAL();
         /// <summary>
         /// 分页查询数据
         /// </summary>
@@ -565,12 +566,12 @@ namespace SelfhelpOrderMgr.DAL
                   ,[fifoflag],[FreeAmountA],[FreeAmountB],[checkflag],[RoomNo]
                   ,[OrderId],[FTZSP_Money],[printCount],[OrderStatus],[UserCyDesc])
             SELECT 'TH'+[INVOICENO] as [INVOICENO],[cardcode],[fcrimecode],[amount],getdate() as [OrderDate]
-                  ,[PayDATE],'消费退货' as [PTYPE],[Flag],@CrtBy + ',批量退货,原单'+[INVOICENO]+'.'+[REMARK] as [REMARK],[servamount],@CrtBy as [crtby],getdate() as [crtdate]
+                  ,getdate() as [PayDATE],case ptype when '超市消费' then '消费退货' else REPLACE(PTYPE,'消费','退货') end [PTYPE],[Flag],@CrtBy + ',批量退货,原单'+[INVOICENO]+'.'+[REMARK] as [REMARK],[servamount],@CrtBy as [crtby],getdate() as [crtdate]
                   ,[fsn],[fareacode],[fareaName],[fcriminal],[Frealareacode]
-                  ,[FrealAreaName],11 as [TYPEFLAG],[CardType],[AmountA],[AmountB]
+                  ,[FrealAreaName],case ptype when '超市消费' then 11 else (select TypeFlagId from T_SHO_SaleType x where x.PType= REPLACE(a.PType,'消费','退货')) end as [TYPEFLAG],[CardType],[AmountA],[AmountB]
                   ,1 as [fifoflag],[FreeAmountA],[FreeAmountB],[checkflag],[RoomNo]
                   ,[OrderId],[FTZSP_Money],0 as [printCount],[OrderStatus],[UserCyDesc]
-              FROM [dbo].[T_Invoice]
+              FROM [dbo].[T_Invoice] a
               where INVOICENO in(" + strInvoices + ");");
             //退货明细
             strSql.Append(@"insert into [T_InvoiceDTL] ([INVOICENO],[GCODE],[GNAME],[OrderDate],[PayDATE],[Flag]
@@ -589,7 +590,7 @@ namespace SelfhelpOrderMgr.DAL
 
             strSql.Append(@"INSERT INTO [T_Stock] ([StockId],[InOutDate],[FLAG],[StockType],[CrtBy],[Crtdt],
                         [CHECKFLAG],[CHECKBY],[CheckDt],[Remark],[invoiceno],[stockflag],[InOutFlag])
-                        select 'S'+InvoiceNo as [StockId],getdate()[InOutDate],[FLAG],'消费退货' as [StockType],@CrtBy as [CrtBy],getdate() as [Crtdt],
+                        select 'S'+InvoiceNo as [StockId],getdate()[InOutDate],[FLAG],case ptype when '超市消费' then '消费退货' else REPLACE(PTYPE,'消费','退货') end as [StockType],@CrtBy as [CrtBy],getdate() as [Crtdt],
                         1 as [CHECKFLAG],@CrtBy as [CHECKBY],getdate() [CheckDt],'对应的消费主单：'+INVOICENO as [Remark],'TH'+InvoiceNo as[invoiceno],
                         6 as [stockflag],-1 as [InOutFlag] from T_Invoice where InvoiceNo in(" + strInvoices + ");");
 
@@ -609,21 +610,21 @@ namespace SelfhelpOrderMgr.DAL
                     ,REMARK,flag,fareacode,fareaName,fcriminal,Frealareacode,FrealAreaName,ptype,udate,origid,cardtype
                     ,TYPEFLAG,acctype,Bankflag,checkflag,checkby,pc,curUserAmount
                     ,curAllAmount,PayAuditFlag,[FinancePayFlag],[BankInterfaceFlag])
-                    select 'V'+InvoiceNo as VOUNO,cardcode,fcrimecode,amountA as DAMOUNT,0 as CAMOUNT,@CrtBy as CrtBy,CRTDATE
-                    ,'积分退货' as DTYPE,'' as DEPOSITER,REMARK,flag,fareacode,fareaName,fcriminal,Frealareacode,FrealAreaName
-                    ,ptype,getdate() as udate,'TH' + [InvoiceNo] as origid,cardtype,TYPEFLAG,0 as acctype,0 as Bankflag,checkflag
+                    select 'V'+InvoiceNo as VOUNO,cardcode,fcrimecode,amountA as DAMOUNT,0 as CAMOUNT,@CrtBy as CrtBy,getdate() as CRTDATE
+                    ,case ptype when '超市消费' then '消费退货' else REPLACE(PTYPE,'消费','退货') end as DTYPE,'' as DEPOSITER,REMARK,0 as flag,fareacode,fareaName,fcriminal,Frealareacode,FrealAreaName
+                    ,ptype,getdate() as udate,'TH' + [InvoiceNo] as origid,cardtype,case ptype when '超市消费' then 11 else (select TypeFlagId from T_SHO_SaleType x where x.PType= REPLACE(a.PType,'消费','退货')) end as TYPEFLAG,0 as acctype,0 as Bankflag,checkflag
                     ,@CrtBy as checkby,0 as pc,0 as curUserAmount,0 as curAllAmount,0 as PayAuditFlag,0 as [FinancePayFlag],0 as [BankInterfaceFlag] 
-                    from T_Invoice where AmountA<>0 and  INVOICENO in(" + strInvoices + ");");
+                    from T_Invoice a where AmountA<>0 and  INVOICENO in(" + strInvoices + ");");
             //Vcrd B 账户
             strSql.Append(@"insert into T_Vcrd(VOUNO,cardcode,fcrimecode,DAMOUNT,CAMOUNT,crtBy,CRTDATE,DTYPE,DEPOSITER
                     ,REMARK,flag,fareacode,fareaName,fcriminal,Frealareacode,FrealAreaName,ptype,udate,origid,cardtype
                     ,TYPEFLAG,acctype,Bankflag,checkflag,checkby,pc,curUserAmount
                     ,curAllAmount,PayAuditFlag,[FinancePayFlag],[BankInterfaceFlag])
-                    select 'V'+InvoiceNo as VOUNO,cardcode,fcrimecode,amountB as DAMOUNT,0 as CAMOUNT,@CrtBy as CrtBy,CRTDATE
-                    ,'积分退货' as DTYPE,'' as DEPOSITER,REMARK,0 as flag,fareacode,fareaName,fcriminal,Frealareacode,FrealAreaName
-                    ,ptype,getdate() as udate,'TH' + [InvoiceNo] as origid,cardtype,TYPEFLAG,0 as acctype,0 as Bankflag,checkflag
+                    select 'V'+InvoiceNo as VOUNO,cardcode,fcrimecode,amountB as DAMOUNT,0 as CAMOUNT,@CrtBy as CrtBy,getdate() as CRTDATE
+                    ,case ptype when '超市消费' then '消费退货' else REPLACE(PTYPE,'消费','退货') end as DTYPE,'' as DEPOSITER,REMARK,0 as flag,fareacode,fareaName,fcriminal,Frealareacode,FrealAreaName
+                    ,ptype,getdate() as udate,'TH' + [InvoiceNo] as origid,cardtype,case ptype when '超市消费' then 11 else (select TypeFlagId from T_SHO_SaleType x where x.PType= REPLACE(a.PType,'消费','退货')) end as TYPEFLAG,0 as acctype,0 as Bankflag,checkflag
                     ,@CrtBy as checkby,0 as pc,0 as curUserAmount,0 as curAllAmount,0 as PayAuditFlag,0 as [FinancePayFlag],0 as [BankInterfaceFlag] 
-                    from T_Invoice where AmountB<>0 and INVOICENO in(" + strInvoices + ");");
+                    from T_Invoice a where AmountB<>0 and INVOICENO in(" + strInvoices + ");");
 
             strSql.Append(@"update t_criminal_card set AmountA=AmountA+b.A,AmountB=AmountB+b.B from t_criminal_card a
                     ,(select fcrimecode,sum(AmountA) as A,sum(AmountB) as B from T_Invoice where  INVOICENO in(" + strInvoices + @") group by fcrimecode ) b 
@@ -699,6 +700,24 @@ namespace SelfhelpOrderMgr.DAL
 
                 strSql = new StringBuilder();
                 int typeflag = 11;//消费退货
+
+                string typeName= new T_InvoiceDAL().GetModel(models[0].INVOICENO).PType;
+                if (typeName != "超市消费")
+                {
+                    typeName = typeName.Replace("消费", "退货");
+                    var saleModel= _baseDapperDAL.GetModelFirst<T_SHO_SaleType, T_SHO_SaleType>(Newtonsoft.Json.JsonConvert.SerializeObject(new { PType = typeName }));
+                    if (saleModel == null)
+                    {
+                        return "Err|失败,退货类型不存在";
+                    }
+                    typeflag = saleModel.TypeFlagId;
+                }
+                else
+                {
+                    typeName = "消费退货";
+                }
+
+
                 string remark = "对应的消费主单：" + models[0].INVOICENO;
                 decimal sumAmount = 0;
                 decimal sumTzspMoney = 0;
@@ -727,9 +746,9 @@ namespace SelfhelpOrderMgr.DAL
                     ,[Crtby],[Crtdate],[fsn],[FAreaCode],[FAreaName],[FCriminal],[Frealareacode],[FrealAreaName],[TypeFlag]
                     ,[CardType],[AmountA],[AmountB],[Fifoflag],[FreeAmountA],[FreeAmountB],[Checkflag],[RoomNo]
                     ,[OrderId],[FTZSP_Money],[printCount],[UserCyDesc],[OrderStatus]) 
-                    select '" + invoiceno + "' [InvoiceNo],'"+ tcard.cardcodea +"' [CardCode],a.fcode as  [FCrimeCode]," + sumAmount + " as  [Amount],getdate() [OrderDate],getdate() [PayDate],'消费退货',1 as [Flag],'" + remark + @"' [Remark],0
-                    ,'" + crtby +"' [Crtby],getdate() [Crtdate],'',[FAreaCode],b.fname [FAreaName],a.fname [FCriminal],'','',"+ typeflag.ToString() +@" as [TypeFlag]
-                    ,0," + sumAmount.ToString() + " as [AmountA],0,1,0,0,0,0,0," + sumTzspMoney.ToString() + ",0,'',0 from t_criminal a,t_area b where a.fareacode=b.fcode and a.fcode='" + models[0].FCrimecode + "';");
+                    select '" + invoiceno + "' [InvoiceNo],'"+ tcard.cardcodea +"' [CardCode],a.fcode as  [FCrimeCode]," + sumAmount + " as  [Amount],getdate() [OrderDate],getdate() [PayDate],case c.ptype when '超市消费' then '消费退货' else REPLACE(PTYPE,'消费','退货') end,1 as [Flag],'" + remark + @"' [Remark],0
+                    ,'" + crtby +"' [Crtby],getdate() [Crtdate],'',c.[FAreaCode],c.[FAreaName],a.fname [FCriminal],'','',"+ typeflag.ToString() +@" as [TypeFlag]
+                    ,0," + sumAmount.ToString() + " as [AmountA],0,1,0,0,0,0,0," + sumTzspMoney.ToString() + ",0,'',0 from t_criminal a,t_area b ,T_Invoice c where c.InvoiceNo='"+ models[0].INVOICENO + "' and a.fcode=c.FCrimeCode and a.fareacode=b.fcode and a.fcode='" + models[0].FCrimecode + "';");
 
 
                 //写入库存记录
@@ -768,7 +787,7 @@ namespace SelfhelpOrderMgr.DAL
                 strSql.Append(");");
         
                 //更新金额
-                strSql.Append("Update t_criminal_card set AmountA=AmountA+"+ sumAmount +" where fcrimecode='"+ criminal.FCode +"'");
+                strSql.Append("Update t_criminal_card set AmountA=AmountA+"+ sumAmount +" where fcrimecode='"+ criminal.FCode +"';");
 
                 //标记为退货
                 strSql.Append($"update T_Invoice set Remark='该订单已部分退货.'+isnull(Remark,'') where INVOICENO ='{models[0].INVOICENO}';");

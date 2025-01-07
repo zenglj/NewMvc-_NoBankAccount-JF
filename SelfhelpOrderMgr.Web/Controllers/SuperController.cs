@@ -534,12 +534,12 @@ namespace SelfhelpOrderMgr.Web.Controllers
             }
             return Content("");
         }
-        public ActionResult ChangeGoodsStatus()
+        public ActionResult ChangeGoodsStatus(string gtxm, string gActive)
         {
             //"GCode": row.GCODE,
             //"GActive": e
-            string gtxm = Request["GTXM"];
-            string gActive = Request["GActive"];
+            //string gtxm = Request["GTXM"];
+            //string gActive = Request["GActive"];
             T_Goods good = new T_GoodsBLL().GetModel(gtxm);
             good.ACTIVE = gActive;
             good.ModBy = new T_CZYBLL().GetModel(Session["loginUserCode"].ToString()).FName;
@@ -1103,7 +1103,28 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
             string strLoginName = new T_CZYBLL().GetModel(Session["loginUserCode"].ToString()).FName;
 
+            var invoices = strInvoices.Split((char)44);
+            
+                
+            string typeName = _baseDapperBLL.QueryModel<T_Invoice>("InvoiceNo",invoices[0].Replace("'","")).PType;
+            if (typeName != "超市消费")
+            {
+                typeName = typeName.Replace("消费", "退货");
+                var saleModel = _baseDapperBLL.GetModelFirst<T_SHO_SaleType, T_SHO_SaleType>(Newtonsoft.Json.JsonConvert.SerializeObject(new { PType = typeName }));
+                if (saleModel == null)
+                {
+                    return Content("Err.对不起，退货类型不存在！");
+                }
+            }
+            else
+            {
+                typeName = "消费退货";
+            }
+
+
+
             //开始撤单
+
 
             if (new T_InvoiceBLL().ReturnInvoiceOrder(strInvoices, strLoginName))
             {

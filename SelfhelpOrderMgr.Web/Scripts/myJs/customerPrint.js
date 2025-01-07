@@ -17,6 +17,7 @@ $('#test').datagrid({
         { field: 'FCriminal', title: '姓名', width: 80, sortable: true },
         { field: 'FCrimeCode', title: '编号', width: 80, sortable: true },
         { field: 'FAreaName', title: '队别', width: 100, sortable: true },
+        { field: 'RoomNo', title: '号房', width: 100, sortable: true },
         {
             field: 'OrderDate', title: '日期', width: 100, sortable: true, formatter: function (value, row, index) {
                 if (row.OrderDate != null) {
@@ -351,7 +352,166 @@ function btnSubmitTuihuo() {
 }
 
 function PrintCustomers(e) {
-    if(e=="mul"){
+    //if(e=="mul"){
+    //    var rows = $("#test").datagrid("getSelections");
+    //    var selectRows = "";
+    //    if (rows.length > 0) {
+    //        for (var i = 0; i < rows.length; i++) {
+    //            if (selectRows == "") {
+    //                selectRows = rows[i].InvoiceNo;
+    //            } else {
+    //                selectRows = selectRows + "|"+ rows[i].InvoiceNo;
+    //            }            
+    //        }
+    //    } else {
+    //        $.messager.alert("提示", "请至少选择一行记录");
+    //        return false;
+    //    }
+
+    //} else if (e == "one") {
+    //    var row = $("#test").datagrid("getSelected");
+    //    var selectRows = row.InvoiceNo;
+    //} else if (e == "all") {        
+    //    $("#test").datagrid("selectAll");
+    //    var rows = $("#test").datagrid("getRows");
+    //    var selectRows = "";
+    //    if (rows.length > 0) {
+    //        for (var i = 0; i < rows.length; i++) {
+    //            if (selectRows == "") {
+    //                selectRows = rows[i].InvoiceNo;
+    //            } else {
+    //                selectRows = rows[i].InvoiceNo + "|" + selectRows;
+    //            }
+    //        }
+    //    }
+    //} else {
+    //    return false;
+    //}
+
+    //$.post("/Home/GetInvoices", {
+    //    "invoices": selectRows
+    //}, function (data, status) {
+    //    if ("success" != status) {
+    //        return false;
+    //    } else {
+    //        var invs = $.parseJSON(data);
+    //        $("#template").empty();//清空
+    //        $("#PrintXPItemS").val('');
+    //        var PrintXPItemS = "";
+    //        if (invs.length > 0) {
+
+    //            var k = 0;
+    //            var pageRows = 20;
+    //            for (var i = 0; i < invs.length; i++) {
+    //                var content = invs[i];
+    //                var inv = content;
+
+    //                //获得小票总页数
+    //                var pages = Math.ceil(inv.details.length / pageRows);
+
+    //                //alert(pages);
+    //                for (var p = 1; p <= pages; p++) {
+
+    //                    var startRow = (p - 1) * pageRows;
+    //                    var endRow = p * pageRows;
+    //                    if (endRow > inv.details.length) {
+    //                        endRow = inv.details.length
+    //                    }
+    //                    if (p == 1) {//如果是第一页
+    //                        //在这里打印小票的头部
+    //                        if (PrintXPItemS == "") {
+    //                            PrintXPItemS = "temp" + k;
+    //                        } else {
+    //                            PrintXPItemS = PrintXPItemS + "|temp" + k;
+    //                        }
+    //                        var printTitle = "<tr><td>后台首次打印</td></tr>";
+    //                        if (inv.invoice.printCount > 0) {
+    //                            var printCount = inv.invoice.printCount + 1;
+    //                            printTitle = "<tr><td>后台第" + printCount + "次重打</td></tr>";
+    //                        }
+    //                        var xiaopiao = "<div id='temp" + k + "'><div> <div style='text-align:left;font-size:" + (parseInt($("#xiaoPiaoFontSize").val()) + 3) + "px;'>消费一卡通系统</div>"
+    //                        + "<table style='font-size:" + $("#xiaoPiaoFontSize").val() + "px; width:200px;'>"
+    //                        + "<tbody>"
+    //                        + "<tr><td>单号：" + inv.invoice.InvoiceNo + "</td></tr>"
+    //                        + "<tr><td>日期：" + getLongTime(inv.invoice.OrderDate) + "</td></tr>"
+    //                        + "<tr><td>编号：" + inv.invoice.FCrimeCode + "</td></tr>"
+    //                        + "<tr><td>姓名：" + inv.invoice.FCriminal + "</td></tr>"
+    //                        + "<tr><td colspan='2'>队别：" + inv.invoice.FAreaName + "（房号:" + inv.invoice.RoomNo + "）</td></tr>"
+    //                        + printTitle
+    //                        + "<tr><td>打印时间：" + getDateLongTime(new Date()) + "</td></tr>"
+    //                        + "</tbody>"
+    //                        + "</table>"
+    //                        + "<hr />"
+    //                        + "<table style='font-size:" + $("#xiaoPiaoFontSize").val() + "px;'>"
+    //                        + "<thead>"
+    //                        + "<tr><th>品名</th><th style='width:30px;'>单价</th><th style='width:30px;'>数量</th><th style='width:40px;'>金额</th></tr>"
+    //                        + "</thead>"
+    //                        + "<tbody>";
+    //                    } else {
+    //                        //打印次页小票的头部
+    //                        //后20行=====================
+
+    //                        if (PrintXPItemS == "") {
+    //                            PrintXPItemS = "temp" + k;
+    //                        } else {
+    //                            PrintXPItemS = PrintXPItemS + "|temp" + k;
+    //                        }
+    //                        var xiaopiao = "<div id='temp" + k + "'><div> <div style='text-align:center'>" + inv.invoice.InvoiceNo + " (第" + p + "页)</div>"
+    //                        + "<table style='font-size:" + $("#xiaoPiaoFontSize").val() + "px;'>"
+    //                        + "<thead>"
+    //                        + "<tr><th>品名</th><th style='width:30px;'>单价</th><th style='width:30px;'>数量</th><th style='width:40px;'>金额</th></tr>"
+    //                        + "</thead>"
+    //                        + "<tbody>";
+    //                    }
+    //                    //小票的主体商品信息
+    //                    for (var j = startRow; j < endRow; j++) {
+    //                        var remark="";
+    //                        if (inv.details[j].Remark != "") {
+    //                            remark = "【" + inv.details[j].Remark + "】";
+    //                        }
+    //                        xiaopiao = xiaopiao + "<tr><td>" + inv.details[j].GTXM + "</td><td align='center'>" + inv.details[j].GDJ + "</td><td align='center'>" + inv.details[j].QTY + "</td><td align='right'>" + inv.details[j].AMOUNT + "</td></tr>"
+    //                        + "<tr><td colspan='4' style=' border-bottom:dashed;border-bottom-width:1px;'>" + inv.details[j].GNAME + remark + "</td></tr>"
+    //                    }
+    //                    //小票的结尾部份
+    //                    if (p == pages) {
+    //                        //打印小票最后一页结尾
+    //                        xiaopiao = xiaopiao + "</tbody>"
+    //                            + "</table>"
+    //                            + "<hr />"
+    //                            + "<span>消费合计：" + inv.invoice.Amount + "元</span><hr/>"
+    //                            + "<div style='font-size:" + (parseInt($("#xiaoPiaoFontSize").val()) + 1) + "px;'>存款账户余额:" + inv.criminal.AmountAmoney + "元</div>"
+    //                            + "<div style='font-size:" + (parseInt($("#xiaoPiaoFontSize").val()) + 1) + "px;'>报酬账户余额:" + inv.criminal.AmountBmoney + "元</div>"
+    //                            + "<div style='font-size:" + (parseInt($("#xiaoPiaoFontSize").val()) + 1) + "px;'>留存账户余额:" + inv.criminal.AmountCmoney + "元</div>"
+    //                            + "<div style='font-size:" + (parseInt($("#xiaoPiaoFontSize").val()) + 1) + "px;'>账户总余额:" + toDecimal2(inv.criminal.AmountAmoney + inv.criminal.AmountBmoney + inv.criminal.AmountCmoney) + "元</div>"
+    //                            + "</div><br/></div>";
+
+    //                        $("#template").append(xiaopiao);
+    //                        k++;
+    //                    } else {
+    //                        //提示小票后面还有下一页
+    //                        //tipNextPageInfo(xiaopiao, p);
+    //                        xiaopiao = xiaopiao + "</tbody>"
+    //                            + "</table>"
+    //                            + "<div>（这里第" + p + "页），下面还有内容</div>"
+    //                            + "</div><br/></div>";
+
+    //                        $("#template").append(xiaopiao);
+    //                        k++;
+    //                    }
+    //                }
+
+    //                //======结束========================
+    //            }
+    //        }
+    //        $("#PrintXPItemS").val(PrintXPItemS);
+    //    }
+    //});
+
+
+
+
+
+    if (e == "mul") {
         var rows = $("#test").datagrid("getSelections");
         var selectRows = "";
         if (rows.length > 0) {
@@ -359,8 +519,8 @@ function PrintCustomers(e) {
                 if (selectRows == "") {
                     selectRows = rows[i].InvoiceNo;
                 } else {
-                    selectRows = selectRows + "|"+ rows[i].InvoiceNo;
-                }            
+                    selectRows = selectRows + "|" + rows[i].InvoiceNo;
+                }
             }
         } else {
             $.messager.alert("提示", "请至少选择一行记录");
@@ -370,7 +530,7 @@ function PrintCustomers(e) {
     } else if (e == "one") {
         var row = $("#test").datagrid("getSelected");
         var selectRows = row.InvoiceNo;
-    } else if (e == "all") {        
+    } else if (e == "all") {
         $("#test").datagrid("selectAll");
         var rows = $("#test").datagrid("getRows");
         var selectRows = "";
@@ -398,7 +558,6 @@ function PrintCustomers(e) {
             $("#PrintXPItemS").val('');
             var PrintXPItemS = "";
             if (invs.length > 0) {
-
                 var k = 0;
                 var pageRows = 20;
                 for (var i = 0; i < invs.length; i++) {
@@ -410,7 +569,6 @@ function PrintCustomers(e) {
 
                     //alert(pages);
                     for (var p = 1; p <= pages; p++) {
-
                         var startRow = (p - 1) * pageRows;
                         var endRow = p * pageRows;
                         if (endRow > inv.details.length) {
@@ -429,23 +587,23 @@ function PrintCustomers(e) {
                                 printTitle = "<tr><td>后台第" + printCount + "次重打</td></tr>";
                             }
                             var xiaopiao = "<div id='temp" + k + "'><div> <div style='text-align:left;font-size:" + (parseInt($("#xiaoPiaoFontSize").val()) + 3) + "px;'>消费一卡通系统</div>"
-                            + "<table style='font-size:" + $("#xiaoPiaoFontSize").val() + "px; width:200px;'>"
-                            + "<tbody>"
-                            + "<tr><td>单号：" + inv.invoice.InvoiceNo + "</td></tr>"
-                            + "<tr><td>日期：" + getLongTime(inv.invoice.OrderDate) + "</td></tr>"
-                            + "<tr><td>编号：" + inv.invoice.FCrimeCode + "</td></tr>"
-                            + "<tr><td>姓名：" + inv.invoice.FCriminal + "</td></tr>"
-                            + "<tr><td colspan='2'>队别：" + inv.invoice.FAreaName + "（房号:" + inv.invoice.RoomNo + "）</td></tr>"
-                            + printTitle
-                            + "<tr><td>打印时间：" + getDateLongTime(new Date()) + "</td></tr>"
-                            + "</tbody>"
-                            + "</table>"
-                            + "<hr />"
-                            + "<table style='font-size:" + $("#xiaoPiaoFontSize").val() + "px;'>"
-                            + "<thead>"
-                            + "<tr><th>品名</th><th style='width:30px;'>单价</th><th style='width:30px;'>数量</th><th style='width:40px;'>金额</th></tr>"
-                            + "</thead>"
-                            + "<tbody>";
+                                + "<table style='font-size:" + $("#xiaoPiaoFontSize").val() + "px; width:200px;'>"
+                                + "<tbody>"
+                                + "<tr><td>单号：" + inv.invoice.InvoiceNo + "</td></tr>"
+                                + "<tr><td>日期：" + getLongTime(inv.invoice.OrderDate) + "</td></tr>"
+                                + "<tr><td>编号：" + inv.invoice.FCrimeCode + "</td></tr>"
+                                + "<tr><td>姓名：" + inv.invoice.FCriminal + "</td></tr>"
+                                + "<tr><td colspan='2'>队别：" + inv.invoice.FAreaName + "（房号:" + inv.invoice.RoomNo + "）</td></tr>"
+                                + printTitle
+                                + "<tr><td>打印时间：" + getDateLongTime(new Date()) + "</td></tr>"
+                                + "</tbody>"
+                                + "</table>"
+                                + "<hr />"
+                                + "<table style='font-size:" + $("#xiaoPiaoFontSize").val() + "px;'>"
+                                + "<thead>"
+                                + "<tr><th>品名</th><th style='width:30px;'>单价</th><th style='width:30px;'>数量</th><th style='width:40px;'>金额</th></tr>"
+                                + "</thead>"
+                                + "<tbody>";
                         } else {
                             //打印次页小票的头部
                             //后20行=====================
@@ -456,20 +614,20 @@ function PrintCustomers(e) {
                                 PrintXPItemS = PrintXPItemS + "|temp" + k;
                             }
                             var xiaopiao = "<div id='temp" + k + "'><div> <div style='text-align:center'>" + inv.invoice.InvoiceNo + " (第" + p + "页)</div>"
-                            + "<table style='font-size:" + $("#xiaoPiaoFontSize").val() + "px;'>"
-                            + "<thead>"
-                            + "<tr><th>品名</th><th style='width:30px;'>单价</th><th style='width:30px;'>数量</th><th style='width:40px;'>金额</th></tr>"
-                            + "</thead>"
-                            + "<tbody>";
+                                + "<table style='font-size:" + $("#xiaoPiaoFontSize").val() + "px;'>"
+                                + "<thead>"
+                                + "<tr><th>品名</th><th style='width:30px;'>单价</th><th style='width:30px;'>数量</th><th style='width:40px;'>金额</th></tr>"
+                                + "</thead>"
+                                + "<tbody>";
                         }
                         //小票的主体商品信息
                         for (var j = startRow; j < endRow; j++) {
-                            var remark="";
+                            var remark = "";
                             if (inv.details[j].Remark != "") {
                                 remark = "【" + inv.details[j].Remark + "】";
                             }
                             xiaopiao = xiaopiao + "<tr><td>" + inv.details[j].GTXM + "</td><td align='center'>" + inv.details[j].GDJ + "</td><td align='center'>" + inv.details[j].QTY + "</td><td align='right'>" + inv.details[j].AMOUNT + "</td></tr>"
-                            + "<tr><td colspan='4' style=' border-bottom:dashed;border-bottom-width:1px;'>" + inv.details[j].GNAME + remark + "</td></tr>"
+                                + "<tr><td colspan='4' style=' border-bottom:dashed;border-bottom-width:1px;'>" + inv.details[j].GNAME + remark + "</td></tr>"
                         }
                         //小票的结尾部份
                         if (p == pages) {
@@ -503,8 +661,12 @@ function PrintCustomers(e) {
                 }
             }
             $("#PrintXPItemS").val(PrintXPItemS);
+
+
         }
     });
+
+
 }
 
 
@@ -570,12 +732,14 @@ function printMulXiaoPiao()//打印多个小票
     //    myTestHtml("#temp" + tid,$("#xiaoPiaoPageWidth").val());
     //}
 
+
     var PrintXPItemS = $("#PrintXPItemS").val();
     var pItems = PrintXPItemS.split("|");
     for (var i = 0; i < pItems.length; i++) {
         var item = pItems[i];
         //myTestHtml("#" + item, $("#xiaoPiaoPageWidth").val());
-        printXiaoPiaoXinxi(item, $("#xiaoPiaoPageWidth").val());
+        printXiaoPiaoXinxi("#" + item, $("#xiaoPiaoPageWidth").val());
+
     }
 
     //更新小票的次数
@@ -586,7 +750,37 @@ function printMulXiaoPiao()//打印多个小票
         return false;
     }
     var InvoiceNos = "";
-    
+    for (var i = 0; i < rows.length; i++) {
+        var tid = i;
+
+        if (InvoiceNos == "") {
+            InvoiceNos = rows[i].InvoiceNo;
+        } else {
+            InvoiceNos = InvoiceNos + "|" + rows[i].InvoiceNo;
+        }
+    }
+    //2、后台更新小票的打印次数（多个）
+    var selectRows = InvoiceNos;
+    $.post("/Home/UpdatePrintCount", { "Invoices": selectRows }, function (data, status) {
+        if ("success" == data) {
+            //alert(data);
+            $.messager.alert("提示", data);
+        }
+    });
+
+}
+
+
+function PrintXiaoPiaoWithMul() {
+    //更新小票的次数
+    //1、找出小票的单号（多个）
+    var rows = $("#test").datagrid('getSelections');
+    if (rows.length <= 0) {
+        $.messager.alert("提示", "请至少选择一行记录");
+        return false;
+    }
+    var InvoiceNos = "";
+
     for (var i = 0; i < rows.length; i++) {
         var tid = i;
 
@@ -597,18 +791,26 @@ function printMulXiaoPiao()//打印多个小票
         }
     }
 
+
+    var PrintXPItemS = $("#PrintXPItemS").val();
+    var pItems = PrintXPItemS.split("|");
+    for (var i = 0; i < pItems.length; i++) {
+        var item = pItems[i];
+        //myTestHtml("#" + item, $("#xiaoPiaoPageWidth").val());
+        printXiaoPiaoXinxi(item, $("#xiaoPiaoPageWidth").val());
+    }
+
+
+
     //2、后台更新小票的打印次数（多个）
     var selectRows = InvoiceNos;
     $.post("/Home/UpdatePrintCount", { "Invoices": selectRows }, function (data, status) {
-        if ("success" == data) {
+        if ("success" == status) {
             //alert(data);
             $.messager.alert("提示", data);
         }
     });
 }
-
-
-
 
 function getStrSearchWhere() {
 

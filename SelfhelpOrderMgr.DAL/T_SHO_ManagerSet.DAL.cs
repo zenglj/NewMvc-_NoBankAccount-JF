@@ -42,7 +42,7 @@ namespace SelfhelpOrderMgr.DAL
 			            new SqlParameter("@KeyName", SqlDbType.VarChar,50) ,            
                         new SqlParameter("@KeyMode", SqlDbType.Int,4) ,            
                         new SqlParameter("@MgrName", SqlDbType.VarChar,50) ,            
-                        new SqlParameter("@MgrValue", SqlDbType.VarChar,50) ,            
+                        new SqlParameter("@MgrValue", SqlDbType.VarChar,1024) ,            
                         new SqlParameter("@StartTime", SqlDbType.DateTime) ,            
                         new SqlParameter("@Remark", SqlDbType.VarChar,100)             
               
@@ -78,8 +78,8 @@ namespace SelfhelpOrderMgr.DAL
 SqlParameter[] parameters = {
 			            new SqlParameter("@KeyName", SqlDbType.VarChar,50) ,            
                         new SqlParameter("@KeyMode", SqlDbType.Int,4) ,            
-                        new SqlParameter("@MgrName", SqlDbType.VarChar,50) ,            
-                        new SqlParameter("@MgrValue", SqlDbType.VarChar,50) ,            
+                        new SqlParameter("@MgrName", SqlDbType.VarChar,100) ,            
+                        new SqlParameter("@MgrValue", SqlDbType.VarChar,1024) ,            
                         new SqlParameter("@StartTime", SqlDbType.DateTime) ,            
                         new SqlParameter("@Remark", SqlDbType.VarChar,100)             
               
@@ -147,29 +147,29 @@ SqlParameter[] parameters = {
 			
 			SelfhelpOrderMgr.Model.T_SHO_ManagerSet model=new SelfhelpOrderMgr.Model.T_SHO_ManagerSet();
 			DataSet ds=SqlHelper.Query(strSql.ToString(),parameters);
-			
-			if(ds.Tables[0].Rows.Count>0)
-			{
-																model.KeyName= ds.Tables[0].Rows[0]["KeyName"].ToString();
-																												if(ds.Tables[0].Rows[0]["KeyMode"].ToString()!="")
-				{
-					model.KeyMode=int.Parse(ds.Tables[0].Rows[0]["KeyMode"].ToString());
-				}
-																																				model.MgrName= ds.Tables[0].Rows[0]["MgrName"].ToString();
-																																model.MgrValue= ds.Tables[0].Rows[0]["MgrValue"].ToString();
-																												if(ds.Tables[0].Rows[0]["StartTime"].ToString()!="")
-				{
-					model.StartTime=DateTime.Parse(ds.Tables[0].Rows[0]["StartTime"].ToString());
-				}
-																																				model.Remark= ds.Tables[0].Rows[0]["Remark"].ToString();
-																										
-				return model;
-			}
-			else
-			{
-				return null;
-			}
-		}
+
+            if (ds.Tables[0].Rows.Count > 0)
+            {
+                model.KeyName = ds.Tables[0].Rows[0]["KeyName"].ToString();
+                if (ds.Tables[0].Rows[0]["KeyMode"].ToString() != "")
+                {
+                    model.KeyMode = int.Parse(ds.Tables[0].Rows[0]["KeyMode"].ToString());
+                }
+                model.MgrName = ds.Tables[0].Rows[0]["MgrName"].ToString();
+                model.MgrValue = ds.Tables[0].Rows[0]["MgrValue"].ToString();
+                if (ds.Tables[0].Rows[0]["StartTime"].ToString() != "")
+                {
+                    model.StartTime = DateTime.Parse(ds.Tables[0].Rows[0]["StartTime"].ToString());
+                }
+                model.Remark = ds.Tables[0].Rows[0]["Remark"].ToString();
+
+                return model;
+            }
+            else
+            {
+                return null;
+            }
+        }
 		
 		
 		/// <summary>

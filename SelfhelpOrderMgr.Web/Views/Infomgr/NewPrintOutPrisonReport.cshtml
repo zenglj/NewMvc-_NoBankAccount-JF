@@ -12,7 +12,7 @@
     <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
     @*<link href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.cs" rel="stylesheet" />*@
 
-
+    
 </head>
 <body>
     <div>
@@ -33,7 +33,7 @@
                         SelfhelpOrderMgr.Model.T_Bank_PaymentRecord atmLufeiRec = ViewData["atmLufeiRec"] as SelfhelpOrderMgr.Model.T_Bank_PaymentRecord;
                         decimal lufeiAtmMoney = 0;
                         string lufeiAtmPwd = "";
-                        if (prove.PayMode == 2)
+                        if(prove.PayMode == 2)
                         {
                             lufeiAtmMoney = atmLufeiRec == null ? 0 : atmLufeiRec.Amount;
                             lufeiAtmPwd = atmLufeiRec == null ? "" : atmLufeiRec.WithdrawalPassword;
@@ -43,15 +43,7 @@
                             lufeiAtmMoney = bal.AtmLuFeiAmount;
                         }
 
-                        //定义刑满路费和出监劳动报酬
-                        decimal xingShiLufei = 0;
-                        decimal chuJianLaodongBaochou = 0;
-                        if (ViewData["vcrd"] != null)
-                        {
-                            List<SelfhelpOrderMgr.Model.T_Vcrd> vcrds = ViewData["vcrd"] as List<SelfhelpOrderMgr.Model.T_Vcrd>;
-                            xingShiLufei = vcrds.Where(o => o.DType == "刑释路费").Sum(o => o.DAmount);
-                            chuJianLaodongBaochou = vcrds.Where(o => o.DType == "出监劳动报酬").Sum(o => o.DAmount);
-                        }
+
 
                         if (prove.PayMode == 0)
                         {
@@ -87,14 +79,15 @@
                         if (ViewData["lufeiFlag"].ToString() == "1")
                         {
                             <div>
-                                <h3 class="text-center">罪犯离监账上余额领取申请报告<small>@strPrintTitle</small></h3>
+                                <h3 class="text-center">罪犯离监账上余额领取申请报告<small>@DateTime.Today.ToShortDateString() @strPrintTitle</small></h3>
 
                                 <h3 class="text-left"><span>@strUnitName</span>财务科:</h3>
 
                                 <p>
                                     <strong>　　</strong>本人<u> <strong>@prove.fname</strong> </u>是<u> <strong>@prove.fareaName</strong> </u>罪犯，
-                                    狱证编号：<u> <strong>@prove.fcode</strong>  </u>
-                                    ,因刑满释放，监狱ATM机已<strong>发放路费(¥:@(lufeiAtmMoney))</strong>，现申请将本人离监结算后的账上余额<strong><span id="jsMoney3"></span> (¥: @(prove.CardMoney))</strong>
+                                    身份证号：<u> <strong>@strIdenNo</strong>  </u>
+                                    ,狱证编号：<u> <strong>@prove.fcode</strong>  </u>
+                                    ,结算卡账号：<u> <strong>@prove.BankCode</strong>  </u>,将刑满释放，现申请将本人离监结算后的账上余额<strong><span id="jsMoney3"></span> (¥: @(prove.CardMoney))</strong>
                                     @if (prove.PayMode == 2)
                                     {
                                         <span>转至亲属账户：收款人姓名：</span><u> <strong>@prove.BankUserName</strong> </u> <span>(与本人系</span><u> <strong> @prove.OutBankRemark </strong>  </u><span>),开户行名称：</span><u> <strong>@prove.OpeningBank</strong>  </u>
@@ -121,275 +114,217 @@
                         }
                         else
                         {
-                            <div>
-                                <h3 class="text-center">罪犯离监账上余额领取申请报告<small>@strPrintTitle</small></h3>
+                <div>
+                    <h3 class="text-center">罪犯离监账上余额领取申请报告<small>@DateTime.Today.ToShortDateString() @strPrintTitle</small></h3>
 
-                                <h3 class="text-left"><span>@strUnitName</span>财务科:</h3>
+                    <h3 class="text-left"><span>@strUnitName</span>财务科:</h3>
 
-                                <p>
-                                    <strong>　　</strong>本人<u> <strong>@prove.fname</strong> </u>是<u> <strong>@prove.fareaName</strong> </u>罪犯，
-                                    狱证编号：<u> <strong>@prove.fcode</strong>  </u>
-                                    ,因刑满释放，特申请将本人离监结算后的账上余额<strong><span id="jsMoney3"></span> (¥: @prove.CardMoney),其中刑释路费(¥:@xingShiLufei)</strong>
-                                    @if (prove.PayMode == 2)
-                                    {
-                                        <span>转至亲属账户：收款人姓名：</span><u> <strong>@prove.BankUserName</strong> </u> <span>(与本人系</span><u> <strong> @prove.OutBankRemark </strong>  </u><span>),开户行名称：</span><u> <strong>@prove.OpeningBank</strong>  </u>
-                                        <span>,银行账号：</span><u> <strong>@prove.OutBankCard</strong>  。</u>
-                                    }
-                                    else if (prove.PayMode == 1)
-                                    {
-                                        <span>,将通过<strong><u>@strPayMode</u></strong>方式支取全部金额。</span>
-                                    }
-                                    else
-                                    {
-                                        <span>,将通过<strong><u>@strPayMode</u></strong>方式支取全部金额。</span>
-                                    }
-                                </p>
-                                <p>　　<strong>本人对以上信息的准确性负责，如因此产生的一切经济法律责任，由本人自行承担。</strong></p>
-
-                                <br />
-                                <h5 style="text-align:right">申请人(签字按手印):　　　　　　　　　　　</h5>
-                                <h5 style="text-align:right">　　　年　　月　　日　　　</h5>
-
-                            </div>
-                        }
-
-                        <br />
-                        <hr />
-                        <br />
-
-                        @*<div>
-
-
-                                <table>
-
-                                    <tr style="height:20px;">
-                                        <td style="width:600px;">审批栏:</td>
-                                        <td style="width:600px;text-align:right;">_____年_____月_____日 </td>
-                                    </tr>
-                                </table>
-                                <table class="table table-bordered">
-                                    <tr style="height:20px;">
-                                        <td style="width:150px;">同意该犯申请</td>
-                                        <td colspan="3"></td>
-                                    </tr>
-                                    <tr style="height:20px;">
-                                        <td style="width:150px;">经办民警</td>
-                                        <td></td>
-                                        <td style="width:150px;">监区领导</td>
-                                        <td></td>
-                                    </tr>
-                                    <tr style="height:20px;">
-                                        <td style="width:150px;">供应站经办</td>
-                                        <td></td>
-                                        <td style="width:150px;">供应站负责人</td>
-                                        <td></td>
-                                    </tr>
-                                    <tr style="height:20px;">
-                                        <td style="width:150px;">生卫科长</td>
-                                        <td colspan="3"></td>
-
-                                    </tr>
-
-                                </table>
-
-                            </div>*@
-
-                        <hr />
-                        <br />
-
-                        if (ViewData["lufeiFlag"].ToString() == "1")
+                    <p>
+                        <strong>　　</strong>本人<u> <strong>@prove.fname</strong> </u>是<u> <strong>@prove.fareaName</strong> </u>罪犯，
+                        身份证号：<u> <strong>@strIdenNo</strong>  </u>
+                        ,狱证编号：<u> <strong>@prove.fcode</strong>  </u>
+                        ,结算卡账号：<u> <strong>@prove.BankCode</strong>  </u>,将刑满释放，特申请将本人离监结算后的账上余额<strong><span id="jsMoney3"></span> (¥: @prove.CardMoney))</strong>
+                        @if (prove.PayMode == 2)
                         {
-                            <div>
-                                <h3 class="text-center">消费一卡通结算凭证<small>@strPrintTitle</small></h3>
-
-                                <table>
-                                    <tr style="height:20px;">
-                                        <td style="width:600px;">单位:@prove.fareaName</td>
-                                        <td style="width:300px;">日期：@prove.crtDate.ToShortDateString()</td>
-                                        <td style="width:200px;">(第二联 存档)</td>
-                                    </tr>
-                                </table>
-                                <table class="table table-bordered">
-                                    <tr>
-                                        <td>狱政编号:</td>
-                                        <th>@prove.fcode</th>
-                                        <td>学员姓名:</td>
-                                        <th colspan="2">@prove.fname</th>
-                                        <td rowspan="4" style="width:100px; line-height:100px;">相片</td>
-                                    </tr>
-                                    <tr>
-                                        <td>结算模式:</td>
-
-                                        <th colspan="1">@strPayMode</th>
-                                        <td>路费:</td>
-                                        @if (prove.PayMode == 0)
-                                        {
-                                            <th colspan="2">现金领取</th>
-                                        }
-                                        else
-                                        {
-                                            <th colspan="2">狱内ATM机领取</th>
-                                        }
-
-                                    </tr>
-                                    <tr>
-                                        <td>收款人姓名:</td>
-                                        <th>@prove.BankUserName </th>
-                                        <td>关系:</td>
-                                        <th>@prove.OutBankRemark</th>
-
-                                    </tr>
-                                    <tr>
-                                        <td>收款账号:</td>
-                                        <th colspan="4">@prove.OutBankCard</th>
-
-
-                                    </tr>
-                                    <tr>
-                                        <td>开户银行名称:</td>
-                                        <th colspan="5">@prove.OpeningBank</th>
-
-                                    </tr>
-                                    <tr>
-                                        <td>结算余额:</td>
-                                        <th colspan="5"> <span id="jsMoney2"></span>(@prove.CardMoney ) <input type="hidden" id="jsMoney" value="@prove.CardMoney" /></th>
-
-                                    </tr>
-                                    <tr>
-                                        <td>领取路费:</td>
-                                        <th colspan="2">人民币:@SelfhelpOrderMgr.Web.CommonHeler.MoneyConverter.ConvertToChineseMoney(lufeiAtmMoney.ToString())  (¥@lufeiAtmMoney)</th>
-                                        <td colspan="3"><strong>狱内取款密码:</strong>@lufeiAtmPwd</td>
-
-
-                                    </tr>
-                                    <tr>
-                                        <th colspan="6">
-                                            @if (prove != null)
-                                            {
-                                                string strRemarkInfo = "备注:该服刑人员一卡通余额:" + (prove.CardMoney + lufeiAtmMoney) + "元，已通过【" + strPayMode + "】结清并收回IC卡";
-                                                if (prove.PayMode == 1)
-                                                {
-                                                    strRemarkInfo = "备注:您的一卡通(含路费)总余额:" + (prove.CardMoney + lufeiAtmMoney) + "元,已通过【" + strPayMode + "】结清，请在释放当日持IC卡到本监内的ATM上取结余款，取款密码是:" + prove.WithdrawalPassword + ",请妥善保管避免泄露及丢失。";
-                                                }
-                                                else if (prove.PayMode == 2)
-                                                {
-                                                    strRemarkInfo = "备注:您的一卡通余额:" + prove.CardMoney + "元,已通过【" + strPayMode + "】结清，余额将汇到您指定的银行账户：" + prove.OutBankCard + "(" + prove.BankUserName + "),开户行:" + prove.OpeningBank;
-                                                    strRemarkInfo += ",路费:" + lufeiAtmMoney + " 元，通过ATM取现";
-                                                }
-
-                                                <p>@strRemarkInfo</p>
-                                            }
-                                        </th>
-                                </table>
-
-                                <table>
-                                    <tr>
-                                        <td style="width:500px;"></td>
-                                        <td>罪犯：</td>
-                                    </tr>
-                                </table>
-
-                            </div>
+                            <span>转至亲属账户：收款人姓名：</span><u> <strong>@prove.BankUserName</strong> </u> <span>(与本人系</span><u> <strong> @prove.OutBankRemark </strong>  </u><span>),开户行名称：</span><u> <strong>@prove.OpeningBank</strong>  </u>
+                            <span>,银行账号：</span><u> <strong>@prove.OutBankCard</strong>  。</u>
+                        }
+                        else if (prove.PayMode == 1)
+                        {
+                            <span>,将通过<strong><u>@strPayMode</u></strong>方式支取全部金额。</span>
                         }
                         else
                         {
-                            <div>
-                                <h3 class="text-center">消费一卡通结算凭证<small>@strPrintTitle</small></h3>
+                            <span>,将通过<strong><u>@strPayMode</u></strong>方式支取全部金额。</span>
+                        }
+                    </p>
+                    <p>　　<strong>本人对以上信息的准确性负责，如因此产生的一切经济法律责任，由本人自行承担。</strong></p>
 
-                                <table>
-                                    <tr style="height:20px;">
-                                        <td style="width:600px;">单位:@prove.fareaName</td>
-                                        <td style="width:300px;">日期：@prove.crtDate.ToShortDateString()</td>
-                                        <td style="width:200px;">(第二联 存档)</td>
-                                    </tr>
-                                </table>
-                                <table class="table table-bordered">
-                                    <tr>
-                                        <td>狱政编号:</td>
-                                        <th>@prove.fcode</th>
-                                        <td>学员姓名:</td>
-                                        <th colspan="2">@prove.fname</th>
-                                        <td rowspan="4" style="width:100px; line-height:100px;">相片</td>
-                                    </tr>
-                                    <tr>
-                                        <td>结算模式:</td>
-
-                                        <th colspan="4">@strPayMode</th>
-                                    </tr>
-                                    <tr>
-                                        <td>收款人姓名:</td>
-                                        <th>@prove.BankUserName </th>
-                                        <td>关系:</td>
-                                        <th colspan="2">@prove.OutBankRemark</th>
-
-                                    </tr>
-                                    <tr>
-                                        <td>收款账号:</td>
-                                        <th colspan="4">@prove.OutBankCard</th>
+                    <br />
+                    <h5 style="text-align:right">申请人(签字按手印):　　　　　　　　　　　</h5>
+                    <h5 style="text-align:right">　　　年　　月　　日　　　</h5>
 
 
-                                    </tr>
-                                    <tr>
-                                        <td>开户银行名称:</td>
-                                        <th colspan="5">@prove.OpeningBank</th>
+                    <hr />
+                    <br />
+                    <table>
+                        <h3 class="text-center">领取回执</h3>
+                        <h5 class="text-center">　　日期：</h5>
+                        <br />
+                        <br />
+                        <br />
+                        <h4 class="text-center">本人<u> <strong>@prove.fname (@prove.fcode)</strong> </u>是<u> <strong>@prove.fareaName</strong> </u>刑释放人员，已将出监结算金额：<span id="jsMoney3"></span> (¥@(prove.CardMoney))  全部领走。</h4>
 
-                                    </tr>
-                                    @if (prove.PayMode == 1)
-                                    {
-                                        <tr>
-                                            <td>结算金额:</td>
-                                            <th colspan="5"> <span id="jsMoney2"></span>(@prove.CardMoney 元 ) <input type="hidden" id="jsMoney" value="@prove.CardMoney" /></th>
-                                        </tr>
-                                        <tr>
-                                            <td>ATM领款:</td>
-                                            <th colspan="5">￥@Math.Round(prove.CardMoney, 0) 元 (其中角部分四舍五入)</th>
-                                        </tr>
-                                    }
-                                    else
-                                    {
-                                        <tr>
-                                            <th colspan="5"> <span id="jsMoney2"></span>(@prove.CardMoney 元) <input type="hidden" id="jsMoney" value="@prove.CardMoney" /></th>
-                                        </tr>
-                                    }
+                        <br />
+                        <br />
+                        <h5 style="text-align:right">领款人(签字按手印):　　　　　　　　　　　</h5>
+                        <h5 style="text-align:right">　　　年　　月　　日　　　</h5>
 
-
-                                    <tr>
-                                        <th>分监区领导</th>
-                                        <td></td>
-                                        <th>经办民警</th>
-                                        <td colspan="3"></td>
-                                    </tr>
-                                    <tr>
-                                        <th colspan="6">
-                                            @if (prove != null)
-                                            {
-                                                string strRemarkInfo = "备注:该服刑人员一卡通余额:" + prove.CardMoney + "元，已通过【" + strPayMode + "】结清并收回IC卡";
-                                                if (prove.PayMode == 1)
-                                                {
-                                                    strRemarkInfo = "备注:您的一卡通余额:" + prove.CardMoney + "元(ATM领款时角部分会四舍五入),已通过【" + strPayMode + "】结清，请在释放当日持IC卡到本监内的ATM上取结余款，取款密码是:" + prove.WithdrawalPassword + ",请妥善保管避免泄露及丢失。";
-                                                }
-                                                else if (prove.PayMode == 2)
-                                                {
-                                                    strRemarkInfo = "备注:您的一卡通余额:" + prove.CardMoney + "元(其中积分兑换" + bal.AccPoints + "元),已通过【" + strPayMode + "】结清，余额将汇到您指定的银行账户：" + prove.OutBankCard + "(" + prove.BankUserName + "),开户行:" + prove.OpeningBank;
-
-                                                }
-
-                                                <p>@strRemarkInfo</p>
-                                            }
-                                        </th>
-                                </table>
-
-
-                                <table>
-                                    <tr>
-                                        <td style="width:500px;"></td>
-                                        <td>罪犯：</td>
-                                    </tr>
-                                </table>
-
-                            </div>
+                    </table>
+                </div>
                         }
 
+                        <br />
+
+                        <div>
+
+
+
+                        </div>
+
+                        <hr />
+
+                        if (ViewData["lufeiFlag"].ToString() == "1")
+                {
+                <div>
+                    <h3 class="text-center">取款凭证单<small>@strPrintTitle</small></h3>
+
+                    <table>
+                        <tr style="height:20px;">
+                            <td style="width:600px;">单位:@prove.fareaName</td>
+                            <td style="width:300px;">日期：@prove.crtDate.ToShortDateString()</td>
+                            <td style="width:200px;">(第二联 存档)</td>
+                        </tr>
+                    </table>
+                    <table class="table table-bordered">
+                        <tr>
+                            <td>狱政编号:</td>
+                            <th>@prove.fcode</th>
+                            <td>学员姓名:</td>
+                            <th colspan="2">@prove.fname</th>
+                            <td rowspan="4" style="width:100px; line-height:100px;">相片</td>
+                        </tr>
+                        <tr>
+                            <td>结算模式:</td>
+
+                            <th colspan="1">@strPayMode</th>
+                            <td>路费:</td>
+                            @if (prove.PayMode == 0)
+                            {
+                                <th colspan="2">现金领取</th>
+                            }
+                            else
+                            {
+                                <th colspan="2">狱内ATM机领取</th>
+                            }
+
+                        </tr>
+                        <tr>
+                            <td>收款人姓名:</td>
+                            <th>@prove.BankUserName </th>
+                            <td>关系:</td>
+                            <th>@prove.OutBankRemark</th>
+
+                        </tr>
+                        <tr>
+                            <td>收款账号:</td>
+                            <th colspan="4">@prove.OutBankCard</th>
+
+
+                        </tr>
+                        <tr>
+                            <td>开户银行名称:</td>
+                            <th colspan="5">@prove.OpeningBank</th>
+
+                        </tr>
+                        <tr>
+                            <td>结算余额:</td>
+                            <th colspan="5"> <span id="jsMoney2"></span>(@prove.CardMoney ) <input type="hidden" id="jsMoney" value="@prove.CardMoney" /></th>
+
+                        </tr>
+                        <tr>
+                            <td>领取路费:</td>
+                            <th colspan="2">人民币:@SelfhelpOrderMgr.Web.CommonHeler.MoneyConverter.ConvertToChineseMoney(lufeiAtmMoney.ToString())  (¥@lufeiAtmMoney)</th>
+                            <td colspan="3"><strong>狱内取款密码:</strong>@lufeiAtmPwd</td>
+
+
+                        </tr>
+                        <tr>
+                            <th colspan="6">
+                                @if (prove != null)
+                                {
+                                    string strRemarkInfo = "备注:该服刑人员一卡通余额:" + (prove.CardMoney + lufeiAtmMoney) + "元，已通过【" + strPayMode + "】结清并收回IC卡";
+                                    if (prove.PayMode == 1)
+                                    {
+                                        strRemarkInfo = "备注:您的一卡通(含路费)总余额:" + (prove.CardMoney+ lufeiAtmMoney) + "元,已通过【" + strPayMode + "】结清，请在释放当日持IC卡到本监内的ATM上取结余款，取款密码是:" + prove.WithdrawalPassword + ",请妥善保管避免泄露及丢失。";
+                                    }
+                                    else if (prove.PayMode == 2)
+                                    {
+                                        strRemarkInfo = "备注:您的一卡通余额:" + prove.CardMoney + "元,已通过【" + strPayMode + "】结清，余额将汇到您指定的银行账户：" + prove.OutBankCard + "(" + prove.BankUserName + "),开户行:" + prove.OpeningBank;
+                                        strRemarkInfo += ",路费:" + lufeiAtmMoney + " 元，通过ATM取现";
+                                    }
+
+                                    <p>@strRemarkInfo</p>
+                                }
+                            </th>
+                    </table>
+                    <table>
+                        <tr><td style="width:500px;">罪犯：</td><td>经办人：</td></tr>
+                    </table>
+
+
+                </div>
+                }
+                else
+                {
+                <div>
+                    <h3 class="text-center">取款凭证单<small>@strPrintTitle</small></h3>
+
+                    <table>
+                        <tr style="height:20px;">
+                            <td style="width:600px;">单位:@prove.fareaName</td>
+                            <td style="width:300px;">日期：@prove.crtDate.ToShortDateString()</td>
+                            <td style="width:200px;">(第二联 存档)</td>
+                        </tr>
+                    </table>
+                    <table class="table table-bordered">
+                        <tr>
+                            <td>狱政编号:</td>
+                            <th>@prove.fcode</th>
+                            <td>学员姓名:</td>
+                            <th colspan="2">@prove.fname</th>
+                          
+                        </tr>
+                        <tr>
+                            <td>结算模式:</td>
+
+                            <th colspan="4">@strPayMode</th>
+                        </tr>
+                        
+                        <tr>
+                            <td>结算余额:</td>
+                            <th colspan="5"> <span id="jsMoney2"></span>(@prove.CardMoney ) <input type="hidden" id="jsMoney" value="@prove.CardMoney" /></th>
+
+                        </tr>
+                        <tr>
+                            <th colspan="6">
+                                @if (prove != null)
+                                {
+                                    string strRemarkInfo = "备注:该服刑人员一卡通余额:" + prove.CardMoney + "元，已通过【" + strPayMode + "】结清并收回IC卡";
+                                    if (prove.PayMode == 1)
+                                    {
+                                        strRemarkInfo = "备注:您的一卡通余额:" + prove.CardMoney + "元,已通过【" + strPayMode + "】结清，请在释放当日持IC卡到本监内的ATM上取结余款，取款密码是:" + prove.WithdrawalPassword + ",请妥善保管避免泄露及丢失。";
+                                    }
+                                    else if (prove.PayMode == 2)
+                                    {
+                                        strRemarkInfo = "备注:您的一卡通余额:" + prove.CardMoney + "元(其中路费" + lufeiAtmMoney + "元),已通过【" + strPayMode + "】结清，余额将汇到您指定的银行账户：" + prove.OutBankCard + "(" + prove.BankUserName + "),开户行:" + prove.OpeningBank;
+
+                                    }
+
+                                    <p>@strRemarkInfo</p>
+                                }
+                            </th>
+                    </table>
+                    <table>
+                        <tr><td style="width:500px;">经办人：</td><td>罪犯：</td></tr>
+                      </table>
+
+                      
+                      
+
+                </div>
+                }
+                        
 
 
                     }

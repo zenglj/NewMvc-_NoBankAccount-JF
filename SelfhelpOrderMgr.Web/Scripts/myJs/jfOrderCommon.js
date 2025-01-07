@@ -328,7 +328,9 @@ function PayCheckSubmit() {
                         var item = pItems[i];
                         /*myTestHtml("#" + item, $("#xiaoPiaoPageWidth").val());*/
 
-                        printXiaoPiaoXinxi(item, $("#xiaoPiaoPageWidth").val());
+                        printXiaoPiaoXinxi("#" + item, $("#xiaoPiaoPageWidth").val());
+
+
                         $.post("/Home/UpdatePrintCount", { "Invoices": inv.invoice.InvoiceNo }, function (data, status) {
                             if ("success" == data) {
                                 //alert(data);

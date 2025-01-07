@@ -69,20 +69,20 @@
 
             </div>
             @*@if (ViewData["operatorId"] != null)
-            {
-                if (ViewData["operatorId"].ToString() == "2")
                 {
-                    <div>
-                        <a href="#" id="btnSalesOrderReturn" class="easyui-linkbutton" iconcls="icon-redo" plain="true" onclick="SalesOrderReturn()">消费退货</a><label>|</label>
-                    </div>
-                }
-            }*@
+                    if (ViewData["operatorId"].ToString() == "2")
+                    {
+                        <div>
+                            <a href="#" id="btnSalesOrderReturn" class="easyui-linkbutton" iconcls="icon-redo" plain="true" onclick="SalesOrderReturn()">消费退货</a><label>|</label>
+                        </div>
+                    }
+                }*@
 
-            
+
 
         </div>
 
-        <table id="details" class="easyui-datagrid" ></table>
+        <table id="details" class="easyui-datagrid"></table>
 
         <div id="template"></div>
         <input type="hidden" id="PrintXPItemS" value="" />
@@ -254,7 +254,31 @@
         <input type="hidden" id="xiaoPiaoPageWidth" name="xiaoPiaoPageWidth" value="@mset.KeyMode" />
         <input type="hidden" id="xiaoPiaoFontSize" name="xiaoPiaoFontSize" value="@mset.MgrValue" />
     }
-    <script src="~/Scripts/myJs/LodopFuncs.js"></script>
+
+    @*<script src="~/Scripts/myJs/LodopFuncs.js"></script>*@
+
+    @if (ViewData["PrintPlusVer"] != null)
+    {
+        string printPlusVer = ViewData["PrintPlusVer"] as string;
+
+        <input type="hidden" id="printPlusVer" name="printPlusVer" value="@printPlusVer" />
+        if (printPlusVer == "1")
+        {
+            <input id="printPlusVer" hidden="hidden" value="1" />
+            <script src="~/Scripts/myJs/LodopFuncs.js"></script>
+        }
+        else
+        {
+            <input id="printPlusVer" hidden="hidden" value="0" />
+            <script src="~/Scripts/myJs/LodopFuncs6.198.js"></script>
+        }
+    }
+    else
+    {
+        <input id="printPlusVer" hidden="hidden" value="0" />
+        <script src="~/Scripts/myJs/LodopFuncs6.198.js"></script>
+    }
+
     <script src="~/Scripts/myJs/opertorXiaopiaoFunc.js"></script>
     <script src="~/Scripts/myJs/commonJs.js"></script>
     <script src="~/Scripts/myJs/jfCustomerPrint.js"></script>

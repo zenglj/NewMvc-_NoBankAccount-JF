@@ -69,6 +69,9 @@
                                 }
                             }
                         }
+
+                        <li>@Html.ActionLink("测试购物界面", "TestPage", "Shopping", new { id = 89 }, new { target = "_self" })</li>
+
                     </ul>
                 </li>
                 <li class="dropdown">
@@ -170,6 +173,8 @@
                                 <li>@Html.ActionLink("自助扣款", "Login", "SelfPayment", new { id = 101, SaleMode = "Sales" }, new { target = "_self" })</li>
                                 <li>@Html.ActionLink("资金冻结", "Login", "SelfDongJie", new { id = 102, SaleMode = "Sales" }, new { target = "_self" })</li>
                                 <li>@Html.ActionLink("出监账户维护", "PayeeLogin", "SelfDongJie", new { id = 102, SaleMode = "Sales" }, new { target = "_self" })</li>
+                                <li>@*@Html.ActionLink("人脸采集", "FaceCollection", "ComApp", new { id = 99, SaleMode = "Sales" }, new { target = "_self" })*@</li>
+                                <li>@Html.ActionLink("人脸采集", "faceLogin", "ComApp", new { id = 99, SaleMode = "Sales" }, new { target = "_self" })</li>
 
                             }
                             <li>@Html.ActionLink("汇款人账户查询", "QueryAccount", "UserQuery", new { id = 102, SaleMode = "Sales" }, new { target = "_self" })</li>

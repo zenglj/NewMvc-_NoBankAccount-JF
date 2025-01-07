@@ -215,7 +215,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
             {
                 return Content(status);
             }
-            if (fcardCode.Length != 10)
+            if (!(fcardCode.Length == 10|| fcardCode.Length == 11))
             {
                 return Content(status);
             }

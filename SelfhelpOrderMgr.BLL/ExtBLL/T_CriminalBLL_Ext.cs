@@ -383,9 +383,9 @@ namespace SelfhelpOrderMgr.BLL
                     cy.famtmonth = cy.famtmonth + TP_CY_YingYangCan_Money + cy.JaRi_Cy_Money;
 
                     //判断A账户是否大于“处遇管理”设定的最大金额，如果大于，则只能是用CY的最大金额
-                    if (model.CanUseMoneyA > cy.famtmonth - xfmoney.Amoney)//需要减去本月已经消费的金额
+                    if (model.CanUseMoneyA > cy.famtmonth - (xfmoney.Amoney-xfmoney.FreeAmoney))//需要减去本月已经消费的金额
                     {
-                        model.CanUseMoneyA = cy.famtmonth - xfmoney.Amoney;
+                        model.CanUseMoneyA = cy.famtmonth - (xfmoney.Amoney - xfmoney.FreeAmoney);
                     }
                     if (model.CanUseMoneyA < 0)
                     {

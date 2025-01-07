@@ -70,7 +70,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
             string ip = System.Web.HttpContext.Current.Request.UserHostAddress;
             string status = "Error|查询失败";
-            if (fcardCode.Length != 10)
+            if (!(fcardCode.Length == 10 || fcardCode.Length == 11))
             {
                 return Content(status);
             }

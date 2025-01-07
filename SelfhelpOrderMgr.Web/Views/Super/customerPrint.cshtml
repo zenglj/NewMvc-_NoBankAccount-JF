@@ -267,19 +267,25 @@
     @if (ViewData["PrintPlusVer"] != null)
     {
         string printPlusVer = ViewData["PrintPlusVer"] as string;
+
+        <input type="hidden" id="printPlusVer" name="printPlusVer" value="@printPlusVer" />
         if (printPlusVer == "1")
         {
+            <input id="printPlusVer" hidden="hidden" value="1" />
             <script src="~/Scripts/myJs/LodopFuncs.js"></script>
         }
         else
         {
-            <script src="~/Scripts/myJs/opertorXiaopiaoFunc.js"></script>
+            <input id="printPlusVer" hidden="hidden" value="0" />
+            <script src="~/Scripts/myJs/LodopFuncs6.198.js"></script>
         }
     }
     else
     {
-        <script src="~/Scripts/myJs/opertorXiaopiaoFunc.js"></script>
+        <input id="printPlusVer" hidden="hidden" value="0" />
+        <script src="~/Scripts/myJs/LodopFuncs6.198.js"></script>
     }
+    <script src="~/Scripts/myJs/opertorXiaopiaoFunc.js"></script>
     <script src="~/Scripts/myJs/commonJs.js"></script>
     <script src="~/Scripts/myJs/customerPrint.js"></script>
 </body>

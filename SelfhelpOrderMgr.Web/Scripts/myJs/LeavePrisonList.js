@@ -344,7 +344,7 @@ function NoBankCard_JieSuanMode(modeText,payMode) {
             var selected = $('#test').datagrid('getSelected');
             if (selected) {
                 if (selected.FStatus != "已结算") {
-                    $.post("/Infomgr/NoBankCardLeavePrisonList", { "payMode": payMode, "FCode": selected.fcode, "FName": selected.fname, "FOuDate": selected.strOutDate }, function (data, status) {
+                    $.post("/Infomgr/NoBankCardLeavePrisonList", { "payMode": payMode, "FCode": selected.fcode, "FName": selected.fname, "FOuDate": selected.strOutDate, "depositer": $("#Depositer").textbox('getValue')}, function (data, status) {
                         if (status == "success") {
                             var words = data.split("|");
                             if (words[0] != "OK") {

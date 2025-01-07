@@ -40,10 +40,22 @@ namespace SelfhelpOrderMgr.DAL
             int i=SqlHelper.ExecuteSql(strSql.ToString(), parameters);
 
             strSql = new StringBuilder();
-            strSql.Append(@"update t_invoice_out set amount=b.fmoney from (
+            //strSql.Append(@"update t_invoice_out set amount=b.fmoney from (
+            //    select fsn,isnull(sum(amount),0) fmoney from t_invoice_outdtl 
+            //    where  fsn=@fsn group by fsn) b
+            //    where t_invoice_out.fsn=b.fsn;");
+
+            //strSql.Append("declare @startDay varchar(20); \r\n");
+            //strSql.Append("declare @endDay varchar(20); \r\n");
+
+            //strSql.Append("select top 1 @startDay=day(OrderDate) from t_invoice_outdtl where fsn=@fsn order by OrderDate; \r\n");
+            //strSql.Append("select top 1 @endDay=day(OrderDate) from t_invoice_outdtl where fsn=@fsn order by OrderDate desc; \r\n");
+
+            strSql.Append(@"update t_invoice_out set amount=b.fmoney,BuyMonth='"+ DateTime.Now.ToString("yyyy年MM月") + @"',DateArea=(select  CONVERT(varchar(10), day(min(OrderDate))) from t_invoice_outdtl where fsn=@fsn  ) +'号-'+(select CONVERT(varchar(10), day(max(OrderDate))) from t_invoice_outdtl where fsn=@fsn ) +'号' from (
                 select fsn,isnull(sum(amount),0) fmoney from t_invoice_outdtl 
                 where  fsn=@fsn group by fsn) b
                 where t_invoice_out.fsn=b.fsn;");
+
             strSql.Append(@"update t_invoice set checkflag=1 where invoiceno in(
                 select invoiceno from t_invoice_outdtl where fsn=@fsn);");
 

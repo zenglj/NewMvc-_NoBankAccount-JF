@@ -7,11 +7,11 @@
 <link href="~/Content/font-awesome.min.css" rel="stylesheet" />
 <link href="~/Content/docs.min.css" rel="stylesheet" />
 <link href="~/Scripts/simple-calendar/tcal.css" rel="stylesheet" />
-<div class="page-header">
+<div class="page-header text-center">
     <h1>打印消费小票 <small>这里您可以查询今天的消费记录单，并可批量生成打印相应的小票</small></h1>
 </div>
 
-<div>
+<div class="container">
     <!-- Nav tabs -->
     <ul class="nav nav-tabs" role="tablist">
         <li role="presentation" class="active"><a href="#home" aria-controls="home" role="tab" data-toggle="tab">消费查询</a></li>
@@ -251,13 +251,13 @@
                                 2、打印小票统计单请选择显示比例60-70%
                             </li>
                             <li class="list-group-item text-right">
-                                printXiaoPiaoXinxi
+                                
                                 <span class="text-right">
                                     <button type="button" class="btn btn-primary" onclick="XiaoFeiTongji('1')">按号房统计</button>
                                     @*<button type="button" class="btn btn-primary" onclick="printMyAddHtml('myTJPrint')()">(A4)打印统计单</button>
-                                    <button type="button" class="btn btn-primary" onclick="printMyAddHtml('myTJXiaoPrint')()">(小票纸)打印统计单</button>*@
-                                    <button type="button" class="btn btn-primary" onclick="printXiaoPiaoXinxi('myTJPrint',800)()">(A4)打印统计单</button>
-                                    <button type="button" class="btn btn-primary" onclick="printXiaoPiaoXinxi('myTJXiaoPrint',800)()">(小票纸)打印统计单</button>
+                                        <button type="button" class="btn btn-primary" onclick="printMyAddHtml('myTJXiaoPrint')()">(小票纸)打印统计单</button>*@
+                                    <button type="button" class="btn btn-primary" onclick="printXiaoPiaoXinxi('#myTJPrint',2700)()">(A4)打印统计单</button>
+                                    <button type="button" class="btn btn-primary" onclick="printXiaoPiaoXinxi('#myTJXiaoPrint',800)()">(小票纸)打印统计单</button>
                                 </span>
                             </li>
 
@@ -395,7 +395,7 @@
                                 <span class="text-right">
                                     <button type="button" class="btn btn-primary" onclick="SearchXFMingxiExcelOut()">(Excel)数据导出</button>
                                     @*<button type="button" class="btn btn-primary" onclick="printMyAddHtml('myMXPrint')()">(Print)打印明细单</button>*@
-                                    <button type="button" class="btn btn-primary" onclick="printXiaoPiaoXinxi('myMXPrint',800)()">(Print)打印明细单</button>
+                                    <button type="button" class="btn btn-primary" onclick="printXiaoPiaoXinxi('#myMXPrint',800)()">(Print)打印明细单</button>
 
                                 </span>
                             </li>
@@ -446,18 +446,21 @@
     string printPlusVer = ViewData["PrintPlusVer"] as string;
     if (printPlusVer == "1")
     {
+        <input id="printPlusVer" hidden="hidden" value="1" />
         <script src="~/Scripts/myJs/LodopFuncs.js"></script>
     }
     else
     {
-        <script src="~/Scripts/myJs/opertorXiaopiaoFunc.js"></script>
+        <input id="printPlusVer" hidden="hidden" value="0" />
+        <script src="~/Scripts/myJs/LodopFuncs6.198.js"></script>
     }
 }
 else
 {
-    <script src="~/Scripts/myJs/opertorXiaopiaoFunc.js"></script>
+    <input id="printPlusVer" hidden="hidden" value="0" />
+    <script src="~/Scripts/myJs/LodopFuncs6.198.js"></script>
 }
-<script src="~/Scripts/myJs/LodopFuncs.js"></script>
+<script src="~/Scripts/myJs/opertorXiaopiaoFunc.js"></script>
 <script src="~/Scripts/myJs/commonJs.js"></script>
 <script src="~/Scripts/myJs/PrintXiaoPiao.js"></script>
 <script type="text/javascript">
