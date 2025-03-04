@@ -18,7 +18,7 @@ namespace SelfhelpOrderMgr.YuZhengJieKou.Model
         public string deptId { get; set; }//部门ID
         public string deptName { get; set; }//部门名称
         public string deptType { get; set; }//部门类型，对应编码sys_dept_type
-        public int orderNum { get; set; }//显示顺序
+        public int? orderNum { get; set; }//显示顺序
         public string parentId { get; set; }//父部门Id
         public string parentName { get; set; }//父部门名称
         public string status { get; set; }//状态，0正常，1停用

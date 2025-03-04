@@ -67,14 +67,29 @@ $(function() {
                 if (value == 0) {
                     return '网点取款';
                 } else if (value == 1) {
-                    return '现金结算';
+                    return 'ATM结算';
                 } else if (value == 2) {
                     return '转账支付'
                 } else {
                     return value
                 }
 
-            }},
+                }
+            },
+            { field: 'Depositer', title: '经办人', width: 200, sortable: true },
+            {
+                field: 'FaceFlag', title: '人脸采集', width: 80, sortable: true
+                , formatter: function (value, row, index) {
+                    if (value == 0) {
+                        return '否';
+                    } else if (value == 1) {
+                        return '是';
+                    } else {
+                        return value
+                    }
+
+                }
+            },
 		{ field: 'OutBankCard', title: '出监收款账号', width: 200, sortable: true },
 		{ field: 'BankUserName', title: '收款人姓名', width: 150, sortable: true },
         { field: 'OpeningBank', title: '开户行', width: 200, sortable: true },
@@ -271,7 +286,7 @@ function OutPrisonSettle() {
     } else if (payMode == 0) {//网点支取
         NoBankCard_JieSuanMode('现金结算', 0);
     } else if (payMode == 1) {//现金领取
-        NoBankCard_JieSuanMode('现金结算', 1);
+        NoBankCard_JieSuanMode('ATM机结算', 1);
     } else if (payMode == 2) {//转账支付
         NoBankCard_JieSuanMode('银行转账', 2)
     } else if (payMode == 5) {//转账支付

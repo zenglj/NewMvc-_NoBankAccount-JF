@@ -254,6 +254,11 @@ namespace SelfhelpOrderMgr.Model
             get { return _maxmoney; }
             set { _maxmoney = value; }
         }
+
+        /// <summary>
+        /// 是否申请赔偿金标记
+        /// </summary>
+        public int DamagesFlag { get; set; }
     }
 }
 

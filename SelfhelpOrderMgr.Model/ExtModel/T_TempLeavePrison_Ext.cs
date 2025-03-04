@@ -21,5 +21,10 @@ namespace SelfhelpOrderMgr.Model
         public int CollectMoneyFlag { get; set; }//现金已领标识
         public int seqno { get; set; }
 
+        //人脸是否采集标记，0是未采集，1是已采集
+        public int FaceFlag { get; set; }
+
+        //离监的经办人
+        public string Depositer { get; set; }
     }
 }

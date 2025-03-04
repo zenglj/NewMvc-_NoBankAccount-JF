@@ -1,0 +1,293 @@
+﻿
+@{
+    ViewBag.Title = "自助离监";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@{Html.RenderPartial("~/Views/Shared/_PartialXiaopiaoControl.cshtml");}
+<link href="~/Content/font-awesome.min.css" rel="stylesheet" />
+<link href="~/Content/docs.min.css" rel="stylesheet" />
+<link href="~/Scripts/simple-calendar/tcal.css" rel="stylesheet" />
+<div class="page-header text-center">
+    <div class="row">
+        <div class="col-sm-8">
+            <h1><small>欢迎进入</small> 离监银行卡号收集 <small>这里您可以录入收款账号信息</small></h1>
+            <input type="hidden" id="UserName" name="UserName" value="@ViewData["UserName"]" />
+            <input type="hidden" id="FManagerCard" name="FManagerCard" value="@ViewData["FManagerCard"]" />
+
+            <input type="hidden" id="FCrimeCode" name="FCrimeCode" />
+            <input type="hidden" id="FIcCardCode" name="FIcCardCode" />
+        </div>
+        <div class="col-sm-4">
+            <a class="btn btn-large btn-primary btn-lg" href="#" role="button" onclick="btnQueryUserInfo('3504013494')">请刷管理卡登录</a>
+        </div>
+    </div>
+    
+</div>
+
+<div>
+    <object id=MWRFATL style="WIDTH: 0px; HEIGHT: 0px"
+            codebase=eyeFZ.cab#version =1,0,0,1
+            classid=CLSID:CD851DCA-5D3C-4DA9-A0F7-DE018FDC0A7F></object>@*加载数明华读卡器控件*@
+
+    
+            <div class="row">
+                <div class="col-sm-6">
+
+                </div>
+                <div class="col-sm-6">
+                    <div style=" text-align:right;">
+                        
+                        <div class="form-group form-inline input-group-lg">
+                            <input type="hidden" id="orderFcrimeCode" />
+                            <input type="hidden" id="orderFcrimeName" />
+                            <input type="hidden" id="orderCyName" />
+                            <input type="hidden" id="orderFareaName" />
+                            <input type="number" class="form-control" id="queryCode" placeholder="请输入狱政编号">
+                            <button type="button" id="btnQuery" class="btn btn-default btn-lg">查询</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <h4 class="alert alert-danger" role="alert" id="userNameInfo">你好,您的账户信息如下：</h4>
+            <div class="row">
+                <div class="col-md-3">
+                    <table class="table">
+                        <thead>
+                            <tr><th>名称</th><th>金额</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>狱政编号</td><td id="tdFCrimeCode">35040011001</td></tr>
+                            <tr><td>罪犯姓名</td><td id="tdFName">张三峰</td></tr>
+                            <tr><td>所在队别</td><td id="tdFAreaName">一监区一分监区</td></tr>
+                            <tr><td>处遇等级</td><td><span id="tdFCyName">普管</span></td></tr>
+                            <tr><td>出监日期</td><td><span id="tdFOuDate">2023-10-25</span></td></tr>
+                            <tr class="danger"><td>状态</td><td ><span class="label label-danger input-lg" id="tdFFlag">在押</span></td></tr>
+                        </tbody>
+                    </table>
+
+                </div>
+                <div class="col-md-9">
+                    <div id="divPaySelArea">
+                        <h3>离监结算收款账号信息 ：</h3>
+                        <div class="form-group form-inline">
+                            <div class="input-group">
+                                <div class="input-group-addon">收款户名：</div>
+                                <input type="text" class="form-control input-lg" id="selBankUserName" name="BankUserName" style="width:300px" placeholder="收款人姓名">
+                            </div>
+                        </div>
+
+                        <div class="form-group form-inline">
+                            <div class="input-group">
+                                <div class="input-group-addon">亲属关系：</div>
+                                <input type="text" class="form-control input-lg" id="selOutBankRemark" name="OutBankRemark" style="width:300px" placeholder="关系名称">
+                            </div>
+                        </div>
+                        <div class="form-group form-inline">
+                            <div class="input-group">
+                                <div class="input-group-addon">银行名称：</div>
+                                <select class="form-control input-lg" id="selOpeningBank" style="width:300px" name="OpeningBank" >
+                                    <option value="" selected="selected">请选择具体收款银行</option>
+
+                                    <option value="1">中国银行</option>
+                                    <option value="2">建设银行</option>
+                                </select>
+                                <input type="hidden" id="inputMoneyPerpose" value="" />
+                            </div>
+                        </div>
+                        <div class="form-group form-inline">
+                            <div class="input-group">
+                                <div class="input-group-addon">收款账号：</div>
+                                <input type="number" class="form-control input-lg" id="selOutBankCard" name="OutBankCard" style="width:300px" placeholder="银行账号">
+                            </div>
+                        </div>
+
+
+                        <div class="row">
+                            <div class="col-sm-10">
+                                <button type="button" id="btnNext" class="btn btn-danger btn-lg" onclick="btnNext()">下一步</button>
+                            </div>
+                            <div class="col-sm-2">
+                                <a href="/Home/Index" class="btn btn-warning" role="button">退回首页</a>
+                            </div>
+                        </div>
+
+
+
+                    </div>
+
+                    <div class="row" id="divPayDisplayInfo" style="display:none">
+
+                        <div class="row">
+                            <div class="col-sm-8">
+                                <form>
+                                    <h3>收款账号信息确认：</h3>
+                                    <table class="table">
+
+                                        <tbody>
+                                            
+                                            <tr>
+                                                <td><label>账号名称：</label></td>
+                                                <td>
+                                                    <h4 id="tdDisBankUserName">张三</h4>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><label>亲属关系：</label></td>
+                                                <td>
+                                                    <h4 id="tdDisOutBankRemark">妻子</h4>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><label>银行名称：</label></td>
+                                                <td>
+                                                    <h4 id="tdDisOpeningBank">建设银行</h4>
+                                                    <input type="hidden" class="form-control" id="tdDisBankCNAPS" name="BankCNAPS" value="" readonly="readonly">
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><label>收款账号：</label></td>
+                                                <td>
+                                                    <h4 id="tdDisOutBankCard">6227001823260173361</h4>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </form>
+                            </div>
+
+                        </div>
+
+                        <div class="row">
+                            <div class="col-sm-10">
+                                <button type="button" id="btnBack" class="btn btn-primary btn-lg" onclick="btnBack()">上一步</button>
+                                <button type="button" id="btnSubmit" class="btn btn-danger btn-lg" >确认提交</button>
+                            </div>
+                            <div class="col-sm-2">
+                                <a href="/Home/Index" class="btn btn-warning" role="button">退回首页</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+</div>
+
+<script src="~/Scripts/jquery-1.11.3.min.js"></script>
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="js/bootstrap.min.js"></script>
+<script src="~/Scripts/messenger.min.js"></script>
+<script src="~/Scripts/myJs/minghuaICcardCommon.js"></script>
+<script src="~/Scripts/myJs/commonJs.js"></script>
+<script src="~/Scripts/myJs/MyNumerKeyBoard.js"></script>
+<script src="~/Scripts/myJs/LeavePrisonBank.js"></script>
+<script type="text/javascript">
+
+    //根据狱政号查询用户信息
+    $("#btnQuery").on("click",function () {
+        var qcode = $("#queryCode").val();
+        if (qcode == "" || !(qcode.length==10 || qcode.length==11)) {
+            alert("Err|请输入有效的狱政编号");
+            return false;
+        }
+        var mangCard = $("#FManagerCard").val();
+        if (mangCard == "" || !(mangCard.length == 10 || mangCard.length == 11)) {
+            alert("Err|请先刷管理卡登录");
+            return false;
+        }
+        
+        $.post("/LeavePrisonBank/GetManagerUserInfo", { "fcrimecode": qcode, "fmanagerCard": mangCard }, function (data, status) {
+            if ("success" == status) {
+                console.log(data);
+                if (data.Flag == false) {
+                    //清空显示信息
+                    ClearDisplayInfo();
+                    alert(data.ReMsg);
+                } else {
+                    //显示用户信息
+                    SetDispUserInfo(data);
+                    if (data.DataInfo.recvBankAccount != null) {
+                        $("#selBankUserName").val(data.DataInfo.recvBankAccount.BankUserName);
+                        $("#selOutBankRemark").val(data.DataInfo.recvBankAccount.OutBankRemark);
+                        $("#selOpeningBank").val(data.DataInfo.recvBankAccount.BankCNAPS);
+                        $("#selOutBankCard").val(data.DataInfo.recvBankAccount.OutBankCard);
+                        if (data.DataInfo.recvBankAccount.CheckFlag == 1) {
+                            $("#btnNext").attr('disabled', 'disabled');
+                            alert("用户已经确认不能再修改");
+                            return false;
+                        }
+                        else {
+                            $("#btnNext").removeAttr('disabled');
+                        }
+                    } else {
+                        ClearAccountEditArea();
+                    }
+                }
+
+            }
+        });
+    });
+
+    //下一步
+    function btnNext() {
+        if ($("#selOpeningBank").val() == "") {
+            alert("请选择一个银行");
+            return false;
+        }
+        var bankcard = $("#selOutBankCard").val()
+        if (bankcard == "" || !(bankcard.length == 16 || bankcard.length == 17 || bankcard.length == 19)) {
+            alert("请选择一个收款账号");
+            return false;
+        }
+
+
+        $("#tdDisBankUserName").html($("#selBankUserName").val());
+        $("#tdDisOutBankRemark").html($("#selOutBankRemark").val());
+        $("#tdDisOpeningBank").html($("#selOpeningBank").find("option:selected").text());
+        $("#tdDisBankCNAPS").html($("#selOpeningBank").val());
+        $("#tdDisOutBankCard").html($("#selOutBankCard").val());
+
+        $("#divPayDisplayInfo").show();
+        $("#divPaySelArea").hide();
+    }
+
+    //上一步
+    function btnBack() {
+        $("#divPayDisplayInfo").hide();
+        $("#divPaySelArea").show();
+    }
+
+
+    //根据狱政号查询用户信息
+    $("#btnSubmit").on("click", function () {
+        var bankcard = $("#tdDisOutBankCard").html();
+        if (bankcard == "" || !(bankcard.length == 16 || bankcard.length == 17 || bankcard.length == 19)) {
+            alert("Err|请输入有效的银行卡号");
+            return false;
+        }
+        var bankAccount = {
+            FCrimeCode: $("#tdFCrimeCode").html()
+            , OutBankCard: bankcard
+            , OpeningBank: $("#tdDisOpeningBank").html()
+            , BankCNAPS: $("#tdDisBankCNAPS").html()
+            , BankUserName: $("#tdDisBankUserName").html()
+            , OutBankRemark: $("#tdDisOutBankRemark").html(
+            )
+        };
+        $.post("/LeavePrisonBank/SetBankInfo", bankAccount, function (data, status) {
+            if ("success" == status) {
+                console.log(data);
+                if (data.Flag == true) {
+                    ClearDisplayInfo();
+                    $("#divPayDisplayInfo").hide();
+                    $("#divPaySelArea").show();
+                }
+                alert(data.ReMsg);
+            }
+        });
+    });
+
+
+
+</script>
+

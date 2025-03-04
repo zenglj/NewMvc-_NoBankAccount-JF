@@ -304,5 +304,8 @@ namespace SelfhelpOrderMgr.Model
 				this._accpoints = value;
 			}
 		}
+
+		//赔偿金专用账户
+		public decimal AmountD { get; set; }
 	}
 }

@@ -299,6 +299,7 @@
     <Compile Include="Controllers\CashPayController.cs" />
     <Compile Include="Controllers\ComAppController.cs" />
     <Compile Include="Controllers\CriminalController.cs" />
+    <Compile Include="Controllers\DamagesMgrController.cs" />
     <Compile Include="Controllers\DefaultController.cs" />
     <Compile Include="Controllers\BankRcvController.cs" />
     <Compile Include="Controllers\DepositListController.cs" />
@@ -320,6 +321,7 @@
     <Compile Include="Controllers\JfShoppingController.cs" />
     <Compile Include="Controllers\LaobaoController.cs" />
     <Compile Include="Controllers\LBExcelCheckController.cs" />
+    <Compile Include="Controllers\LeavePrisonBankController.cs" />
     <Compile Include="Controllers\LingyongJinController.cs" />
     <Compile Include="Controllers\LoginController.cs" />
     <Compile Include="Controllers\MagesticController.cs" />
@@ -371,6 +373,8 @@
     <Compile Include="Models\CustomTimeArea.cs" />
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\LaobaoEntity.cs" />
+    <Compile Include="Models\RecvBankCardInfo.cs" />
+    <Compile Include="Models\ReqBankInfo.cs" />
     <Compile Include="Models\ShoppingEntity.cs" />
     <Compile Include="Models\XmlB2e0012.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -931,7 +935,9 @@
     <Content Include="Scripts\myJs\faceSelfLogin.js" />
     <Content Include="Scripts\myJs\BankAtmMgrIndex.js" />
     <Content Include="Scripts\myJs\ComAppFaceCollection.js" />
+    <Content Include="Scripts\myJs\LeavePrisonBank.js" />
     <Content Include="Scripts\myJs\LodopFuncs6.198.js" />
+    <Content Include="Scripts\myJs\myNewCommonJs.js" />
     <Content Include="Scripts\myJs\opertorXiaopiaoFunc - 复制.js" />
     <Content Include="Scripts\myJs\QueryAccount.js" />
     <Content Include="Scripts\myJs\FamilyIndex.js" />
@@ -1333,7 +1339,7 @@
     <Content Include="Views\JfShopping\_Partial_InputRoomNo.cshtml" />
     <Content Include="Views\BankPayment\PrintPayMentAtmReport.cshtml" />
     <Content Include="Views\BankPayAtmServer\Index.cshtml" />
-    <Content Include="Views\BankPayAtmServer\PrintPayMentAtmReport.cshtml" />
+    <Content Include="Views\BankPayAtmServer\PrintPayMentAtmReport_MX.cshtml" />
     <Content Include="Views\RetentionAmount\Index.cshtml" />
     <Content Include="Views\RetentionAmount\PrintDetailReport.cshtml" />
     <Content Include="Views\Home\AsrTest.cshtml" />
@@ -1362,8 +1368,21 @@
     <Content Include="Views\Infomgr\NewPrintOutPrisonReport-QZJY.cshtml" />
     <Content Include="Views\Infomgr\NewPrintOutPrisonReport-XM - 复制.cshtml" />
     <Content Include="Views\Infomgr\NewPrintOutPrisonReport_XM.cshtml" />
-    <Content Include="Views\Infomgr\NewPrintOutPrisonReport.cshtml" />
+    <Content Include="Views\Infomgr\NewPrintOutPrisonReport-MX.cshtml" />
     <Content Include="Views\ComApp\faceLogin.cshtml" />
+    <Content Include="Views\Infomgr\NewPrintOutPrisonReport.cshtml" />
+    <Content Include="Views\LeavePrisonBank\GetBankCardInfo.cshtml" />
+    <Content Include="Views\LeavePrisonBank\Index.cshtml" />
+    <Content Include="Views\LeavePrisonBank\Login.cshtml" />
+    <Content Include="Views\LeavePrisonBank\QianMing.cshtml" />
+    <Content Include="Views\LeavePrisonBank\ResultQuery.cshtml" />
+    <Content Include="Views\LeavePrisonBank\_Partial_SelectDtypeMoney.cshtml" />
+    <Content Include="Views\LeavePrisonBank\QianMing - 复制.cshtml" />
+    <Content Include="Views\LeavePrisonBank\Test.cshtml" />
+    <Content Include="Views\BankPayAtmServer\PrintPayMentAtmReport.cshtml" />
+    <Content Include="Views\DamagesMgr\Index.cshtml" />
+    <Content Include="Views\DamagesMgr\RequestRecIndex.cshtml" />
+    <Content Include="Views\DamagesMgr\SelfRequestIndex.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

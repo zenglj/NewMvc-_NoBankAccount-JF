@@ -22,9 +22,9 @@ namespace SelfhelpOrderMgr.BLL
         }
 
         //中行无卡结算模式
-        public string ExcuteStoredProc_NoBankCard(string fcrimecode, string crtby, int modeFlag)
+        public string ExcuteStoredProc_NoBankCard(string fcrimecode, string crtby, int modeFlag,string depositer)
         {
-            return new T_TempLeavePrisonDAL().ExcuteStoredProc_NoBankCard(fcrimecode, crtby,modeFlag);
+            return new T_TempLeavePrisonDAL().ExcuteStoredProc_NoBankCard(fcrimecode, crtby,modeFlag,depositer);
         }
         public string InsertBankProve(string fcode,int payMode)
         {

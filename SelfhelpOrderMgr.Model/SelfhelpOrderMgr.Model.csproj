@@ -113,6 +113,9 @@
     <Compile Include="DapperModel\T_JF_Invoice.cs" />
     <Compile Include="DapperModel\T_JF_InvoiceDTL.cs" />
     <Compile Include="DapperModel\T_JF_Vcrd.cs" />
+    <Compile Include="DapperModel\T_PCJ_BaseType.cs" />
+    <Compile Include="DapperModel\T_PCJ_RequestRecord_Search.cs" />
+    <Compile Include="DapperModel\T_PCJ_RequestRecord.cs" />
     <Compile Include="DapperModel\T_SysOperationLog_Search.cs" />
     <Compile Include="DapperModel\T_Bank_PaymentDetail.cs" />
     <Compile Include="DapperModel\T_Bank_PayRecBase.cs" />

@@ -5,6 +5,7 @@ using SelfhelpOrderMgr.Model.ShengjuYZJKModel;
 using SelfhelpOrderMgr.YuZhengJieKou.Model;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -697,31 +698,49 @@ namespace SelfhelpOrderMgr.YuZhengJieKou
             {
                 //string zfbh = "35010002482";
 
-                var list=new CommTableInfoBLL().GetList<ViewCriminalInfo>("select *from ViewCriminalInfo where faceFlag=0 and (FOuDate<GETDATE() and DATEADD(day,30, FOuDate)>GETDATE())",null);//近一个月要离监的人员
+                var list=new CommTableInfoBLL().GetList<ViewCriminalInfo>("select *from ViewCriminalInfo where faceFlag=0 and (FOuDate>GETDATE() and DATEADD(day,-60, FOuDate)<GETDATE())",null);//近一个月要离监的人员
                 if(list!=null && list.Count > 0)
                 {
                     foreach (var item in list)
                     {
-                        ReqResultInfo<YzglzfdkMtxx> _result = PostGetMtxx(ref subUrl, rs, pageSize, pageNum, item.FCode);
-                        if (_result.total > 0)
+                        ReqResultInfo<YzglzfdkMtxx> _result = PostGetMtxx(subUrl, rs, pageSize, pageNum, item.FCode);
+                        //string content = File.ReadAllText("D:/Mtxx02.txt");
+                        //ReqResultInfo<YzglzfdkMtxx> _result = Newtonsoft.Json.JsonConvert.DeserializeObject<ReqResultInfo<YzglzfdkMtxx>>(content);
+                        try
                         {
-                            YzglFileList picBase64 = null;
-                            if (_result.rows[0].fileList.Count > 0)
+                            if (_result.total > 0)
                             {
-                                picBase64 = _result.rows[0].fileList[0];
-                                //压缩数据
-                                string compessBase64 = Base64ConvertHelper.ConvertBase64ImageToSmallerSize(picBase64.base64Data, 450, 600);
-                                //保存压缩后的相片;
-                                string filePath = System.IO.Directory.GetCurrentDirectory() + "\\FaceDir\\";
-                                var sss = Base64ConvertHelper.Base64StringToImage(compessBase64, $"{filePath}{item.FCode}_{item.FName}.{picBase64.format}");
+                                YzglFileList picBase64 = null;
+                                if (_result.rows[0].fileList.Count > 0)
+                                {
+                                    picBase64 = _result.rows[0].fileList[0];
+                                    //压缩数据
+                                    string compessBase64 = Base64ConvertHelper.ConvertBase64ImageToSmallerSize(picBase64.base64Data, 450, 600);
+                                    //保存压缩后的相片;
+                                    string filePath = System.IO.Directory.GetCurrentDirectory() + "\\FaceDir\\";
+                                    if (!Directory.Exists(filePath))
+                                    {
+                                        Directory.CreateDirectory(filePath);
+                                    }
 
-                                //上传到服务器，通过http请求的方式
-                                string postData = $"fcrimecode={item.FCode}&base64Image={compessBase64}";
-                                string _res = HttpHelper.HttpPostByJson(faceServiceUrl, postData, token);
-                                ResultInfo _postResult = Newtonsoft.Json.JsonConvert.DeserializeObject<ResultInfo>(_res);
+                                    var sss = Base64ConvertHelper.Base64StringToImage(compessBase64, $"{filePath}{item.FCode}_{item.FName}.{picBase64.format}");
+                                    //var sss = Base64ConvertHelper.Base64StringToImage(picBase64.base64Data, $"{filePath}{item.FCode}_{item.FName}.{picBase64.format}");
 
+                                    //上传到服务器，通过http请求的方式
+                                    //string postData = $"fcrimecode={item.FCode}&base64Image={compessBase64}";
+                                    string postData = Newtonsoft.Json.JsonConvert.SerializeObject(new { fcrimecode = item.FCode, base64Image = compessBase64 });
+                                    string _res = HttpHelper.HttpPostByJson(faceServiceUrl, postData, token);
+                                    ResultInfo _postResult = Newtonsoft.Json.JsonConvert.DeserializeObject<ResultInfo>(_res);
+
+                                }
+                                Console.WriteLine($"采集成功：{item.FCode}-{item.FName}");
                             }
                         }
+                        catch (Exception ee)
+                        {
+                            Console.WriteLine(ee.Message);
+                        }
+                        
                     }
                     rs.Flag = true;
                     rs.ReMsg = $"OK|注册人脸{list.Count} 个";
@@ -735,7 +754,7 @@ namespace SelfhelpOrderMgr.YuZhengJieKou
             return rs;
         }
 
-        private ReqResultInfo<YzglzfdkMtxx> PostGetMtxx(ref string subUrl, ResultInfo rs, int pageSize, int pageNum,string zfbh)
+        private ReqResultInfo<YzglzfdkMtxx> PostGetMtxx(string subUrl, ResultInfo rs, int pageSize, int pageNum,string zfbh)
         {
             subUrl = $"{subUrl}?pageNum={pageNum}&pageSize={pageSize}&zfbh={zfbh}";
             string _res = HttpHelper.HttpPostByJson(_baseurl + subUrl, "", token);

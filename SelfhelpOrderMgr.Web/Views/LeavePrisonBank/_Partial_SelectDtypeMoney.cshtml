@@ -1,0 +1,387 @@
+﻿<div>
+    <div id="divPaySelArea">
+        <h3>请输入要扣款的金额 ：</h3>
+        <div class="form-group form-inline">
+            <div class="input-group">
+                <div class="input-group-addon">结算类型：</div>
+                <select class="form-control input-lg" id="selPayMode" name="selPayMode" onchange="selectKKType()">
+                    <option value="" selected="selected">请选择结算类型</option>
+
+                    <option value="1">ATM机取款</option>
+                </select>
+                <input type="hidden" id="inputMoneyPerpose" value="" />
+            </div>
+
+        </div>
+
+        @*<div class="form-group form-inline">
+                <div class="input-group">
+                    <div class="input-group-addon">收款账号：</div>
+                    <select class="form-control input-lg" id="selRecvAccount" name="selRecvAccount">
+                        <option value="" selected="selected">请选择收款账号</option>
+
+                        <option value="1">张三(妻子)6221****3361</option>
+                        <option value="2">李四(母亲)6221****1223</option>
+                    </select>
+                    <input type="hidden" id="inputMoneyPerpose" value="" />
+                </div>
+
+            </div>*@
+
+
+        <div class="row">
+            <div class="col-sm-10">
+                <button type="button" id="btnNext" class="btn btn-danger btn-lg" onclick="btnNext()">下一步</button>
+            </div>
+            <div class="col-sm-2">
+                <a href="/Home/Index" class="btn btn-warning" role="button">退回首页</a>
+            </div>
+        </div>
+
+
+
+    </div>
+
+    <div class="row" id="divJieSuanResult" style="display:none">
+
+        <div class="row">
+            <div class="col-sm-6">
+                <form>
+                    <h4>离监结算信息：</h4>
+                    <table class="table">
+
+                        <tbody>
+                            <tr>
+                                <td><label>狱政编号：</label></td>
+                                <td>
+                                    <h4 id="JieSuanUserCode">张三</h4>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><label>账号名称：</label></td>
+                                <td>
+                                    <h4 id="JieSuanUserName">张三</h4>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><label>结算类型：</label></td>
+                                <td>
+                                    <h4 id="JieSuanPayMode">ATM机取款</h4>
+                                </td>
+                            </tr>
+
+
+                            <tr>
+                                <td><label>结算总额：</label></td>
+                                <td>
+                                    <h4 id="JieSuanMoney">0.00</h4>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><label>取款密码：</label></td>
+                                <td>
+                                    <h4 id="JieSuanPayPwd"></h4>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><label>用户签字：</label></td>
+                                <td>
+                                    <img id="JieSuanQianMing" src="" style="width:200px;height:100px">
+                                </td>
+                            </tr>
+
+                        </tbody>
+                    </table>
+                </form>
+            </div>
+
+        </div>
+
+        <div class="row">
+            <div class="col-sm-10">
+            </div>
+            <div class="col-sm-2">
+                <a href="/Home/Index" class="btn btn-warning" role="button">退回首页</a>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="row" id="divPayDisplayInfo" style="display:none">
+
+        <div class="row">
+            <div class="col-sm-6">
+                <form>
+                    <h3>离监结算方式确认：</h3>
+                    <table class="table">
+
+                        <tbody>
+                            <tr>
+                                <td><label>结算类型：</label></td>
+                                <td>
+                                    <h4 id="PayMode">ATM机取款</h4>
+                                    <input type="hidden" class="form-control" name="RecvAccount" value="1">
+                                    <input type="hidden" class="form-control" name="PayMode" value="机取款" readonly="readonly">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><label>账号名称：</label></td>
+                                <td>
+                                    <h4 id="BankUserName">张三</h4>
+                                    <input type="hidden" class="form-control" name="BankUserName" value="张三" readonly="readonly">
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td><label>结算总额：</label></td>
+                                <td>
+                                    <h4 id="BankAmount">0.00</h4>
+                                    <input type="hidden" class="form-control" name="BankAmount" value="0.00" readonly="readonly">
+                                </td>
+                            </tr>
+
+                        </tbody>
+                    </table>
+                </form>
+            </div>
+
+        </div>
+
+        <div class="row">
+            <div class="col-sm-10">
+                <button type="button" id="btnBack" class="btn btn-primary btn-lg" onclick="btnBack()">上一步</button>
+                <button type="button" id="btnBalanceQuery" class="btn btn-danger btn-lg" onclick="btnBalanceQuery()">提交结算</button>
+            </div>
+            <div class="col-sm-2">
+                <a href="/Home/Index" class="btn btn-warning" role="button">退回首页</a>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="row" id="divPayDisplayBalanceQeury" style="display:none">
+
+        <div class="row">
+            <div class="col-sm-8">
+                <form>
+                    <h3>离监结算方式确认：</h3>
+                    <h2 id="balanceQueryResult" class="alert alert-success">提交余额查询成功，请耐心等待返回结果，一小时后在查询</h2>
+
+                </form>
+            </div>
+
+        </div>
+
+        <div class="row">
+            <div class="col-sm-10">
+                <button type="button" id="btnBackTwo" class="btn btn-primary btn-lg" onclick="btnBackTwo()">上一步</button>
+                <button type="button" id="btnSubmitCheck" class="btn btn-danger btn-lg" onclick="btnSubmitCheck()">去签名</button>
+            </div>
+            <div class="col-sm-2">
+                <a href="/Home/Index" class="btn btn-warning" role="button">退回首页</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row" id="divPayDisplayMoney" style="display:none">
+
+        <div class="row">
+            <div class="col-sm-6">
+                <form>
+                    <h3>离监结算方式确认：</h3>
+                    <table class="table">
+
+                        <tbody>
+                            <tr>
+                                <td><label>结算类型：</label></td>
+                                <td>
+                                    <h4 id="PayMode">转账支付</h4>
+                                    <input type="hidden" class="form-control" name="RecvAccount" value="2">
+                                    <input type="hidden" class="form-control" name="PayMode" value="转账支付" readonly="readonly">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><label>账号名称：</label></td>
+                                <td>
+                                    <h4 id="BankUserName">张三</h4>
+                                    <input type="hidden" class="form-control" name="BankUserName" value="张三" readonly="readonly">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><label>亲属关系：</label></td>
+                                <td>
+                                    <h4 id="OutBankRemark">妻子</h4>
+                                    <input type="hidden" class="form-control" name="OutBankRemark" value="妻子" readonly="readonly">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><label>银行名称：</label></td>
+                                <td>
+                                    <h4 id="OpeningBank">建设银行</h4>
+                                    <input type="hidden" class="form-control" name="OpeningBank" value="建设银行" readonly="readonly">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><label>收款账号：</label></td>
+                                <td>
+                                    <h4 id="OutBankCard">6227001823260173361</h4>
+                                    <input type="hidden" class="form-control" name="OutBankCard" value="6227001823260173361" readonly="readonly">
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </form>
+            </div>
+
+        </div>
+
+        <div class="row">
+            <div class="col-sm-10">
+                <button type="button" id="btnBack" class="btn btn-primary btn-lg" onclick="btnBack()">上一步</button>
+                <button type="button" id="btnSubmitCheck" class="btn btn-danger btn-lg" onclick="btnSubmitCheck()">去签名</button>
+            </div>
+            <div class="col-sm-2">
+                <a href="/Home/Index" class="btn btn-warning" role="button">退回首页</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+
+    function btnNext() {
+        if ($("#selPayMode").val() == "") {
+            alert("请选择一种结算方式");
+            return false;
+        }
+
+        //var paymode = $("#selPayMode").find("option:selected").val();
+        //if (paymode != "0") {
+        //    if ($("#selRecvAccount").val() == "") {
+        //        alert("请选择一个收款账号");
+        //        return false;
+        //    }
+        //}
+        $("#BankAmount").html($("#tdAmountALL").html());
+        $("#divPayDisplayInfo").show();
+        $("#divPaySelArea").hide();
+        $("#divPayDisplayBalanceQeury").hide();
+
+    }
+
+
+
+    function btnBack() {
+        $("#divPayDisplayInfo").hide();
+        $("#divPaySelArea").show();
+        $("#divPayDisplayBalanceQeury").hide();
+    }
+
+    function btnBackTwo() {
+        $("#divPaySelArea").hide();
+        $("#divPayDisplayInfo").show();
+        $("#divPayDisplayBalanceQeury").hide();
+    }
+
+    //选择账号
+    function selectAccount() {
+        
+        
+    }
+
+
+    function btnBalanceQuery() {
+
+        //var submitInfo = {
+        //    "FCrimecode": $("#tdFCrimeCode").html(),
+        //    "CheckCard": $("#FIcCardCode").val(),
+        //    "PayMode": $("#selPayMode").val(),
+        //    "BankUserName": $("#BankUserName").html(),
+        //    "OutBankRemark": $("#OutBankRemark").html(),
+        //    "OpeningBank": $("#OpeningBank").html(),
+        //    "OutBankCard": $("#OutBankCard").html()
+        //}
+
+        //var strJson = JSON.stringify(submitInfo);
+        //window.open("/LeavePrisonBank/QianMing?submitInfo=" + strJson, "_self")
+
+
+        $.post("/LeavePrisonBank/BalanceQuery", {
+            "fcrimecode": $("#tdFCrimeCode").html()
+            , "icCardCode": $("#FIcCardCode").val()
+            , "selPayMode": $("#selPayMode").val()
+        }, function (data, status) {
+            if ("success" == status) {
+                
+                if (data.Flag == true) {
+                    $("#divPayDisplayInfo").hide();
+                    $("#divPaySelArea").hide();
+                    $("#divPayDisplayBalanceQeury").show();
+                    $("#balanceQueryResult").html(data.ReMsg);
+                    //alert(data.DataInfo.CheckFlag);
+                    if (data.DataInfo.CheckFlag == 3) {
+                        //$("#btnSubmitCheck").attr("disabled", "disabled");
+                        $("#btnSubmitCheck").show();
+                    } 
+                    else {
+                        //$("#btnSubmitCheck").removeAttr("disabled");
+                        $("#btnSubmitCheck").hide();
+                    }
+                }
+            }
+        });
+
+        
+    }
+
+    function btnSubmitCheck() {
+
+        //var image = canvas.toDataURL("image/png");
+        ////var imageFile = $('#imageFile')[0].files[0]; // 获取选择的图像文件
+        //var formData = new FormData(); // 创建表单数据对象
+        //formData.append('image', image); // 将图像文件添加到表单数据中
+        //formData.append('fcrimecode', $("#tdFCrimeCode").html()); // 将狱号添加到表单数据中
+        //formData.append('icCardCode', $("#FIcCardCode").val()); // 将IC卡添加到表单数据中
+        //formData.append('selPayMode', $("#selPayMode").val()); // 将付款方式添加到表单数据中
+
+        //$.ajax({
+        //    url: '/LeavePrisonBank/CheckBankCard', // 后台接收图像的URL
+        //    type: 'POST', // 请求方法
+        //    data: formData, // 发送的表单数据
+        //    contentType: false, // 禁止浏览器对表单数据进行预处理
+        //    processData: false, // 禁止对表单数据进行处理
+        //    success: function (response) {
+        //        // 请求成功后的回调函数，response为后台返回的数据
+        //        console.log(response);
+        //    },
+        //    error: function () {
+        //        // 请求失败后的回调函数
+        //        console.error('图像提交失败');
+        //    }
+        //});
+
+        //$.post("/LeavePrisonBank/CheckBankCard", { "fcrimecode": $("#tdFCrimeCode").html(), "icCardCode": $("#FIcCardCode").val(), "selPayMode": $("#selPayMode").val()}, function (data, status) {
+        //    if ("success" == status) {
+        //        alert(data.ReMsg);
+        //    }
+        //});
+
+        var submitInfo = {
+            "FCrimecode": $("#tdFCrimeCode").html(),
+            "CheckCard": $("#FIcCardCode").val(),
+            "PayMode": $("#selPayMode").val(),
+            "BankUserName": $("#BankUserName").html(),
+            "OutBankRemark": $("#OutBankRemark").html(),
+            "OpeningBank":$("#OpeningBank").html(),
+            "OutBankCard":$("#OutBankCard").html()
+        }
+
+        var strJson = JSON.stringify(submitInfo);
+        window.open("/LeavePrisonBank/QianMing?submitInfo=" + strJson,"_self")
+    }
+
+
+
+
+</script>

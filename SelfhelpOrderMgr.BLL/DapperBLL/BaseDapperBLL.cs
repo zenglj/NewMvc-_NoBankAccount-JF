@@ -26,6 +26,11 @@ namespace SelfhelpOrderMgr.BLL
         {
             return dapperDal.QueryModel<T>(fieldName, whereValue);
         }
+
+        public T QueryModel<T>(string fieldName, string whereValue, string orderStr)
+        {
+            return dapperDal.QueryModel<T>(fieldName, whereValue, orderStr);
+        }
         public List<T> QueryList<T>(string strWhere) where T : BaseModel
         {
             return dapperDal.QueryList<T>(strWhere);

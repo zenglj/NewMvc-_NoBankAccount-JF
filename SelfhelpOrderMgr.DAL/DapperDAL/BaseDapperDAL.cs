@@ -67,6 +67,37 @@ namespace SelfhelpOrderMgr.DAL
             }
         }
 
+
+        /// <summary>
+        /// 查询Model
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="fieldName"></param>
+        /// <param name="whereValue"></param>
+        /// <returns></returns>
+        public T QueryModel<T>(string fieldName, string whereValue, string orderStr = "")
+        {
+            using (SqlConnection conn = new SqlConnection(SqlHelper.getConnstr()))
+            {
+                Type type = typeof(T);
+                string sql = $"select * from {type.Name} where {fieldName}=@{fieldName}";
+                if (!string.IsNullOrWhiteSpace(orderStr))
+                    sql = sql + $" order by {orderStr}";
+                string strObj = "{\"" + fieldName + "\":\"" + whereValue + "\"}";
+
+                object obj = jss.DeserializeObject(strObj);
+
+                var list = SqlMapper.Query<T>(conn, sql, obj).AsList<T>();//这里的【0】可以去掉，因为我这个只是返回一条记录，实际使用可以根据情况返回数组
+                if (list.Count > 0)
+                {
+                    return list[0];
+                }
+                else
+                {
+                    return default(T);
+                }
+            }
+        }
         public List<T> QueryList<T>(string strWhere)
         {
             using (SqlConnection conn = new SqlConnection(SqlHelper.getConnstr()))

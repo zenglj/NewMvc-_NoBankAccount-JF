@@ -850,7 +850,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         FROM dbo.T_BONUSDTL AS a INNER JOIN
                       dbo.T_Criminal_card AS b ON a.FCRIMECODE = b.fcrimecode) b where [主单号]='" + strFBid + @"' ");
                     string strFileName = new CommonClass().GB2312ToUTF8(strFBid + "_LaobaoList.xls");
-                    strFileName = Server.MapPath("~/Upload/" + strFileName); ;
+                    strFileName = Server.MapPath("~/Upload/" + strFileName); 
                     //ExcelRender.RenderToExcel(dt, context, strFileName);
                     //ExcelRender.RenderToExcel(dt, strFileName);
                     ExcelRender.RenderToExcel(dt, "劳动报酬录入金额", 6, strFileName);
@@ -1035,12 +1035,12 @@ namespace SelfhelpOrderMgr.Web.Controllers
                                 drTemp = lbExcelModel_One(strFBid, sheet, rows, dtUserAdd, drTemp);
 
                             }
-                            else if (id == 2)
+                            else if (id == 2)//漳州
                             {
                                 drTemp = lbExcelModel_Two(strFBid, sheet, rows, dtUserAdd, drTemp);
 
                             }
-                            else if (id == 3)//女监模式
+                            else if (id == 3)//女监狱模式
                             {
                                 drTemp = lbExcelModel_Three(strFBid, sheet, rows, dtUserAdd, drTemp);
                             }

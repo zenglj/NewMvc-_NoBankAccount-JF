@@ -102,7 +102,7 @@
                                         <span>,将通过<strong><u>@strPayMode</u></strong>方式支取全部金额。</span>
                                     }
 
-                                    结算金额总计<strong>¥:@(prove.CardMoney+lufeiAtmMoney)</strong>。
+                                    结算金额总计<strong>¥:@(prove.CardMoney)</strong>。
                                 </p>
                                 <p>　　<strong>本人对以上信息的准确性负责，如因此产生的一切经济法律责任，由本人自行承担。</strong></p>
 
@@ -123,7 +123,7 @@
                                     <strong>　　</strong>本人<u> <strong>@prove.fname</strong> </u>是<u> <strong>@prove.fareaName</strong> </u>罪犯，
                                     身份证号：<u> <strong>@strIdenNo</strong>  </u>
                                     ,狱证编号：<u> <strong>@prove.fcode</strong>  </u>
-                                    ,结算卡账号：<u> <strong>@prove.BankCode</strong>  </u>,将于_____年_____月_____日刑满释放，特申请将本人离监结算后的账上余额<strong><span id="jsMoney3"></span> (¥: @prove.CardMoney),发放路费(¥:@(lufeiAtmMoney))</strong>
+                                    ,结算卡账号：<u> <strong>@prove.BankCode</strong>  </u>,将于_____年_____月_____日刑满释放，特申请将本人离监结算后的账上余额<strong><span id="jsMoney3"></span> (¥: @prove.CardMoney),其中发放路费(¥:@(lufeiAtmMoney))</strong>
                                     @if (prove.PayMode == 2)
                                     {
                                         <span>转至亲属账户：收款人姓名：</span><u> <strong>@prove.BankUserName</strong> </u> <span>(与本人系</span><u> <strong> @prove.OutBankRemark </strong>  </u><span>),开户行名称：</span><u> <strong>@prove.OpeningBank</strong>  </u>

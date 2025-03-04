@@ -174,7 +174,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
             //List<T_Vcrd> vcrds = new T_VcrdBLL().GetPageList(page, row, strWhere, "CrtDate,FCrimeCode");
 
-            List<T_Vcrd> vcrds = new BaseDapperBLL().QueryList<T_Vcrd>("select * from t_Vcrd where " + strWhere, page, row,  "CrtDate asc,FCrimeCode asc" ,paramSchVcrds);
+            List<T_Vcrd> vcrds = new BaseDapperBLL().QueryList<T_Vcrd>("select * from t_Vcrd where " + strWhere, page, row,  "CrtDate desc,FCrimeCode asc" ,paramSchVcrds);
 
             sss = "{\"total\":" + listRows.ToString() + ",\"rows\":" + jss.Serialize(vcrds) + ",\"sum\":"+ dm[0].ToString() + "}";
             return Content(sss);

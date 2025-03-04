@@ -1,0 +1,355 @@
+﻿
+@{
+    ViewBag.Title = "手写签名";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@{Html.RenderPartial("~/Views/Shared/_PartialXiaopiaoControl.cshtml");}
+<link href="~/Content/font-awesome.min.css" rel="stylesheet" />
+<link href="~/Content/docs.min.css" rel="stylesheet" />
+<link href="~/Scripts/simple-calendar/tcal.css" rel="stylesheet" />
+
+
+
+
+<div class="page-header text-center">
+    <h1><small>欢迎进入</small> 离监支付结果查询 <small>模块自助查询</small></h1>
+    <input type="hidden" id="UserName" name="UserName" value="@ViewData["UserName"]" />
+    <input type="hidden" id="FManagerCard" name="FManagerCard" value="@ViewData["FManagerCard"]" />
+
+    <input type="hidden" id="FCrimeCode" name="FCrimeCode" />
+    <input type="hidden" id="FIcCardCode" name="FIcCardCode" />
+</div>
+
+<div>
+    <object id=MWRFATL style="WIDTH: 0px; HEIGHT: 0px"
+            codebase=eyeFZ.cab#version =1,0,0,1
+            classid=CLSID:CD851DCA-5D3C-4DA9-A0F7-DE018FDC0A7F></object>
+    @*加载数明华读卡器控件*@
+
+
+    <div class="row">
+        <div class="col-sm-10">
+
+        </div>
+        <div class="col-sm-2">
+            <div style=" text-align:right;">
+                <input type="hidden" id="orderFcrimeCode" />
+                <input type="hidden" id="orderFcrimeName" />
+                <input type="hidden" id="orderCyName" />
+                <input type="hidden" id="orderFareaName" />
+                <a class="btn btn-large btn-primary btn-lg" href="#" role="button" onclick="btnReadCardQuery('3504013494')">请先刷IC卡查询</a>
+            </div>
+        </div>
+
+    </div>
+
+    <h4 class="alert alert-danger" role="alert" id="userNameInfo">你好,您查询的结果如下：</h4>
+    <div class="row">
+
+        <div class="col-md-4">
+            <table class="table input-lg">
+                <thead>
+                    <tr><th colspan="2">个人结算信息：</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>狱政编号</td><td id="tdFCrimeCode">350400XXXXX</td></tr>
+                    <tr><td>罪犯姓名</td><td id="tdFName">张**</td></tr>
+                    <tr><td>收款人</td><td><span id="tdBankUserName">***</span></td></tr>
+                    <tr><td>关系</td><td><span id="tdOutBankRemark">XXX</span></td></tr>
+                    <tr><td>收款银行</td><td><span id="tdOpeningBank">XX银行</span></td></tr>
+                    <tr><td>收款账号</td><td><span id="tdOutBankCard">XXXX XXXX XXXX</span></td></tr>
+                </tbody>
+            </table>
+
+        </div>
+
+
+        <div class="col-md-8">
+            <table class="table input-lg">
+                <thead>
+                    <tr><th colspan="2"><h4><strong>支付结果：</strong></h4></th></tr>
+                </thead>
+                <tbody>
+
+                    <tr class=""><td><h3>结算金额:</h3></td><td><h3><span id="tdAmount">-</span></h3></td></tr>
+
+                    <tr class=""><td><h3>支付日期:</h3></td><td><h3><span id="tdTranDate">-</span></h3></td></tr>
+                    <tr class="danger"><td><h3>转账结果:</h3></td><td><h3><span class="label label-danger input-lg" id="tdStatus">未知</span></h3></td></tr>
+                    <tr class=""><td><h3>结果摘要:</h3></td><td><h4><span id="tdBankResultInfo">-</span></h4></td></tr>
+                    <tr><td><h3>电子签名:</h3></td><td><img id="tdImageQianMing" src="" alt="..."  width="40%"></td></tr>
+                </tbody>
+            </table>
+
+        </div>
+
+
+
+
+    </div>
+</div>
+
+<script src="~/Scripts/jquery-1.11.3.min.js"></script>
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="js/bootstrap.min.js"></script>
+<script src="~/Scripts/messenger.min.js"></script>
+
+<script src="~/Scripts/myJs/minghuaICcardCommon.js"></script>
+<script src="~/Scripts/myJs/commonJs.js"></script>
+<script src="~/Scripts/myJs/MyNumerKeyBoard.js"></script>
+<script src="~/Scripts/myJs/LeavePrisonBank.js"></script>
+<script type="text/javascript">
+    //读取IC卡号
+    function readCardNo() {
+        //$("#lblInfo").html("0000000");
+        var cardNo = "";
+        Connect();//连接读卡器
+        //$("#lblInfo").html("连接成功");
+        var xunka = Scard();//寻卡
+        if (xunka != "") {
+            //$("#lblInfo").html(xunka);
+            var rlk = ReaderLoadKey();//装载密码
+            if (rlk == "1") {
+                //$("#lblInfo").html("装载密码成功");
+                var athk = authenticationKey();//验证密码
+                if (athk == "1") {
+                    // $("#lblInfo").html("验证密码成功");
+                    cardNo = readDataHex();//以16进制的方式读卡
+                    if (cardNo != "") {
+                        //$("#lblInfo").html("读卡完成");
+                    }
+                }
+            }
+        }
+        //$("#lblInfo").html(xunka);
+        //alert(cardNo);
+        exit();//断开读卡器连接
+        return cardNo;
+    }
+
+    //查询用户信息
+    function btnQueryUserInfo(e, saleSort) {
+        var cardNo = readCardNo();
+        //alert(cardNo);
+        //alert("e3232");
+        $("#lblInfo").html(cardNo);
+        $.post("/LeavePrisonBank/CardLogin", { "FManagerCard": cardNo }, function (data, status) {
+            if ("success" != status) {
+                return false;
+            } else {
+                if (data.Flag == true) {
+                    $("#FManagerCard").val(cardNo);
+                }
+                else {
+                    $("#FManagerCard").val("");
+                }
+                alert(data.ReMsg);
+            }
+        });
+    }
+
+
+
+    //查询用户信息
+    function btnReadCardQuery(e, saleSort) {
+        var cardNo = readCardNo();
+        $.post("/LeavePrisonBank/GetUserInfo", { "cardno": cardNo }, function (data, status) {
+            if ("success" == status) {
+                console.log(data);
+                $("#selRecvAccount").html("<option value='' selected='selected'>请选择收款账号</option>");
+
+                if (data.Flag == false) {
+                    ClearDisplayInfo();
+                    alert(data.ReMsg);
+                } else {
+                    SetDispUserInfo(data);
+
+                }
+
+            }
+        });
+    }
+
+
+
+    function SetDispUserInfo(data) {
+        console.log(data.DataInfo.paymentRecord);
+        $("#tdFCrimeCode").html(data.DataInfo.criminal.FCode);
+        $("#tdFName").html(data.DataInfo.criminal.FName);
+        if (data.DataInfo.recvBankAccount != null) {
+            $("#tdBankUserName").html(data.DataInfo.recvBankAccount.BankUserName);
+            $("#tdOutBankRemark").html(data.DataInfo.recvBankAccount.OutBankRemark);
+            $("#tdOpeningBank").html(data.DataInfo.recvBankAccount.OpeningBank);
+            $("#tdOutBankCard").html(data.DataInfo.recvBankAccount.OutBankCard);
+        }
+        else {
+            $("#tdBankUserName").html("");
+            $("#tdOutBankRemark").html("");
+            $("#tdOpeningBank").html("");
+            $("#tdOutBankCard").html("");
+        }
+
+        if (data.DataInfo.paymentRecord != null) {
+            $("#tdAmount").html(data.DataInfo.paymentRecord.Amount + ' 元');
+            if (data.DataInfo.paymentRecord.TranDate != null) {
+                $("#tdTranDate").html(getLocalTime(data.DataInfo.paymentRecord.TranDate));
+            } else {
+                $("#tdTranDate").html("-");
+            }
+
+            console.log(data.DataInfo.paymentRecord.PayMode);
+            var strStatus = "【柜台领款】请领取结算凭证。离监后，请到指定银行柜台领取"
+            if (data.DataInfo.paymentRecord.PayMode == 0) {
+                if (data.DataInfo.paymentRecord.AuditFlag == 0) {
+                    strStatus = "待审核。。。"
+                }
+            } else if (data.DataInfo.paymentRecord.PayMode == 1) {
+                if (data.DataInfo.paymentRecord.AuditFlag == 0) {
+                    strStatus = "待审核。。。"
+                }
+                else {
+                    if (data.DataInfo.paymentRecord.TranStatus == 0) {
+                        strStatus = "待领取"
+                    } else if (data.DataInfo.paymentRecord.TranStatus == 1) {
+                        strStatus = "取款中"
+                    } else if (data.DataInfo.paymentRecord.TranStatus == 2) {
+                        strStatus = "支取成功"
+                    } else if (data.DataInfo.paymentRecord.TranStatus == 3) {
+                        strStatus = "支取成功中"
+                    } else {
+                        strStatus = "未知状态"
+                    }
+                }
+            } else if (data.DataInfo.paymentRecord.PayMode == 2) {
+
+                if (data.DataInfo.paymentRecord.AuditFlag == 0) {
+                    strStatus = "待审核。。。"
+                }
+                else {
+
+
+                    if (data.DataInfo.paymentRecord.TranStatus == 0) {
+                        strStatus = "已审核，待发送"
+                    } else if (data.DataInfo.paymentRecord.TranStatus == 1) {
+                        strStatus = "已提交，待银行支付"
+                    } else if (data.DataInfo.paymentRecord.TranStatus == 2) {
+                        strStatus = "【转账支付】恭喜您，已转账成功"
+                    } else if (data.DataInfo.paymentRecord.TranStatus == 3) {
+                        strStatus = "转账失败"
+                    } else if (data.DataInfo.paymentRecord.TranStatus == 4) {
+                        strStatus = "复位重发"
+                    } else {
+                        strStatus = "未知状态"
+                    }
+                }
+            }
+            $("#tdStatus").html(strStatus);
+            $("#tdBankResultInfo").html(data.DataInfo.paymentRecord.BankResultInfo);
+            $("#tdImageQianMing").src;
+            $("#tdImageQianMing").attr("src", "/Content/ImageQianMing/qm_" + data.DataInfo.criminal.FCode+".png");
+        } else {
+            $("#tdAmount").html('-');
+            $("#tdTranDate").html("");
+            $("#tdStatus").html("-");
+            $("#tdImageQianMing").attr("src", "");
+        }
+        
+        
+        
+    }
+
+    function ClearDisplayInfo() {
+        ClearUserInfo();
+
+        ClearAccountEditArea();
+        $("#btnNext").attr('disabled', 'disabled');
+
+    }
+
+    function ClearUserInfo() {
+        $("#tdFCrimeCode").html("");
+        $("#tdFName").html("");
+        $("#tdBankUserName").html("");
+        $("#tdOutBankRemark").html("");
+        $("#tdOpeningBank").html("");
+        $("#tdOutBankCard").html("");
+
+        $("#tdAmount").html("");
+        $("#tdTranDate").html("");
+        $("#tdStatus").html("未知");
+        $("#tdImageQianMing").attr("src", "");
+    }
+
+    function ClearAccountEditArea() {
+        $("#selBankUserName").val("");
+        $("#selOutBankRemark").val("");
+        $("#selOpeningBank").val("");
+        $("#selOutBankCard").val("");
+    }
+
+    //显示用户相关信息
+    function SetAndDisplayUserInfo(words) {
+        var rts = $.parseJSON(words);
+        $("#tbodyOrderList").empty();
+        if (rts.UserInfo == null) {
+            //$("#lblInfo").html("银行卡号：" + rts.UserInfo.BankCardNo);
+            ClearUserDisplayInfo();
+        } else {
+            var info = "你好, " + rts.UserInfo.FName + "<span class='label label-primary'>" + rts.UserInfo.CyName + "(" + rts.UserInfo.MonthStandard + ")" + "</span>,所在队别：<span class='label label-default'>" + rts.UserInfo.FAreaName + "</span>,您的账户信息如下：";
+            $("#userNameInfo").html(info);
+            var bankcardno = "";
+            if (rts.UserInfo.BankCardNo.length >= 19) {
+                bankcardno = rts.UserInfo.BankCardNo.substr(0, 4) + " " + rts.UserInfo.BankCardNo.substr(4, 4) + " " + rts.UserInfo.BankCardNo.substr(8, 4) + " " + rts.UserInfo.BankCardNo.substr(12, 4) + " " + rts.UserInfo.BankCardNo.substr(16, 10);
+            }
+            $("#lblInfo").html("银行卡号：" + bankcardno);
+            $("#curMonthXFE").html(rts.UserInfo.Xiaofeimoney);
+            $("#okUseAllMoney").html(rts.UserInfo.OkUseAllMoney);
+            $("#xiaofeiYuE").html(rts.UserInfo.NoXiaofeimoney);
+            $("#amountC").html(rts.UserInfo.AmountCmoney);
+            $("#amountB").html(rts.UserInfo.AmountBmoney);
+            $("#amountA").html(rts.UserInfo.AmountAmoney);
+
+            $("#FCrimeCode").val(rts.UserInfo.FCode);
+            $("#FIcCardCode").val(rts.UserInfo.CardCode);
+            $("#btnSubmitKK").removeAttr("disabled");//启用扣款提交按钮
+
+        }
+    }
+
+    function ClearUserDisplayInfo() {
+
+        $("#okUseAllMoney").html("0.00");
+        $("#xiaofeiYuE").html("0.00");
+        $("#amountC").html("0.00");
+        $("#amountB").html("0.00");
+        $("#amountA").html("0.00");
+        $("#tbodyOrderList").empty();
+    }
+
+
+
+    function selectKKType() {
+        var paymode = $("#selPayMode").find("option:selected").val()
+        if (paymode == "0") {
+            $("#selRecvAccount").val("");
+            $("#selRecvAccount").attr("readonly", "readonly");
+            $("#BankUserName").html("");
+            $("#OutBankRemark").html("");
+            $("#OpeningBank").html("");
+            $("#OutBankCard").html("");
+            $("#PayMode").html("柜台领取");
+        } else {
+            $("#selRecvAccount").removeAttr("readonly");
+            $("#PayMode").html("转账支付");
+        }
+
+    }
+
+    $(document).ready(function () {
+
+        $("#div_SaleInputKeyBoard div span button").click(function () {
+            btnInuptBoxEnt($.trim($(this).html()));
+        });
+
+    });
+</script>
+

@@ -69,6 +69,7 @@
     <Compile Include="DapperBLL\BankRcvServiceBLL.cs" />
     <Compile Include="DapperBLL\BaochouService.cs" />
     <Compile Include="DapperBLL\BaseDapperBLL.cs" />
+    <Compile Include="DapperBLL\BaseDapperBLLExtend.cs" />
     <Compile Include="DapperBLL\CommonQueryService.cs" />
     <Compile Include="DapperBLL\FaceCheckService.cs" />
     <Compile Include="DapperBLL\JifenMgrService.cs" />

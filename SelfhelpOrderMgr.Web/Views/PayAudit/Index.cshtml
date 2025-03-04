@@ -181,10 +181,20 @@
                         <td align="left">
                             <select id="FBankFlags" name="FBankFlags" class="easyui-combobox" style="width:190px;">
                                 <option value="0" selected="selected">待发送</option>
-                                <option value="1" >发送中</option>
+                                <option value="1">发送中</option>
                                 <option value="2">成功</option>
                                 <option value="3">手动成功</option>
                                 <option value="-1">失败</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">审核状态：</th>
+                        <td align="left">
+                            <select id="FCheckFlag" name="FCheckFlag" class="easyui-combobox" style="width:190px;">
+                                <option value="">请选择</option>
+                                <option value="0" selected="selected">未审核</option>
+                                <option value="1">已审核</option>
                             </select>
                         </td>
                     </tr>

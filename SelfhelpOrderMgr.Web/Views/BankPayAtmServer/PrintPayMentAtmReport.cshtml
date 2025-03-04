@@ -74,21 +74,22 @@
                             }
 
 
-                            <tr>
-                                <th>明细</th>
-                                <th>取款日期</th>
-                                <th>狱号</th>
-                                <th>姓名</th>
-                                <th>监区</th>
-                                <th style="width:6%">方式</th>
-                                <th>取款整钱</th>
-                                <th style="width:7%">支付零钱</th>
-                                <th>结算金额</th>
-                                
-                                <th style="width:6%">审核人</th>
-                                <th>结算日期</th>
-                                <th>摘要备注</th>
-                            </tr>
+                        <tr>
+                            <th>明细</th>
+                            <th>取款日期</th>
+                            <th>狱号</th>
+                            <th>姓名</th>
+                            <th>监区</th>
+                            <th style="width:6%">方式</th>
+                            <th>取款整钱</th>
+                            <th style="width:7%">支付零钱</th>
+                            <th>结算金额</th>
+
+                            <th style="width:6%">审核人</th>
+                            <th>结算日期</th>
+                            <th>摘要备注</th>
+                            @*<th>签名</th>*@
+                        </tr>
                         </thead>
                         <tbody>
                             @if (ViewData["res"] != null)
@@ -192,26 +193,24 @@
                                             }
                                             break;
                                     }
-                                    <tr>
-                                        <td class="text-center">@rowId</td>
-                                        <td>@(item.TranDate==null?"":((DateTime)item.TranDate).ToString("yyyyMMdd"))</td>
+                            <tr>
+                                <td class="text-center">@rowId</td>
+                                <td>@(item.TranDate==null?"":((DateTime)item.TranDate).ToString("yyyyMMdd"))</td>
 
-                                        <td>@item.FCrimeCode</td>
-                                        <td>@item.FCrimeName</td>
-                                        <td>@item.FAreaName</td>
+                                <td>@item.FCrimeCode</td>
+                                <td>@item.FCrimeName</td>
+                                <td>@item.FAreaName</td>
 
-                                        <td>@strPaymode</td>
-                                        <td>@item.TranMoney</td>
-                                        <td>@ceAmount</td>
-                                        <td>@item.Amount</td>
-                                        @*<td>@strFlag</td>
+                                <td>@strPaymode</td>
+                                <td>@item.TranMoney</td>
+                                <td>@ceAmount</td>
+                                <td>@item.Amount</td>
 
-                                        <td>@strTrantype</td>*@
-
-                                        <td>@item.AuditBy</td>
-                                        <td>@item.Crtdate.ToString("yyyyMMdd")</td>
-                                        <td>@item.BankResultInfo</td>
-                                    </tr>
+                                <td>@item.AuditBy</td>
+                                <td>@item.Crtdate.ToString("yyyyMMdd")</td>
+                                <td>@item.BankResultInfo</td>
+                                @*<td><img src="@item.QianMing" style="width:80px;height:40px;" /> </td>*@
+                            </tr>
                                     rowId++;
                                 }
 
@@ -258,12 +257,8 @@
                 }
 
                 <br />
-                <div class="row">
-                    @*<div class="col-sm-3"><strong>监狱领导：</strong></div>
-                    <div class="col-sm-3"><strong>财务：</strong></div>
-                    <div class="col-sm-3"><strong>部门负责人：</strong></div>*@
-                    <div class="col-sm-3"><strong>制表：</strong></div>
-                </div>
+                
+                <table><tr><th width="300px">部门负责人：</th><th>制表：</th></tr></table>
             </div>
             <div class="col-sm-2">
 

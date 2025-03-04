@@ -217,13 +217,14 @@ namespace SelfhelpOrderMgr.Web.Controllers
             string PayTypes = Request["PayTypes"];//取款类型
             string AccTypes = Request["AccTypes"];//账户类型
             string BankFlags = Request["BankFlags"];//银行状态类型
+            string CheckFlag = Request["CheckFlag"];//审核状态
 
-            string strWhere = GetSearchWhere(LoginCode, ref startTime, ref endTime, areaName, FName, FCode, CrtBy, CriminalFlag, CashTypes, PayTypes, AccTypes, BankFlags);
+            string strWhere = GetSearchWhere(LoginCode, ref startTime, ref endTime, areaName, FName, FCode, CrtBy, CriminalFlag, CashTypes, PayTypes, AccTypes, BankFlags,CheckFlag);
             return strWhere;
         }
 
         //生成Vcrd查询条件
-        private static string GetSearchWhere(string LoginCode, ref string startTime, ref string endTime, string areaName, string FName, string FCode, string CrtBy, string CriminalFlag, string CashTypes, string PayTypes, string AccTypes, string BankFlags)
+        private static string GetSearchWhere(string LoginCode, ref string startTime, ref string endTime, string areaName, string FName, string FCode, string CrtBy, string CriminalFlag, string CashTypes, string PayTypes, string AccTypes, string BankFlags,string CheckFlag)
         {
             string strWhere = "Flag in(0,-2) ";
             if (string.IsNullOrEmpty(startTime) == false)
@@ -298,6 +299,12 @@ namespace SelfhelpOrderMgr.Web.Controllers
             {
                 strWhere = strWhere + " and isnull(BankFlag,0) in (" + BankFlags + ")";
             }
+
+            if (string.IsNullOrEmpty(CheckFlag) == false)
+            {
+                strWhere = strWhere + " and CheckFlag = " + CheckFlag + "";
+            }
+
             if (string.IsNullOrEmpty(CriminalFlag) == false)
             {
                 strWhere = strWhere + " and FCrimeCode in ( Select FCode from T_Criminal where isnull(FFlag,0)=" + CriminalFlag + ")";

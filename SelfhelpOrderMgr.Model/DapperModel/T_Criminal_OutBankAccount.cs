@@ -38,5 +38,15 @@ namespace SelfhelpOrderMgr.Model
 
         public string OutBankRemark { get; set; }
 
+
+        //新的离监结算扩展
+        public int CheckFlag { get; set; }
+        public DateTime CheckDate { get; set; }
+        public string CheckCard { get; set; }
+
+        public int PayMode { get; set; }
+
+        public string QianMing { get; set; }
+
     }
 }

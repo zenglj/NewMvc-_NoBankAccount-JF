@@ -455,35 +455,35 @@ function SubmitMain() {
 }
 
 
-//提交主单
-function SubmitMain() {
-    var row = $("#tbPay").datagrid('getSelected');
-    if (row == null) {
-        $.messager.alert("提示", "请选择一条记录");
-        return false;
-    }
-    if (row.OrderStatus >= 1) {
-        $.messager.alert("提示", "已审核无重复审核");
-        return false;
-    }
-    $.messager.confirm('Confirm', '您真的要删除此记录吗?', function (r) {
-        if (r) {            
-            $.post("/BankPayAtmServer/AuditSubmitMain", { "Id": row.Id }, function (data, status) {
-                if ("success" == status) {
-                    if (data.Flag) {
-                        //成功                        
-                        UpdateDataGridSelectRow('tbPay',data.DataInfo);//更新行记录信息
-                        $.messager.alert("提示", "审核成功");
-                    } else {
-                        //失败
-                        $.messager.alert("提示", data.ReMsg);
-                    }
-                }
-            });
-        }
-    });
+////提交主单
+//function SubmitMain() {
+//    var row = $("#tbPay").datagrid('getSelected');
+//    if (row == null) {
+//        $.messager.alert("提示", "请选择一条记录");
+//        return false;
+//    }
+//    if (row.OrderStatus >= 1) {
+//        $.messager.alert("提示", "已审核无重复审核");
+//        return false;
+//    }
+//    $.messager.confirm('Confirm', '您真的要删除此记录吗?', function (r) {
+//        if (r) {            
+//            $.post("/BankPayAtmServer/AuditSubmitMain", { "Id": row.Id }, function (data, status) {
+//                if ("success" == status) {
+//                    if (data.Flag) {
+//                        //成功                        
+//                        UpdateDataGridSelectRow('tbPay',data.DataInfo);//更新行记录信息
+//                        $.messager.alert("提示", "审核成功");
+//                    } else {
+//                        //失败
+//                        $.messager.alert("提示", data.ReMsg);
+//                    }
+//                }
+//            });
+//        }
+//    });
     
-}
+//}
 
 //删除主单
 function DeleteMain() {

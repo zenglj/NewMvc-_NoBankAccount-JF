@@ -1,0 +1,221 @@
+﻿
+@{
+    ViewBag.Title = "手写签名";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>你好，信息如下：</h1>
+<div class="col-sm-4">
+    <input type="hidden" id="submitInfo" value="" />
+    <table class="table">
+        <thead>
+            <tr><th>名称</th><th>信息</th></tr>
+
+        </thead>
+        <tbody>
+            @if (ViewData["submitInfo"] != null)
+            {
+                SelfhelpOrderMgr.Model.T_Criminal_OutBankAccount _m = ViewData["submitInfo"] as SelfhelpOrderMgr.Model.T_Criminal_OutBankAccount;
+
+                SelfhelpOrderMgr.Model.T_Criminal _card = ViewData["cardInfo"] as SelfhelpOrderMgr.Model.T_Criminal;
+
+                string strPayMode = "柜台领取";
+                if (_m.PayMode == 0)
+                {
+                    strPayMode = "柜台领取";
+                }
+                else if (_m.PayMode == 1)
+                {
+                    strPayMode = "ATM机取款";
+                }
+                else if (_m.PayMode == 2)
+                {
+                    strPayMode = "转账支付";
+                }
+                <tr><td>狱政编号</td><td id="tdFCrimeCode">@_m.FCrimecode</td></tr>
+                <tr><td>用户姓名</td><td id="tdFCrimeName">@(_card.FName)</td></tr>
+                <tr><td>IC卡号</td><td><input type="hidden" id="FIcCardCode" value="@_m.CheckCard" /></td></tr>
+                <tr><td colspan="2">=======收款信息如下===============</td></tr>
+                <tr class="danger"><td>付款方式</td><td><strong><span>@strPayMode</span></strong><input type="hidden" id="tdPayMode" value="@_m.PayMode"></td></tr>
+
+                if (_m.PayMode == 0)
+                {
+                    <tr><td>收款银行</td><td id="tdBankName">@_m.OpeningBank</td></tr>
+                    <tr><td>收款户名</td><td><span id="tdUserName">@_m.BankUserName</span></td></tr>
+                    <tr><td>关系</td><td><span id="tdUserName">@_m.OutBankRemark</span></td></tr>
+                    <tr class="danger"><td>收款账号</td><td><span id="tdBankCard">@_m.OutBankCard</span></td></tr>
+                }
+                else if (_m.PayMode == 1)
+                {
+                    <tr class="danger"><td>账户余额</td><td id="tdUserBankAmount"><strong>@(_card.AmountA + _card.AmountB + _card.AmountC)</strong></td></tr>
+                }
+                else if (_m.PayMode == 2)
+                {
+                    <tr><td>收款银行</td><td id="tdBankName">@_m.OpeningBank</td></tr>
+                    <tr><td>收款户名</td><td><span id="tdUserName">@_m.BankUserName</span></td></tr>
+                    <tr><td>关系</td><td><span id="tdUserName">@_m.OutBankRemark</span></td></tr>
+                    <tr class="danger"><td>收款账号</td><td><span id="tdBankCard">@_m.OutBankCard</span></td></tr>
+                }
+
+
+
+
+            }
+            else
+            {
+                <tr><td>狱政编号</td><td id="tdFCrimeCode">350400XXXXX</td></tr>
+                <tr><td>付款方式</td><td><span id="tdPayMode"></span></td></tr>
+                <tr><td colspan="2">=======收款信息如下===============</td></tr>
+                <tr><td>收款银行</td><td id="tdBankName">中国银行</td></tr>
+                <tr><td>收款户名</td><td><span id="tdUserName">测试1</span></td></tr>
+                <tr><td>关系</td><td><span id="tdUserName"></span></td></tr>
+                <tr class="danger"><td>收款账号</td><td><span id="tdBankCard">6227XXXX23260173XXX</span></td></tr>
+            }
+
+        </tbody>
+    </table>
+</div>
+
+<h3>请签名：</h3>
+@*<canvas id="signature" width="400" height="200" style="border:solid 2px #ccc"></canvas>*@
+<canvas id="signaturePad" width="400" height="200" style="border:1px solid #000;"></canvas>
+<br>
+<button class="btn-default btn-lg" onclick="clearCanvas()">清除重写</button>
+<button class="btn-danger btn-lg" onclick="saveCanvas()">签字确认</button>
+
+
+<script type="text/javascript">
+    const canvas = document.getElementById('signaturePad');
+    const ctx = canvas.getContext('2d');
+    let painting = false;
+
+    //let lastX = 0;
+    //let lastY = 0;
+
+
+    //========触屏手写的方式====Start================
+    function startPosition(e) {
+        painting = true;
+        //仅支持手写
+        //renderShape(e.touches[0].clientX, e.touches[0].clientY);
+        var lastX = e.touches[0].clientX - canvas.offsetLeft;
+        var lastY = e.touches[0].clientY - canvas.offsetTop;
+        renderShape(lastX, lastY);
+    }
+
+
+    function draw(e) {
+        if (!painting) return;
+        // 阻止浏览器默认行为（如页面滚动）
+        e.preventDefault();
+
+        //仅支持手写
+        //renderShape(e.touches[0].clientX, e.touches[0].clientY);
+        var lastX = e.touches[0].clientX - canvas.offsetLeft;
+        var lastY = e.touches[0].clientY - canvas.offsetTop;
+        renderShape(lastX, lastY);
+    }
+
+    //========触屏手写的方式====End================
+
+    //========鼠标写的方式====Start================
+    function mouseStartPosition(e) {
+        painting = true;
+        //仅支持鼠标写
+        var lastX = e.clientX - canvas.offsetLeft;
+        var lastY = e.clientY - canvas.offsetTop;
+        renderShape(lastX, lastY);
+    }
+
+    function mouseDraw(e) {
+        if (!painting) return;
+        // 阻止浏览器默认行为（如页面滚动）
+        e.preventDefault();
+        //仅支持鼠标写
+        var lastX = e.clientX - canvas.offsetLeft;
+        var lastY = e.clientY - canvas.offsetTop;
+        renderShape(lastX, lastY);
+    }
+
+    //========鼠标写的方式====End================
+
+
+    //以下是公共部分
+    function finishPosition() {
+        painting = false;
+        ctx.beginPath();
+    }
+
+    function renderShape(x, y) {
+        ctx.lineWidth = 2;
+        ctx.lineCap = 'round';
+        ctx.strokeStyle = 'black';
+        ctx.lineTo(x, y);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+    }
+
+    canvas.addEventListener('touchstart', startPosition, false);
+    canvas.addEventListener('touchend', finishPosition, false);
+    canvas.addEventListener('touchmove', draw, false);
+
+
+    // 鼠标事件监听器（为了兼容非触摸设备）
+    canvas.addEventListener('mousedown', mouseStartPosition);
+    canvas.addEventListener('mousemove', mouseDraw);
+    canvas.addEventListener('mouseup', finishPosition);
+    canvas.addEventListener('mouseout', finishPosition);
+
+
+    function clearCanvas() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    function saveCanvas() {
+        //var image = canvas.toDataURL("image/png");
+        //var link = document.createElement("a");
+        //link.href = image;
+        //link.download = "signature.png";
+        //link.click();
+
+
+        var image = canvas.toDataURL({ format: 'png', quality: 0.92 });
+        //var imageFile = $('#imageFile')[0].files[0]; // 获取选择的图像文件
+        var formData = new FormData(); // 创建表单数据对象
+        formData.append('image', image); // 将图像文件添加到表单数据中
+        formData.append('fcrimecode', $("#tdFCrimeCode").html()); // 将狱号添加到表单数据中
+        formData.append('icCardCode', $("#FIcCardCode").val()); // 将IC卡添加到表单数据中
+        formData.append('selPayMode', $("#tdPayMode").val()); // 将付款方式添加到表单数据中
+        formData.append('bankCard', $("#tdBankCard").val()); // 将银行卡号添加到表单数据中
+
+        $.ajax({
+            url: '/LeavePrisonBank/CheckBankCard', // 后台接收图像的URL
+            type: 'POST', // 请求方法
+            data: formData, // 发送的表单数据
+            contentType: false, // 禁止浏览器对表单数据进行预处理
+            processData: false, // 禁止对表单数据进行处理
+            success: function (data) {
+                // 请求成功后的回调函数，response为后台返回的数据
+                if (data.Flag == true) {
+                    alert(data.ReMsg);
+                    window.open("/LeavePrisonBank/Index?fcrimecode=" + $("#tdFCrimeCode").html(), "_self");
+                }
+                else {
+                    alert(data.ReMsg);
+                }
+
+            },
+            error: function () {
+                // 请求失败后的回调函数
+                console.error('图像提交失败');
+                alert('图像提交失败')
+
+            }
+        });
+
+    }
+
+
+
+</script>

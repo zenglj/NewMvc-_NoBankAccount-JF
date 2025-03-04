@@ -1,0 +1,114 @@
+﻿
+@{
+    ViewBag.Title = "手写签名";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@{Html.RenderPartial("~/Views/Shared/_PartialXiaopiaoControl.cshtml");}
+<link href="~/Content/font-awesome.min.css" rel="stylesheet" />
+<link href="~/Content/docs.min.css" rel="stylesheet" />
+<link href="~/Scripts/simple-calendar/tcal.css" rel="stylesheet" />
+
+
+
+
+<div class="page-header text-center">
+    <h1><small>欢迎进入</small> 自助离监申请 <small>这里您可以进行部分科目的自助扣款操作</small></h1>
+    <input type="hidden" id="UserName" name="UserName" value="@ViewData["UserName"]" />
+    <input type="hidden" id="FManagerCard" name="FManagerCard" value="@ViewData["FManagerCard"]" />
+
+    <input type="hidden" id="FCrimeCode" name="FCrimeCode" />
+    <input type="hidden" id="FIcCardCode" name="FIcCardCode" />
+</div>
+
+<div>
+    <object id=MWRFATL style="WIDTH: 0px; HEIGHT: 0px"
+            codebase=eyeFZ.cab#version =1,0,0,1
+            classid=CLSID:CD851DCA-5D3C-4DA9-A0F7-DE018FDC0A7F></object>
+    @*加载数明华读卡器控件*@
+
+
+    <div class="row container">
+
+            <div  class="form-inline" style="text-align:right;">
+                @if (ViewData["loginMode"].ToString() == "1")
+                {
+                    var strFcrimeCode = ViewData["fcrimecode"] as string;
+                    <div class="form-group">
+                        <div class="input-group">
+                            <div class="input-group-addon">用户号</div>
+                            <input class="form-control" type="text" id="userName" name="userCode" value="@strFcrimeCode" placeholder="用户号" onkeydown="if(event.keyCode==13) $('#UserPwd').focus();" style="width:150px;">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="input-group">
+                            <div class="input-group-addon">密码</div>
+                            <input class="form-control" type="password" id="userPwd" name="userPwd" placeholder="密码" onkeydown="if (event.keyCode == 13) $('#btnSearch').focus();" style="width:150px;">
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-primary" id="btnSearch" onclick="UserLoginCheck()">查询</button>
+
+
+                }
+                else if (ViewData["loginMode"].ToString() == "2")
+                {
+                    <input type="hidden" id="orderFcrimeCode" />
+                    <input type="hidden" id="orderFcrimeName" />
+                    <input type="hidden" id="orderCyName" />
+                    <input type="hidden" id="orderFareaName" />
+                    <a class="btn btn-large btn-primary btn-lg" href="#" role="button" onclick="btnReadCardQuery('3504013494')">请先刷IC卡查询</a>
+                }
+            </div>
+
+    </div>
+
+    <h4 class="alert alert-danger" role="alert" id="userNameInfo">你好,您的账户信息如下：</h4>
+    <div class="row">
+
+        <div class="col-md-3">
+            <table class="table">
+                <thead>
+                    <tr><th>名称</th><th>金额</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>狱政编号</td><td id="tdFCrimeCode">350400XXXXX</td></tr>
+                    <tr><td>罪犯姓名</td><td id="tdFName">张**</td></tr>
+                    <tr><td>所在队别</td><td id="tdFAreaName">一监区一分监区</td></tr>
+                    <tr><td>处遇等级</td><td><span id="tdFCyName">普管</span></td></tr>
+                    <tr><td>出监日期</td><td><span id="tdFOuDate">2023-10-25</span></td></tr>
+                    <tr><td>接济款</td><td><span id="tdAmountA">0.00</span></td></tr>
+                    <tr><td>劳动报酬</td><td><span id="tdAmountB">0.00</span></td></tr>
+                    <tr><td>储备金</td><td><span id="tdAmountC">0.00</span></td></tr>
+                    <tr><td>总余额</td><td><span id="tdAmountALL">0.00</span></td></tr>
+                    <tr class="danger"><td>状态</td><td><span class="label label-danger input-lg" id="tdFFlag">在押</span></td></tr>
+                </tbody>
+            </table>
+
+        </div>
+
+
+        <div class="col-md-9" >
+
+            
+            @{Html.RenderPartial("~/Views/LeavePrisonBank/_Partial_SelectDtypeMoney.cshtml");}
+
+
+        </div>
+
+
+
+
+
+    </div>
+</div>
+
+<script src="~/Scripts/jquery-1.11.3.min.js"></script>
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="js/bootstrap.min.js"></script>
+<script src="~/Scripts/messenger.min.js"></script>
+
+<script src="~/Scripts/myJs/minghuaICcardCommon.js"></script>
+<script src="~/Scripts/myJs/commonJs.js"></script>
+<script src="~/Scripts/myJs/MyNumerKeyBoard.js"></script>
+<script src="~/Scripts/myJs/LeavePrisonBank.js"></script>
+
+

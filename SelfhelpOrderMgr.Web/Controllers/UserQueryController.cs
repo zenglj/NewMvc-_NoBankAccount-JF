@@ -113,8 +113,19 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         string userName = vcrds[i].Remark.Substring(0, ileft);
                         string phoneNum = vcrds[i].Remark.Substring(iright + 1, vcrds[i].Remark.Length - iright - 1);
 
-                        vcrds[i].Remark = userName.Substring(0, 1) + "*" + userName.Substring(2)
+                        if (phoneNum.Length >= 11)
+                        {
+                            vcrds[i].Remark = userName.Substring(0, 1) + "*" + userName.Substring(2)
                             + "(关系:**)" + phoneNum.Substring(0, 3) + "****" + phoneNum.Substring(7);
+                        }
+                        else
+                        {
+                            vcrds[i].Remark = userName.Substring(0, 1) + "*" + userName.Substring(2)
+                            + "(关系:**)" + phoneNum;
+                        }
+                        
+
+                        
                     }
                 }
             }

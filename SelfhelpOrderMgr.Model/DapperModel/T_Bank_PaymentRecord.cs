@@ -39,6 +39,9 @@ namespace SelfhelpOrderMgr.Model
         public int? AtmSrvId { get; set; }
         public int AtmSrvPayFlag { get; set; }
 
+        //结算经办民警
+        public string Depositer { get; set; }
+
 
     }
 }

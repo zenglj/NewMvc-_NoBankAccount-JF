@@ -552,7 +552,7 @@ function loadMainOrderTable() {
                     if (r) {
                         var delRow = $("#mainOrderTable").datagrid('getSelected');
                         $.post("/LingyongJin/CancalOrderById", {
-                            "PId": delRow.PId
+                            "sbid": delRow.PId
                         }, function (data, status) {
                             if ("success" != status) {
                                 return false;

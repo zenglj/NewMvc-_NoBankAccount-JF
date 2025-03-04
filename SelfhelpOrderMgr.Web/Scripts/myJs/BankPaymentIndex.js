@@ -307,6 +307,7 @@ function loadPayGrid() {
             },
             { field: 'Amount', title: '结算余额', width: 100, sortable: true },
             { field: 'TranMoney', title: '支付金额', width: 100, sortable: true },
+            { field: 'Depositer', title: '经办人', width: 100, sortable: true },
             {
                 field: 'TranStatus', title: '状态', width: 100, sortable: true, formatter: function (value, row, index) {
                     if (row.TranStatus == "0") {

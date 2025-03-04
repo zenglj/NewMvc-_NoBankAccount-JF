@@ -50,10 +50,11 @@ namespace SelfhelpOrderMgr.YuZhengJieKou
 
 
                 //获取社会关系
-                rs = srv.GetShgxList(Convert.ToInt32(_pageSize));
-                Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(rs));
+                //rs = srv.GetShgxList(Convert.ToInt32(_pageSize));
+                //Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(rs));
 
                 //获取罪犯的媒体信息
+                Console.WriteLine("==获取罪犯的媒体信息===========");
                 rs = srv.GetMtxxList(_faceServiceUrl);
                 Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(rs));
                 

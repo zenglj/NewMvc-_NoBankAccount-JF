@@ -261,6 +261,10 @@ namespace SelfhelpOrderMgr.Model
             set { _amountb = value; }
         }
 
+        /// <summary>
+        /// 赔偿金的金额
+        /// </summary>
+        public decimal AmountD { get; set; }
     }
 }
 

@@ -1,0 +1,101 @@
+﻿@{
+    ViewBag.Title = "手写签名";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>手写签名</title>
+</head>
+<body>
+    <canvas id="signaturePad" width="300" height="500" style="border:1px solid #000;"></canvas>
+    <div><button name="btnClear" onclick="clearCanvas()">清空</button></div>
+    <script>
+        const canvas = document.getElementById('signaturePad');
+        const ctx = canvas.getContext('2d');
+        let painting = false;
+
+        let lastX = 0;
+        let lastY = 0;
+
+
+        //========触屏手写的方式====Start================
+        function startPosition(e) {
+            painting = true;
+            //仅支持手写
+            renderShape(e.touches[0].clientX, e.touches[0].clientY);
+        }
+
+
+        function draw(e) {
+            if (!painting) return;
+            // 阻止浏览器默认行为（如页面滚动）
+            e.preventDefault();
+
+            //仅支持手写
+            renderShape(e.touches[0].clientX, e.touches[0].clientY);
+        }
+
+        //========触屏手写的方式====End================
+
+        //========鼠标写的方式====Start================
+        function mouseStartPosition(e) {
+            painting = true;
+            //仅支持鼠标写
+            lastX = e.clientX - canvas.offsetLeft;
+            lastY = e.clientY - canvas.offsetTop;
+            renderShape(lastX, lastY);
+        }
+
+        function mouseDraw(e) {
+            if (!painting) return;
+            // 阻止浏览器默认行为（如页面滚动）
+            e.preventDefault();
+            //仅支持鼠标写
+            lastX = e.clientX - canvas.offsetLeft;
+            lastY = e.clientY - canvas.offsetTop;
+            renderShape(lastX, lastY);
+        }
+
+        //========鼠标写的方式====End================
+
+
+        //以下是公共部分
+        function finishPosition() {
+            painting = false;
+            ctx.beginPath();
+        }
+
+        function renderShape(x, y) {
+            ctx.lineWidth = 2;
+            ctx.lineCap = 'round';
+            ctx.strokeStyle = 'black';
+            ctx.lineTo(x, y);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+        }
+
+        canvas.addEventListener('touchstart', startPosition, false);
+        canvas.addEventListener('touchend', finishPosition, false);
+        canvas.addEventListener('touchmove', draw, false);
+
+
+        // 鼠标事件监听器（为了兼容非触摸设备）
+        canvas.addEventListener('mousedown', mouseStartPosition);
+        canvas.addEventListener('mousemove', mouseDraw);
+        canvas.addEventListener('mouseup', finishPosition);
+        canvas.addEventListener('mouseout', finishPosition);
+
+
+        function clearCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+    </script>
+</body>
+</html>
+

@@ -1,4 +1,5 @@
 ﻿using SelfhelpOrderMgr.BLL;
+using SelfhelpOrderMgr.Common;
 using SelfhelpOrderMgr.Model;
 using System;
 using System.Collections.Generic;
@@ -78,21 +79,22 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
         }
 
-        public ActionResult FaceGatherByBase64(string fcrimecode, string base64Image)
+        public ActionResult FaceGatherByBase64(FaceRegBase faceRegBase)
         {
             ResultInfo rs = new ResultInfo();
 
+            Log4NetHelper.logger.Info($"接收到同步接口人脸注册请求：fcrimecode:{faceRegBase.fcrimecode},base64Image:{faceRegBase.base64Image}");//写入连接记录
             // 转换图片为Base64字符串
             using (var memoryStream = new MemoryStream())
             {
 
                 // 返回Base64字符串（或进行其他处理）
-                rs.DataInfo = base64Image;
+                rs.DataInfo = faceRegBase.base64Image;
 
                 T_Criminal _criminal = null;
-                if (!string.IsNullOrWhiteSpace(fcrimecode))
+                if (!string.IsNullOrWhiteSpace(faceRegBase.fcrimecode))
                 {
-                    _criminal = new BaseDapperBLL().QueryModel<T_Criminal>("fcode", fcrimecode);
+                    _criminal = new BaseDapperBLL().QueryModel<T_Criminal>("fcode", faceRegBase.fcrimecode);
                     if (_criminal == null)
                     {
                         rs.ReMsg = "Err|编号不存在";
@@ -100,12 +102,22 @@ namespace SelfhelpOrderMgr.Web.Controllers
                     }
                 }
 
-                rs = FaceCheckService.SendAndCheckFace(fcrimecode, base64Image, "0002", _criminal, 0, null);
+                rs = FaceCheckService.SendAndCheckFace(faceRegBase.fcrimecode, faceRegBase.base64Image, "0002", _criminal, 0, null);
+                Log4NetHelper.logger.Info($"请求结果：{Newtonsoft.Json.JsonConvert.SerializeObject(rs)}");//写入连接记录
 
                 return Json(rs);
             }
 
 
         }
+
+        public class FaceRegBase
+        {
+            public string fcrimecode { get; set; }
+            public string base64Image { get; set; }
+
+        }
     }
+
+ 
 }

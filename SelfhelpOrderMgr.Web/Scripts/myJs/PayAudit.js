@@ -192,7 +192,8 @@ function btnSearch() {
         CashTypes:selCashTypes,
         PayTypes:selPayTypes,
         AccTypes:selAccTypes,
-        BankFlags:selBankFlags
+        BankFlags: selBankFlags,
+        CheckFlag: $("#FCheckFlag").combobox('getValue')
 
     });
 
@@ -440,7 +441,8 @@ function getSearchObjCondition(param) {
         CashTypes: selCashTypes,
         PayTypes: selPayTypes,
         AccTypes: selAccTypes,
-        BankFlags: selBankFlags
+        BankFlags: selBankFlags,
+        CheckFlag: $("#FCheckFlag").combobox('getValue')
     };
     
     return objWhere;

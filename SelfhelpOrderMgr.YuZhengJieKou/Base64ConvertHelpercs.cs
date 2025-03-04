@@ -39,43 +39,46 @@ namespace SelfhelpOrderMgr.YuZhengJieKou
 
                 byte[] arr = Convert.FromBase64String(base64String);
 
-                MemoryStream ms = new MemoryStream(arr);
-                //Bitmap bmp = new Bitmap(ms);
-                Image mImage = Image.FromStream(ms);
-                Bitmap bmp = new Bitmap(mImage);
-                string strExtName = FileNameHelper.GetFileExtName(txtFileName);
+                //MemoryStream ms = new MemoryStream(arr);
+                ////Bitmap bmp = new Bitmap(ms);
+                //Image mImage = Image.FromStream(ms);
+                //Bitmap bmp = new Bitmap(mImage);
+                //string strExtName = FileNameHelper.GetFileExtName(txtFileName);
 
-                ImageFormat _imageFormat = ImageFormat.Png;
-                switch (strExtName)
-                {
-                    case "jpg":
-                        {
-                            _imageFormat = ImageFormat.Jpeg;
-                        }
-                        break;
-                    case "bmp":
-                        {
-                            _imageFormat = ImageFormat.Bmp;
+                //ImageFormat _imageFormat = ImageFormat.Png;
+                //switch (strExtName)
+                //{
+                //    case "jpg":
+                //        {
+                //            _imageFormat = ImageFormat.Jpeg;
+                //        }
+                //        break;
+                //    case "bmp":
+                //        {
+                //            _imageFormat = ImageFormat.Bmp;
 
-                        }
-                        break;
-                    case "gif":
-                        {
-                            _imageFormat = ImageFormat.Gif;
-                        }
-                        break;
-                    case "png":
-                        {
-                            _imageFormat = ImageFormat.Png;
-                        }
-                        break;
-                }
+                //        }
+                //        break;
+                //    case "gif":
+                //        {
+                //            _imageFormat = ImageFormat.Gif;
+                //        }
+                //        break;
+                //    case "png":
+                //        {
+                //            _imageFormat = ImageFormat.Png;
+                //        }
+                //        break;
+                //}
 
-                //bmp.Save(txtFileName + ".jpg", System.Drawing.Imaging.ImageFormat.Jpeg);
-                //bmp.Save(txtFileName + ".bmp", ImageFormat.Bmp);
-                //bmp.Save(txtFileName + ".gif", ImageFormat.Gif);
-                bmp.Save(txtFileName, _imageFormat);
-                ms.Close();
+                ////bmp.Save(txtFileName + ".jpg", System.Drawing.Imaging.ImageFormat.Jpeg);
+                ////bmp.Save(txtFileName + ".bmp", ImageFormat.Bmp);
+                ////bmp.Save(txtFileName + ".gif", ImageFormat.Gif);
+
+                //bmp.Save(txtFileName, _imageFormat);
+                //ms.Close();
+
+                File.WriteAllBytes(txtFileName, arr);
 
                 rs.Flag = true;
                 rs.ReMsg = "转换成功";

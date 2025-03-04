@@ -15,5 +15,7 @@ namespace SelfhelpOrderMgr.Model
         //public string BankCNAPS { get; set; }
         //public string OpeningBank { get; set; }
         //public string OutBankRemark { get; set; }
+
+        public string QianMing { get; set; }
     }
 }

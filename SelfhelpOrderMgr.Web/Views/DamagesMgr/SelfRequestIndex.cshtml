@@ -1,0 +1,99 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>自助赔偿金申请系统</title>
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/4.6.0/css/bootstrap.min.css">
+    <style>
+        .form-card {
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+            border-radius: 8px;
+        }
+
+        .required-label:after {
+            content: "*";
+            color: #dc3545;
+            margin-left: 3px;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container py-5">
+        <div class="card form-card">
+            <div class="card-header bg-primary text-white">
+                <h3 class="mb-0">赔偿金申请表</h3>
+            </div>
+
+            <div class="card-body">
+                <form id="compensationForm">
+                    <!-- 狱政信息行 -->
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label class="required-label" for="fCrimeCode">狱政编号</label>
+                            <input type="text" class="form-control" id="fCrimeCode"
+                                   placeholder="请输入6位狱政编号" required maxlength="6"
+                                   pattern="[A-Za-z0-9]{6}">
+                            <small class="form-text text-muted">格式示例：AB1234</small>
+                        </div>
+                    </div>
+                    <div class="form-row">
+
+
+                        <div class="form-group col-md-6">
+                            <label class="required-label" for="fCrimeName">姓名</label>
+                            <input type="text" class="form-control" id="fCrimeName"
+                                   placeholder="请输入申请人姓名" required maxlength="20">
+                        </div>
+                    </div>
+
+                    <!-- 标准选择行 -->
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label class="required-label" for="typeName">赔偿标准</label>
+                            <select class="form-control" id="typeName" required>
+                                <option value="">请选择赔偿标准</option>
+                                <option value="PCJ-2023-A">PCJ-2023-A（工伤赔偿）</option>
+                                <option value="PCJ-2023-B">PCJ-2023-B（民事赔偿）</option>
+                                <option value="PCJ-2023-C">PCJ-2023-C（特殊赔偿）</option>
+                            </select>
+                        </div>
+
+                        
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label class="required-label" for="useMonths">申请时长</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="useMonths"
+                                       min="1" max="36" value="12" required>
+                                <div class="input-group-append">
+                                    <span class="input-group-text">个月</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 操作按钮组 -->
+                    <div class="form-row mt-4">
+                        <div class="col-12 text-right">
+                            <button type="reset" class="btn btn-secondary mr-2">重置表单</button>
+                            <button type="submit" class="btn btn-primary">提交申请</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/4.6.0/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
+

@@ -178,6 +178,15 @@ function loadDetailTable() {
                         return "未扣款";
                     }
                 }
+            },
+            {
+                field: 'DamagesFlag', title: '赔偿金申请', width: 100, sortable: true, formatter: function (value, row, index) {
+                    if (value == 1) {
+                        return "是";
+                    } else {
+                        return "否";
+                    }
+                }
             }
         ]],
         onSelect: function (rowIndex, rowData) {

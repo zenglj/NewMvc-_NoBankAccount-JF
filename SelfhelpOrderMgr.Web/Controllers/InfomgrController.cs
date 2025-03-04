@@ -767,7 +767,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         {
                             //=====2022-05-16 zenglj 应武夷山监狱要求现金结算也要到PaymentRecord表进行审核
                             //rtnReustl = new T_TempLeavePrisonBLL().ExcuteStoredProcedure(FCode, LoginUserName);
-                            rtnReustl = new T_TempLeavePrisonBLL().ExcuteStoredProc_NoBankCard(FCode, LoginUserName, payMode);
+                            rtnReustl = new T_TempLeavePrisonBLL().ExcuteStoredProc_NoBankCard(FCode, LoginUserName, payMode,depositer);
 
                             //网点支取，现金支付
                         }
@@ -780,14 +780,14 @@ namespace SelfhelpOrderMgr.Web.Controllers
                             if ((card.AmountA + card.AmountB + card.AmountC)>= decimal.Parse( mset.MgrValue)){
                                 return Content("Err|ATM取现金额不能超过【" + mset.MgrValue + "】");
                             }
-                            rtnReustl = new T_TempLeavePrisonBLL().ExcuteStoredProc_NoBankCard(FCode, LoginUserName, payMode);
+                            rtnReustl = new T_TempLeavePrisonBLL().ExcuteStoredProc_NoBankCard(FCode, LoginUserName, payMode, depositer);
                             //ATM机现金结算
                         }
                         break;
                     case 2://转账支付
                         {
                             //否则采用正常结算模式
-                            rtnReustl = new T_TempLeavePrisonBLL().ExcuteStoredProc_NoBankCard(FCode, LoginUserName, payMode);
+                            rtnReustl = new T_TempLeavePrisonBLL().ExcuteStoredProc_NoBankCard(FCode, LoginUserName, payMode, depositer);
                             //转账支付
                         } break;
                     case 5://放弃领款
