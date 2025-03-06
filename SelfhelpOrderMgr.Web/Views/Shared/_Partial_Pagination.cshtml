@@ -1,0 +1,33 @@
+﻿<!-- 分页控件容器 -->
+<div class="row">
+    <div class="col-md-6">
+        <!-- 每页大小选择 -->
+        <div class="dropdown" style="display:inline-block">
+            <button class="btn btn-default dropdown-toggle" type="button"
+                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                每页显示：<span id="pageSizeVal">10</span>
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" id="pageSizeMenu">
+                <li><a href="#" data-pagesize="5">5条</a></li>
+                <li><a href="#" data-pagesize="10">10条</a></li>
+                <li><a href="#" data-pagesize="20">20条</a></li>
+                <li><a href="#" data-pagesize="50">50条</a></li>
+                <li><a href="#" data-pagesize="100">100条</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="col-md-6 text-right">
+        <!-- 分页导航 -->
+        <nav aria-label="Page navigation">
+            <ul class="pagination" id="pagination">
+                <li class="disabled"><a href="#" aria-label="Previous">&laquo;</a></li>
+                <li class="active"><a href="#">1</a></li>
+                <li><a href="#">2</a></li>
+                <li><a href="#" aria-label="Next">&raquo;</a></li>
+                <li><a href="#" >共1条</a></li>
+            </ul>
+        </nav>
+    </div>
+</div>

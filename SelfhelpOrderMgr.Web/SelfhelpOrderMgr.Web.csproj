@@ -381,6 +381,12 @@
     <Compile Include="Startup.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Content\bootstrap-4.6.2-dist\css\bootstrap-grid.css" />
+    <Content Include="Content\bootstrap-4.6.2-dist\css\bootstrap-grid.min.css" />
+    <Content Include="Content\bootstrap-4.6.2-dist\css\bootstrap-reboot.css" />
+    <Content Include="Content\bootstrap-4.6.2-dist\css\bootstrap-reboot.min.css" />
+    <Content Include="Content\bootstrap-4.6.2-dist\css\bootstrap.css" />
+    <Content Include="Content\bootstrap-4.6.2-dist\css\bootstrap.min.css" />
     <Content Include="Content\bootstrap-datetimepicker.min.css" />
     <Content Include="Content\bootstrap-select.min.css" />
     <Content Include="Content\bootstrap-table.css" />
@@ -476,6 +482,7 @@
     <Content Include="Content\images\Win10.jpg" />
     <Content Include="Content\images\Xbox.jpg" />
     <Content Include="Content\jquery-confirm.css" />
+    <Content Include="Content\jquery.dataTables1.11.3.css" />
     <Content Include="Content\jquery.datetimepicker.css" />
     <Content Include="Content\messenger-theme-future.css" />
     <Content Include="Content\messenger.css" />
@@ -491,6 +498,7 @@
     <Content Include="Content\responsive-nav.css" />
     <Content Include="Content\site.min.css" />
     <Content Include="Content\style.css" />
+    <Content Include="Content\bootstrap-datepicker.1.9.0.min.css" />
     <Content Include="Content\timeline.css" />
     <Content Include="Content\xiaopiaodan.css" />
     <Content Include="Content\zTree.css" />
@@ -507,6 +515,11 @@
     <Content Include="Rotativa\wkhtmltoimage.exe" />
     <Content Include="Rotativa\wkhtmltopdf.exe" />
     <Content Include="Scripts\AsrTest\asrTest.js" />
+    <Content Include="Scripts\bootstrap-4.6.2-dist\js\bootstrap.bundle.js" />
+    <Content Include="Scripts\bootstrap-4.6.2-dist\js\bootstrap.bundle.min.js" />
+    <Content Include="Scripts\bootstrap-4.6.2-dist\js\bootstrap.js" />
+    <Content Include="Scripts\bootstrap-4.6.2-dist\js\bootstrap.min.js" />
+    <Content Include="Scripts\bootstrap-datepicker.1.9.0.min.js" />
     <Content Include="Scripts\bootstrap-datetimepicker.min.js" />
     <Content Include="Scripts\bootstrap-datetimepicker.zh-CN.js" />
     <Content Include="Scripts\bootstrap-select.min.js" />
@@ -525,7 +538,17 @@
     <Fakes Include="Fakes\Ionic.Zip.fakes" />
     <Content Include="Content\bootstrap-theme.min.css.map" />
     <Content Include="Content\bootstrap.min.css.map" />
+    <Content Include="Content\bootstrap-4.6.2-dist\css\bootstrap-grid.css.map" />
+    <Content Include="Content\bootstrap-4.6.2-dist\css\bootstrap-grid.min.css.map" />
+    <Content Include="Content\bootstrap-4.6.2-dist\css\bootstrap-reboot.css.map" />
+    <Content Include="Content\bootstrap-4.6.2-dist\css\bootstrap-reboot.min.css.map" />
+    <Content Include="Content\bootstrap-4.6.2-dist\css\bootstrap.css.map" />
+    <Content Include="Content\bootstrap-4.6.2-dist\css\bootstrap.min.css.map" />
     <None Include="Properties\PublishProfiles\SelfOrderManager.pubxml" />
+    <Content Include="Scripts\bootstrap-4.6.2-dist\js\bootstrap.bundle.js.map" />
+    <Content Include="Scripts\bootstrap-4.6.2-dist\js\bootstrap.bundle.min.js.map" />
+    <Content Include="Scripts\bootstrap-4.6.2-dist\js\bootstrap.js.map" />
+    <Content Include="Scripts\bootstrap-4.6.2-dist\js\bootstrap.min.js.map" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\BootStrap_TreeGrid.js" />
     <Content Include="Scripts\calendar.js" />
@@ -916,11 +939,14 @@
     <Content Include="Scripts\EasyUI\themes\metro\validatebox.css" />
     <Content Include="Scripts\EasyUI\themes\metro\window.css" />
     <Content Include="Scripts\EasyUI\themes\mobile.css" />
+    <Content Include="Scripts\bootstrap-datepicker.1.9.0.zh-CN.min.js" />
     <Content Include="Scripts\jquery-1.10.2.js" />
     <Content Include="Scripts\jquery-1.10.2.min.js" />
     <None Include="Scripts\jquery.validate-vsdoc.js" />
     <Content Include="Scripts\jquery-1.11.3.min.js" />
+    <Content Include="Scripts\jquery-3.5.1.min.js" />
     <Content Include="Scripts\jquery-confirm.js" />
+    <Content Include="Scripts\jquery.dataTables.1.11.3.js" />
     <Content Include="Scripts\jquery.datetimepicker.full.min.js" />
     <Content Include="Scripts\jquery.datetimepicker.min.js" />
     <Content Include="Scripts\jquery.easydropdown.js" />
@@ -932,6 +958,8 @@
     <Content Include="Scripts\jquery.validate.unobtrusive.js" />
     <Content Include="Scripts\jquery.validate.unobtrusive.min.js" />
     <Content Include="Scripts\jquery.wmuSlider.js" />
+    <Content Include="Scripts\jsCustom\bootstrap-messager.css" />
+    <Content Include="Scripts\jsCustom\bootstrap-messager.js" />
     <Content Include="Scripts\myJs\faceSelfLogin.js" />
     <Content Include="Scripts\myJs\BankAtmMgrIndex.js" />
     <Content Include="Scripts\myJs\ComAppFaceCollection.js" />
@@ -1097,6 +1125,7 @@
     <Content Include="Scripts\simple-calendar\tcal.css" />
     <Content Include="Scripts\simple-calendar\tcal.js" />
     <Content Include="Scripts\tableExport.min.js" />
+    <Content Include="Scripts\bootstrap-datagrid-custom.js" />
     <Content Include="Scripts\tracking-js\color_camera_gui.js" />
     <Content Include="Scripts\tracking-js\css\demo.css" />
     <Content Include="Scripts\tracking-js\dat.gui.min.js" />
@@ -1381,8 +1410,13 @@
     <Content Include="Views\LeavePrisonBank\Test.cshtml" />
     <Content Include="Views\BankPayAtmServer\PrintPayMentAtmReport.cshtml" />
     <Content Include="Views\DamagesMgr\Index.cshtml" />
+    <Content Include="Views\DamagesMgr\SelfServiceIndex.cshtml" />
+    <Content Include="Views\DamagesMgr\RequestRecIndex-EasyUI版.cshtml" />
+    <Content Include="Views\DamagesMgr\RequestRecIndex - 复制.cshtml" />
+    <Content Include="Views\DamagesMgr\RequestRecIndex-BootStrap.cshtml" />
+    <Content Include="Views\Shared\_Partial_Pagination.cshtml" />
+    <Content Include="Views\DamagesMgr\RequestRecIndex-BootStrap版.cshtml" />
     <Content Include="Views\DamagesMgr\RequestRecIndex.cshtml" />
-    <Content Include="Views\DamagesMgr\SelfRequestIndex.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

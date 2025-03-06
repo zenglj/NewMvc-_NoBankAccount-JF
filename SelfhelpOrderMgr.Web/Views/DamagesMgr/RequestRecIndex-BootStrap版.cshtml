@@ -1,0 +1,433 @@
+﻿
+@{
+    Layout = null;
+}
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>赔偿金管理系统</title>
+    @*<link href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+        <link href="https://cdn.bootcss.com/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css" rel="stylesheet">*@
+
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Content/bootstrap-datepicker.1.9.0.min.css" rel="stylesheet" />
+    <link href="~/Scripts/jsCustom/bootstrap-messager.css" rel="stylesheet" />
+    <style>
+        .table-hover tbody tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        .w-100 {
+            width: 100px;
+        }
+
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 查询条件 -->
+        <div class="row" style="margin-top:20px">
+            <form class="form-inline" id="searchForm">
+                <div class="form-group">
+                    <input type="text" class="form-control" placeholder="编号" name="FCrimeCode">
+                </div>
+                <div class="form-group">
+                    <input type="text" class="form-control" placeholder="姓名" name="FCrimeName">
+                </div>
+                <div class="form-group">
+                    <select class="form-control" name="FAreaCode">
+                        <option value="">所有队别</option>
+                        <!-- 动态加载队别选项 -->
+                    </select>
+                </div>
+                到期时间:
+                <div class="form-group">
+                    <div class="input-group date">
+                        <input type="text" class="form-control" placeholder="开始日期" name="EndTime_Start">
+                        <span class="input-group-addon">
+                            <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="input-group date">
+                        <input type="text" class="form-control" placeholder="截止日期" name="EndTime_End">
+                        <span class="input-group-addon">
+                            <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-primary" onclick="loadData()">
+                    <span class="glyphicon glyphicon-search"></span> 查询
+                </button>
+                <button type="button" class="btn btn-success" onclick="showEditModal()">
+                    <span class="glyphicon glyphicon-plus"></span> 新增
+                </button>
+            </form>
+        </div>
+
+        <!-- 数据表格 -->
+        <div class="row" style="margin-top:20px">
+            <table class="table table-bordered table-hover">
+                <thead>
+                    <tr>
+                        <th>编号</th>
+                        <th>姓名</th>
+                        <th>队别</th>
+                        <th>赔偿类型</th>
+                        <th>时长(月)</th>
+                        <th>截止日期</th>
+                        <th>状态</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="dataBody"></tbody>
+            </table>
+        </div>
+
+        <!-- 分页控件 -->
+        @*<div class="row text-center">
+            <ul class="pagination" id="pagination"></ul>
+        </div>*@
+
+        @{Html.RenderPartial("~/Views/Shared/_Partial_Pagination.cshtml");}
+
+
+    </div>
+
+    <!-- 编辑模态框 -->
+    <div class="modal fade" id="editModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">申请记录</h4>
+                </div>
+                <form class="form-horizontal" id="editForm">
+                    <div class="modal-body">
+                        <input type="hidden" name="Id">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">编号</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" name="FCrimeCode" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">姓名</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" name="FCrimeName" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">队别</label>
+                            <div class="col-sm-9">
+                                <select class="form-control" name="FAreaCode" id="editAreaCode" required>
+                                    <option value="">请选择</option>
+                                </select>
+                            </div>
+
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">类型</label>
+                            <div class="col-sm-9">
+                                <select class="form-control" name="TypeId" id="editTypeId" required>
+                                    <option value="">请选择</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- 其他字段类似 -->
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">申请时长</label>
+                            <div class="col-sm-9">
+                                <select class="form-control" name="UseMonths" required>
+                                    <option value="">请选择</option>
+                                    <option value="6">半年</option>
+                                    <option value="12">1年</option>
+                                    <option value="24">2年</option>
+
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">到期日期</label>
+                            <div class="col-sm-9">
+                                <div class="input-group date">
+                                    <input type="text" class="form-control date" placeholder="到期日期" name="EndTime">
+                                    <span class="input-group-addon">
+                                        <span class="glyphicon glyphicon-calendar"></span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                        <button type="button" class="btn btn-primary" onclick="submitForm('editForm','/DamagesMgr/RequestRecSave')">保存</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 审核模态框 -->
+    <div class="modal fade" id="auditModal">
+        <!-- 审核表单结构同前文 -->
+    </div>
+
+    @*<script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
+        <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+        <script src="https://cdn.bootcss.com/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>*@
+
+    <script src="~/Scripts/jquery-1.11.3.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <script src="~/Scripts/bootstrap-datepicker.1.9.0.min.js"></script>
+    <script src="~/Scripts/bootstrap-datepicker.1.9.0.zh-CN.min.js"></script>
+    <script src="~/Scripts/myJs/myNewCommonJs.js"></script>
+    <script src="~/Scripts/bootstrap-datagrid-custom.js"></script>
+    <script src="~/Scripts/jsCustom/bootstrap-messager.js"></script>
+    <script>
+        // 分页配置
+        let pageSize = 10;
+        let currentPage = 1;
+        let totalRecords = 0;
+
+        // 初始化日期控件‌:ml-citation{ref="5" data="citationList"}
+        $('.date').datepicker({
+            format: 'yyyy-mm-dd',
+            autoclose: true
+        });
+
+        // 加载数据
+        function loadData(page = 1) {
+            currentPage = page;
+            var jsonString = getDivInputsToJson('searchForm');
+            $.post("/DamagesMgr/GetRequestRecordJson", { "strJsonWhere": jsonString, page: currentPage, rows: pageSize }, function (data) {
+
+                //var mockData = $.parseJSON(data);
+                // 模拟后端分页查询
+                //const filtered = mockData.filter(item =>
+                //    (!searchParams.FCrimeCode || item.FCrimeCode.includes(searchParams.FCrimeCode)) &&
+                //    (!searchParams.FCrimeName || item.FCrimeName.includes(searchParams.FCrimeName))
+                //);
+                //totalRecords = filtered.length;
+                //const pagedData = filtered.slice((page - 1) * pageSize, page * pageSize);
+                //renderTable(pagedData);
+                totalRecords = data.total;
+                renderTable(data.rows);
+                renderPagination();
+            });
+
+        }
+
+
+        // 每页大小选择事件
+        $('#pageSizeMenu a').click(function (e) {
+            e.preventDefault();
+            //var ss = $('a').attr('data-pagesize');
+            var size = $(this).data('pagesize');
+            pageSize = parseInt($(this).data('pagesize'));
+            //pageSize = size;
+            $('#pageSizeVal').text(pageSize);
+            currentPage = 1; // 重置页码
+            loadData();
+        });
+
+
+        // 渲染分页控件‌
+        function renderPagination() {
+            const totalPages = Math.ceil(totalRecords / pageSize);
+            let html = '';
+
+            // 添加首页按钮
+            html += `<li>
+                    <a href="javascript:void(0)" onclick="loadData(1)">首页</a>
+                </li>`;
+            // 添加上一页按钮
+            html += `<li ${currentPage === 1 ? 'class="disabled"' : ''}>
+                    <a href="javascript:void(0)" onclick="${currentPage > 1 ? `loadData(${currentPage - 1})` : ''}">《</a>
+                </li>`;
+
+            // 动态计算页码范围（最多显示5页）
+            let startPage = Math.max(1, currentPage - 2);
+            let endPage = Math.min(totalPages, currentPage + 2);
+
+            // 边界情况处理
+            if (currentPage <= 3) endPage = Math.min(5, totalPages); // 当前页靠前时显示前5页‌:ml-citation{ref="1" data="citationList"}
+            if (currentPage >= totalPages - 2) startPage = Math.max(totalPages - 4, 1); // 当前页靠后时显示后5页‌:ml-citation{ref="1" data="citationList"}
+
+            // 生成页码按钮
+            for (let i = startPage; i <= endPage; i++) {
+                html += `<li ${i === currentPage ? 'class="active"' : ''}>
+                    <a href="javascript:void(0)" onclick="loadData(${i})">${i}</a>
+                </li>`;
+            }
+
+            // 添加下一页按钮
+            html += `<li ${currentPage === totalPages ? 'class="disabled"' : ''}>
+                    <a href="javascript:void(0)" onclick="${currentPage < totalPages ? `loadData(${currentPage + 1})` : ''}">》</a>
+                </li>`;
+
+            // 添加末页按钮
+            html += `<li>
+                    <a href="javascript:void(0)" onclick="loadData(${totalPages})">末页</a>
+                </li>`;
+
+            // 显示统计信息
+            html += `<li class="stats">
+                    <a>共${totalPages}页, ${totalRecords}条</a>
+                </li>`;
+
+            $('#pagination').html(html);
+        }
+
+
+        // 表格渲染
+        function renderTable(data) {
+            const tbody = $('#dataBody').empty();
+            data.forEach(item => {
+                const status = getStatus(item.Flag);
+                const fmtEndTime = formatDate(item.EndTime); // 使用formatDateTime函数格式化日期
+                tbody.append(`
+                            <tr>
+                                <td>${item.FCrimeCode}</td>
+                                <td>${item.FCrimeName}</td>
+                                <td>${item.FAreaName}</td>
+                                <td>${item.TypeName}</td>
+                                <td>${item.UseMonths}</td>
+                                <td>${fmtEndTime}</td>
+                                <td><span class="status-badge ${status.class}">${status.text}</span></td>
+                                <td>
+                                    <button class="btn btn-xs btn-warning" onclick="editRecord('${item.Id}')">
+                                        <span class="glyphicon glyphicon-edit"></span>
+                                    </button>
+                                    <button class="btn btn-xs btn-danger" onclick="deleteRecord('${item.Id}')">
+                                        <span class="glyphicon glyphicon-trash"></span>
+                                    </button>
+                                    ${item.Flag === 0 ? `
+                                    <button class="btn btn-xs btn-info" onclick="showAuditModal('${item.Id}')">
+                                        <span class="glyphicon glyphicon-check"></span>
+                                    </button>` : ''}
+                                </td>
+                            </tr>
+                        `);
+            });
+        }
+
+        // 状态显示‌:ml-citation{ref="4" data="citationList"}
+        function getStatus(flag) {
+            switch (flag) {
+                case 0: return { text: '待审核', class: 'bg-warning' };
+                case 1: return { text: '已通过', class: 'bg-success' };
+                case 2: return { text: '已拒绝', class: 'bg-danger' };
+                default: return { text: '未知状态', class: 'bg-default' };
+            }
+        }
+
+        //显示编辑框
+        function showEditModal() {
+            $('#editModal').modal('show');
+        }
+
+        //编辑数据框
+        function editRecord(id) {
+            $.post('/DamagesMgr/GetRequestRecords?id=' + id, function (data) {
+                
+                loadFormData(data,'editForm');
+                $('#editModal').modal('show');
+            });
+            
+        }
+
+        //删除记录行
+        function deleteRecord(id) {
+
+            Messager.confirm({
+                title: '提示',
+                content: '确认删除该记录？',
+                callback: (confirmed) => {
+                    //confirmed &&
+                    $.post('/DamagesMgr/RequestRecDelete?id=' + id, function (data) {
+                        //console.log('执行删除')
+                        console.log(data.ReMsg);
+                        Messager.alert({
+                            title: '提示',
+                            content: data.ReMsg,
+                        });
+                    });
+                    
+                }
+            });
+            
+        }
+
+        //保存数据
+        function submitForm(formId,actionUrl) {
+            const formData = $('#' + formId).serialize(); // 序列化表单数据‌:ml-citation{ref="3,6" data="citationList"}
+
+            $.ajax({
+                type: 'POST',
+                url: actionUrl, // 后端接口地址‌:ml-citation{ref="3,6" data="citationList"}
+                data: formData,
+                success: function (data) {
+                    if (data.Flag) {
+                        $('#success-message').show().text('提交成功！'); // 显示成功提示‌:ml-citation{ref="3" data="citationList"}
+                        $('#' + formId).reset(); // 清空表单‌:ml-citation{ref="6" data="citationList"}
+
+                    } else {
+                        //$('#success-message').show().text('提交成功！');
+                        //$.messager({
+                        //    type: 'danger',
+                        //    duration: 0, // 不自动关闭
+                        //    message: data.ReMsg
+                        //});
+                        Messager.alert({
+                            title: '提示',
+                            content: data.ReMsg
+                        });
+                    }
+                },
+                error: function (xhr) {
+                    $('#error-message').show().text('提交失败：' + xhr.responseText); // 错误处理‌:ml-citation{ref="3,6" data="citationList"}
+                }
+            });
+        }
+
+        $(function () {
+            loadData();
+
+            //加载队别信息
+            $.post("/DamagesMgr/GetAreas", {}, function (data) {
+                var rows = $.parseJSON(data);
+                rows.forEach(item=>{
+                    $("#editAreaCode").append(`<option value='${item.FCode}'>${item.FName}</option>`);
+                });
+
+                rows.forEach(item => {
+                    $("#searchForm select[name='FAreaCode']").append(`<option value='${item.FCode}'>${item.FName}</option>`);
+                });
+            });
+
+            //加载赔偿金类型信息
+            $.post("/DamagesMgr/GetBaseTypes", {}, function (data) {
+                var rows = $.parseJSON(data);
+                rows.forEach(item => {
+                    $("#editTypeId").append(`<option value='${item.FCode}'>${item.FName}</option>`);
+                });
+            });
+
+
+        });
+    </script>
+</body>
+</html>

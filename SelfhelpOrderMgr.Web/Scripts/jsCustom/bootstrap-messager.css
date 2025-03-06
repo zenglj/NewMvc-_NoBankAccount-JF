@@ -1,0 +1,18 @@
+﻿.messager-modal .modal-header h4 {
+    margin: 0;
+    font-size: 18px;
+}
+
+.messager-input {
+    margin: 15px 0;
+    border-radius: 3px !important;
+}
+
+.messager-buttons {
+    text-align: center;
+    padding: 10px 0;
+}
+
+    .messager-buttons .btn {
+        min-width: 75px;
+    }

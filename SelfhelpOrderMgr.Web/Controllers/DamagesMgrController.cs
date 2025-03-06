@@ -139,6 +139,19 @@ namespace SelfhelpOrderMgr.Web.Controllers
             return Content(Newtonsoft.Json.JsonConvert.SerializeObject(list.rows));
         }
 
+        /// <summary>
+        /// 获取赔偿金的分页记录
+        /// </summary>
+        /// <param name="strJsonWhere"></param>
+        /// <param name="page"></param>
+        /// <param name="rows"></param>
+        /// <returns></returns>
+        public ActionResult GetRequestRecordJson(string strJsonWhere = "", int page = 1, int rows = 10)
+        {
+
+            var list = _bll.GetPageList<T_PCJ_RequestRecord, T_PCJ_RequestRecord_Search>("Id", strJsonWhere, page, rows, " isDelete=0");
+            return Json(list);
+        }
 
         /// <summary>
         /// 根据Id获取赔偿金记录
@@ -228,7 +241,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                     oldModel.IsDelete = true;
                     _bll.Update(oldModel);
                     rs.Flag = true;
-                    rs.ReMsg = "OK|保存成功";
+                    rs.ReMsg = "OK|删除成功";
                     return Json(rs);
                 }
                 else
@@ -349,7 +362,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
         #region ========赔偿金自助申请Start================
 
-        public ActionResult SelfRequestIndex()
+        public ActionResult SelfServiceIndex()
         {
             return View();
         }

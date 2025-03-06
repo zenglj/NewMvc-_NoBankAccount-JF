@@ -1,0 +1,255 @@
+﻿
+@{
+    Layout = null;
+}
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>赔偿金管理系统</title>
+    @*<link href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.bootcss.com/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css" rel="stylesheet">*@
+    
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Content/bootstrap-datepicker.1.9.0.min.css" rel="stylesheet" />
+    <style>
+        .table-hover tbody tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        .w-100 {
+            width: 100px;
+        }
+
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 查询条件 -->
+        <div class="row" style="margin-top:20px">
+            <form class="form-inline" id="searchForm">
+                <div class="form-group">
+                    <input type="text" class="form-control" placeholder="编号" name="FCrimeCode">
+                </div>
+                <div class="form-group">
+                    <input type="text" class="form-control" placeholder="姓名" name="FCrimeName">
+                </div>
+                <div class="form-group">
+                    <select class="form-control" name="FAreaCode">
+                        <option value="">所有队别</option>
+                        <!-- 动态加载队别选项 -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <div class="input-group date">
+                        <input type="text" class="form-control" placeholder="截止日期" name="EndTime">
+                        <span class="input-group-addon">
+                            <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-primary" onclick="loadData()">
+                    <span class="glyphicon glyphicon-search"></span> 查询
+                </button>
+                <button type="button" class="btn btn-success" onclick="showEditModal()">
+                    <span class="glyphicon glyphicon-plus"></span> 新增
+                </button>
+            </form>
+        </div>
+
+        <!-- 数据表格 -->
+        @*<div class="row" style="margin-top:20px">
+            <table class="table table-bordered table-hover">
+                <thead>
+                    <tr>
+                        <th>编号</th>
+                        <th>姓名</th>
+                        <th>队别</th>
+                        <th>赔偿类型</th>
+                        <th>时长(月)</th>
+                        <th>截止日期</th>
+                        <th>状态</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="dataBody"></tbody>
+            </table>
+        </div>*@
+
+        <!-- 分页控件 -->
+        @*<div class="row text-center">
+            <ul class="pagination" id="pagination"></ul>
+        </div>*@
+
+
+        @*表格组件*@
+        <div id="myDataGrid"></div>
+
+        
+    </div>
+
+    <!-- 编辑模态框 -->
+    <div class="modal fade" id="editModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">申请记录</h4>
+                </div>
+                <form class="form-horizontal" id="editForm">
+                    <div class="modal-body">
+                        <input type="hidden" name="Id">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">编号</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" name="FCrimeCode" required>
+                            </div>
+                        </div>
+                        <!-- 其他字段类似 -->
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">申请时长</label>
+                            <div class="col-sm-9">
+                                <input type="number" class="form-control" name="UseMonths" min="1" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                        <button type="submit" class="btn btn-primary">保存</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 审核模态框 -->
+    <div class="modal fade" id="auditModal">
+        <!-- 审核表单结构同前文 -->
+    </div>
+
+    @*<script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
+        <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+        <script src="https://cdn.bootcss.com/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>*@
+
+    <script src="~/Scripts/jquery-1.11.3.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <script src="~/Scripts/bootstrap-datepicker.1.9.0.min.js"></script>
+
+    <script src="~/Scripts/myJs/myNewCommonJs.js"></script>
+    <script src="~/Scripts/bootstrap-datagrid-custom.js"></script>
+    <script>
+        // 分页配置
+        const pageSize = 1;
+        let currentPage = 1;
+        let totalRecords = 0;
+
+        // 初始化日期控件‌:ml-citation{ref="5" data="citationList"}
+        $('.date').datepicker({
+            format: 'yyyy-mm-dd',
+            autoclose: true
+        });
+
+        // 加载数据
+        function loadData(page = 1) {
+            currentPage = page;
+            var jsonString = getDivInputsToJson('searchForm');
+            $.post("/DamagesMgr/GetRequestRecordJson", { "strJsonWhere": jsonString, page: currentPage, rows: pageSize }, function (data) {
+
+                //var mockData = $.parseJSON(data);
+                // 模拟后端分页查询
+                //const filtered = mockData.filter(item =>
+                //    (!searchParams.FCrimeCode || item.FCrimeCode.includes(searchParams.FCrimeCode)) &&
+                //    (!searchParams.FCrimeName || item.FCrimeName.includes(searchParams.FCrimeName))
+                //);
+                //totalRecords = filtered.length;
+                //const pagedData = filtered.slice((page - 1) * pageSize, page * pageSize);
+                //renderTable(pagedData);
+                totalRecords = data.total;
+                renderTable(data.rows);
+                renderPagination();
+            });
+
+        }
+
+        // 渲染分页控件‌:ml-citation{ref="3" data="citationList"}
+        function renderPagination() {
+            const totalPages = Math.ceil(totalRecords / pageSize);
+            let html = '';
+            for (let i = 1; i <= totalPages; i++) {
+                html += `<li ${i === currentPage ? 'class="active"' : ''}>
+                        <a href="javascript:void(0)" onclick="loadData(${i})">${i}</a>
+                    </li>`;
+            }
+            $('#pagination').html(html);
+        }
+
+        // 表格渲染
+        function renderTable(data) {
+            const tbody = $('#dataBody').empty();
+            data.forEach(item => {
+                const status = getStatus(item.Flag);
+                tbody.append(`
+                        <tr>
+                            <td>${item.FCrimeCode}</td>
+                            <td>${item.FCrimeName}</td>
+                            <td>${item.FAreaName}</td>
+                            <td>${item.TypeName}</td>
+                            <td>${item.UseMonths}</td>
+                            <td>${item.EndTime}</td>
+                            <td><span class="status-badge ${status.class}">${status.text}</span></td>
+                            <td>
+                                <button class="btn btn-xs btn-warning" onclick="editRecord('${item.Id}')">
+                                    <span class="glyphicon glyphicon-edit"></span>
+                                </button>
+                                <button class="btn btn-xs btn-danger" onclick="deleteRecord('${item.Id}')">
+                                    <span class="glyphicon glyphicon-trash"></span>
+                                </button>
+                                ${item.Flag === 0 ? `
+                                <button class="btn btn-xs btn-info" onclick="showAuditModal('${item.Id}')">
+                                    <span class="glyphicon glyphicon-check"></span>
+                                </button>` : ''}
+                            </td>
+                        </tr>
+                    `);
+            });
+        }
+
+        // 状态显示‌:ml-citation{ref="4" data="citationList"}
+        function getStatus(flag) {
+            switch (flag) {
+                case 0: return { text: '待审核', class: 'bg-warning' };
+                case 1: return { text: '已通过', class: 'bg-success' };
+                case 2: return { text: '已拒绝', class: 'bg-danger' };
+                default: return { text: '未知状态', class: 'bg-default' };
+            }
+        }
+
+        $(function () {
+            //loadData();
+
+            $('#myDataGrid').DataGrid({
+                totalItems: 100,
+                columns: [
+                    { title: "ID", field: "id" },
+                    { title: "编号", field: "FCrimeCode" },
+                    { title: "姓名", field: "FCrimeName" }
+                ],
+                onLoad: function (page, pageSize) {
+                    // 模拟异步数据加载（实际应替换为Ajax请求）
+                    const mockData = Array.from({ length: pageSize }, (_, i) => ({
+                        id: (page - 1) * pageSize + i + 1,
+                        name: `Item ${(page - 1) * pageSize + i + 1}`
+                    }));
+                    $('#myDataGrid').updateData(mockData);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
