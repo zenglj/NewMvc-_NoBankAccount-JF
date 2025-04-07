@@ -571,6 +571,12 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 }
 
                 T_Criminal criminal = new T_CriminalBLL().GetCriminalXE_info(fcrimecode,1);
+                if (criminal.fflag!=1 && criminal.FOuDate.AddDays(-30) > DateTime.Today)
+                {
+                    rs.ReMsg = "距出监日期必须小于30天，才能结算";
+                    return Json(rs);
+                }
+
                 if (criminal.fflag != 1)
                 {
                     _bll.Delete<T_Criminal_OutBankAccount>("FCrimeCode", fcrimecode);

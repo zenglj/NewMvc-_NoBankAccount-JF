@@ -1569,6 +1569,30 @@ namespace SelfhelpOrderMgr.DAL
         }
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="procName">存储过程名称</param>
+        /// <param name="dict">参数字典</param>
+        /// <param name="outputParam">OutPut输出参数</param>
+        /// <returns></returns>
+        public string ExecuteProcByOutput(string procName, Dictionary<string, string> dict,string outputParam)
+        {
+            DynamicParameters dp = new DynamicParameters();
+            foreach (var item in dict)
+            {
+                dp.Add($"@{item.Key}", item.Value, DbType.String, ParameterDirection.Input, 100);
+            }
+            dp.Add($"@{outputParam}", "", DbType.String, ParameterDirection.Output, 100);
+
+            using (SqlConnection conn = new SqlConnection(SqlHelper.getConnstr()))
+            {
+                var irow = conn.Execute(procName, dp, null, null, CommandType.StoredProcedure);
+                string result = dp.Get<string>($"@{outputParam}");
+                return result;
+            }
+        }
+
+        /// <summary>
         /// 创建订单Id
         /// </summary>
         /// <param name="seqnoType"></param>

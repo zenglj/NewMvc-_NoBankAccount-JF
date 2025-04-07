@@ -173,7 +173,10 @@ namespace SelfhelpOrderMgr.BLL
 					model.fareacode = dt.Rows[n]["fareacode"].ToString();
 					model.fareaName = dt.Rows[n]["fareaName"].ToString();
 					model.fcriminal = dt.Rows[n]["fcriminal"].ToString();
-
+					if (dt.Rows[n]["AmountD"].ToString() != "")
+					{
+						model.AmountD = decimal.Parse(dt.Rows[n]["AmountD"].ToString());
+					}
 
 					modelList.Add(model);
 				}

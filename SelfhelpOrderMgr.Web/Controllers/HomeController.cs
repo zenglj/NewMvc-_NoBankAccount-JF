@@ -161,6 +161,11 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         cookie.Expires = DateTime.Now.AddHours(4);
                         //写入Cookie
                         Response.Cookies.Set(cookie);
+
+                        HttpCookie codeCookie = new HttpCookie("loginUserCode", users[0].FCode);
+                        codeCookie.Expires = DateTime.Now.AddHours(4);
+                        //写入Cookie
+                        Response.Cookies.Set(codeCookie);
                         strCookieLogin = "COOKIE";
                         status = "OK|开启Cookie登录模式成功";
                     }
@@ -267,6 +272,12 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         cookie.Expires = DateTime.Now.AddHours(4);
                         //写入Cookie
                         Response.Cookies.Set(cookie);
+
+                        HttpCookie cookieCode = new HttpCookie("loginUserCode", users[0].FCode);
+                        cookieCode.Expires = DateTime.Now.AddHours(4);
+                        //写入Cookie
+                        Response.Cookies.Set(cookieCode);
+
                         strCookieLogin = "COOKIE";
                         status = "OK|开启Cookie登录模式成功";
                     }

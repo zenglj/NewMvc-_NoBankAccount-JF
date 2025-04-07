@@ -30,6 +30,26 @@ namespace SelfhelpOrderMgr.BLL
             return new T_VcrdDAL().UserCunKouKuan(criminal, flag, fmoney, savetype, crtby, remark, apply, pkId, checkFlag);
         }
 
+        /// <summary>
+        /// 仅扣款
+        /// </summary>
+        /// <param name="fcrimecode"></param>
+        /// <param name="acctype"></param>
+        /// <param name="fmoney"></param>
+        /// <param name="savetype"></param>
+        /// <param name="crtby"></param>
+        /// <param name="remark"></param>
+        /// <param name="apply"></param>
+        /// <param name="pkId"></param>
+        /// <param name="checkFlag"></param>
+        /// <returns></returns>
+        public List<T_Vcrd> UserOnlyKouKuan(string fcrimecode, int acctype, decimal fmoney, T_Savetype savetype, string crtby, string remark, string apply, string pkId, int checkFlag = 0)
+        {
+            T_Criminal criminal = new T_CriminalBLL().GetCriminalXE_info(fcrimecode, 1);
+            return new T_VcrdDAL().UserOnlyKouKuan(criminal, acctype, fmoney, savetype, crtby, remark, apply, pkId, checkFlag);
+
+        }
+
         public bool UpdateCheckFlag(string OutFsn)//更新消费单的配货状态
         {
             return new T_VcrdDAL().UpdateCheckFlag(OutFsn);

@@ -237,8 +237,8 @@ namespace SelfhelpOrderMgr.DAL
                 and a.PayMode=1 
                 and a.AuditFlag=0 and isnull(a.TranStatus,0)<=0
                 );");
-            strSql.Append(@"update t_Criminal_Card set cardflaga=1,amounta=b.a,amountb=b.b,amountc=b.c,AccPoints=b.d from t_Criminal_Card a,(
-                    select top 1 fcrimecode,amounta as A,amountb as B,amountc+isnull(AtmLuFeiAmount,0) as C ,AccPoints as D from t_balanceList where fcrimecode=@fcrimecode order by Seqno desc) b where a.fcrimecode=b.fcrimecode;");
+            strSql.Append(@"update t_Criminal_Card set cardflaga=1,amounta=b.a,amountb=b.b,amountc=b.c,amountD=b.d,AccPoints=b.E from t_Criminal_Card a,(
+                    select top 1 fcrimecode,amounta as A,amountb as B,amountc+isnull(AtmLuFeiAmount,0) as C ,amountD as D ,AccPoints as E from t_balanceList where fcrimecode=@fcrimecode order by Seqno desc) b where a.fcrimecode=b.fcrimecode;");
             strSql.Append("delete t_balanceList where fcrimecode =@fcrimecode and Seqno=(select top 1 Seqno t_balanceList where fcrimecode =@fcrimecode Order by SeqNo Desc);");
         }
 

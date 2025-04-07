@@ -2445,6 +2445,10 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 model.BankCNAPS = bankCNAPS;
                 model.OutBankRemark = outBankRemark;
                 model.Flag = 0;
+                if (model.CheckDate == null || model.CheckDate< new DateTime(1700, 01, 01))
+                {
+                    model.CheckDate = new DateTime(2000, 01, 01);
+                }
                 model.BankOrgName = bankOrgName;
                 model.ModifyBy = crtby;
                 model.ModifyTime = new DateTime?(DateTime.Now);
@@ -2463,6 +2467,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 OutBankRemark = outBankRemark,
                 CrtBy = crtby,
                 CrtDate = DateTime.Now,
+                CheckDate=new DateTime(2000,01,01),
                 Flag = 0,
                 BankOrgName = bankOrgName,
                 ModifyBy = ""

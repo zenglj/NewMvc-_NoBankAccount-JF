@@ -58,6 +58,7 @@
             { field: 'AmountA', title: '存款', width: 150, hidden: false },
             { field: 'AmountB', title: '劳酬', width: 150, hidden: false },
             { field: 'AmountC', title: '留存', width: 150, hidden: false },
+            { field: 'AmountD', title: '赔偿金', width: 150, hidden: false },
             { field: 'remark', title: '备注', width: 150 },
             { field: 'cqbt', title: '出勤补贴', width: 100 },
             { field: 'gwjt', title: '岗位津贴', width: 100 },
@@ -1196,7 +1197,8 @@ function noMoneyEnter() {
                         AmountA: toDecimal2(infos[4]),
                         AmountB: toDecimal2(infos[5]),
                         AmountC: toDecimal2(infos[6]),
-                        remark: infos[7]
+                        remark: infos[7],
+                        AmountD: toDecimal2(infos[10])
                     });
 
                     //$('#test').datagrid('selectRow',0);
@@ -1269,6 +1271,7 @@ function ExcelFileInport() {
                                 AmountA: rtn.dtls[i].AmountA,
                                 AmountB: rtn.dtls[i].AmountB,
                                 AmountC: rtn.dtls[i].AmountC,
+                                AmountD: rtn.dtls[i].AmountD,
                                 remark: rtn.dtls[i].remark
                             });
 

@@ -291,10 +291,24 @@ namespace SelfhelpOrderMgr.BLL
         {
             return dapperDal.UpdatePartInfo<T>(paramUpdateInfo, strwhere,paramWhere);
         }
-            public string ExecuteProc(string procName, Dictionary<string, string> dict)
+        
+        public string ExecuteProc(string procName, Dictionary<string, string> dict)
         {
             return dapperDal.ExecuteProc(procName, dict);
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="procName">存储过程名称</param>
+        /// <param name="dict">参数字典</param>
+        /// <param name="outputParam">OutPut输出参数</param>
+        /// <returns></returns>
+        public string ExecuteProcByOutput(string procName, Dictionary<string, string> dict, string outputParam)
+        {
+            return dapperDal.ExecuteProcByOutput(procName, dict, outputParam);
+        }
+
 
         /// <summary>
         /// 创建订单Id

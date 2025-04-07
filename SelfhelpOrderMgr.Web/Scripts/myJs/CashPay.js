@@ -99,25 +99,25 @@ function LoadPayOrder() {
             btnGetUserCashList(rowData.FCode);
         },
         pagination: true,
-        rownumbers: true,
-        toolbar: [{
-            id: 'btnExcel',
-            text: 'Excel批量导入',
-            iconCls: 'icon-redo',
-            handler: function () {
-                //$('#winExcelInput').window('open');
-                window.open("/CashPay/IndexExcelDR/"+ $("#saveTypeId").val());
-            }
-        }
-        //, '-', {
-        //    id: 'btnBatchPrint',
-        //    text: '打印单打印',
-        //    iconCls: 'icon-print',
+        rownumbers: true
+        //,toolbar: [{
+        //    id: 'btnExcel',
+        //    text: 'Excel批量导入',
+        //    iconCls: 'icon-redo',
         //    handler: function () {
-                
+        //        //$('#winExcelInput').window('open');
+        //        window.open("/CashPay/IndexExcelDR/"+ $("#saveTypeId").val());
         //    }
         //}
-        ]
+        ////, '-', {
+        ////    id: 'btnBatchPrint',
+        ////    text: '打印单打印',
+        ////    iconCls: 'icon-print',
+        ////    handler: function () {
+                
+        ////    }
+        ////}
+        //]
     });
 }
 
@@ -323,6 +323,105 @@ function btnSaveDetail() {
                 } else {
                     $("#lblDoRusultInfo").text("结果:" + data);
                     $.messager.alert("提示",data);
+                }
+            }
+        });
+    }
+}
+
+
+
+
+//仅保存取款记录，用于不同的AccType类型
+//用于闽西的类似于老吴版的要求
+function btnSavePayRecord() {
+    if ($("#txtFFlag").val() == "1") {
+        $.messager.alert("提示", "用户已离监不能存款");
+        return false;
+    }
+    if ($("#txtType").combobox('getValue') == "") {
+        $.messager.alert("提示", "请选择一个类型");
+        return false;
+    }
+    if ($("#txtFCode").val() == "") {
+        $.messager.alert("提示", "用户编号不能为空");
+        return false;
+    }
+    if ($("#txtFName").val() == "") {
+        $.messager.alert("提示", "用户姓名不能为空");
+        return false;
+    }
+    //if ($("#txtApply").val() == "") {
+    //    $.messager.alert("提示", "申请人不能为空");
+    //    return false;
+    //}
+    if ($("#txtMoney").val() == "") {
+        $.messager.alert("提示", "请输入金额");
+        return false;
+    } else {
+        $.post("/CashPay/SavePayRecord?acctype=" + $("#loginAcctype").val(), {
+            "FCode": $("#txtFCode").val(),
+            "FName": $("#txtFName").val(),
+            "DType": $("#txtType").combobox('getValue'),
+            //"FMoney": $("#txtMoney").numberbox('getValue'),
+            "FMoney": $("#txtMoney").val(),
+            "Apply": $("#txtApply").val(),
+            "Remark": $("#txtRemark").val()
+        }, function (data, status) {
+            if ("success" != status) {
+                return false;
+            } else {
+                //$.messager.alert('提示', data); 
+                var words = data.split("|");
+                if (words[0] == "OK") {
+                    var flieds = $.parseJSON(words[1]);
+                    for (var i = 0; i < flieds.length; i++) {
+                        var vcrd = flieds[i];
+                        $('#detail').datagrid('appendRow', {
+                            seqno: vcrd.seqno,
+                            BankFlag: vcrd.BankFlag,
+                            DType: vcrd.DType,
+                            DAmount: vcrd.DAmount,
+                            CAmount: vcrd.CAmount,
+                            CrtBy: vcrd.CrtBy,
+                            CrtDate: vcrd.CrtDate,
+                            FCrimeCode: vcrd.FCrimeCode,
+                            FCriminal: vcrd.FCriminal,
+                            FAreaName: vcrd.FAreaName,
+                            Flag: vcrd.Flag,
+                            Remark: vcrd.Remark
+                        });
+                    }
+
+                    //更新用户表的金额
+                    var userInfo = $.parseJSON(words[2]);
+                    var userRow = $('#test').datagrid('getSelected');
+                    var idx = $('#test').datagrid('getRowIndex', userRow);
+                    if (idx >= 0) {//有记录再更新
+                        $('#test').datagrid('updateRow', {
+                            index: idx,
+                            row: {
+                                AmountA: userInfo.AmountA,
+                                AmountB: userInfo.AmountB,
+                                AmountC: userInfo.AmountC,
+                                AllMoney: userInfo.AllMoney
+                            }
+                        });
+                    }
+
+
+                    //清空输入框
+                    $("#txtFCode").val('');
+                    $("#txtFName").val("");
+                    $("#txtFFlag").val("");
+                    //$("#txtMoney").numberbox('clear');
+                    $("#txtMoney").val("");
+                    //$.messager.alert("提示", "保存成功");
+                    $("#lblDoRusultInfo").text("结果:OK保存成功");
+                    $("#txtFCode").focus();
+                } else {
+                    $("#lblDoRusultInfo").text("结果:" + data);
+                    $.messager.alert("提示", data);
                 }
             }
         });

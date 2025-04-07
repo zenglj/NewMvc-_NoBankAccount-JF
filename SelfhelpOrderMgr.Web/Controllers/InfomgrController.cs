@@ -340,7 +340,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
             string cardStatus = Request["cardStatus"]; //IC卡的状态
 
             StringBuilder strSql = new StringBuilder();
-            strSql.Append(@"select a.FCode,a.FName,c.Fname FAreaName,isnull(d.FMoneyIn,0) FMoneyIn,isnull(d.FMoneyOut,0) FMoneyOut,(b.AmountA+b.AmountB+b.AmountC) FUserMoneyAll,b.AmountC ,b.AccPoints
+            strSql.Append(@"select a.FCode,a.FName,c.Fname FAreaName,isnull(d.FMoneyIn,0) FMoneyIn,isnull(d.FMoneyOut,0) FMoneyOut,(b.AmountA+b.AmountB+b.AmountC+b.AmountD) FUserMoneyAll,b.AmountC,b.AmountD ,b.AccPoints
                 from t_Criminal a left join T_Criminal_Card b on a.fcode=b.fcrimecode 
 				left join t_Area c on a.FAreaCode=c.fcode
 				left outer join
@@ -428,7 +428,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
     //            where a.fcode=b.fcrimecode and a.fAreaCode=c.fcode and isnull(a.fflag,0)=0
     //            ");
 
-            strSql.Append(@"select a.FCode 编号,a.FName 姓名,c.Fname 队别,b.SecondaryBankCard 中银结算卡,isnull(d.FMoneyIn,0) 本期收入,isnull(d.FMoneyOut,0) 本期支出,(b.AmountA+b.AmountB+b.AmountC) 总余额,b.AmountC 留存不可用金额,b.AccPoints 积分
+            strSql.Append(@"select a.FCode 编号,a.FName 姓名,c.Fname 队别,b.SecondaryBankCard 中银结算卡,isnull(d.FMoneyIn,0) 本期收入,isnull(d.FMoneyOut,0) 本期支出,(b.AmountA+b.AmountB+b.AmountC+b.AmountD) 总余额,b.AmountC 留存不可用金额,b.AmountD 赔偿储备金,b.AccPoints 积分
                 from t_Criminal a left join T_Criminal_Card b on a.fcode=b.fcrimecode 
 				left join t_Area c on a.FAreaCode=c.fcode
 				left outer join

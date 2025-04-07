@@ -10,6 +10,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
 {
     public class LoginController : BaseMenuController
     {
+        protected string loginUserCode;
+        protected string loginUserName;
         protected override void OnActionExecuting(ActionExecutingContext filterContext)
         {
             string loginCard = "";
@@ -17,14 +19,20 @@ namespace SelfhelpOrderMgr.Web.Controllers
             {
                 //先验证Cookie
                 HttpCookie cookie = Request.Cookies["loginUserName"];
-                string loginUserName = "";
+                HttpCookie codeCookie = Request.Cookies["loginUserCode"];
+                //string loginUserName = "";
                 if (cookie != null)
                 {
                     loginUserName = cookie.Value;
                 }
+                if (codeCookie != null)
+                {
+                    loginUserCode = codeCookie.Value;
+                }
                 if (!string.IsNullOrEmpty(loginUserName))
                 {
                     loginCard = loginUserName;
+                    //loginUserName = loginUserName;
                 }
                 else
                 {

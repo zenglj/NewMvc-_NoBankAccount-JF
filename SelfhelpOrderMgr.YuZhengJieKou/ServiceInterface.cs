@@ -698,7 +698,11 @@ namespace SelfhelpOrderMgr.YuZhengJieKou
             {
                 //string zfbh = "35010002482";
 
-                var list=new CommTableInfoBLL().GetList<ViewCriminalInfo>("select *from ViewCriminalInfo where faceFlag=0 and (FOuDate>GETDATE() and DATEADD(day,-60, FOuDate)<GETDATE())",null);//近一个月要离监的人员
+                var list=new CommTableInfoBLL().GetList<ViewCriminalInfo>(
+                    @"select *from ViewCriminalInfo where faceFlag=0
+                        and ((FOuDate>GETDATE() and DATEADD(day,-60, FOuDate)<GETDATE()) or 
+	                        fflag=1 and FCode in(select fcrimecode from t_balanceList 
+                                where crtdate>=DATEADD(day,-10, getdate())))", null);//近2个月要离监的人员
                 if(list!=null && list.Count > 0)
                 {
                     foreach (var item in list)

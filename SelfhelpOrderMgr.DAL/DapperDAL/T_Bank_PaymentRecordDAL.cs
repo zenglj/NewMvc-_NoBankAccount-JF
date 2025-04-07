@@ -31,7 +31,7 @@ namespace SelfhelpOrderMgr.DAL
             strSql.Append(@"insert into T_Bank_PaymentRecord(
                 FCrimeCode,TranType,PayMode,Amount,ToBankId,AuditFlag,AuditBy, AuditDate,TranMoney,PurposeInfo
                 ,TranDate,TranStatus, Crtdate,ReturnTime,BankObssid,BankResultInfo,WithdrawalPassword,[OutBankCard],[BankUserName],[BankOrgName],[OpeningBank],[BankCNAPS],[OutBankRemark])
-                select a.FCrimeCode,TranType,PayMode,Amount,ToBankId,0 as AuditFlag,AuditBy,Convert(varchar(10),getdate(),120) as AuditDate,TranMoney,PurposeInfo
+                select a.FCrimeCode,TranType,a.PayMode,Amount,ToBankId,0 as AuditFlag,AuditBy,Convert(varchar(10),getdate(),120) as AuditDate,TranMoney,PurposeInfo
                 ,null as TranDate,0 as TranStatus,getdate() as Crtdate,null as  ReturnTime,null as BankObssid,'' as BankResultInfo,WithdrawalPassword,b.[OutBankCard],b.[BankUserName],b.[BankOrgName],b.[OpeningBank],b.[BankCNAPS],b.[OutBankRemark]
                 from T_Bank_PaymentRecord a left outer join T_Criminal_OutBankAccount b on a.fcrimecode=b.fcrimecode  where a.Id=@id;");
             strSql.Append("select @newId=@@IDENTITY;");
@@ -86,7 +86,7 @@ namespace SelfhelpOrderMgr.DAL
             strSql.Append(@"insert into T_Bank_PaymentRecord(
                 FCrimeCode,TranType,PayMode,Amount,ToBankId,AuditFlag,AuditBy, AuditDate,TranMoney,PurposeInfo
                 ,TranDate,TranStatus, Crtdate,ReturnTime,BankObssid,BankResultInfo,WithdrawalPassword,[OutBankCard],[BankUserName],[BankOrgName],[OpeningBank],[BankCNAPS],[OutBankRemark])
-                select a.FCrimeCode,TranType,PayMode,Amount,ToBankId,0 as AuditFlag,AuditBy,Convert(varchar(10),getdate(),120) as AuditDate,TranMoney,PurposeInfo
+                select a.FCrimeCode,TranType,a.PayMode,Amount,ToBankId,0 as AuditFlag,AuditBy,Convert(varchar(10),getdate(),120) as AuditDate,TranMoney,PurposeInfo
                 ,null as TranDate,0 as TranStatus,getdate() as Crtdate,null as  ReturnTime,null as BankObssid,'' as BankResultInfo,WithdrawalPassword,b.[OutBankCard],b.[BankUserName],b.[BankOrgName],b.[OpeningBank],b.[BankCNAPS],b.[OutBankRemark]
                 from T_Bank_PaymentRecord a left outer join T_Criminal_OutBankAccount b on a.fcrimecode=b.fcrimecode where a.Id=@id;");
             strSql.Append("select @newId=@@IDENTITY;");

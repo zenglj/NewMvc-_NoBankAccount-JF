@@ -364,5 +364,21 @@ namespace SelfhelpOrderMgr.DAL
         }
 
 
+        public string PLExcelImport_OnlyPay(string strFBid, string onlyCheckFlag,int acctype)
+        {
+            using (IDbConnection conn = new SqlConnection(SqlHelper.getConnstr()))
+            {
+                conn.Open();
+                var parems = new DynamicParameters();//建立一个parem对象
+                parems.Add("@strFBid", strFBid);
+                parems.Add("@onlyCheckFlag", onlyCheckFlag);
+                parems.Add("@loginAcctype", acctype);
+                parems.Add("@result", "", DbType.String, ParameterDirection.Output);//输出返回值
+                //注意 parems.Add("@res",ParameterDirection.Output);//这样写返回值可能会出错，切记！！！
+                SqlMapper.Execute(conn, "P_PLExcelFileImport_OnlyPay", parems, null, null, CommandType.StoredProcedure);
+                string res = parems.Get<string>("@result");//获取数据库输出的值
+                return res;
+            }
+        }
     }
 }

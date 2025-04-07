@@ -371,8 +371,10 @@
     <Compile Include="Models\BankMonthReportModel.cs" />
     <Compile Include="Models\CustomBimapInfo.cs" />
     <Compile Include="Models\CustomTimeArea.cs" />
+    <Compile Include="Models\DamagesPayVcrdEntity.cs" />
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\LaobaoEntity.cs" />
+    <Compile Include="Models\Pcj_ErrModel.cs" />
     <Compile Include="Models\RecvBankCardInfo.cs" />
     <Compile Include="Models\ReqBankInfo.cs" />
     <Compile Include="Models\ShoppingEntity.cs" />
@@ -1411,12 +1413,16 @@
     <Content Include="Views\BankPayAtmServer\PrintPayMentAtmReport.cshtml" />
     <Content Include="Views\DamagesMgr\Index.cshtml" />
     <Content Include="Views\DamagesMgr\SelfServiceIndex.cshtml" />
-    <Content Include="Views\DamagesMgr\RequestRecIndex-EasyUI版.cshtml" />
     <Content Include="Views\DamagesMgr\RequestRecIndex - 复制.cshtml" />
     <Content Include="Views\DamagesMgr\RequestRecIndex-BootStrap.cshtml" />
     <Content Include="Views\Shared\_Partial_Pagination.cshtml" />
     <Content Include="Views\DamagesMgr\RequestRecIndex-BootStrap版.cshtml" />
     <Content Include="Views\DamagesMgr\RequestRecIndex.cshtml" />
+    <Content Include="Views\DamagesMgr\SelfServiceIndex - 复制.cshtml" />
+    <Content Include="Views\DamagesMgr\RequestRecIndex-EasyUI版.cshtml" />
+    <Content Include="Views\DamagesMgr\DamagesPayIndex.cshtml" />
+    <Content Include="Views\CashPay\PayIndex.cshtml" />
+    <Content Include="Views\CashPay\PayIndexExcelDR.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

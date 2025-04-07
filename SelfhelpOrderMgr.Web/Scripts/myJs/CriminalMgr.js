@@ -19,8 +19,7 @@ $(function () {
     $('#winTP_YingYanyCan').window('close');  // open a window   
     $('#winOutBankInfo').window('close');
 
-
-    
+    $('#winFaceGather').window('close');
 
 });
 
@@ -901,6 +900,7 @@ function btnBankCardEdit() {
     $("#FAmountAMoney").val("");
     $("#FAmountBMoney").val("");
     $("#FAmountCMoney").val("");
+    $("#FAmountDMoney").val("");
     $("#FAccPoints").val("");
     GetUserBankInfo(row);
     $("#winBank").window('open');
@@ -929,6 +929,8 @@ function GetUserBankInfo(row) {
                 }
                 $("#FAmountBMoney").val(card.AmountB);
                 $("#FAmountCMoney").val(card.AmountC);
+                $("#FAmountDMoney").val(card.AmountD);
+
                 $("#FAccPoints").val(card.AccPoints);
 
             } else {

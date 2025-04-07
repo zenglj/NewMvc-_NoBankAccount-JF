@@ -77,7 +77,7 @@
                 </div>
                 <div style="margin:10px">
                     <label>截止日期:</label>
-                    <input name="EndTime" class="easyui-datebox" required="true">
+                    <input name="EndTime" id="editEndTime" class="easyui-datebox" required="true">
                 </div>
             </form>
         </div>
@@ -184,6 +184,8 @@
                 $.post('/DamagesMgr/GetRequestRecords?id=' + id, function (data) {
                     $('#dlg').dialog('open').dialog('center').dialog('setTitle', '编辑记录');
                     $('#fm').form('load', data);
+                    var fmtdate = timestampToDate(data.EndTime, 1);
+                    $('#editEndTime').datebox('setValue', fmtdate);
                 });
             }
 

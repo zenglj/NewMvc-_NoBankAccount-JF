@@ -17,13 +17,13 @@ namespace SelfhelpOrderMgr.DAL
             using (IDbConnection conn = new SqlConnection(SqlHelper.getConnstr()))
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.Append(@"select top 200 c.*,isnull((d.AmountA+d.AmountB+d.AmountC+d.AccPoints),0) JSMoney,e.OutBankCard,e.BankUserName,e.OpeningBank ,d.PayMode,d.CollectMoneyFlag,d.seqno
+                strSql.Append(@"select top 200 c.*,isnull((d.AmountA+d.AmountB+d.AmountC+d.AmountD+d.AccPoints),0) JSMoney,e.OutBankCard,e.BankUserName,e.OpeningBank ,d.PayMode,d.CollectMoneyFlag,d.seqno
                     ,case isnull(f.fcrimecode,'') when '' then 0 else 1 end Faceflag
                     ,d.Depositer
                     from (
                         select a.fcode,a.fname,a.foudate,isnull(b.fname,'') fareaName,a.foudate strOutDate
                         ,case isnull(c.CardFlaga,0) when 4 then '已结算' when 2 then '已挂失' when 3 then '已作废' else '未结' end as FStatus,isnull(c.BankAccNo,'') BankCardNo
-                        ,c.AmountA,c.AmountB,c.AmountC,c.AccPoints
+                        ,c.AmountA,c.AmountB,c.AmountC,c.AmountD,c.AccPoints
                         from t_criminal a left outer join t_area b on a.fareacode=b.fcode left join t_criminal_card c 
                         on  a.Fcode=c.fcrimecode where 1=1 ");
                 if(string.IsNullOrEmpty(startDate)==false && string.IsNullOrEmpty(endDate)==false)
@@ -157,6 +157,11 @@ namespace SelfhelpOrderMgr.DAL
                                 {
                                     strReturnResult = "Error|-1 没有正确的结算银行卡";
                                 } break;
+                            case -41:
+                                {
+                                    strReturnResult = "Error|-41 超出ATM机最大取现金额，请到生卫科改转账结算";
+                                }
+                                break;
                             case 0:
                                 {
                                     strReturnResult = "Error|0未执行";
@@ -180,7 +185,7 @@ namespace SelfhelpOrderMgr.DAL
                             case 5:
                                 {
                                     strReturnResult = "Error|6结算模式不存在";
-                                } break;
+                                } break;                            
                             default:
                                 break;
                         }
@@ -204,7 +209,7 @@ namespace SelfhelpOrderMgr.DAL
                             from t_criminal a,t_area b,t_criminal_card c";
                 if (payMode != 3)
                 {
-                    strSql += @" ,(select top 1 fcrimecode,(AmountA+AmountB+AmountC+AccPoints) as CardMoney,CrtDate from t_balanceList
+                    strSql += @" ,(select top 1 fcrimecode,(AmountA+AmountB+AmountC+AmountD+AccPoints) as CardMoney,CrtDate from t_balanceList
                             where fcrimecode=@fcode
                              order by seqno desc) d ";
                 }

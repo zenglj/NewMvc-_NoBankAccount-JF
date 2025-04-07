@@ -775,6 +775,253 @@ namespace SelfhelpOrderMgr.Web.Controllers
             return Content("Err|导入失败，服务器没有接收到Excel文件");
         }
 
+        /// <summary>
+        /// Excel表格导入(仅用于取款导入)
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="acctype"></param>
+        /// <returns></returns>
+
+
+
+        // 定义委托类型（可放在类内部或公共区域）
+        public delegate string ExcelImportHandler(T_BatchMoneyTradeBLL bll,string bid, string checkFlag, int? acctype);
+
+        // 特殊支付导入
+        public ActionResult ExcelInport_ByOnlyPay(int id = 1, int acctype = 0)
+        {
+            // 使用带acctype参数的版本
+            return CommonExcelImport((bll, bid, flag, _) =>
+                bll.PLExcelImport_OnlyPay(bid, flag, acctype),
+                needAcctype: true,acctype);
+        }
+
+        // 普通导入入口
+        public ActionResult ExcelInport_Normal(int id = 1, int acctype = 0)
+        {
+            // 使用标准版本
+            return CommonExcelImport((bll, bid, flag, _) =>
+                bll.PLExcelImport(bid, flag),
+                needAcctype: false);
+        }
+
+
+
+
+        private ActionResult CommonExcelImport(ExcelImportHandler importMethod, bool needAcctype, int acctype = 0)//Excel表格导入(仅用于取款导入)
+        {
+            string saveTypeId = Request["saveTypeId"];
+            string onlyCheckFlag = Request["onlyCheckFlag"];
+            if (string.IsNullOrEmpty(saveTypeId))
+            {
+                return Content("Err|存取标志的id不能为空");
+            }
+            int id = Convert.ToInt32(saveTypeId);
+            string strLoginName = "";
+            try
+            {
+                strLoginName = new T_CZYBLL().GetModel(Session["loginUserCode"].ToString()).FName;
+            }
+            catch
+            {
+                Redirect("/Admin/Index");
+            }
+
+            //获取存取款是否要审核的标志
+            GetCashPayAduitFlag();
+
+            if (Request.Files.Count > 0)
+            {
+
+                HttpPostedFileBase f = Request.Files[0];
+                string fname = f.FileName;
+                /* startIndex */
+                int index = fname.LastIndexOf("\\") + 1;
+                /* length */
+                int len = fname.Length - index;
+                fname = fname.Substring(index, len);
+                /* save to server */
+                string savePath = Server.MapPath("~/Upload/" + fname);
+                f.SaveAs(savePath);
+                //context.Response.Write("Success!");
+
+                using (FileStream stream = new FileStream(savePath, FileMode.Open, FileAccess.Read))
+                {
+                    //XSSFWorkbook workbook = new XSSFWorkbook(stream);
+                    IWorkbook workbook = null;
+                    try
+                    {
+                        workbook = new XSSFWorkbook(stream); // 2007版本  
+                    }
+                    catch
+                    {
+                        workbook = new HSSFWorkbook(stream); // 2003版本  
+                    }
+                    //HSSFSheet sheet = workbook.GetSheetAt(0);
+                    NPOI.SS.UserModel.ISheet sheet = workbook.GetSheetAt(0);
+                    //NPOI.SS.UserModel.Sheet
+                    int rows = sheet.LastRowNum;
+                    int ErrNums = 0;
+                    if (rows < 2)
+                    {
+                        return Content("Err|Excel表为空表,无数据!");
+                    }
+                    else
+                    {
+                        string strDTypeCode = Request["selSaveType"];
+                        string strDTypeName = Request["selSaveName"];
+                        int FMoneyInOutFlag = 0;
+                        List<T_Savetype> subSaveTypes = new List<T_Savetype>();
+                        T_Savetype subSaveType = new T_Savetype();
+                        if (id == 1)
+                        {
+                            FMoneyInOutFlag = 1;
+                            subSaveTypes = new T_SavetypeBLL().GetModelList(" TypeFlag=0 and FName='" + strDTypeName + "' and FCode=" + strDTypeCode + "");
+
+                        }
+                        else if (id == 2)
+                        {
+                            FMoneyInOutFlag = -1;
+                            subSaveTypes = new T_SavetypeBLL().GetModelList(" TypeFlag=1 and FName='" + strDTypeName + "' and FCode=" + strDTypeCode + "");
+                        }
+                        if (subSaveTypes.Count <= 0)
+                        {
+                            return Content("Err|您选择的批扣类型不存在请再次确认");
+                        }
+                        subSaveType = subSaveTypes[0];
+
+
+
+                        //string strFBid = Request["excelBid"];
+                        string strFBid = new T_BONUSBLL().CreateOrderId("PLK");//批量扣款主单号
+
+                        //首先创建一个主单
+                        T_BatchMoneyTrade trade = new T_BatchMoneyTrade();
+                        trade.Bid = strFBid;
+                        trade.FCourseCode = Convert.ToInt32(strDTypeCode);
+                        trade.FCourseType = strDTypeName;
+                        trade.FMoneyInOutFlag = FMoneyInOutFlag;
+                        trade.FrealAreaCode = "";
+                        trade.FAmount = 0;
+                        if (onlyCheckFlag == "0")
+                        {
+                            trade.Remark = "WEB批量导入";
+                        }
+                        else
+                        {
+                            trade.Remark = "WEB批量校验";
+                        }
+                        trade.ApplyBy = strLoginName;
+                        trade.Applydt = DateTime.Today;
+                        trade.Crtby = strLoginName;
+                        trade.crtdt = DateTime.Today;
+                        trade.CheckBy = "";
+                        trade.CheckDate = DateTime.Today;
+                        trade.Flag = 0;
+                        trade.FAreaCode = "";
+                        trade.FAreaName = "";
+                        trade.UDate = DateTime.Today;
+                        trade.PType = "";
+                        trade.cnt = 0;
+                        trade.AuditBy = "";
+                        trade.AuditFlag = 0;
+                        trade.AuditDate = DateTime.Today;
+                        trade.FDbCheckBY = "";
+                        trade.FdbCheckDate = DateTime.Today;
+                        trade.FdbCheckFlag = 0;
+                        trade.FPostBy = "";
+                        trade.FPostDate = DateTime.Today;
+                        trade.FPoestFlag = 0;
+                        trade.FrealAreaCode = "";
+                        trade.FrealAreaName = "";
+                        new T_BatchMoneyTradeBLL().Add(trade);
+
+
+                        #region 批量导入判断写入的方式 --2020-03-01 起， 开始使用
+
+                        DataTable dtUserAdd = new DataTable();
+                        //获取导入的Excel数据
+                        AddExcel_MulRowCheckMode(sheet, rows, dtUserAdd);
+                        //执行存储过程
+                        //string result = new T_BatchMoneyTradeBLL().PLExcelImport(strFBid, onlyCheckFlag);
+
+                        // 2025年4月1日修改为：通过委托调用不同的导入方法
+                                                // 动态调用委托
+                        try
+                        {
+                            var bll = new T_BatchMoneyTradeBLL();
+                            string result = needAcctype ?
+                                importMethod(bll, strFBid, onlyCheckFlag, acctype) :  // 带额外参数,仅用于扣款
+                                importMethod(bll, strFBid, onlyCheckFlag, null);      // 标准调用
+
+                        }
+                        catch (Exception ex)
+                        {
+                            return Content($"Err|导入异常：{ex.Message}");
+                        }
+
+                        #endregion
+
+
+                        //#region 单条判断写入的方式 --2020-03-01 注释停用
+                        ////逐条验证模式 2020-03-01之前的模式
+                        //ErrNums = AddExcel_SingleCheckMode(id, onlyCheckFlag, strLoginName, sheet, rows, ErrNums, subSaveType, strFBid);
+
+                        //#endregion
+
+
+
+                        rtnTrades rtn = new rtnTrades();
+                        rtn.trade = new T_BatchMoneyTradeBLL().GetModel(strFBid);
+                        rtn.dtls = new T_BatchMoneyTrade_DTLBLL().GetModelList("Bid='" + strFBid + "'");
+                        DataTable dt = new CommTableInfoBLL().GetDataTable("select isnull(sum(famount),0) fmoney from T_BatchMoneyTrade_DTL where Bid='" + strFBid + "'");
+
+
+                        DataTable dtErrs = new CommTableInfoBLL().GetDataTable("select isnull(count(1),0) from T_BatchMoneyTrade_ErrList where pc='" + strFBid + "'");
+
+                        ErrNums = Convert.ToInt16(dtErrs.Rows[0][0].ToString());
+
+                        decimal allMoney = 0;
+                        if (dt.Rows.Count > 0)
+                        {
+                            allMoney = Convert.ToDecimal(dt.Rows[0][0].ToString());
+                        }
+                        if (onlyCheckFlag == "0")
+                        {
+                            //如果是导入数据，则清空之前的所有校验数据
+                            string myDelsql = "delete from T_BatchMoneyTrade_ErrList where pc in(select bid from T_BatchMoneyTrade where remark='WEB批量校验') and pc<>'" + strFBid + "';delete from T_BatchMoneyTrade_Dtl where bid in(select bid from T_BatchMoneyTrade where remark='WEB批量校验')  and bid<>'" + strFBid + "';delete from T_BatchMoneyTrade where remark='WEB批量校验'  and bid<>'" + strFBid + "';";
+                            new CommTableInfoBLL().ExecSql(myDelsql);
+                        }
+
+                        if (ErrNums > 0)
+                        {
+                            if (onlyCheckFlag == "0")
+                            {
+                                return Content("OK|导入完成,成功金额：" + allMoney.ToString() + "，失败记录：" + ErrNums.ToString() + "条|" + jss.Serialize(rtn));
+                            }
+                            else
+                            {
+
+                                return Content("OK|校验完成,成功金额：" + allMoney.ToString() + "，失败记录：" + ErrNums.ToString() + "条|" + jss.Serialize(rtn));
+                            }
+                        }
+                        else
+                        {
+                            if (onlyCheckFlag == "0")
+                            {
+                                return Content("OK|导入完成|" + jss.Serialize(rtn));
+                            }
+                            else
+                            {
+                                return Content("OK|校验完成，金额：" + allMoney.ToString() + "|" + jss.Serialize(rtn));
+                            }
+                        }
+                    }
+                }
+            }
+            return Content("Err|导入失败，服务器没有接收到Excel文件");
+        }
+
         private static void AddExcel_MulRowCheckMode(NPOI.SS.UserModel.ISheet sheet, int rows, DataTable dtUserAdd)
         {
             #region 定义DataTable
@@ -1339,7 +1586,238 @@ namespace SelfhelpOrderMgr.Web.Controllers
             ViewData["saveTypes"] = saveTypes;
             return View();
         }
-	}
+
+
+        /// <summary>
+        /// 存款账户取款
+        /// </summary>
+        /// <param name="id">对应acctype</param>
+        /// <returns></returns>
+        public ActionResult PayIndex(int id=0)
+        {
+
+            List<T_AREA> areas = new T_AREABLL().GetModelList("fcode in(select fareacode From t_czy_area where fcode='" + Session["loginUserCode"].ToString() + "' and fflag=2)");
+            ViewData["areas"] = areas;
+            List<T_Savetype> saveTypes = new List<T_Savetype>();
+            if (id == 0)//存款
+            {
+                saveTypes = new T_SavetypeBLL().GetModelList(" typeFlag=1 and isnull(UseType,0)=0");
+            }else if (id == 1)//报酬
+            {
+                saveTypes = new T_SavetypeBLL().GetModelList(" typeFlag=1 and isnull(UseType,0)=0");
+            }
+            else if (id == 2)//留存
+            {
+                saveTypes = new T_SavetypeBLL().GetModelList(" typeFlag=1 and isnull(UseType,0)=0");
+            }
+            else if (id == 4)//赔偿金
+            {
+                saveTypes = new T_SavetypeBLL().GetModelList(" typeFlag=1 and isnull(UseType,0)=0");
+            }
+            ViewData["saveTypes"] = saveTypes;
+
+
+            ViewData["loginAcctype"] = id;
+            ViewData["saveTypeId"] = 2;
+            return View();
+        }
+
+
+        public ActionResult SavePayRecord( int acctype=0)
+        {
+            string strFCode = Request["FCode"];
+            string strFName = Request["FName"];
+            string strDType = Request["DType"];
+            string strFMoney = Request["FMoney"];
+            string strApply = Request["Apply"];
+            string strRemark = Request["Remark"];
+            string strLoginName = new T_CZYBLL().GetModel(Session["loginUserCode"].ToString()).FName;
+
+            //获取存取款是否要审核的标志
+            GetCashPayAduitFlag();
+
+            T_Criminal criminal = new T_CriminalBLL().GetCriminalXE_info(strFCode, 7);
+            if (criminal.ErrInfo != "")
+            {
+                return Content("Err|" + criminal.ErrInfo + "，请与管理人员联系");
+            }
+            decimal dongjeJinE = 0;
+            #region 验证用户输入的正确性与否
+            if (string.IsNullOrEmpty(strApply))
+            {
+                //不做必输项了
+                //return Content("Err|申请人不能为空");
+                strApply = "";
+            }
+            if (string.IsNullOrEmpty(strFCode))
+            {
+                return Content("Err|用户编号不能为空");
+            }
+            if (string.IsNullOrEmpty(strFName))
+            {
+                return Content("Err|用户姓名不能为空");
+            }
+            if (criminal == null)
+            {
+                return Content("Err|用户不存在");
+            }
+            if (criminal.FName != strFName)
+            {
+                return Content("Err|用户姓名与编号不一致");
+            }
+            if (criminal.fflag == 1)
+            {
+                return Content("Err|用户已经离监");
+            }
+            try
+            {
+                if (criminal.flimitamt == null)
+                {
+                    criminal.flimitamt = 0;
+                }
+                if (criminal.flimitflag == null)
+                {
+                    criminal.flimitamt = 0;
+                }
+                dongjeJinE = criminal.flimitamt * criminal.flimitflag;
+            }
+            catch
+            {
+
+            }
+
+            #endregion
+
+            T_Criminal_card card = new T_Criminal_cardBLL().GetModel(strFCode);
+            if (card == null)
+            {
+                return Content("Err|用户没有办理IC卡，不能做存取款操作");
+            }
+            //flag 是存扣款的标志，1是存款，-1是扣款
+            List<T_Savetype> savetypes = new List<T_Savetype>();
+            if (!string.IsNullOrWhiteSpace(strDType))
+            {
+                savetypes = new T_SavetypeBLL().GetModelList("typeflag=1 and FCode=" + strDType);
+                if (savetypes.Count < 0)
+                {
+                    return Content("Err|你传入的扣款类型不存在，请核实");
+                }
+
+                switch(acctype)
+                {
+                    case 0:
+                        {
+                            if (card.AmountA - (dongjeJinE) < Convert.ToDecimal(strFMoney))
+                            {
+                                return Content("Err|存款账户金额不足");
+                            }
+                        }
+                        break;
+                    case 1:
+                        {
+                            if (card.AmountB < Convert.ToDecimal(strFMoney))
+                            {
+                                return Content("Err|报酬账户金额不足");
+                            }
+                        }
+                        break;
+                    case 2:
+                        {
+                            if (card.AmountC < Convert.ToDecimal(strFMoney))
+                            {
+                                return Content("Err|留存账户金额不足");
+                            }
+                        }
+                        break;
+                    case 4:
+                        {
+                            if(card.AmountD< Convert.ToDecimal(strFMoney))
+                            {
+                                return Content("Err|赔偿账户金额不足");
+                            }
+                        }break;
+                    case 99:
+                        {
+                            if (card.AmountA + card.AmountB + card.AmountC + card.AmountD-criminal.dongjieMoney < Convert.ToDecimal(strFMoney))
+                            {
+                                return Content("Err|总账户不足");
+                            }
+                        }
+                        break;
+                    default:
+                        {
+                            return Content("Err|传入的扣款账户不正确");
+                        }
+                }
+
+                
+                //如果批量限额标志为1（真）,则判断可消费余额是否有够
+                string checkResutl = "";
+                checkResutl = checkXiaoFeiEdu(strFMoney, criminal, savetypes[0].PLXE_Flag, checkResutl);
+
+                if (checkResutl != "")
+                {
+                    return Content("Err|超出本月最大限额，可消费余额不足");
+                }
+            }
+            else
+            {
+                return Content("Err|你传的是错误的参数");
+            }
+
+            //20241126增加验路费是否重复发放
+            if (savetypes[0].fname.Contains("路费"))
+            {
+                var oldVcrds = _baseDapperBLL.QueryList<T_Vcrd>("select * from t_Vcrd where flag=0 and fcrimecode=@fcrimecode and (DType like '%'+@lufei+'%') and crtdate>=@crtdate", new { fcrimecode = strFCode, lufei = "路费", crtdate = DateTime.Today.AddMonths(-3) });
+                if (oldVcrds.Count > 0)
+                {
+                    return Content("Err|不能重复发放【释放路费】");
+                }
+            }
+            else if (savetypes[0].fname.Contains("离监劳动报酬"))
+            {
+                var oldVcrds = _baseDapperBLL.QueryList<T_Vcrd>("select * from t_Vcrd where flag=0 fcrimecode=@fcrimecode and (DType like '%'+@lijianBaochou+'%') and crtdate>=@crtdate", new { fcrimecode = strFCode, lijianBaochou = "离监劳动报酬", crtdate = DateTime.Today.AddMonths(-3) });
+                if (oldVcrds.Count > 0)
+                {
+                    return Content("Err|不能重复发发【离监劳动报酬】");
+                }
+            }
+            else if (savetypes[0].fname.Contains("新犯入账"))
+            {
+                var oldVcrds = _baseDapperBLL.QueryList<T_Vcrd>("select * from t_Vcrd where flag=0 fcrimecode=@fcrimecode and (DType like '%'+@xinfanruzhang+'%') and crtdate>=@crtdate", new { fcrimecode = strFCode, xinfanruzhang = "新犯入账", crtdate = DateTime.Today.AddMonths(-3) });
+                if (oldVcrds.Count > 0)
+                {
+                    return Content("Err|不能重复发发【新犯入账】");
+                }
+            }
+
+
+
+            //仅扣款
+            List<T_Vcrd> vcrd = new T_VcrdBLL().UserOnlyKouKuan(strFCode, acctype, Convert.ToDecimal(strFMoney), savetypes[0], strLoginName, strRemark, strApply, "", auditFlag);
+
+            //strFCode;
+            List<T_UserInfoExt> users = new T_CriminalBLL().GetUserInfo("FCode='" + strFCode + "'");
+
+            return Content("OK|" + jss.Serialize(vcrd) + "|" + jss.Serialize(users[0]));
+
+        }
+
+
+        public ActionResult PayIndexExcelDR(int acctype=0)
+        {
+
+            List<T_Savetype> saveTypes = new List<T_Savetype>();
+
+            saveTypes = new T_SavetypeBLL().GetModelList("typeflag=1");
+
+            ViewData["saveTypes"] = saveTypes;
+            ViewData["saveTypeId"] = 2;
+            ViewData["acctype"] = acctype;
+            return View();
+        }
+
+    }
 
     public class rtnTrades
     {

@@ -149,6 +149,68 @@ function startDaoru(onlyCheckFlag) {
 }
 
 
+//startDataCheck 先进行验证数据  开始Excel导入
+function startDaoru_OnlyPay(acctype,onlyCheckFlag) {
+    if ($("#selSaveType").combobox('getValue') == "") {
+        $.messager.alert("提示", "请选择一个存款类型");
+        return false;
+    }
+    $("#selSaveName").val($("#selSaveType").combobox('getText'));
+    if (onlyCheckFlag == '0') {
+        var tipText = "您确认想要校验Excel记录吗？";
+    } else {
+        var tipText = "您确认想要导入Excel记录吗？";
+    }
+
+    $.messager.confirm('确认', '您确认想要校验导入Excel记录吗？', function (r) {
+        if (r) {
+            $.messager.progress({
+                title: '导入数可能需要几分钟，请耐心等待',
+                msg: '数据正在导入中...'
+            });
+            $('#ff').form({
+                url: "/CashPay/ExcelInport_ByOnlyPay/" + $("#saveTypeId").val() + "?acctype="+$("#acctype").val()+"&onlyCheckFlag=" + onlyCheckFlag,
+                onSubmit: function () {
+                    // do some check    
+                    // return false to prevent submit;    
+                },
+                success: function (data) {
+                    $.messager.progress('close');
+                    var words = data.split("|");
+                    if (words[0] == "OK") {
+                        var rtn = $.parseJSON(words[2]);
+                        $("#strFBid").val(rtn.trade.Bid);
+                        $('#tbSuccessList').datagrid('load', {
+                            strFBid: rtn.trade.Bid
+                        });
+
+                        $('#tbErrList').datagrid('load', {
+                            strFBid: rtn.trade.Bid
+                        });
+
+                        $("#lblCheckResult").html("结果:" + words[1]);
+                        if (onlyCheckFlag == '1') {
+                            $('#btn').linkbutton('enable');
+                        } else {
+                            $('#btn').linkbutton('disable');
+                        }
+
+                        $.messager.alert("提示", words[1]);
+                    } else {
+                        $("#lblCheckResult").html("结果:失败");
+                        $.messager.alert("提示", "导入失败");
+                    }
+
+                }
+            });
+            // submit the form    
+            $('#ff').submit();
+        }
+    });
+
+}
+
+
 //按主单号批量删除
 function plDeleteByPKId(pkId) {
     $.messager.confirm('确认', '您确认要删除该主单的记录吗？', function (r) {

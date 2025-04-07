@@ -73,6 +73,17 @@ namespace SelfhelpOrderMgr.BLL
                 return model;
             }
 
+            //20250317启用赔偿金计划限额=====Start==================
+            if (model.DamagesFlag == 1 && model.DamagesEndDate>=DateTime.Today)
+            {
+                if (model.DamagesControlMoney < cy.ftotamtmonth)
+                {
+                    cy.ftotamtmonth = model.DamagesControlMoney;
+                }
+            }
+            //20250317启用赔偿金计划限额=====End==================
+
+
             //营养餐和其他消费分开单独限额标志
             T_SHO_ManagerSet yyMset = new T_SHO_ManagerSetBLL().GetModel("YingyangcanXianE_StartFlag");
             //if (yyMset != null)

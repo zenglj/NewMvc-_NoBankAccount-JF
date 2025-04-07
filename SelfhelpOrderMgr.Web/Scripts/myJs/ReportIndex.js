@@ -210,6 +210,10 @@ function loadDetailTable() {
                         return "报酬账户";
                     } else if (row.AccType == "2") {
                         return "留存账户";
+                    } else if (row.AccType == "3") {
+                        return "积分账户";
+                    } else if (row.AccType == "4") {
+                        return "赔偿账户";
                     } else {
                         return "存款账户";
                     }

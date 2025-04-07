@@ -230,7 +230,7 @@ namespace SelfhelpOrderMgr.DAL
         {
 
             StringBuilder strSql = new StringBuilder();
-            strSql.Append("select FCode, FInDate, FOuDate, FAreaCode, FSubArea, FDesc, FStatus, FStatus2, FAddr_tmp, FCZY, fflag, FName, flimitflag, flimitamt, Frealareacode, amount, TP_YingYangCan_Money, RSB_Flag, FIdenNo, FAge, FSex, FAddr, FCrimeCode, FCYCode, FTerm  ");
+            strSql.Append("select FCode, FInDate, FOuDate, FAreaCode, FSubArea, FDesc, FStatus, FStatus2, FAddr_tmp, FCZY, fflag, FName, flimitflag, flimitamt, Frealareacode, amount, TP_YingYangCan_Money, RSB_Flag, FIdenNo, FAge, FSex, FAddr, FCrimeCode, FCYCode, FTerm, DamagesFlag, DamagesControlMoney, DamagesRetentionRate, DamagesEndDate ");
             strSql.Append("  from T_Criminal ");
             strSql.Append(" where FCode=@FCode ");
             SqlParameter[] parameters = {
@@ -302,6 +302,23 @@ namespace SelfhelpOrderMgr.DAL
                 model.FCYCode = ds.Tables[0].Rows[0]["FCYCode"].ToString();
                 model.FTerm = ds.Tables[0].Rows[0]["FTerm"].ToString();
 
+
+                if (ds.Tables[0].Rows[0]["DamagesFlag"].ToString() != "")
+                {
+                    model.DamagesFlag = int.Parse(ds.Tables[0].Rows[0]["DamagesFlag"].ToString());
+                }
+                if (ds.Tables[0].Rows[0]["DamagesControlMoney"].ToString() != "")
+                {
+                    model.DamagesControlMoney = decimal.Parse(ds.Tables[0].Rows[0]["DamagesControlMoney"].ToString());
+                }
+                if (ds.Tables[0].Rows[0]["DamagesRetentionRate"].ToString() != "")
+                {
+                    model.DamagesRetentionRate = int.Parse(ds.Tables[0].Rows[0]["DamagesRetentionRate"].ToString());
+                }
+                if (ds.Tables[0].Rows[0]["DamagesEndDate"].ToString() != "")
+                {
+                    model.DamagesEndDate = DateTime.Parse(ds.Tables[0].Rows[0]["DamagesEndDate"].ToString());
+                }
                 return model;
             }
             else

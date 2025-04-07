@@ -181,7 +181,7 @@ namespace SelfhelpOrderMgr.DAL
 		public T_Criminal_card GetModel(string fcrimecode)
 		{
 			StringBuilder stringBuilder = new StringBuilder();
-			stringBuilder.Append("select Id, UnPaidAmtB, flimitflag, flimitamt, BankAccNo, RegFlag, UseFlag, BankAmount, AmountC, bankdate, BankRegFlag, fcrimecode, tmpbankAmount, curbankamount, unregflag, SecondaryBankCard, SecondaryCardFlag, cardcodea, AmountA, UnPaidAmtA, cardflaga, cardcodeb, AmountB, cardflagb,AccPoints  ");
+			stringBuilder.Append("select Id, UnPaidAmtB, flimitflag, flimitamt, BankAccNo, RegFlag, UseFlag, BankAmount, AmountC, bankdate, BankRegFlag, fcrimecode, tmpbankAmount, curbankamount, unregflag, SecondaryBankCard, SecondaryCardFlag, cardcodea, AmountA, UnPaidAmtA, cardflaga, cardcodeb, AmountB, cardflagb,AccPoints,AmountD  ");
 			stringBuilder.Append("  from T_Criminal_card ");
 			stringBuilder.Append(" where fcrimecode=@fcrimecode ");
 			SqlParameter[] array = new SqlParameter[]
@@ -286,6 +286,12 @@ namespace SelfhelpOrderMgr.DAL
 			{
 				t_Criminal_card.AccPoints = decimal.Parse(row["AccPoints"].ToString());
 			}
+
+			if (row["AmountD"].ToString() != "")
+			{
+				t_Criminal_card.AmountD = decimal.Parse(row["AmountD"].ToString());
+			}
+
 			return t_Criminal_card;
 		}
 

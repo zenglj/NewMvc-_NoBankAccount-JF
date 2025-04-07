@@ -10,6 +10,7 @@ namespace SelfhelpOrderMgr.Model
         public DateTime EndTime_Start { get; set; }
         public DateTime EndTime_End { get; set; }
 
-
+        public DateTime CreateDate_Start { get; set; }
+        public DateTime CreateDate_End { get; set; }
     }
 }

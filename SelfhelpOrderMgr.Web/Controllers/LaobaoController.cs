@@ -2005,7 +2005,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 if (new T_BONUSBLL().UpdateByCountMoney(strFBid))
                 {
                     T_BONUS nbonus = new T_BONUSBLL().GetModel(strFBid);
-                    okInfo = model.FCRIMECODE + "|" + model.fcriminal + "|" + model.fareaName + "|" + model.FAMOUNT.ToString() + "|" + model.AmountA.ToString() + "|" + model.AmountB.ToString() + "|" + model.AmountC.ToString() + "|" + bonus.Remark + "|" + nbonus.cnt.ToString() + "|" + nbonus.fAMOUNT.ToString();
+                    okInfo = model.FCRIMECODE + "|" + model.fcriminal + "|" + model.fareaName + "|" + model.FAMOUNT.ToString() + "|" + model.AmountA.ToString() + "|" + model.AmountB.ToString() + "|" + model.AmountC.ToString() + "|" + bonus.Remark + "|" + nbonus.cnt.ToString() + "|" + nbonus.fAMOUNT.ToString() + "|" + model.AmountD.ToString();
                 }
             }
             else
@@ -2017,6 +2017,12 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
         private static void SetBonusDetailModel(string LoginUserName, string strFCode, string strFMoney, string strFBid, decimal cpctMoneyA, decimal cpctMoneyB, decimal cpctMoneyC, T_BONUSDTL model, T_Criminal criminal, T_BONUS bonus, T_AREA area, T_Criminal_card card)
         {
+            //罚金比例
+            decimal _amountD = 0;
+            if (criminal.DamagesFlag == 1 && criminal.DamagesRetentionRate > 0 && DateTime.Today <= criminal.DamagesEndDate)
+            {
+                _amountD =Math.Round( (Convert.ToDecimal(strFMoney) - cpctMoneyC) * criminal.DamagesRetentionRate / 100,2);
+            }
             model.BID = strFBid;
             model.FCRIMECODE = strFCode;
             model.fcriminal = criminal.FName;
@@ -2027,8 +2033,9 @@ namespace SelfhelpOrderMgr.Web.Controllers
             model.fareaName = area.FName;
             model.FAMOUNT = Convert.ToDecimal(strFMoney);
             model.AmountA = cpctMoneyA;
-            model.AmountB = cpctMoneyB;
+            model.AmountB = Convert.ToDecimal(strFMoney)- cpctMoneyC - _amountD;
             model.AmountC = cpctMoneyC;
+            model.AmountD = _amountD;
             model.cardtype = 0;
             model.acctype = 1;
             model.crtby = LoginUserName;

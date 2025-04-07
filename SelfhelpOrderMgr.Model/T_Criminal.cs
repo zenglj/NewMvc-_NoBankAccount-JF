@@ -259,6 +259,12 @@ namespace SelfhelpOrderMgr.Model
         /// 是否申请赔偿金标记
         /// </summary>
         public int DamagesFlag { get; set; }
+        public decimal DamagesControlMoney { get; set; }
+        public int DamagesRetentionRate { get; set; }
+
+        //赔偿金的有效日期
+        public DateTime DamagesEndDate { get; set; }
+
     }
 }
 

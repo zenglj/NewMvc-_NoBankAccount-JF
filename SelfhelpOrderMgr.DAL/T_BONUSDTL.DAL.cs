@@ -32,9 +32,9 @@ namespace SelfhelpOrderMgr.DAL
 		{
 			StringBuilder strSql = new StringBuilder();
 			strSql.Append("insert into T_BONUSDTL(");
-			strSql.Append("vouno,Frealareacode,FrealAreaName,remark,ptype,udate,crtby,crtdt,applyby,acctype,BID,cardtype,AmountC,cqbt,gwjt,ldjx,tbbz,grkj,AmountA,AmountB,FCRIMECODE,CARDCODE,FAMOUNT,FLAG,fareacode,fareaName,fcriminal");
+			strSql.Append("vouno,Frealareacode,FrealAreaName,remark,ptype,udate,crtby,crtdt,applyby,acctype,BID,cardtype,AmountC,cqbt,gwjt,ldjx,tbbz,grkj,AmountA,AmountB,FCRIMECODE,CARDCODE,FAMOUNT,FLAG,fareacode,fareaName,fcriminal,AmountD");
 			strSql.Append(") values (");
-			strSql.Append("@vouno,@Frealareacode,@FrealAreaName,@remark,@ptype,@udate,@crtby,@crtdt,@applyby,@acctype,@BID,@cardtype,@AmountC,@cqbt,@gwjt,@ldjx,@tbbz,@grkj,@AmountA,@AmountB,@FCRIMECODE,@CARDCODE,@FAMOUNT,@FLAG,@fareacode,@fareaName,@fcriminal");
+			strSql.Append("@vouno,@Frealareacode,@FrealAreaName,@remark,@ptype,@udate,@crtby,@crtdt,@applyby,@acctype,@BID,@cardtype,@AmountC,@cqbt,@gwjt,@ldjx,@tbbz,@grkj,@AmountA,@AmountB,@FCRIMECODE,@CARDCODE,@FAMOUNT,@FLAG,@fareacode,@fareaName,@fcriminal,@AmountD");
 			strSql.Append(") ");
 			strSql.Append(";select @@IDENTITY");
 			SqlParameter[] parameters = {
@@ -64,7 +64,8 @@ namespace SelfhelpOrderMgr.DAL
 						new SqlParameter("@FLAG", SqlDbType.Int,4) ,
 						new SqlParameter("@fareacode", SqlDbType.VarChar,10) ,
 						new SqlParameter("@fareaName", SqlDbType.VarChar,100) ,
-						new SqlParameter("@fcriminal", SqlDbType.VarChar,50)
+						new SqlParameter("@fcriminal", SqlDbType.VarChar,50),
+						new SqlParameter("@AmountD", SqlDbType.Decimal,9)
 
 			};
 
@@ -95,6 +96,8 @@ namespace SelfhelpOrderMgr.DAL
 			parameters[24].Value = model.fareacode;
 			parameters[25].Value = model.fareaName;
 			parameters[26].Value = model.fcriminal;
+			parameters[27].Value = model.AmountD;
+
 
 			object obj = SqlHelper.GetSingle(strSql.ToString(), parameters);
 			if (obj == null)
@@ -145,7 +148,8 @@ namespace SelfhelpOrderMgr.DAL
 			strSql.Append(" FLAG = @FLAG , ");
 			strSql.Append(" fareacode = @fareacode , ");
 			strSql.Append(" fareaName = @fareaName , ");
-			strSql.Append(" fcriminal = @fcriminal  ");
+			strSql.Append(" fcriminal = @fcriminal,  ");
+			strSql.Append(" AmountD = @AmountD  ");
 			strSql.Append(" where seqno=@seqno ");
 
 			SqlParameter[] parameters = {
@@ -176,7 +180,8 @@ namespace SelfhelpOrderMgr.DAL
 						new SqlParameter("@FLAG", SqlDbType.Int,4) ,
 						new SqlParameter("@fareacode", SqlDbType.VarChar,10) ,
 						new SqlParameter("@fareaName", SqlDbType.VarChar,100) ,
-						new SqlParameter("@fcriminal", SqlDbType.VarChar,50)
+						new SqlParameter("@fcriminal", SqlDbType.VarChar,50) ,
+						new SqlParameter("@AmountD", SqlDbType.Decimal,9)
 
 			};
 
@@ -208,6 +213,8 @@ namespace SelfhelpOrderMgr.DAL
 			parameters[25].Value = model.fareacode;
 			parameters[26].Value = model.fareaName;
 			parameters[27].Value = model.fcriminal;
+			parameters[28].Value = model.AmountD;
+
 			int rows = SqlHelper.ExecuteSql(strSql.ToString(), parameters);
 			if (rows > 0)
 			{
@@ -273,7 +280,7 @@ namespace SelfhelpOrderMgr.DAL
 		{
 
 			StringBuilder strSql = new StringBuilder();
-			strSql.Append("select seqno, vouno, Frealareacode, FrealAreaName, remark, ptype, udate, crtby, crtdt, applyby, acctype, BID, cardtype, AmountC, cqbt, gwjt, ldjx, tbbz, grkj, AmountA, AmountB, FCRIMECODE, CARDCODE, FAMOUNT, FLAG, fareacode, fareaName, fcriminal  ");
+			strSql.Append("select seqno, vouno, Frealareacode, FrealAreaName, remark, ptype, udate, crtby, crtdt, applyby, acctype, BID, cardtype, AmountC, cqbt, gwjt, ldjx, tbbz, grkj, AmountA, AmountB, FCRIMECODE, CARDCODE, FAMOUNT, FLAG, fareacode, fareaName, fcriminal,AmountD  ");
 			strSql.Append("  from T_BONUSDTL ");
 			strSql.Append(" where seqno=@seqno");
 			SqlParameter[] parameters = {
@@ -360,7 +367,10 @@ namespace SelfhelpOrderMgr.DAL
 				model.fareacode = ds.Tables[0].Rows[0]["fareacode"].ToString();
 				model.fareaName = ds.Tables[0].Rows[0]["fareaName"].ToString();
 				model.fcriminal = ds.Tables[0].Rows[0]["fcriminal"].ToString();
-
+				if (ds.Tables[0].Rows[0]["AmountD"].ToString() != "")
+				{
+					model.AmountD = decimal.Parse(ds.Tables[0].Rows[0]["AmountD"].ToString());
+				}
 				return model;
 			}
 			else

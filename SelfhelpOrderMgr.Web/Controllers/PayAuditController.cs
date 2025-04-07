@@ -348,6 +348,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         select fcrimecode, sum(case acctype when 0 then DAMOUNT else 0 end) A
                         ,sum(case acctype when 1 then DAMOUNT else 0 end) B
                         ,sum(case acctype when 2 then DAMOUNT else 0 end) C
+                        ,sum(case acctype when 3 then DAMOUNT else 0 end) D
                         from  T_Vcrd where " + strWhere + @" and DAmount>0 and checkflag=0 and flag = -2  group by fcrimecode) b
                              where a.fcrimecode = b.fcrimecode; ";
                     }

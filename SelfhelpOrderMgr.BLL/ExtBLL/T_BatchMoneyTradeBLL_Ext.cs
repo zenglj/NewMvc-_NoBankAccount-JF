@@ -91,5 +91,10 @@ namespace SelfhelpOrderMgr.BLL
         {
             return new T_BatchMoneyTradeDAL().PLExcelImport(strFBid, onlyCheckFlag);
         }
+
+        public string PLExcelImport_OnlyPay(string strFBid, string onlyCheckFlag,int acctype)
+        {
+            return new T_BatchMoneyTradeDAL().PLExcelImport_OnlyPay(strFBid, onlyCheckFlag,acctype);
+        }
     }
 }

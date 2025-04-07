@@ -370,7 +370,10 @@ namespace SelfhelpOrderMgr.DAL
                 {
                     model.JaRi_Cy_FTZSP_Money = decimal.Parse(ds.Tables[0].Rows[0]["JaRi_Cy_FTZSP_Money"].ToString());
                 }
+
                 
+
+
                 return model;
             }
             else

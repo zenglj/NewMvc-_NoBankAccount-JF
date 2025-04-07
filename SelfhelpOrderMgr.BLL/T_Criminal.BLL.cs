@@ -153,6 +153,26 @@ namespace SelfhelpOrderMgr.BLL
                     model.FTerm = dt.Rows[n]["FTerm"].ToString();
 
 
+                    if (dt.Rows[n]["DamagesFlag"].ToString() != "")
+                    {
+                        model.DamagesFlag = int.Parse(dt.Rows[n]["DamagesFlag"].ToString());
+                    }
+
+                    if (dt.Rows[n]["DamagesControlMoney"].ToString() != "")
+                    {
+                        model.DamagesControlMoney = decimal.Parse(dt.Rows[n]["DamagesControlMoney"].ToString());
+                    }
+
+                    if (dt.Rows[n]["DamagesRetentionRate"].ToString() != "")
+                    {
+                        model.DamagesRetentionRate = int.Parse(dt.Rows[n]["DamagesRetentionRate"].ToString());
+                    }
+
+                    if (dt.Rows[n]["DamagesEndDate"].ToString() != "")
+                    {
+                        model.DamagesEndDate = DateTime.Parse(dt.Rows[n]["DamagesEndDate"].ToString());
+                    }
+
                     modelList.Add(model);
                 }
             }

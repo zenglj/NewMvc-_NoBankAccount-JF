@@ -58,7 +58,7 @@ $(function() {
 		},        
         {
             field: 'AllMoney', title: '总金额', width: 80, sortable: true, formatter: function (value, row, index) {
-                return row.AmountA+row.AmountB+row.AmountC;
+                return row.AmountA + row.AmountB + row.AmountC + row.AmountD;
             }
         },
         {
@@ -99,6 +99,7 @@ $(function() {
         { field: 'AmountA', title: '存款账户', width: 80, sortable: true },
         { field: 'AmountB', title: '报酬账户', width: 80, sortable: true },
             { field: 'AmountC', title: '留存账户', width: 80, sortable: true },
+            { field: 'AmountD', title: '赔偿账户', width: 80, sortable: true },
             { field: 'AccPoints', title: '积分', width: 80, sortable: true }
         
         ]],

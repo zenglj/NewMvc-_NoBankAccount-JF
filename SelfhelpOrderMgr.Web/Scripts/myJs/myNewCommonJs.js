@@ -23,6 +23,29 @@ function getFormJson(fromId) {
 }
 
 
+
+function getFormOnlyJson(fromId) {
+    var jsonData = {};
+    $('#' + fromId).serializeArray().forEach(function (item) {
+        // 基础版本（单值）
+        // jsonData[item.name] = item.value;
+
+        // 多值处理版本
+        if (item.value == "")
+            return;
+        if (jsonData[item.name] !== undefined) {
+            if (!Array.isArray(jsonData[item.name])) {
+                jsonData[item.name] = [jsonData[item.name]];
+            }
+            jsonData[item.name].push(item.value);
+        } else {
+            jsonData[item.name] = item.value;
+        }
+    });
+    return jsonData; // 返回JSON对象
+    //return JSON.stringify(jsonData); // 返回JSON字符串
+}
+
 //根据DIV Id 获取其下面的Input的值并转成json string
 function getDivInputsToJson(divId) {
     const jsonData = {};
@@ -128,7 +151,9 @@ function timestampToDate(value,tmFlag=0) {
         return date; // "2025/3/5" ‌:ml-citation{ref="6" data="citationList"}
     } else {
         //var sdate= date.toLocaleDateString(); // "2025/3/5" ‌:ml-citation{ref="6" data="citationList"}
-        var sdate = date.getFullYear()+"-"+(date.getMonth()+1)+"-"+date.getDate();
+        //String(date.getMonth() + 1).padStart(2, '0');
+        //String(date.getDate()).padStart(2, '0');
+        var sdate = date.getFullYear() + "-" + String('0'+(date.getMonth() + 1)).slice(-2) + "-" + String('0'+date.getDate()).slice(-2);
         return sdate; 
 
     }

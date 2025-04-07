@@ -10,251 +10,418 @@
     <title>赔偿金申请管理系统</title>
     @{Html.RenderPartial("~/Views/Shared/_PartialHeadPage.cshtml");}
     </head>
-    <body>
-        <!-- 查询表单 -->
-        <div id="tb" style="padding:3px">
-            <span>编号:</span>
-            <input id="crimeCode" name="FCrimeCode" class="easyui-textbox" style="width:100px">
-            <span>姓名:</span>
-            <input id="crimeName" name="FCrimeName" class="easyui-textbox" style="width:100px">
-            <span>队别:</span>
-            <input id="areaCode" name="FAreaCode" class="easyui-combobox" style="width:100px"
-                   data-options="valueField:'FCode',textField:'FName',url:'/DamagesMgr/GetAreas'">
-            <span>截止日期:</span>
-            <input id="endTime_Start" name="EndTime_Start" class="easyui-datebox" style="width:100px">
-            至<input id="endTime_End" name="EndTime_End" class="easyui-datebox" style="width:100px">
-            <a href="#" class="easyui-linkbutton" iconCls="icon-search" onclick="doSearch()">查询</a>
-            <a href="#" class="easyui-linkbutton" iconCls="icon-add" onclick="newRecord()">新增</a>
-            <a href="#" class="easyui-linkbutton" iconCls="icon-redo" onclick="doExcelOut()">Excel导出</a>
-        </div>
+<body>
+    <!-- 查询表单 -->
+    <input type="hidden" id="powerId" value="@ViewData["id"]" />
+    <div id="tb" style="padding:3px">
 
-        <!-- 数据表格 -->
-        <table id="dg" class="easyui-datagrid" style="width:100%;height:400px"
-               url="/DamagesMgr/GetRequestRecordList"
-               toolbar="#tb" pagination="true"
-               rownumbers="true" fitColumns="true" singleSelect="true">
-            <thead>
-                <tr>
-                    <th field="FCrimeCode" width="80">编号</th>
-                    <th field="FCrimeName" width="100">姓名</th>
-                    <th field="FAreaName" width="80">队别</th>
-                    <th field="TypeName" width="100">赔偿类型</th>
-                    <th field="UseMonths" width="60">时长(月)</th>
-                    <th field="EndTime" width="100" formatter="formatDate">截止日期</th>
-                    <th field="Flag" width="80" formatter="formatStatus">状态</th>
-                    <th field="AuditText" width="100" >审核摘要</th>
-                    <th field="ModifyDate" width="100" formatter="formatDate">最后修改时间</th>
-                    <th field="操作" width="100" formatter="operateFormatter">操作</th>
-                </tr>
-            </thead>
-        </table>
+        <span>编号:</span>
+        <input id="crimeCode" name="FCrimeCode" class="easyui-textbox" style="width:100px">
+        <span>姓名:</span>
+        <input id="crimeName" name="FCrimeName" class="easyui-textbox" style="width:100px">
+        <span>队别:</span>
+        <input id="areaCode" name="FAreaCode" class="easyui-combobox" style="width:100px"
+               data-options="valueField:'FCode',textField:'FName',url:'/DamagesMgr/GetAreas'">
+        <span>状态:</span>
+        <select id="schFlag" name="Flag" class="easyui-combobox" style="width:100px">
+            <option value="">请查询</option>
+            <option value="0">待审核</option>
+            <option value="1">已审核</option>
+            <option value="2">已拒绝</option>
+        </select>
+        <span>类型:</span>
+        <input id="schTypeId" name="TypeId" class="easyui-combobox" style="width:100px"
+               data-options="valueField:'FCode',textField:'FName',url:'/DamagesMgr/GetBaseTypes'">
+        <span>创建日期:</span>
+        <input id="createDate_Start" name="CreateDate_Start" class="easyui-datebox" style="width:100px">
+        至<input id="createDate_End" name="CreateDate_End" class="easyui-datebox" style="width:100px">
+        <a href="#" class="easyui-linkbutton" iconCls="icon-search" onclick="doSearch()">查询</a>
+        @if (ViewData["id"] != null)
+        {
+            var powerId = ViewData["id"].ToString();
+            if (powerId == "1")
+            {
+                <a href="#" class="easyui-linkbutton" iconCls="icon-add" onclick="newRecord()">新增</a>
 
-        <!-- 新增/编辑对话框 -->
-        <div id="dlg" class="easyui-dialog" closed="true" buttons="#dlg-buttons" title="申请记录" style="width:400px">
-            <form id="fm" method="post">
-                <input type="hidden" name="Id">
-                <div style="margin:10px">
-                    <label>罪犯编号:</label>
-                    <input name="FCrimeCode" id="editCode" class="easyui-textbox"  required="true">
-                </div>
-                <div style="margin:10px">
-                    <label>罪犯姓名:</label>
-                    <input name="FCrimeName" id="editName" class="easyui-textbox" required="true">
-                </div>
-                <div style="margin:10px">
-                    <label>所在队别:</label>
-                    <input name="FAreaCode" id="editAreaCode" class="easyui-combobox"
-                           data-options="valueField:'FCode',textField:'FName',url:'/DamagesMgr/GetAreas'" required="true">
-                </div>
-                <div style="margin:10px">
-                    <label>赔偿类型:</label>
-                    <input name="TypeId" class="easyui-combobox"
-                           data-options="valueField:'FCode',textField:'FName',url:'/DamagesMgr/GetBaseTypes'" required="true">
-                </div>
-                <div style="margin:10px">
-                    <label>使用月数:</label>
-                    <input name="UseMonths" class="easyui-numberbox" required="true">
-                </div>
-                <div style="margin:10px">
-                    <label>截止日期:</label>
-                    <input name="EndTime" id="editEndTime" class="easyui-datebox" required="true">
-                </div>
-            </form>
-        </div>
+                <a href="javascript:void(0)" class="easyui-linkbutton"
+                   iconCls="icon-excel"
+                   onclick="$('#winSearch').window('open')">Excel导入</a>
+            }
+            else
+            {
+                <a href="#" class="easyui-linkbutton" iconCls="icon-ok" onclick="batchAudit()">批量审核</a>
+            }
+        }
 
-        <!-- 审核对话框 -->
-        <div id="auditDlg" class="easyui-dialog" closed="true" buttons="#audit-buttons" title="审核记录" style="width:400px">
-            <form id="auditFm">
-                <input type="hidden" name="Id">
-                <div style="margin:10px">
-                    <label>审核意见:</label>
-                    <select name="Flag" class="easyui-combobox" style="width:300px;">
-                        <option value="0">待审核</option>
-                        <option value="1">同意</option>
-                        <option value="2">拒绝</option>
-                    </select>
-                </div>
-                <div style="margin:10px">
-                    <label>审核摘要:</label>
-                    <input name="AuditText" class="easyui-textbox" multiline="true" style="width:300px;height:80px">
-                </div>
-            </form>
-        </div>
 
-        <!-- 对话框按钮 -->
-        <div id="dlg-buttons">
-            <a href="#" class="easyui-linkbutton" iconCls="icon-save" onclick="saveRecord()">保存</a>
-            <a href="#" class="easyui-linkbutton" iconCls="icon-cancel" onclick="$('#dlg').dialog('close')">取消</a>
-        </div>
-        <div id="audit-buttons">
-            <a href="#" class="easyui-linkbutton" iconCls="icon-ok" onclick="submitAudit()">提交审核</a>
-            <a href="#" class="easyui-linkbutton" iconCls="icon-cancel" onclick="$('#auditDlg').dialog('close')">取消</a>
-        </div>
 
-        @*<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <a href="#" class="easyui-linkbutton" iconCls="icon-redo" onclick="doExcelOut()">Excel导出</a>
+
+
+    </div>
+
+
+
+    <div id="winSearch" class="easyui-window" title="Excel导入信息" style="width:400px;height:200px"
+         data-options="iconCls:'icon-save',modal:true">
+        <form id="ffExcelSearch" method="post" enctype="multipart/form-data">
+
+            <div style="margin:10px;margin-top:30px;">
+                <label for="name">Excel名单:</label>
+                <input type="file" id="FExcelSearch" name="FExcelSearch" formenctype="multipart/form-data" accept=".xlsx" />
+            </div>
+            <div style="margin:10px">
+                <a id="btnExcelIn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-reload'" onclick="InExcelSearchInfo()">开始导入</a>
+            </div>
+            <div style="margin:10px"><label id="lblInfo"></label></div>
+        </form>
+    </div>
+
+    <!-- 数据表格 -->
+    <table id="dg" class="easyui-datagrid" style="width:100%;height:400px"
+           url="/DamagesMgr/GetRequestRecordList"
+           toolbar="#tb" pagination="true"
+           rownumbers="true" fitColumns="true" singleSelect="false">
+        <thead>
+            <tr>
+                <th field="ck" data-options="checkbox:true"></th>
+                <th field="Id" width="50">Id</th>
+                <th field="FCrimeCode" width="80">编号</th>
+                <th field="FCrimeName" width="100">姓名</th>
+                <th field="FAreaName" width="80">队别</th>
+                <th field="TypeName" width="100">赔偿类型</th>
+                <th field="UseMonths" width="60">时长(月)</th>
+                <th field="EndTime" width="100" formatter="formatDate">截止日期</th>
+                <th field="Flag" width="80" formatter="formatStatus">状态</th>
+                <th field="AuditText" width="100">审核摘要</th>
+                <th field="CreateDate" width="100" formatter="formatDate">创建时间</th>
+                <th field="ModifyDate" width="100" formatter="formatDate">最后修改时间</th>
+                <th field="操作" width="100" formatter="operateFormatter">操作</th>
+            </tr>
+        </thead>
+    </table>
+
+    <!-- 新增/编辑对话框 -->
+    <div id="dlg" class="easyui-dialog" closed="true" buttons="#dlg-buttons" title="申请记录" style="width:400px">
+        <form id="fm" method="post">
+            <input type="hidden" name="Id">
+            <div style="margin:10px">
+                <label>罪犯编号:</label>
+                <input name="FCrimeCode" id="editCode" class="easyui-textbox" required="true">
+            </div>
+            <div style="margin:10px">
+                <label>罪犯姓名:</label>
+                <input name="FCrimeName" id="editName" class="easyui-textbox" required="true">
+            </div>
+            <div style="margin:10px">
+                <label>所在队别:</label>
+                <input name="FAreaCode" id="editAreaCode" class="easyui-combobox"
+                       data-options="valueField:'FCode',textField:'FName',url:'/DamagesMgr/GetAreas'" required="true">
+            </div>
+            <div style="margin:10px">
+                <label>赔偿类型:</label>
+                <input name="TypeId" class="easyui-combobox"
+                       data-options="valueField:'FCode',textField:'FName',url:'/DamagesMgr/GetBaseTypes'" required="true">
+            </div>
+            <div style="margin:10px">
+                <label>使用月数:</label>
+                <input name="UseMonths" class="easyui-numberbox" required="true">
+            </div>
+            <div style="margin:10px">
+                <label>截止日期:</label>
+                <input name="EndTime" id="editEndTime" class="easyui-datebox" required="true">
+            </div>
+        </form>
+    </div>
+
+    <!-- 审核对话框 -->
+    <div id="auditDlg" class="easyui-dialog" closed="true" buttons="#audit-buttons" title="审核记录" style="width:400px">
+        <form id="auditFm">
+            <input type="hidden" name="Id">
+            <div style="margin:10px">
+                <label>审核意见:</label>
+                <select name="Flag" class="easyui-combobox" style="width:300px;">
+                    <option value="0">待审核</option>
+                    <option value="1">同意</option>
+                    <option value="2">拒绝</option>
+                </select>
+            </div>
+            <div style="margin:10px">
+                <label>审核摘要:</label>
+                <input name="AuditText" class="easyui-textbox" multiline="true" style="width:300px;height:80px">
+            </div>
+        </form>
+    </div>
+
+
+    <!-- 批量审核对话框 -->
+    <div id="batchAuditDlg" class="easyui-dialog" closed="true" buttons="#batchAudit-buttons" title="批量审核记录" style="width:400px">
+        <form id="batchAuditFm">
+            <div style="margin:10px">
+                <label>审核意见:</label>
+                <select id="batchFlag" name="Flag" class="easyui-combobox" style="width:300px;">
+                    <option value="0">待审核</option>
+                    <option value="1">同意</option>
+                    <option value="2">拒绝</option>
+                </select>
+            </div>
+            <div style="margin:10px">
+                <label>审核摘要:</label>
+                <input id="batchAuditText" name="AuditText" class="easyui-textbox" multiline="true" style="width:300px;height:80px">
+            </div>
+        </form>
+
+    </div>
+
+    <!-- 对话框按钮 -->
+    <div id="dlg-buttons">
+        <a href="#" class="easyui-linkbutton" iconCls="icon-save" onclick="saveRecord()">保存</a>
+        <a href="#" class="easyui-linkbutton" iconCls="icon-cancel" onclick="$('#dlg').dialog('close')">取消</a>
+    </div>
+    <div id="audit-buttons">
+        <a href="#" class="easyui-linkbutton" iconCls="icon-ok" onclick="submitAudit()">提交审核</a>
+        <a href="#" class="easyui-linkbutton" iconCls="icon-cancel" onclick="$('#auditDlg').dialog('close')">取消</a>
+    </div>
+
+
+    <div id="batchAudit-buttons">
+        <a href="#" class="easyui-linkbutton" iconCls="icon-ok" onclick="batchSaveRecord()">提交审核</a>
+        <a href="#" class="easyui-linkbutton" iconCls="icon-cancel" onclick="$('#batchAuditDlg').dialog('close')">取消</a>
+    </div>
+
+    @*<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
         <script src="https://www.easyui.com/easyui/jquery.easyui.min.js"></script>*@
-        <script src="~/Scripts/myJs/myNewCommonJs.js"></script>
-        <script>
-            // 初始化组件
-            $(function () {
-                $('#dg').datagrid({
-                    pageSize: 20,
-                    pageList: [10, 20, 50]
-                });
-
-
-                $('#editCode').textbox('textbox').keydown(function (e) {
-                    if (e.keyCode === 13) { // 13 是 Enter 键的 keyCode
-                        // 在这里执行你的代码
-                        console.log('回车键被按下');
-                        $.post("/DamagesMgr/GetUserName", { "fcrimecode": $('#editCode').val() }, function (data) {
-                            if (data.Flag) {
-                                $('#editName').textbox('setValue',data.DataInfo.FName);
-                                $('#editAreaCode').combobox('setValue',data.DataInfo.FAreaCode);
-
-                            } else {
-                                $.messager.alert("提示",data.ReMsg);
-                            }
-                        });
-                        // 例如，阻止表单提交
-                        e.preventDefault();
-                    }
-                });
+    <script src="~/Scripts/myJs/myNewCommonJs.js"></script>
+    <script>
+        // 初始化组件
+        $(function () {
+            $('#dg').datagrid({
+                pageSize: 20,
+                pageList: [10, 20, 50,100,200,500]
             });
 
-            // 格式化操作列
-            function operateFormatter(value, row) {
 
-                let btns = ``;
-                if (row.Flag === 0) btns += `<a href="#" onclick="editRecord('${row.Id}')">✎编辑</a>
-                                                <a href="#" onclick="showAudit('${row.Id}')">✔审核</a>`;
-                btns = btns+`<a href="#" onclick="deleteRecord('${row.Id}')">✘删除</a>`;
-                return btns;
-            }
+            $('#editCode').textbox('textbox').keydown(function (e) {
+                if (e.keyCode === 13) { // 13 是 Enter 键的 keyCode
+                    // 在这里执行你的代码
+                    console.log('回车键被按下');
+                    $.post("/DamagesMgr/GetUserName", { "fcrimecode": $('#editCode').val() }, function (data) {
+                        if (data.Flag) {
+                            $('#editName').textbox('setValue', data.DataInfo.FName);
+                            $('#editAreaCode').combobox('setValue', data.DataInfo.FAreaCode);
 
-            // 查询功能
-            function doSearch() {
-                //var jsonString = getFormJson("tb");
-                var jsonString = getDivInputsToJson("tb");
-                
-                //$('#dg').datagrid('load', {
-                //    crimeCode: $('#crimeCode').val(),
-                //    crimeName: $('#crimeName').val(),
-                //    areaCode: $('#areaCode').combobox('getValue'),
-                //    endTime: $('#endTime').datebox('getValue')
-                //});
-
-                $('#dg').datagrid('load', {
-                    strJsonWhere: jsonString
-                });
-                
-            }
-
-
-
-
-            // 新增记录
-            function newRecord() {
-                $('#dlg').dialog('open').dialog('center').dialog('setTitle', '新增记录');
-                $('#fm').form('clear');
-            }
-
-            // 编辑记录
-            function editRecord(id) {
-                $.post('/DamagesMgr/GetRequestRecords?id=' + id, function (data) {
-                    $('#dlg').dialog('open').dialog('center').dialog('setTitle', '编辑记录');
-                    $('#fm').form('load', data);
-                    var fmtdate = timestampToDate(data.EndTime, 1);
-                    $('#editEndTime').datebox('setValue', fmtdate);
-                });
-            }
-
-            // 保存记录
-            function saveRecord() {
-                $('#fm').form('submit', {
-                    url: '/DamagesMgr/RequestRecSave',
-                    onSubmit: function () {
-                        return $(this).form('validate');
-                    },
-                    success: function (res) {
-                        $('#dlg').dialog('close');
-                        $('#dg').datagrid('reload');
-                    }
-                });
-            }
-
-            // 删除记录
-            function deleteRecord(id) {
-                $.messager.confirm('确认', '确定删除该记录?', function (r) {
-                    if (r) $.post('/DamagesMgr/RequestRecDelete', { id: id }, function () {
-                        $('#dg').datagrid('reload');
+                        } else {
+                            $.messager.alert("提示", data.ReMsg);
+                        }
                     });
-                });
+                    // 例如，阻止表单提交
+                    e.preventDefault();
+                }
+            });
+
+
+            $("#winSearch").window('close');
+        });
+
+
+
+        // 格式化操作列
+        function operateFormatter(value, row) {
+
+            let btns = ``;
+            //如果是审核模块进入，则显示审核功能
+            if ($("#powerId").val() == 2) {
+                //审核的人员不能编辑
+                if (row.Flag === 0) btns += `<a href="#" onclick="showAudit('${row.Id}')">✔审核</a>`;
+            } else {
+                //编辑的人员不能审核
+                if (row.Flag === 0) btns += `<a href="#" onclick="editRecord('${row.Id}')">✎编辑</a>`;
             }
 
-            // 显示审核对话框
-            function showAudit(id) {
-                $.post('/DamagesMgr/GetRequestRecords?id=' + id, function (data) {
-                    $('#auditDlg').dialog('open').dialog('center');
-                    $('#auditFm').form('load', data);
+
+            btns = btns + `<a href="#" onclick="deleteRecord('${row.Id}')">✘删除</a>`;
+            return btns;
+        }
+
+        // 查询功能
+        function doSearch() {
+            //var jsonString = getFormJson("tb");
+            var jsonString = getDivInputsToJson("tb");
+
+            //$('#dg').datagrid('load', {
+            //    crimeCode: $('#crimeCode').val(),
+            //    crimeName: $('#crimeName').val(),
+            //    areaCode: $('#areaCode').combobox('getValue'),
+            //    endTime: $('#endTime').datebox('getValue')
+            //});
+
+            $('#dg').datagrid('load', {
+                strJsonWhere: jsonString
+            });
+
+        }
+
+
+
+
+        // 新增记录
+        function newRecord() {
+            $('#dlg').dialog('open').dialog('center').dialog('setTitle', '新增记录');
+            $('#fm').form('clear');
+        }
+
+        // 编辑记录
+        function editRecord(id) {
+            $.post('/DamagesMgr/GetRequestRecords?id=' + id, function (data) {
+                $('#dlg').dialog('open').dialog('center').dialog('setTitle', '编辑记录');
+                $('#fm').form('load', data);
+                var fmtdate = timestampToDate(data.EndTime, 1);
+                $('#editEndTime').datebox('setValue', fmtdate);
+            });
+        }
+
+        // 保存记录
+        function saveRecord() {
+            $('#fm').form('submit', {
+                url: '/DamagesMgr/RequestRecSave',
+                onSubmit: function () {
+                    return $(this).form('validate');
+                },
+                success: function (res) {
+                    $('#dlg').dialog('close');
+                    $('#dg').datagrid('reload');
+                }
+            });
+        }
+
+        // 删除记录
+        function deleteRecord(id) {
+            $.messager.confirm('确认', '确定删除该记录?', function (r) {
+                if (r) $.post('/DamagesMgr/RequestRecDelete', { id: id }, function () {
+                    $('#dg').datagrid('reload');
                 });
-            }
+            });
+        }
 
-            // 提交审核
-            function submitAudit() {
-                $('#auditFm').form('submit', {
-                    url: '/DamagesMgr/RequestRecAudit',
-                    success: function () {
-                        $('#auditDlg').dialog('close');
-                        $('#dg').datagrid('reload');
-                    }
-                });
-            }
+        // 显示审核对话框
+        function showAudit(id) {
+            $.post('/DamagesMgr/GetRequestRecords?id=' + id, function (data) {
+                $('#auditDlg').dialog('open').dialog('center');
+                $('#auditFm').form('load', data);
+            });
+        }
 
-            //Excel导出
-            function doExcelOut() {
-                var jsonString = getDivInputsToJson("tb");
+        // 提交审核
+        function submitAudit() {
+            $('#auditFm').form('submit', {
+                url: '/DamagesMgr/RequestRecAudit',
+                success: function () {
+                    $('#auditDlg').dialog('close');
+                    $('#dg').datagrid('reload');
+                }
+            });
+        }
 
-                $.post("/DamagesMgr/DoExcelOut", { strJsonWhere: jsonString }, function (data) {
+        //Excel文件上传
+        //Excel批量查询名单
+        function InExcelSearchInfo() {
+            //$("#lblInfo").html("系统正在导入请稍候......");
+            $.messager.progress({
+                title: '导入数可能需要几分钟，请耐心等待',
+                msg: '数据正在导入中...'
+            });
+
+            $('#ffExcelSearch').form({
+                url: '/DamagesMgr/ImportExcel',
+                onSubmit: function () {
+                    // do some check
+                    // return false to prevent submit;
+                },
+                success: function (res) {
+                    var data = $.parseJSON(res);
                     if (data.Flag) {
+                        $.messager.progress('close');
+                        $("#winSearch").window('close');
                         window.open("/Upload/" + data.DataInfo);
+                    } else {
+                        $.messager.alert("错误", data.ReMsg);
                     }
-                    else {
-                        $.messager.alert("提示", data.ReMsg);
-                    }
-                });
-            }
 
-            // 日期格式化
-            function formatDate(value) {
-                return new Date(value).toLocaleDateString();
-            }
+                }
+            });
+            // submit the form
+            $('#ffExcelSearch').submit();
+        }
 
-            // 状态格式化
-            function formatStatus(value) {
-                const statusMap = { 0: '待审核', 1: '已通过', 2: '已驳回' };
-                return statusMap[value] || '未知状态';
-            }
-        </script>
-    </body>
+
+        //Excel导出
+        function doExcelOut() {
+            var jsonString = getDivInputsToJson("tb");
+
+            $.post("/DamagesMgr/DoExcelOut", { strJsonWhere: jsonString }, function (data) {
+                if (data.Flag) {
+                    window.open("/Upload/" + data.DataInfo);
+                }
+                else {
+                    $.messager.alert("提示", data.ReMsg);
+                }
+            });
+        }
+
+        //打开批量审核窗口
+        function batchAudit() {
+            var rows = $('#dg').datagrid('getSelections');
+            rows.forEach(function (row) {
+                if (row.Flag == 1) {
+                    $.messager.alert("错误", row.Id + "已审核不能重复审核");
+                    return false;
+                }
+            });
+            $("#batchAuditDlg").window('open');
+        }
+
+
+        //批量审核
+        function batchSaveRecord() {
+            var rows = $('#dg').datagrid('getSelections');
+            const rowIds = [];
+            rows.forEach(function (row) {
+                if (row.Flag == 1) {
+                    $.messager.alert("错误", row.Id + "已审核不能重复审核");
+                    return false;
+                } else {
+                    rowIds.push(row.Id);
+                }
+            });
+
+            var flag = $("#batchFlag").combobox('getValue');
+
+            var audittext=$("#batchAuditText").textbox('getText');
+            
+            $.post("/DamagesMgr/RequestRecBatchAudit", { "ids": JSON.stringify(rowIds), "flag": flag, "auditText": audittext }, function (data) {
+                if (data.Flag==false) {
+                    $.messager.alert("提示", data.ReMsg);
+                    window.open("/Upload/" + data.DataInfo);
+                } else {
+                    $.messager.alert("提示", data.ReMsg);
+                    $("#batchAuditDlg").window('close');
+                }
+            });
+            
+        }
+
+        // 日期格式化
+        function formatDate(value) {
+            return new Date(value).toLocaleDateString();
+        }
+
+        // 状态格式化
+        function formatStatus(value) {
+            const statusMap = { 0: '待审核', 1: '已通过', 2: '已驳回' };
+            return statusMap[value] || '未知状态';
+        }
+
+
+    </script>
+</body>
 </html>

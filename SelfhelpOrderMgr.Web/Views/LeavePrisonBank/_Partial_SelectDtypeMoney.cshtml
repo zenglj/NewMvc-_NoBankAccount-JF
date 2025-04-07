@@ -1,6 +1,6 @@
 ﻿<div>
     <div id="divPaySelArea">
-        <h3>请输入要扣款的金额 ：</h3>
+        <h3>请选择结算类型 ：</h3>
         <div class="form-group form-inline">
             <div class="input-group">
                 <div class="input-group-addon">结算类型：</div>
@@ -264,6 +264,8 @@
         //    }
         //}
         $("#BankAmount").html($("#tdAmountALL").html());
+        $("#BankUserName").html($("#tdFName").html());
+        $("#PayMode").html($("#selPayMode").find("option:selected").text());
         $("#divPayDisplayInfo").show();
         $("#divPaySelArea").hide();
         $("#divPayDisplayBalanceQeury").hide();

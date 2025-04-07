@@ -39,6 +39,7 @@ namespace SelfhelpOrderMgr.Model
         /// DAmount
         /// </summary>		
         private decimal _damount;
+        [System.ComponentModel.Description("存入金额")]
         public decimal DAmount
         {
             get { return _damount; }
@@ -48,6 +49,7 @@ namespace SelfhelpOrderMgr.Model
         /// CAmount
         /// </summary>		
         private decimal _camount;
+        [System.ComponentModel.Description("扣款金额")]
         public decimal CAmount
         {
             get { return _camount; }
@@ -66,6 +68,7 @@ namespace SelfhelpOrderMgr.Model
         /// CrtDate
         /// </summary>		
         private DateTime _crtdate;
+        [System.ComponentModel.Description("建档日期")]
         public DateTime CrtDate
         {
             get { return _crtdate; }
@@ -75,6 +78,7 @@ namespace SelfhelpOrderMgr.Model
         /// DType
         /// </summary>		
         private string _dtype;
+        [System.ComponentModel.Description("类型")]
         public string DType
         {
             get { return _dtype; }
@@ -84,6 +88,7 @@ namespace SelfhelpOrderMgr.Model
         /// Depositer
         /// </summary>		
         private string _depositer;
+        [System.ComponentModel.Description("经办")]
         public string Depositer
         {
             get { return _depositer; }
@@ -93,6 +98,7 @@ namespace SelfhelpOrderMgr.Model
         /// Remark
         /// </summary>		
         private string _remark;
+        [System.ComponentModel.Description("备注")]
         public string Remark
         {
             get { return _remark; }
@@ -102,6 +108,7 @@ namespace SelfhelpOrderMgr.Model
         /// Flag
         /// </summary>		
         private int _flag;
+        [System.ComponentModel.Description("标志")]
         public int Flag
         {
             get { return _flag; }
@@ -111,6 +118,7 @@ namespace SelfhelpOrderMgr.Model
         /// DelBy
         /// </summary>		
         private string _delby;
+
         public string DelBy
         {
             get { return _delby; }
@@ -119,8 +127,8 @@ namespace SelfhelpOrderMgr.Model
         /// <summary>
         /// DelDate
         /// </summary>		
-        private DateTime _deldate;
-        public DateTime DelDate
+        private DateTime? _deldate;
+        public DateTime? DelDate
         {
             get { return _deldate; }
             set { _deldate = value; }
@@ -138,6 +146,7 @@ namespace SelfhelpOrderMgr.Model
         /// FAreaName
         /// </summary>		
         private string _fareaname;
+        [System.ComponentModel.Description("队别")]
         public string FAreaName
         {
             get { return _fareaname; }
@@ -147,6 +156,7 @@ namespace SelfhelpOrderMgr.Model
         /// FCriminal
         /// </summary>		
         private string _fcriminal;
+        [System.ComponentModel.Description("姓名")]
         public string FCriminal
         {
             get { return _fcriminal; }
@@ -227,8 +237,8 @@ namespace SelfhelpOrderMgr.Model
         /// <summary>
         /// SendDate
         /// </summary>		
-        private DateTime _senddate;
-        public DateTime SendDate
+        private DateTime? _senddate;
+        public DateTime? SendDate
         {
             get { return _senddate; }
             set { _senddate = value; }
@@ -254,8 +264,8 @@ namespace SelfhelpOrderMgr.Model
         /// <summary>
         /// CheckDate
         /// </summary>		
-        private DateTime _checkdate;
-        public DateTime CheckDate
+        private DateTime? _checkdate;
+        public DateTime? CheckDate
         {
             get { return _checkdate; }
             set { _checkdate = value; }
@@ -299,8 +309,8 @@ namespace SelfhelpOrderMgr.Model
         /// <summary>
         /// RcvDate
         /// </summary>		
-        private DateTime _rcvdate;
-        public DateTime RcvDate
+        private DateTime? _rcvdate;
+        public DateTime? RcvDate
         {
             get { return _rcvdate; }
             set { _rcvdate = value; }

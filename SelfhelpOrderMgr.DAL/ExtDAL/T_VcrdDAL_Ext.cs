@@ -11,7 +11,7 @@ namespace SelfhelpOrderMgr.DAL
 {
     public partial class T_VcrdDAL
     {
-        public List<T_Vcrd> GetPageList(int page, int pageRow, string strWhere,string orderByField)
+        public List<T_Vcrd> GetPageList(int page, int pageRow, string strWhere, string orderByField)
         {
             using (IDbConnection conn = new SqlConnection(SqlHelper.getConnstr()))
             {
@@ -28,36 +28,36 @@ namespace SelfhelpOrderMgr.DAL
                 }
                 strSql.Append(") b");
                 strSql.Append(" where RowNumber>=@startNumber and RowNumber<=@endNumber");
-                if (string.IsNullOrEmpty(orderByField)==false)
+                if (string.IsNullOrEmpty(orderByField) == false)
                 {
-                    strSql.Append(" Order by "+orderByField);
+                    strSql.Append(" Order by " + orderByField);
                 }
-                
+
                 return (List<T_Vcrd>)conn.Query<T_Vcrd>(strSql.ToString(), new { startNumber = startNumber, endNumber = endNumber });
             }
         }
 
         public decimal[] GetListCount(string strWhere)
         {
-                StringBuilder strSql = new StringBuilder();
+            StringBuilder strSql = new StringBuilder();
 
-                strSql.Append(@"select isnull(count(*),0) FCount,isnull(sum(Camount),0) FMoney,isnull(sum(Damount),0) FDMoney from T_Vcrd");
-                if (strWhere != "")
-                {
-                    strSql.Append(" where " + strWhere);
-                }
-                else
-                {
-                    strSql.Append(" where  Flag in(0,-2) and CAmount<>0 ");
-                }
-            decimal[] rs={0,0,0};
-            decimal fcount = Convert.ToDecimal( SqlHelper.Query(strSql.ToString()).Tables[0].Rows[0][0]);
-            decimal fmoney = Convert.ToDecimal( SqlHelper.Query(strSql.ToString()).Tables[0].Rows[0][1]);
+            strSql.Append(@"select isnull(count(*),0) FCount,isnull(sum(Camount),0) FMoney,isnull(sum(Damount),0) FDMoney from T_Vcrd");
+            if (strWhere != "")
+            {
+                strSql.Append(" where " + strWhere);
+            }
+            else
+            {
+                strSql.Append(" where  Flag in(0,-2) and CAmount<>0 ");
+            }
+            decimal[] rs = { 0, 0, 0 };
+            decimal fcount = Convert.ToDecimal(SqlHelper.Query(strSql.ToString()).Tables[0].Rows[0][0]);
+            decimal fmoney = Convert.ToDecimal(SqlHelper.Query(strSql.ToString()).Tables[0].Rows[0][1]);
             decimal fDmoney = Convert.ToDecimal(SqlHelper.Query(strSql.ToString()).Tables[0].Rows[0][2]);
             rs[0] = fcount;
             rs[1] = fmoney;
             rs[2] = fDmoney;
-                return rs;
+            return rs;
         }
 
         //获取财务存款科目类型
@@ -80,7 +80,7 @@ namespace SelfhelpOrderMgr.DAL
 
                 {
                     strSql.Append(@"select ID,FType,FCode,FName,FRemark from T_CommonTypeTab where FTYpe='CWKM' and FRemark='支';");
-                    mainType= (List<T_CommonTypeTab>)conn.Query<T_CommonTypeTab>(strSql.ToString());
+                    mainType = (List<T_CommonTypeTab>)conn.Query<T_CommonTypeTab>(strSql.ToString());
                     //strSql = new StringBuilder();
                     //strSql.Append(@"select 0 ID ,'' FType,FCode,FName,'' FRemark from T_SaveType where TypeFlag=1;");
                     //subType= (List<T_CommonTypeTab>)conn.Query<T_CommonTypeTab>(strSql.ToString());              
@@ -108,7 +108,7 @@ namespace SelfhelpOrderMgr.DAL
                 //    i++;
                 //}
                 return saveTypes;
-            }            
+            }
         }
 
 
@@ -123,7 +123,7 @@ namespace SelfhelpOrderMgr.DAL
         /// <param name="remark">备注</param>
         /// <param name="apply">申请人</param>
         /// <returns></returns>
-        public List<T_Vcrd> UserCunKouKuan(T_Criminal criminal, int flag, decimal fmoney, T_Savetype savetype, string crtby, string remark, string apply, string pkId, int checkFlag=0)
+        public List<T_Vcrd> UserCunKouKuan(T_Criminal criminal, int flag, decimal fmoney, T_Savetype savetype, string crtby, string remark, string apply, string pkId, int checkFlag = 0)
         {
             int ivcrdflag = 0;
             T_SHO_ManagerSet mset = new T_SHO_ManagerSetDAL().GetModel("DepositInVcrdFlag");
@@ -147,323 +147,566 @@ namespace SelfhelpOrderMgr.DAL
                 //插入VCrd记录及更新余额
                 strSql = new StringBuilder();
                 T_Criminal_card card = new T_Criminal_cardDAL().GetModel(criminal.FCode);
-                    
-                    strSql.Append("declare @VOUNO varchar(30);");
-                    strSql.Append("exec  CREATESEQNO  'VOU',1,@vouno output;");
-                    strSql.Append("select @VOUNO='VOU'+@VOUNO;");
-                    strSql.Append("insert into T_Vcrd(");
-                    strSql.Append("VOUNO,cardcode,fcrimecode,DAMOUNT,CAMOUNT,crtBy,CRTDATE,DTYPE,DEPOSITER,REMARK,flag,fareacode,fareaName,fcriminal,Frealareacode,FrealAreaName,ptype,udate,origid,cardtype,TYPEFLAG,acctype,Bankflag,checkflag,checkby,pc,curUserAmount,curAllAmount,SubTypeFlag");
-                    strSql.Append(") values (");
-                    strSql.Append("@VOUNO,@cardcode,@fcrimecode,@DAMOUNT,@CAMOUNT,@crtBy,@CRTDATE,@DTYPE,@DEPOSITER,@REMARK,@flag,@fareacode,@fareaName,@fcriminal,@Frealareacode,@FrealAreaName,@ptype,@udate,@origid,@cardtype,@TYPEFLAG,@acctype,@Bankflag,@checkflag,@checkby,@pc,@curUserAmount,@curAllAmount,@SubTypeFlag");
-                    strSql.Append(");select @@IDENTITY");
+
+                strSql.Append("declare @VOUNO varchar(30);");
+                strSql.Append("exec  CREATESEQNO  'VOU',1,@vouno output;");
+                strSql.Append("select @VOUNO='VOU'+@VOUNO;");
+                strSql.Append("insert into T_Vcrd(");
+                strSql.Append("VOUNO,cardcode,fcrimecode,DAMOUNT,CAMOUNT,crtBy,CRTDATE,DTYPE,DEPOSITER,REMARK,flag,fareacode,fareaName,fcriminal,Frealareacode,FrealAreaName,ptype,udate,origid,cardtype,TYPEFLAG,acctype,Bankflag,checkflag,checkby,pc,curUserAmount,curAllAmount,SubTypeFlag");
+                strSql.Append(") values (");
+                strSql.Append("@VOUNO,@cardcode,@fcrimecode,@DAMOUNT,@CAMOUNT,@crtBy,@CRTDATE,@DTYPE,@DEPOSITER,@REMARK,@flag,@fareacode,@fareaName,@fcriminal,@Frealareacode,@FrealAreaName,@ptype,@udate,@origid,@cardtype,@TYPEFLAG,@acctype,@Bankflag,@checkflag,@checkby,@pc,@curUserAmount,@curAllAmount,@SubTypeFlag");
+                strSql.Append(");select @@IDENTITY");
 
 
-                    strInvo.Append("declare @INVNO varchar(30);");
-                    strInvo.Append("exec  CREATESEQNO  'INV',1,@INVNO output;");
-                    strInvo.Append("select @INVNO='INVPK'+@INVNO;");
-                    strInvo.Append("insert into T_Invoice(");
-                    strInvo.Append(@"INVOICENO,cardcode,fcrimecode,amount,OrderDate,PayDATE
+                strInvo.Append("declare @INVNO varchar(30);");
+                strInvo.Append("exec  CREATESEQNO  'INV',1,@INVNO output;");
+                strInvo.Append("select @INVNO='INVPK'+@INVNO;");
+                strInvo.Append("insert into T_Invoice(");
+                strInvo.Append(@"INVOICENO,cardcode,fcrimecode,amount,OrderDate,PayDATE
                                     ,PTYPE,Flag,REMARK,servamount,crtby,crtdate
                                     ,fsn,fareacode,fareaName,fcriminal,Frealareacode
                                     ,FrealAreaName,TYPEFLAG,CardType,AmountA,AmountB
                                     ,fifoflag,FreeAmountA,FreeAmountB,checkflag
                                     ,RoomNo,OrderId");
-                    strInvo.Append(") values (");
-                    strInvo.Append(@"@INVNO,@cardcode,@fcrimecode,@amount,@OrderDate,@PayDATE
+                strInvo.Append(") values (");
+                strInvo.Append(@"@INVNO,@cardcode,@fcrimecode,@amount,@OrderDate,@PayDATE
                                     ,@PTYPE,@Flag,@REMARK,@servamount,@crtby,@crtdate
                                     ,@fsn,@fareacode,@fareaName,@fcriminal,@Frealareacode
                                     ,@FrealAreaName,@TYPEFLAG,@CardType,@AmountA,@AmountB
                                     ,@fifoflag,@FreeAmountA,@FreeAmountB,@checkflag
                                     ,@RoomNo,@OrderId");
-                    strInvo.Append(");select @INVNO");
+                strInvo.Append(");select @INVNO");
 
-                    object paramVcrd;
-                    int seq = 0;
-                    List<int> seqs;
+                object paramVcrd;
+                int seq = 0;
+                List<int> seqs;
                 T_Criminal_card _uCard = new T_Criminal_cardDAL().GetModel(criminal.FCode);
                 if (savetype.AccType == 1)
                 {
 
                 }
 
-                if (flag==1)
+                if (flag == 1)
+                {
+                    //存款都在A账户
+                    //2020修改为根据savetype的 acctype 值
+                    if (savetype.AccType == null)
                     {
-                        //存款都在A账户
-                        //2020修改为根据savetype的 acctype 值
-                        if (savetype.AccType == null)
-                        {
-                            savetype.AccType = 0;
-                        }
-                        
+                        savetype.AccType = 0;
+                    }
+
                     paramVcrd = new { cardcode = criminal.CardCode, fcrimecode = criminal.FCode, DAMOUNT = fmoney, CAMOUNT = 0, crtBy = crtby, CRTDATE = DateTime.Now, DTYPE = savetype.fname, DEPOSITER = apply, REMARK = remark, flag = ivcrdflag, fareacode = criminal.FAreaCode, fareaName = criminal.FAreaName, fcriminal = criminal.FName, Frealareacode = "", FrealAreaName = "", ptype = "", udate = DateTime.Now.Year + "-" + DateTime.Now.Month + "-1", origid = invoiceno, cardtype = 0, TypeFlag = 0, acctype = savetype.AccType, Bankflag = 0, checkflag = 0, checkby = crtby, pc = 0, curUserAmount = criminal.OkUseAllMoney, curAllAmount = criminal.AmountAmoney + criminal.AmountBmoney + criminal.AmountCmoney, SubTypeFlag = savetype.fcode };
-                        seqs = (List<int>)conn.Query<int>(strSql.ToString(), paramVcrd, myTran);
+                    seqs = (List<int>)conn.Query<int>(strSql.ToString(), paramVcrd, myTran);
+                    seq = Convert.ToInt32(seqs[0]);
+                    seqnos = seq.ToString();
+                }
+                else
+                {
+                    decimal fmoneyA = 0;
+                    decimal fmoneyB = 0;
+                    decimal fmoneyC = 0;
+
+                    //A账户扣款
+                    //fmoneyA = card.AmountA;
+                    /*
+                     *2018-06-21修正  曾林进
+                     * 如果fmoneyA金额为0，则不写入记录
+                     */
+
+                    switch (savetype.AccType)
+                    {
+                        case 1://先B，再A，最后C
+                            {
+                                if (card.AmountB + card.AmountA < fmoney)//A+B钱不够扣
+                                {//分别从三个账户扣款
+                                    fmoneyB = card.AmountB;
+                                    fmoneyA = card.AmountA;
+                                    fmoneyC = (fmoney - card.AmountA - card.AmountB);
+
+                                }
+                                else if (card.AmountB < fmoney)
+                                {//分别从三个账户扣款
+                                    fmoneyB = card.AmountB;
+                                    fmoneyA = (fmoney - card.AmountB);
+                                    fmoneyC = 0;
+                                }
+                                else
+                                {
+                                    fmoneyA = 0;
+                                    fmoneyB = fmoney;
+                                    fmoneyC = 0;
+                                }
+                            }
+                            break;
+                        case 2://先C，再A，最后B
+                            {
+                                if (card.AmountC + card.AmountA < fmoney)//A+B钱不够扣
+                                {//分别从三个账户扣款
+                                    fmoneyC = card.AmountC;
+                                    fmoneyA = card.AmountA;
+                                    fmoneyB = (fmoney - card.AmountC - card.AmountA);
+                                }
+                                else if (card.AmountC < fmoney)
+                                {//分别从三个账户扣款
+                                    fmoneyC = card.AmountC;
+                                    fmoneyA = (fmoney - card.AmountC);
+                                    fmoneyB = 0;
+                                }
+                                else
+                                {
+                                    fmoneyA = 0;
+                                    fmoneyB = 0;
+                                    fmoneyC = fmoney;
+                                }
+                            }
+                            break;
+                        default://先A，再B，最后C
+                            {
+                                if (card.AmountA + card.AmountB < fmoney)//A+B钱不够扣
+                                {//分别从三个账户扣款
+                                    fmoneyA = card.AmountA;
+                                    fmoneyB = card.AmountB;
+                                    fmoneyC = (fmoney - card.AmountA - card.AmountB);
+                                }
+                                else if (card.AmountA < fmoney)
+                                {//分别从三个账户扣款
+                                    fmoneyA = card.AmountA;
+                                    fmoneyB = (fmoney - card.AmountA);
+                                    fmoneyC = 0;
+                                }
+                                else
+                                {
+                                    fmoneyA = fmoney;
+                                    fmoneyB = 0;
+                                    fmoneyC = 0;
+                                }
+                            }
+                            break;
+                    }
+
+                    //if (fmoneyA != 0)
+                    //{
+                    //    //checkFlag是根据系统参数设定：YibanQukouKuanShenhe_Flag(一般取扣款是否需要审核)的MgrValue值来控制
+                    //    object paramVcrdA = new { cardcode = criminal.CardCode, fcrimecode = criminal.FCode, DAMOUNT = 0, CAMOUNT = card.AmountA, crtBy = crtby, CRTDATE = DateTime.Now, DTYPE = savetype.fname, DEPOSITER = apply, REMARK = remark, flag = 0, fareacode = criminal.FAreaCode, fareaName = criminal.FAreaName, fcriminal = criminal.FName, Frealareacode = "", FrealAreaName = "", ptype = "", udate = DateTime.Now.Year + "-" + DateTime.Now.Month + "-1", origid = invoiceno, cardtype = 0, TypeFlag = 2, acctype = 0, Bankflag = 0, checkflag = checkFlag, checkby = crtby, pc = 0, curUserAmount = criminal.OkUseAllMoney, curAllAmount = criminal.AmountAmoney + criminal.AmountBmoney + criminal.AmountCmoney, SubTypeFlag = savetype.fcode };
+                    //    seqs = (List<int>)conn.Query<int>(strSql.ToString(), paramVcrdA, myTran);
+                    //    seq = Convert.ToInt32(seqs[0]);
+                    //    seqnos = seq.ToString();
+                    //    //写入明细记录
+                    //    WriteInvoice(criminal, fmoneyA, savetype, crtby, remark, conn, strInvo, myTran, seqnos, fmoneyA, 0, seq);
+
+                    //}
+
+
+                    //B账户扣款
+                    //fmoneyB = fmoney - card.AmountA;
+                    ////checkFlag是根据系统参数设定：YibanQukouKuanShenhe_Flag(一般取扣款是否需要审核)的MgrValue值来控制
+                    //object paramVcrdB = new { cardcode = criminal.CardCode, fcrimecode = criminal.FCode, DAMOUNT = 0, CAMOUNT = fmoney-card.AmountA, crtBy = crtby, CRTDATE = DateTime.Now, DTYPE = savetype.fname, DEPOSITER = apply, REMARK = remark, flag = 0, fareacode = criminal.FAreaCode, fareaName = criminal.FAreaName, fcriminal = criminal.FName, Frealareacode = "", FrealAreaName = "", ptype = "", udate = DateTime.Now.Year + "-" + DateTime.Now.Month + "-1", origid = invoiceno, cardtype = 0, TypeFlag = 2, acctype = 1, Bankflag = 0, checkflag = checkFlag, checkby = crtby, pc = 0, curUserAmount = criminal.OkUseAllMoney, curAllAmount = criminal.AmountAmoney + criminal.AmountBmoney + criminal.AmountCmoney, SubTypeFlag = savetype.fcode };
+                    //seqs = (List<int>)conn.Query<int>(strSql.ToString(), paramVcrdB, myTran);
+                    //seq = Convert.ToInt32(seqs[0]);
+                    //if (seqnos == "")
+                    //{
+                    //    seqnos = seq.ToString();
+                    //}else
+                    //{
+                    //    seqnos = seqnos + "," + seq.ToString();
+                    //}
+
+                    //========================================================================
+                    /*===========================
+                     2020-01-09 zeng 改为从多(3)个账户扣款
+                     */
+                    //=========================================================================
+                    if (fmoneyA > 0)
+                    {
+                        //checkFlag是根据系统参数设定：YibanQukouKuanShenhe_Flag(一般取扣款是否需要审核)的MgrValue值来控制
+                        object paramVcrdA = new { cardcode = criminal.CardCode, fcrimecode = criminal.FCode, DAMOUNT = 0, CAMOUNT = fmoneyA, crtBy = crtby, CRTDATE = DateTime.Now, DTYPE = savetype.fname, DEPOSITER = apply, REMARK = remark, flag = 0, fareacode = criminal.FAreaCode, fareaName = criminal.FAreaName, fcriminal = criminal.FName, Frealareacode = "", FrealAreaName = "", ptype = "", udate = DateTime.Now.Year + "-" + DateTime.Now.Month + "-1", origid = invoiceno, cardtype = 0, TypeFlag = 2, acctype = 0, Bankflag = 0, checkflag = checkFlag, checkby = crtby, pc = 0, curUserAmount = criminal.OkUseAllMoney, curAllAmount = criminal.AmountAmoney + criminal.AmountBmoney + criminal.AmountCmoney, SubTypeFlag = savetype.fcode };
+                        seqs = (List<int>)conn.Query<int>(strSql.ToString(), paramVcrdA, myTran);
                         seq = Convert.ToInt32(seqs[0]);
+                        seqnos = seq.ToString();
+                        //写入明细记录
+                        WriteInvoice(criminal, fmoneyA, savetype, crtby, remark, conn, strInvo, myTran, seqnos, fmoneyA, 0, seq);
+                    }
+                    if (fmoneyB > 0)
+                    {
+                        //checkFlag是根据系统参数设定：YibanQukouKuanShenhe_Flag(一般取扣款是否需要审核)的MgrValue值来控制
+                        object paramVcrdB = new { cardcode = criminal.CardCode, fcrimecode = criminal.FCode, DAMOUNT = 0, CAMOUNT = fmoneyB, crtBy = crtby, CRTDATE = DateTime.Now, DTYPE = savetype.fname, DEPOSITER = apply, REMARK = remark, flag = 0, fareacode = criminal.FAreaCode, fareaName = criminal.FAreaName, fcriminal = criminal.FName, Frealareacode = "", FrealAreaName = "", ptype = "", udate = DateTime.Now.Year + "-" + DateTime.Now.Month + "-1", origid = invoiceno, cardtype = 0, TypeFlag = 2, acctype = 1, Bankflag = 0, checkflag = checkFlag, checkby = crtby, pc = 0, curUserAmount = criminal.OkUseAllMoney, curAllAmount = criminal.AmountAmoney + criminal.AmountBmoney + criminal.AmountCmoney, SubTypeFlag = savetype.fcode };
+                        seqs = (List<int>)conn.Query<int>(strSql.ToString(), paramVcrdB, myTran);
+                        seq = Convert.ToInt32(seqs[0]);
+                        if (seqnos == "")
+                        {
+                            seqnos = seq.ToString();
+                        }
+                        else
+                        {
+                            seqnos = seqnos + "," + seq.ToString();
+                        }
+                    }
+
+                    if (fmoneyC > 0)
+                    {
+                        object paramVcrdC = new { cardcode = criminal.CardCode, fcrimecode = criminal.FCode, DAMOUNT = 0, CAMOUNT = fmoneyC, crtBy = crtby, CRTDATE = DateTime.Now, DTYPE = savetype.fname, DEPOSITER = apply, REMARK = remark, flag = 0, fareacode = criminal.FAreaCode, fareaName = criminal.FAreaName, fcriminal = criminal.FName, Frealareacode = "", FrealAreaName = "", ptype = "", udate = DateTime.Now.Year + "-" + DateTime.Now.Month + "-1", origid = invoiceno, cardtype = 0, TypeFlag = 2, acctype = 2, Bankflag = 0, checkflag = checkFlag, checkby = crtby, pc = 0, curUserAmount = criminal.OkUseAllMoney, curAllAmount = criminal.AmountAmoney + criminal.AmountBmoney + criminal.AmountCmoney, SubTypeFlag = savetype.fcode };
+                        seqs = (List<int>)conn.Query<int>(strSql.ToString(), paramVcrdC, myTran);
+                        seq = Convert.ToInt32(seqs[0]);
+                        if (seqnos == "")
+                        {
+                            seqnos = seq.ToString();
+                        }
+                        else
+                        {
+                            seqnos = seqnos + "," + seq.ToString();
+                        }
+                    }
+
+
+                    //写入明细记录
+                    //2020-01-09 消费记录，如果C账户大于0 则消费账户B的金额为B+C之和。
+                    WriteInvoice(criminal, fmoney, savetype, crtby, remark, conn, strInvo, myTran, seqnos, fmoneyA, fmoneyB + fmoneyC, seq);
+                }
+                if (seq > 0)
+                {
+                    //更新账户T_Criminal_Card金额
+                    strSql = new StringBuilder();
+                    strSql.Append("update t_criminal_card set amounta=amounta+@fmoneyA,amountb=amountb+@fmoneyB,amountC=amountC+@fmoneyC where fcrimecode=@fcrimecode;");
+                    //2020修改为根据savetype的 acctype 值
+                    if (savetype.AccType == null)
+                    {
+                        savetype.AccType = 0;
+                    }
+
+                    if (ivcrdflag == -2 && flag == 1)//如果需要审核后才可以入账的话，变动金额就全部置为0
+                    {
+                        paramVcrd = new { fmoneyA = 0, fmoneyB = 0, fmoneyC = 0, fcrimecode = criminal.FCode };
+
+                    }
+                    else
+                    {
+                        switch (savetype.AccType)
+                        {
+                            case 1:
+                                {
+                                    paramVcrd = new { fmoneyA = 0, fmoneyB = fmoney * flag, fmoneyC = 0, fcrimecode = criminal.FCode };
+                                }
+                                break;
+                            case 2:
+                                {
+                                    paramVcrd = new { fmoneyA = 0, fmoneyB = 0, fmoneyC = fmoney * flag, fcrimecode = criminal.FCode };
+                                }
+                                break;
+                            default:
+                                {
+                                    paramVcrd = new { fmoneyA = fmoney * flag, fmoneyB = 0, fmoneyC = 0, fcrimecode = criminal.FCode };
+                                }
+                                break;
+                        }
+                    }
+
+
+
+                    if (flag == -1)
+                    {
+                        switch (savetype.AccType)
+                        {
+                            case 1://先B，再A，最后C
+                                {
+                                    if (card.AmountB + card.AmountA < fmoney)//A+B钱不够扣
+                                    {//分别从三个账户扣款
+                                        paramVcrd = new { fmoneyB = card.AmountB * flag, fmoneyA = card.AmountA * flag, fmoneyC = (fmoney - card.AmountA - card.AmountB) * flag, fcrimecode = criminal.FCode };
+                                    }
+                                    else if (card.AmountB < fmoney)
+                                    {//分别从三个账户扣款
+                                        paramVcrd = new { fmoneyB = card.AmountB * flag, fmoneyA = (fmoney - card.AmountB) * flag, fmoneyC = 0, fcrimecode = criminal.FCode };
+                                    }
+                                }
+                                break;
+                            case 2://先C，再A，最后B
+                                {
+                                    if (card.AmountC + card.AmountA < fmoney)//A+B钱不够扣
+                                    {//分别从三个账户扣款
+                                        paramVcrd = new { fmoneyC = card.AmountC * flag, fmoneyA = card.AmountA * flag, fmoneyB = (fmoney - card.AmountC - card.AmountA) * flag, fcrimecode = criminal.FCode };
+                                    }
+                                    else if (card.AmountC < fmoney)
+                                    {//分别从三个账户扣款
+                                        paramVcrd = new { fmoneyC = card.AmountC * flag, fmoneyA = (fmoney - card.AmountC) * flag, fmoneyB = 0, fcrimecode = criminal.FCode };
+                                    }
+
+                                }
+                                break;
+                            default://先A，再A，最后C
+                                {
+                                    if (card.AmountA + card.AmountB < fmoney)//A+B钱不够扣
+                                    {//分别从三个账户扣款
+                                        paramVcrd = new { fmoneyA = card.AmountA * flag, fmoneyB = card.AmountB * flag, fmoneyC = (fmoney - card.AmountA - card.AmountB) * flag, fcrimecode = criminal.FCode };
+                                    }
+                                    else if (card.AmountA < fmoney)
+                                    {//分别从三个账户扣款
+                                        paramVcrd = new { fmoneyA = card.AmountA * flag, fmoneyB = (fmoney - card.AmountA) * flag, fmoneyC = 0, fcrimecode = criminal.FCode };
+                                    }
+                                }
+                                break;
+                        }
+
+
+                    }
+
+                    int x = conn.Execute(strSql.ToString(), paramVcrd, myTran);
+
+                    if (x > 0)
+                    {
+                        myTran.Commit();
+                        strSql = new StringBuilder();
+                        strSql.Append("select * from t_vcrd where seqno in(" + seqnos + ");");
+                        //paramVcrd = new { seqnos = seqnos };
+                        List<T_Vcrd> vards = (List<T_Vcrd>)conn.Query<T_Vcrd>(strSql.ToString(), myTran);
+
+                        return vards;
+                    }
+                    myTran.Rollback();
+                }
+
+            }
+
+            return null;
+
+        }
+
+
+        /// <summary>
+        /// 仅扣款操作
+        /// </summary>
+        /// <param name="criminal"></param>
+        /// <param name="acctype"></param>
+        /// <param name="fmoney"></param>
+        /// <param name="savetype"></param>
+        /// <param name="crtby"></param>
+        /// <param name="remark"></param>
+        /// <param name="apply"></param>
+        /// <param name="pkId"></param>
+        /// <param name="checkFlag"></param>
+        /// <returns></returns>
+        public List<T_Vcrd> UserOnlyKouKuan(T_Criminal criminal, int acctype, decimal fmoney, T_Savetype savetype, string crtby, string remark, string apply, string pkId, int checkFlag = 0)
+        {
+            //扣款就不要审核了
+            //int ivcrdflag = 0;
+            //T_SHO_ManagerSet mset = new T_SHO_ManagerSetDAL().GetModel("DepositInVcrdFlag");
+            //if (mset != null)
+            //{
+            //    if (mset.MgrValue == "-2")
+            //    {
+            //        ivcrdflag = -2;
+            //    }
+            //}
+            using (IDbConnection conn = new SqlConnection(SqlHelper.getConnstr()))
+            {
+                conn.Open();
+
+                string invoiceno = pkId;
+                StringBuilder strSql = new StringBuilder();
+                StringBuilder strInvo = new StringBuilder();
+                IDbTransaction myTran = conn.BeginTransaction();
+
+                string seqnos = "";
+                //插入VCrd记录及更新余额
+                strSql = new StringBuilder();
+                T_Criminal_card card = new T_Criminal_cardDAL().GetModel(criminal.FCode);
+
+                strSql.Append("declare @VOUNO varchar(30);");
+                strSql.Append("exec  CREATESEQNO  'VOU',1,@vouno output;");
+                strSql.Append("select @VOUNO='VOU'+@VOUNO;");
+                strSql.Append("insert into T_Vcrd(");
+                strSql.Append("VOUNO,cardcode,fcrimecode,DAMOUNT,CAMOUNT,crtBy,CRTDATE,DTYPE,DEPOSITER,REMARK,flag,fareacode,fareaName,fcriminal,Frealareacode,FrealAreaName,ptype,udate,origid,cardtype,TYPEFLAG,acctype,Bankflag,checkflag,checkby,pc,curUserAmount,curAllAmount,SubTypeFlag");
+                strSql.Append(") values (");
+                strSql.Append("@VOUNO,@cardcode,@fcrimecode,@DAMOUNT,@CAMOUNT,@crtBy,@CRTDATE,@DTYPE,@DEPOSITER,@REMARK,@flag,@fareacode,@fareaName,@fcriminal,@Frealareacode,@FrealAreaName,@ptype,@udate,@origid,@cardtype,@TYPEFLAG,@acctype,@Bankflag,@checkflag,@checkby,@pc,@curUserAmount,@curAllAmount,@SubTypeFlag");
+                strSql.Append(");select @@IDENTITY");
+
+
+                strInvo.Append("declare @INVNO varchar(30);");
+                strInvo.Append("exec  CREATESEQNO  'INV',1,@INVNO output;");
+                strInvo.Append("select @INVNO='INVPK'+@INVNO;");
+                strInvo.Append("insert into T_Invoice(");
+                strInvo.Append(@"INVOICENO,cardcode,fcrimecode,amount,OrderDate,PayDATE
+                                    ,PTYPE,Flag,REMARK,servamount,crtby,crtdate
+                                    ,fsn,fareacode,fareaName,fcriminal,Frealareacode
+                                    ,FrealAreaName,TYPEFLAG,CardType,AmountA,AmountB
+                                    ,fifoflag,FreeAmountA,FreeAmountB,checkflag
+                                    ,RoomNo,OrderId");
+                strInvo.Append(") values (");
+                strInvo.Append(@"@INVNO,@cardcode,@fcrimecode,@amount,@OrderDate,@PayDATE
+                                    ,@PTYPE,@Flag,@REMARK,@servamount,@crtby,@crtdate
+                                    ,@fsn,@fareacode,@fareaName,@fcriminal,@Frealareacode
+                                    ,@FrealAreaName,@TYPEFLAG,@CardType,@AmountA,@AmountB
+                                    ,@fifoflag,@FreeAmountA,@FreeAmountB,@checkflag
+                                    ,@RoomNo,@OrderId");
+                strInvo.Append(");select @INVNO");
+
+                object paramVcrd;
+                int seq = 0;
+                List<int> seqs;
+                T_Criminal_card _uCard = new T_Criminal_cardDAL().GetModel(criminal.FCode);
+
+
+
+                decimal fmoneyA = 0;
+                decimal fmoneyB = 0;
+                decimal fmoneyC = 0;
+                decimal fmoneyD = 0;
+
+                //A账户扣款
+                //fmoneyA = card.AmountA;
+                /*
+                 *2018-06-21修正  曾林进
+                 * 如果fmoneyA金额为0，则不写入记录
+                 */
+
+                switch (acctype)
+                {
+                    case 1://先B，再A，最后C
+                        {
+                            fmoneyB = fmoney;
+                        }
+                        break;
+                    case 2://先C，再A，最后B
+                        {
+                            fmoneyC = fmoney;
+                        }
+                        break;
+                    case 4://先C，再A，最后B
+                        {
+                            fmoneyD = fmoney;
+                        }
+                        break;
+                    case 99://现金取款ABCD，4个账户都可以取款
+                        {
+                            if (_uCard.AmountA - criminal.dongjieMoney >= fmoney)
+                            {
+                                fmoneyA = fmoney;
+                            }
+                            else if (_uCard.AmountA+_uCard.AmountB - criminal.dongjieMoney >= fmoney)
+                            {
+                                fmoneyA = _uCard.AmountA- criminal.dongjieMoney;
+                                fmoneyB = fmoney- fmoneyA;
+                            }
+                            else if (_uCard.AmountA + _uCard.AmountB + _uCard.AmountC - criminal.dongjieMoney >= fmoney)
+                            {
+                                fmoneyA = _uCard.AmountA - criminal.dongjieMoney;
+                                fmoneyB = _uCard.AmountB;
+                                fmoneyC = fmoney - fmoneyA- fmoneyB;
+                            }
+                            else if (_uCard.AmountA + _uCard.AmountB + _uCard.AmountC + _uCard.AmountD - criminal.dongjieMoney >= fmoney)
+                            {
+                                fmoneyA = _uCard.AmountA - criminal.dongjieMoney;
+                                fmoneyB = _uCard.AmountB;
+                                fmoneyC = _uCard.AmountC;
+                                fmoneyD = fmoney - fmoneyA - fmoneyB - fmoneyC;
+                            }
+                        }
+                        break;
+                    default://0
+                        {
+                            fmoneyA = fmoney;
+                        }
+                        break;
+                }
+
+
+                //========================================================================
+                /*===========================
+                 2020-01-09 zeng 改为从多(3)个账户扣款
+                 */
+                //=========================================================================
+                if (fmoneyA > 0)
+                {
+                    //checkFlag是根据系统参数设定：YibanQukouKuanShenhe_Flag(一般取扣款是否需要审核)的MgrValue值来控制
+                    object paramVcrdA = new { cardcode = criminal.CardCode, fcrimecode = criminal.FCode, DAMOUNT = 0, CAMOUNT = fmoneyA, crtBy = crtby, CRTDATE = DateTime.Now, DTYPE = savetype.fname, DEPOSITER = apply, REMARK = remark, flag = 0, fareacode = criminal.FAreaCode, fareaName = criminal.FAreaName, fcriminal = criminal.FName, Frealareacode = "", FrealAreaName = "", ptype = "", udate = DateTime.Now.Year + "-" + DateTime.Now.Month + "-1", origid = invoiceno, cardtype = 0, TypeFlag = 2, acctype = 0, Bankflag = 0, checkflag = checkFlag, checkby = crtby, pc = 0, curUserAmount = criminal.OkUseAllMoney, curAllAmount = criminal.AmountAmoney + criminal.AmountBmoney + criminal.AmountCmoney, SubTypeFlag = savetype.fcode };
+                    seqs = (List<int>)conn.Query<int>(strSql.ToString(), paramVcrdA, myTran);
+                    seq = Convert.ToInt32(seqs[0]);
+                    seqnos = seq.ToString();
+                    //写入明细记录
+                    WriteInvoice(criminal, fmoneyA, savetype, crtby, remark, conn, strInvo, myTran, seqnos, fmoneyA, 0, seq);
+                }
+                if (fmoneyB > 0)
+                {
+                    //checkFlag是根据系统参数设定：YibanQukouKuanShenhe_Flag(一般取扣款是否需要审核)的MgrValue值来控制
+                    object paramVcrdB = new { cardcode = criminal.CardCode, fcrimecode = criminal.FCode, DAMOUNT = 0, CAMOUNT = fmoneyB, crtBy = crtby, CRTDATE = DateTime.Now, DTYPE = savetype.fname, DEPOSITER = apply, REMARK = remark, flag = 0, fareacode = criminal.FAreaCode, fareaName = criminal.FAreaName, fcriminal = criminal.FName, Frealareacode = "", FrealAreaName = "", ptype = "", udate = DateTime.Now.Year + "-" + DateTime.Now.Month + "-1", origid = invoiceno, cardtype = 0, TypeFlag = 2, acctype = 1, Bankflag = 0, checkflag = checkFlag, checkby = crtby, pc = 0, curUserAmount = criminal.OkUseAllMoney, curAllAmount = criminal.AmountAmoney + criminal.AmountBmoney + criminal.AmountCmoney, SubTypeFlag = savetype.fcode };
+                    seqs = (List<int>)conn.Query<int>(strSql.ToString(), paramVcrdB, myTran);
+                    seq = Convert.ToInt32(seqs[0]);
+                    if (seqnos == "")
+                    {
                         seqnos = seq.ToString();
                     }
                     else
                     {
-                        decimal fmoneyA = 0;
-                        decimal fmoneyB = 0;
-                        decimal fmoneyC = 0;
-
-                            //A账户扣款
-                            //fmoneyA = card.AmountA;
-                            /*
-                             *2018-06-21修正  曾林进
-                             * 如果fmoneyA金额为0，则不写入记录
-                             */
-
-                            switch (savetype.AccType)
-                            {
-                                case 1://先B，再A，最后C
-                                    {
-                                        if (card.AmountB + card.AmountA < fmoney)//A+B钱不够扣
-                                        {//分别从三个账户扣款
-                                            fmoneyB = card.AmountB;
-                                            fmoneyA = card.AmountA ;
-                                            fmoneyC = (fmoney - card.AmountA - card.AmountB) ;
-
-                                        }
-                                        else if (card.AmountB < fmoney)
-                                        {//分别从三个账户扣款
-                                            fmoneyB = card.AmountB ;
-                                            fmoneyA = (fmoney - card.AmountB) ; 
-                                            fmoneyC = 0;
-                                        }
-                                        else
-                                        {                                            
-                                            fmoneyA = 0;
-                                            fmoneyB = fmoney;
-                                            fmoneyC = 0;
-                                        }
-                                    } break;
-                                case 2://先C，再A，最后B
-                                    {
-                                        if (card.AmountC + card.AmountA < fmoney)//A+B钱不够扣
-                                        {//分别从三个账户扣款
-                                            fmoneyC = card.AmountC ;
-                                            fmoneyA = card.AmountA ;
-                                            fmoneyB = (fmoney - card.AmountC - card.AmountA) ;
-                                        }
-                                        else if (card.AmountC < fmoney)
-                                        {//分别从三个账户扣款
-                                            fmoneyC = card.AmountC ; 
-                                            fmoneyA = (fmoney - card.AmountC) ; 
-                                            fmoneyB = 0;
-                                        }
-                                        else
-                                        {
-                                            fmoneyA = 0;
-                                            fmoneyB = 0;                                            
-                                            fmoneyC = fmoney;
-                                        }
-                                    } break;
-                                default://先A，再B，最后C
-                                    {
-                                        if (card.AmountA + card.AmountB < fmoney)//A+B钱不够扣
-                                        {//分别从三个账户扣款
-                                            fmoneyA = card.AmountA ;
-                                            fmoneyB = card.AmountB ;
-                                            fmoneyC = (fmoney - card.AmountA - card.AmountB) ;
-                                        }
-                                        else if (card.AmountA < fmoney)
-                                        {//分别从三个账户扣款
-                                            fmoneyA = card.AmountA ; 
-                                            fmoneyB = (fmoney - card.AmountA) ;
-                                            fmoneyC = 0;
-                                        }
-                                        else
-                                        {
-                                            fmoneyA = fmoney;
-                                            fmoneyB = 0;                                            
-                                            fmoneyC = 0;
-                                        }
-                                    } break;
-                            }
-
-                            //if (fmoneyA != 0)
-                            //{
-                            //    //checkFlag是根据系统参数设定：YibanQukouKuanShenhe_Flag(一般取扣款是否需要审核)的MgrValue值来控制
-                            //    object paramVcrdA = new { cardcode = criminal.CardCode, fcrimecode = criminal.FCode, DAMOUNT = 0, CAMOUNT = card.AmountA, crtBy = crtby, CRTDATE = DateTime.Now, DTYPE = savetype.fname, DEPOSITER = apply, REMARK = remark, flag = 0, fareacode = criminal.FAreaCode, fareaName = criminal.FAreaName, fcriminal = criminal.FName, Frealareacode = "", FrealAreaName = "", ptype = "", udate = DateTime.Now.Year + "-" + DateTime.Now.Month + "-1", origid = invoiceno, cardtype = 0, TypeFlag = 2, acctype = 0, Bankflag = 0, checkflag = checkFlag, checkby = crtby, pc = 0, curUserAmount = criminal.OkUseAllMoney, curAllAmount = criminal.AmountAmoney + criminal.AmountBmoney + criminal.AmountCmoney, SubTypeFlag = savetype.fcode };
-                            //    seqs = (List<int>)conn.Query<int>(strSql.ToString(), paramVcrdA, myTran);
-                            //    seq = Convert.ToInt32(seqs[0]);
-                            //    seqnos = seq.ToString();
-                            //    //写入明细记录
-                            //    WriteInvoice(criminal, fmoneyA, savetype, crtby, remark, conn, strInvo, myTran, seqnos, fmoneyA, 0, seq);
-
-                            //}
-
-                            
-                            //B账户扣款
-                            //fmoneyB = fmoney - card.AmountA;
-                            ////checkFlag是根据系统参数设定：YibanQukouKuanShenhe_Flag(一般取扣款是否需要审核)的MgrValue值来控制
-                            //object paramVcrdB = new { cardcode = criminal.CardCode, fcrimecode = criminal.FCode, DAMOUNT = 0, CAMOUNT = fmoney-card.AmountA, crtBy = crtby, CRTDATE = DateTime.Now, DTYPE = savetype.fname, DEPOSITER = apply, REMARK = remark, flag = 0, fareacode = criminal.FAreaCode, fareaName = criminal.FAreaName, fcriminal = criminal.FName, Frealareacode = "", FrealAreaName = "", ptype = "", udate = DateTime.Now.Year + "-" + DateTime.Now.Month + "-1", origid = invoiceno, cardtype = 0, TypeFlag = 2, acctype = 1, Bankflag = 0, checkflag = checkFlag, checkby = crtby, pc = 0, curUserAmount = criminal.OkUseAllMoney, curAllAmount = criminal.AmountAmoney + criminal.AmountBmoney + criminal.AmountCmoney, SubTypeFlag = savetype.fcode };
-                            //seqs = (List<int>)conn.Query<int>(strSql.ToString(), paramVcrdB, myTran);
-                            //seq = Convert.ToInt32(seqs[0]);
-                            //if (seqnos == "")
-                            //{
-                            //    seqnos = seq.ToString();
-                            //}else
-                            //{
-                            //    seqnos = seqnos + "," + seq.ToString();
-                            //}
-
-                            //========================================================================
-                            /*===========================
-                             2020-01-09 zeng 改为从多(3)个账户扣款
-                             */
-                            //=========================================================================
-                            if (fmoneyA > 0)
-                            {
-                                //checkFlag是根据系统参数设定：YibanQukouKuanShenhe_Flag(一般取扣款是否需要审核)的MgrValue值来控制
-                                object paramVcrdA = new { cardcode = criminal.CardCode, fcrimecode = criminal.FCode, DAMOUNT = 0, CAMOUNT = fmoneyA, crtBy = crtby, CRTDATE = DateTime.Now, DTYPE = savetype.fname, DEPOSITER = apply, REMARK = remark, flag = 0, fareacode = criminal.FAreaCode, fareaName = criminal.FAreaName, fcriminal = criminal.FName, Frealareacode = "", FrealAreaName = "", ptype = "", udate = DateTime.Now.Year + "-" + DateTime.Now.Month + "-1", origid = invoiceno, cardtype = 0, TypeFlag = 2, acctype = 0, Bankflag = 0, checkflag = checkFlag, checkby = crtby, pc = 0, curUserAmount = criminal.OkUseAllMoney, curAllAmount = criminal.AmountAmoney + criminal.AmountBmoney + criminal.AmountCmoney, SubTypeFlag = savetype.fcode };
-                                seqs = (List<int>)conn.Query<int>(strSql.ToString(), paramVcrdA, myTran);
-                                seq = Convert.ToInt32(seqs[0]);
-                                seqnos = seq.ToString();
-                                //写入明细记录
-                                WriteInvoice(criminal, fmoneyA, savetype, crtby, remark, conn, strInvo, myTran, seqnos, fmoneyA, 0, seq);
-                            }
-                            if (fmoneyB > 0)
-                            {
-                                //checkFlag是根据系统参数设定：YibanQukouKuanShenhe_Flag(一般取扣款是否需要审核)的MgrValue值来控制
-                                object paramVcrdB = new { cardcode = criminal.CardCode, fcrimecode = criminal.FCode, DAMOUNT = 0, CAMOUNT = fmoneyB, crtBy = crtby, CRTDATE = DateTime.Now, DTYPE = savetype.fname, DEPOSITER = apply, REMARK = remark, flag = 0, fareacode = criminal.FAreaCode, fareaName = criminal.FAreaName, fcriminal = criminal.FName, Frealareacode = "", FrealAreaName = "", ptype = "", udate = DateTime.Now.Year + "-" + DateTime.Now.Month + "-1", origid = invoiceno, cardtype = 0, TypeFlag = 2, acctype = 1, Bankflag = 0, checkflag = checkFlag, checkby = crtby, pc = 0, curUserAmount = criminal.OkUseAllMoney, curAllAmount = criminal.AmountAmoney + criminal.AmountBmoney + criminal.AmountCmoney, SubTypeFlag = savetype.fcode };
-                                seqs = (List<int>)conn.Query<int>(strSql.ToString(), paramVcrdB, myTran);
-                                seq = Convert.ToInt32(seqs[0]);
-                                if (seqnos == "")
-                                {
-                                    seqnos = seq.ToString();
-                                }
-                                else
-                                {
-                                    seqnos = seqnos + "," + seq.ToString();
-                                }
-                            }
-                            
-                            if (fmoneyC > 0)
-                            {
-                                object paramVcrdC = new { cardcode = criminal.CardCode, fcrimecode = criminal.FCode, DAMOUNT = 0, CAMOUNT = fmoneyC, crtBy = crtby, CRTDATE = DateTime.Now, DTYPE = savetype.fname, DEPOSITER = apply, REMARK = remark, flag = 0, fareacode = criminal.FAreaCode, fareaName = criminal.FAreaName, fcriminal = criminal.FName, Frealareacode = "", FrealAreaName = "", ptype = "", udate = DateTime.Now.Year + "-" + DateTime.Now.Month + "-1", origid = invoiceno, cardtype = 0, TypeFlag = 2, acctype = 2, Bankflag = 0, checkflag = checkFlag, checkby = crtby, pc = 0, curUserAmount = criminal.OkUseAllMoney, curAllAmount = criminal.AmountAmoney + criminal.AmountBmoney + criminal.AmountCmoney, SubTypeFlag = savetype.fcode };
-                                seqs = (List<int>)conn.Query<int>(strSql.ToString(), paramVcrdC, myTran);
-                                seq = Convert.ToInt32(seqs[0]);
-                                if (seqnos == "")
-                                {
-                                    seqnos = seq.ToString();
-                                }
-                                else
-                                {
-                                    seqnos = seqnos + "," + seq.ToString();
-                                }
-                            }
-                            
-                            
-                            //写入明细记录
-                            //2020-01-09 消费记录，如果C账户大于0 则消费账户B的金额为B+C之和。
-                            WriteInvoice(criminal, fmoney, savetype, crtby, remark, conn, strInvo, myTran, seqnos, fmoneyA, fmoneyB + fmoneyC, seq);
+                        seqnos = seqnos + "," + seq.ToString();
                     }
-                    if(seq>0)
-                    {
-                        //更新账户T_Criminal_Card金额
-                        strSql = new StringBuilder();
-                        strSql.Append("update t_criminal_card set amounta=amounta+@fmoneyA,amountb=amountb+@fmoneyB,amountC=amountC+@fmoneyC where fcrimecode=@fcrimecode;");
-                        //2020修改为根据savetype的 acctype 值
-                        if (savetype.AccType == null)
-                        {
-                            savetype.AccType = 0;
-                        }
-
-                        if (ivcrdflag == -2 && flag==1)//如果需要审核后才可以入账的话，变动金额就全部置为0
-                        {
-                            paramVcrd = new { fmoneyA = 0, fmoneyB = 0, fmoneyC = 0, fcrimecode = criminal.FCode };
-                            
-                        }
-                        else
-                        {
-                            switch (savetype.AccType)
-                            {
-                                case 1:
-                                    {
-                                        paramVcrd = new { fmoneyA = 0, fmoneyB = fmoney * flag, fmoneyC = 0, fcrimecode = criminal.FCode };
-                                    }
-                                    break;
-                                case 2:
-                                    {
-                                        paramVcrd = new { fmoneyA = 0, fmoneyB = 0, fmoneyC = fmoney * flag, fcrimecode = criminal.FCode };
-                                    }
-                                    break;
-                                default:
-                                    {
-                                        paramVcrd = new { fmoneyA = fmoney * flag, fmoneyB = 0, fmoneyC = 0, fcrimecode = criminal.FCode };
-                                    }
-                                    break;
-                            }
-                        }
-                        
-                        
-
-                        if(flag==-1)
-                        {
-                            switch (savetype.AccType)
-                            {
-                                case 1://先B，再A，最后C
-                                    {
-                                        if (card.AmountB + card.AmountA < fmoney)//A+B钱不够扣
-                                        {//分别从三个账户扣款
-                                            paramVcrd = new { fmoneyB = card.AmountB * flag, fmoneyA = card.AmountA * flag, fmoneyC = (fmoney - card.AmountA - card.AmountB) * flag, fcrimecode = criminal.FCode };
-                                        }
-                                        else if (card.AmountB < fmoney)
-                                        {//分别从三个账户扣款
-                                            paramVcrd = new { fmoneyB = card.AmountB * flag, fmoneyA = (fmoney - card.AmountB) * flag, fmoneyC = 0, fcrimecode = criminal.FCode };
-                                        }
-                                    }break;
-                                case 2://先C，再A，最后B
-                                    {
-                                        if (card.AmountC + card.AmountA < fmoney)//A+B钱不够扣
-                                        {//分别从三个账户扣款
-                                            paramVcrd = new { fmoneyC = card.AmountC * flag, fmoneyA = card.AmountA * flag, fmoneyB = (fmoney - card.AmountC - card.AmountA) * flag, fcrimecode = criminal.FCode };
-                                        }
-                                        else if (card.AmountC < fmoney)
-                                        {//分别从三个账户扣款
-                                            paramVcrd = new { fmoneyC = card.AmountC * flag, fmoneyA = (fmoney - card.AmountC) * flag, fmoneyB = 0, fcrimecode = criminal.FCode };
-                                        }
-
-                                    }break;
-                                default://先A，再A，最后C
-                                    {
-                                        if (card.AmountA + card.AmountB < fmoney)//A+B钱不够扣
-                                        {//分别从三个账户扣款
-                                            paramVcrd = new { fmoneyA = card.AmountA * flag, fmoneyB = card.AmountB * flag, fmoneyC = (fmoney - card.AmountA - card.AmountB) * flag, fcrimecode = criminal.FCode };
-                                        }
-                                        else if (card.AmountA < fmoney)
-                                        {//分别从三个账户扣款
-                                            paramVcrd = new { fmoneyA = card.AmountA * flag, fmoneyB = (fmoney - card.AmountA) * flag, fmoneyC = 0, fcrimecode = criminal.FCode };
-                                        }
-                                    }break;
-                            }
-                            
-                            
-                        }
-                        
-                        int x = conn.Execute(strSql.ToString(), paramVcrd, myTran);
-
-                        if (x > 0)
-                        {
-                            myTran.Commit();
-                            strSql = new StringBuilder();
-                            strSql.Append("select * from t_vcrd where seqno in(" + seqnos + ");");
-                            //paramVcrd = new { seqnos = seqnos };
-                            List<T_Vcrd> vards = (List<T_Vcrd>)conn.Query<T_Vcrd>(strSql.ToString(), myTran);
-
-                            return vards;
-                        }
-                        myTran.Rollback();
-                    }
-                    
                 }
-                
-                return null;
-            
+
+                if (fmoneyC > 0)
+                {
+                    object paramVcrdC = new { cardcode = criminal.CardCode, fcrimecode = criminal.FCode, DAMOUNT = 0, CAMOUNT = fmoneyC, crtBy = crtby, CRTDATE = DateTime.Now, DTYPE = savetype.fname, DEPOSITER = apply, REMARK = remark, flag = 0, fareacode = criminal.FAreaCode, fareaName = criminal.FAreaName, fcriminal = criminal.FName, Frealareacode = "", FrealAreaName = "", ptype = "", udate = DateTime.Now.Year + "-" + DateTime.Now.Month + "-1", origid = invoiceno, cardtype = 0, TypeFlag = 2, acctype = 2, Bankflag = 0, checkflag = checkFlag, checkby = crtby, pc = 0, curUserAmount = criminal.OkUseAllMoney, curAllAmount = criminal.AmountAmoney + criminal.AmountBmoney + criminal.AmountCmoney, SubTypeFlag = savetype.fcode };
+                    seqs = (List<int>)conn.Query<int>(strSql.ToString(), paramVcrdC, myTran);
+                    seq = Convert.ToInt32(seqs[0]);
+                    if (seqnos == "")
+                    {
+                        seqnos = seq.ToString();
+                    }
+                    else
+                    {
+                        seqnos = seqnos + "," + seq.ToString();
+                    }
+                }
+
+                if (fmoneyD > 0)
+                {
+                    object paramVcrdD = new { cardcode = criminal.CardCode, fcrimecode = criminal.FCode, DAMOUNT = 0, CAMOUNT = fmoneyD, crtBy = crtby, CRTDATE = DateTime.Now, DTYPE = savetype.fname, DEPOSITER = apply, REMARK = remark, flag = 0, fareacode = criminal.FAreaCode, fareaName = criminal.FAreaName, fcriminal = criminal.FName, Frealareacode = "", FrealAreaName = "", ptype = "", udate = DateTime.Now.Year + "-" + DateTime.Now.Month + "-1", origid = invoiceno, cardtype = 0, TypeFlag = 2, acctype = 4, Bankflag = 0, checkflag = checkFlag, checkby = crtby, pc = 0, curUserAmount = criminal.OkUseAllMoney, curAllAmount = criminal.AmountAmoney + criminal.AmountBmoney + criminal.AmountCmoney, SubTypeFlag = savetype.fcode };
+                    seqs = (List<int>)conn.Query<int>(strSql.ToString(), paramVcrdD, myTran);
+                    seq = Convert.ToInt32(seqs[0]);
+                    if (seqnos == "")
+                    {
+                        seqnos = seq.ToString();
+                    }
+                    else
+                    {
+                        seqnos = seqnos + "," + seq.ToString();
+                    }
+                }
+
+
+                //写入明细记录
+                //2020-01-09 消费记录，如果C账户大于0 则消费账户B的金额为B+C之和。
+                WriteInvoice(criminal, fmoney, savetype, crtby, remark, conn, strInvo, myTran, seqnos, fmoneyA, fmoneyB + fmoneyC, seq);
+
+                if (seq > 0)
+                {
+                    //更新账户T_Criminal_Card金额
+                    strSql = new StringBuilder();
+                    strSql.Append("update t_criminal_card set amounta=amounta-@fmoneyA,amountb=amountb-@fmoneyB,amountC=amountC-@fmoneyC,amountD=amountD-@fmoneyD where fcrimecode=@fcrimecode;");
+
+                    paramVcrd = new { fmoneyA = fmoneyA, fmoneyB = fmoneyB, fmoneyC = fmoneyC, fmoneyD = fmoneyD, fcrimecode = criminal.FCode };
+
+
+                    int x = conn.Execute(strSql.ToString(), paramVcrd, myTran);
+
+                    if (x > 0)
+                    {
+                        myTran.Commit();
+                        strSql = new StringBuilder();
+                        strSql.Append("select * from t_vcrd where seqno in(" + seqnos + ");");
+                        //paramVcrd = new { seqnos = seqnos };
+                        List<T_Vcrd> vards = (List<T_Vcrd>)conn.Query<T_Vcrd>(strSql.ToString(), myTran);
+
+                        return vards;
+                    }
+                    myTran.Rollback();
+                }
+
+            }
+
+            return null;
+
+
         }
 
-        private static void WriteInvoice(T_Criminal criminal, decimal fmoney, T_Savetype savetype, string crtby, string remark, IDbConnection conn, StringBuilder strInvo, IDbTransaction myTran, string seqnos, decimal fmoneyA, decimal fmoneyB,int seq)
+
+        private static void WriteInvoice(T_Criminal criminal, decimal fmoney, T_Savetype savetype, string crtby, string remark, IDbConnection conn, StringBuilder strInvo, IDbTransaction myTran, string seqnos, decimal fmoneyA, decimal fmoneyB, int seq)
         {
             //如果批量限额标志为1（真）,则判断可消费余额是否有够
             if (savetype.PLXE_Flag == 1)
@@ -502,7 +745,7 @@ namespace SelfhelpOrderMgr.DAL
                 //取得InvoiceNo
                 string rstInvoiceNo = Convert.ToString(rstInvoiceNos[0]);
                 //更新Origid为InvoiceNo
-                object paramSetVcrd = new { Origid = rstInvoiceNo, seqno =seq};
+                object paramSetVcrd = new { Origid = rstInvoiceNo, seqno = seq };
                 conn.Execute("update t_Vcrd set Origid=@Origid where seqno =@seqno", paramSetVcrd, myTran);
             }
         }
@@ -514,10 +757,10 @@ namespace SelfhelpOrderMgr.DAL
                 select InvoiceNo from t_invoice_outdtl where fsn=@fsn
                 ) and CheckFlag=-1 and Flag=0");
             SqlParameter[] parameters = {
-					new SqlParameter("@fsn", SqlDbType.VarChar,20)};
+                    new SqlParameter("@fsn", SqlDbType.VarChar,20)};
             parameters[0].Value = OutFsn;
             int i = SqlHelper.ExecuteSql(strSql.ToString(), parameters);
-            if(i>0)
+            if (i > 0)
             {
                 return true;
             }
@@ -527,16 +770,16 @@ namespace SelfhelpOrderMgr.DAL
             }
         }
 
-        
-        public bool SoftDeleteVcrd(string fcode, int seqno,string delUserName)//软删除存/取款记录
+
+        public bool SoftDeleteVcrd(string fcode, int seqno, string delUserName)//软删除存/取款记录
         {
             StringBuilder strSql = new StringBuilder();
             T_Vcrd vcrd = new T_VcrdDAL().GetModel(seqno);
-            if(vcrd.BankFlag!=0)//银行标志状态不正确
+            if (vcrd.BankFlag != 0)//银行标志状态不正确
             {
                 return false;
             }
-            if(!(vcrd.Flag==0 || vcrd.Flag==-2))//记录标志状态不正确
+            if (!(vcrd.Flag == 0 || vcrd.Flag == -2))//记录标志状态不正确
             {
                 return false;
             }
@@ -548,7 +791,7 @@ namespace SelfhelpOrderMgr.DAL
             strSql.Append("update t_vcrd set flag=1,Remark=Remark+',该记录被删除了',DelBy=@DelBy,DelDate=getdate() where flag in(0,-2) and FCrimeCode=@FCrimeCode and seqno=@seqno;");
             if (vcrd.Flag == 0)
             {
-                if (vcrd.AccType == 0 && vcrd.Flag==0)
+                if (vcrd.AccType == 0 && vcrd.Flag == 0)
                 {
                     strSql.Append("update t_Criminal_card set AMountA=AMountA-@ChangeMoney where FCrimeCode=@FCrimeCode;");
                 }
@@ -565,10 +808,10 @@ namespace SelfhelpOrderMgr.DAL
                     return false;
                 }
             }
-            
+
 
             SqlParameter[] parameters = {
-					new SqlParameter("@FCrimeCode", SqlDbType.VarChar,20),
+                    new SqlParameter("@FCrimeCode", SqlDbType.VarChar,20),
                     new SqlParameter("@seqno", SqlDbType.Int,4),
                     new SqlParameter("@ChangeMoney", SqlDbType.Decimal,9),
                     new SqlParameter("@DelBy", SqlDbType.VarChar,20)};
@@ -593,7 +836,7 @@ namespace SelfhelpOrderMgr.DAL
         /// </summary>
         /// <param name="strSql"></param>
         /// <returns></returns>
-        public List<T_Vcrd> CustomerQuery(string strSql,object paramInfo)
+        public List<T_Vcrd> CustomerQuery(string strSql, object paramInfo)
         {
             using (IDbConnection conn = new SqlConnection(SqlHelper.getConnstr()))
             {
@@ -604,25 +847,26 @@ namespace SelfhelpOrderMgr.DAL
         }
 
 
-        public bool ChangeVcrdListType(string invoiceNo, string dtype,int subTypeFlag)
+        public bool ChangeVcrdListType(string invoiceNo, string dtype, int subTypeFlag)
         {
             using (IDbConnection conn = new SqlConnection(SqlHelper.getConnstr()))
             {
                 conn.Open();
-                StringBuilder strSql=new StringBuilder();
+                StringBuilder strSql = new StringBuilder();
                 strSql.Append("update t_invoice set flag=0,remark=@remark where flag=1 and invoiceno=@invoiceno;");
                 strSql.Append("delete from t_invoicedtl where invoiceno=@invoiceno;");
                 strSql.Append("update t_vcrd set dtype=@dtype,remark='特殊情况消费退货,从银行退回该款，从'+dtype +',改为当前类型',typeflag=2,subTypeFlag=@subTypeFlag where flag=0 and origid=@invoiceno");
                 var param = new { remark = "该记录银行已扣款，手动退货删除,改为" + dtype, invoiceno = invoiceNo, dtype = dtype, subTypeFlag = subTypeFlag };
-                try{
-                    int rs = conn.Execute(strSql.ToString(),param);
+                try
+                {
+                    int rs = conn.Execute(strSql.ToString(), param);
                     return true;
                 }
                 catch
                 {
                     return false;
                 }
-                
+
             }
         }
 
@@ -659,7 +903,8 @@ namespace SelfhelpOrderMgr.DAL
                                 where b.damount=a.famount and ( convert(varchar(20), a.seqno)=b.origid or a.pid=b.origid) )d
                                 on c.pid=d.pid ;");
 
-                        } break;
+                        }
+                        break;
                     case 4://劳动报酬
                         {
                             //1.删除Vcrd记录
@@ -681,8 +926,9 @@ namespace SelfhelpOrderMgr.DAL
                                 group by a.origid,a.fcrimecode) b 
                                 on a.bid=b.origid ");
 
-                            
-                        } break;
+
+                        }
+                        break;
                     case 7://超市消费
                         {
                             //软删除T_invoice记录
@@ -708,9 +954,10 @@ namespace SelfhelpOrderMgr.DAL
                             //删除主单
                             strSql.Append(@"delete from t_stock where InvoiceNo=@origid;");
 
-                            
 
-                        } break;
+
+                        }
+                        break;
                     default:
                         break;
                 }
@@ -724,15 +971,18 @@ namespace SelfhelpOrderMgr.DAL
                         case 0://A账户
                             {
                                 amountA = Convert.ToDecimal(row["Damount"]) - Convert.ToDecimal(row["Camount"]);
-                            } break;
+                            }
+                            break;
                         case 1://B账户
                             {
                                 amountB = Convert.ToDecimal(row["Damount"]) - Convert.ToDecimal(row["Camount"]);
-                            } break;
+                            }
+                            break;
                         case 2://C账户
                             {
                                 amountC = Convert.ToDecimal(row["Damount"]) - Convert.ToDecimal(row["Camount"]);
-                            } break;
+                            }
+                            break;
                         default:
                             {
                                 amountA = Convert.ToDecimal(row["Damount"]) - Convert.ToDecimal(row["Camount"]);
@@ -746,17 +996,17 @@ namespace SelfhelpOrderMgr.DAL
                     where fcrimecode=@fcrimecode;");
                 //删除余额记录
                 strSql.Append(@"update t_Vcrd set flag=1 , BankFlag=-1 , Remark=Remark+',手动删除' where fcrimecode=@fcrimecode and origid=@origid;");
-                
-                
+
+
                 IDbTransaction myTran = conn.BeginTransaction();
                 try
                 {
-                    object param = new { seqno = vcrd.seqno, amounta = amountA, amountb = amountB, amountc = amountC, fcrimecode = vcrd.FCrimeCode,origid=vcrd.OrigId };
+                    object param = new { seqno = vcrd.seqno, amounta = amountA, amountb = amountB, amountc = amountC, fcrimecode = vcrd.FCrimeCode, origid = vcrd.OrigId };
                     conn.Execute(strSql.ToString(), param, myTran);
                     myTran.Commit();
                     rflag = true;
                 }
-                catch (Exception )
+                catch (Exception)
                 {
                     myTran.Rollback();
                     throw;

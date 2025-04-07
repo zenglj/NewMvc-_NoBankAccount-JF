@@ -25,13 +25,13 @@
             <tr>
                 <th>队别:</th>
                 <td>
-                    <select id="selArea" name="selArea" class="easyui-combobox"  style="width:150px;">
+                    <select id="selArea" name="selArea" class="easyui-combobox" style="width:150px;">
                         <option value="">==请选择==</option>
                         @if (ViewData["areas"] != null)
                         {
                             foreach (SelfhelpOrderMgr.Model.T_AREA area in ViewData["areas"] as List<SelfhelpOrderMgr.Model.T_AREA>)
                             {
-                                <option value="@area.FCode" >@area.FName</option>
+                                <option value="@area.FCode">@area.FName</option>
                             }
                         }
                     </select>
@@ -55,26 +55,33 @@
             </tr>
         </table>
     </div>
+
+    <div id="tb" style="padding:3px">
+        <a href="#" class="easyui-linkbutton" iconCls="icon-redo" onclick='window.open("/CashPay/IndexExcelDR/"+ $("#saveTypeId").val())'>Excel批量导入1</a>
+    </div>
+
     <div data-options="region:'center'" style="padding:5px;background:#eee;">
         <div id="layoutPanel" class="easyui-layout" style="height:450px;">
             <div data-options="region:'north'" style="height:200px;">
-                <table id="test" style="height:180px">
+                <table id="test" toolbar="#tb"  style="height:180px">
                     @*<thead>
-                        <tr>
-                            <th data-options="field:'FCode',width:100">编号</th>
-                            <th data-options="field:'FName',width:100">姓名</th>
-                            <th data-options="field:'FAreaName',width:100">监区</th>
-                            <th data-options="field:'FFlag',width:100">状态</th>
-                            <th data-options="field:'CardCode',width:100">IC卡号</th>
-                            <th data-options="field:'AmountA',width:100">汇款金额</th>
-                            <th data-options="field:'AmountB',width:100">报酬金额</th>
-                            <th data-options="field:'AmountC',width:100">留存金额</th>
-                            <th data-options="field:'AllMoney',width:100">总金额</th>                            
-                            <th data-options="field:'BankAccNo',width:200">银行卡号</th>
-                        </tr>
-                    </thead>*@
-                </table> 
+                            <tr>
+                                <th data-options="field:'FCode',width:100">编号</th>
+                                <th data-options="field:'FName',width:100">姓名</th>
+                                <th data-options="field:'FAreaName',width:100">监区</th>
+                                <th data-options="field:'FFlag',width:100">状态</th>
+                                <th data-options="field:'CardCode',width:100">IC卡号</th>
+                                <th data-options="field:'AmountA',width:100">汇款金额</th>
+                                <th data-options="field:'AmountB',width:100">报酬金额</th>
+                                <th data-options="field:'AmountC',width:100">留存金额</th>
+                                <th data-options="field:'AllMoney',width:100">总金额</th>
+                                <th data-options="field:'BankAccNo',width:200">银行卡号</th>
+                            </tr>
+                        </thead>*@
+                </table>
             </div>
+
+
             <div data-options="region:'center',title:'存/取款记录'" style="padding:5px;background:#eee;">
                 <div>
                     <input type="hidden" id="saveTypeId" value="@ViewData["saveTypeId"]" />@*存取款类标志*@
@@ -83,14 +90,14 @@
                             <tr>
                                 <th>编号</th>
                                 <td>
-                                    <input type="hidden" id="txtFFlag" name="txtFFlag"/>
+                                    <input type="hidden" id="txtFFlag" name="txtFFlag" />
                                     <input type="text" id="txtFCode" name="txtFCode" style="width:100px;" onkeydown="if (event.keyCode == 13) noNumbers();" />
                                 </td>
                                 <th>姓名</th>
                                 <td><input type="text" id="txtFName" name="txtFName" style="width:100px;" onkeydown="if (event.keyCode == 13) noEntFName();" /></td>
                                 <th>类型</th>
                                 <td>
-                                    <select id="txtType" name="txtType"  class="easyui-combobox">
+                                    <select id="txtType" name="txtType" class="easyui-combobox">
                                         <option value="">==请选择==</option>
                                         @if (ViewData["saveTypes"] != null)
                                         {
@@ -101,14 +108,14 @@
                                         }
                                     </select>
                                 </td>
-                                
+
                                 <th>金额</th>
                                 <td>
                                     <input type="text" id="txtMoney" name="txtMoney" style="width:100px;" data-options="min:0,precision:2" onkeydown="if (event.keyCode == 13) noMoneyEnter();" />
-                                    
+
                                 </td>
                                 <td><label id="lblDoRusultInfo">结果:</label></td>
-                                
+
                             </tr>
                             <tr>
                                 <th>申请人</th>
@@ -116,7 +123,7 @@
                                 <th>备注</th>
                                 <td colspan="5"><input type="text" id="txtRemark" name="txtRemark" style="width:360px;" /></td>
                                 <td>
-                                    <a id="btnsave" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-save'" onclick="btnSaveDetail()">保存</a> 
+                                    <a id="btnsave" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-save'" onclick="btnSaveDetail()">保存</a>
                                     <a id="btnprint" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-print'" onclick="PrintSavePayList('0')">打印</a>
                                 </td>
                                 <td>
@@ -125,16 +132,16 @@
                             </tr>
                         </table>
                     </form>
-                    
+
                 </div>
                 <div>
                     <table id="detail" class="easyui-datagrid"></table>
                 </div>
             </div>
-        </div>  
+        </div>
     </div>
 
-    
+
     <script src="~/Scripts/myJs/CashPay.js"></script>
 </body>  
 </html>

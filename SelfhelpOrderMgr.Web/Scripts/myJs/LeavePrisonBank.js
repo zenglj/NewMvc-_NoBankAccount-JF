@@ -106,10 +106,10 @@ function UserLoginCheck() {
                     $("#divPaySelArea").show();
 
                     if (data.DataInfo.recvBankAccount != null) {
-                        if (data.DataInfo.jieqingFlag == false) {
-                            alert("您的账户尚有未结清的记录，请与供应站或相关管理科室联系");
-                            return false;
-                        }
+                        //if (data.DataInfo.jieqingFlag == false) {
+                        //    alert("您的账户尚有未结清的记录，请与供应站或相关管理科室联系");
+                        //    return false;
+                        //}
                         $("#selRecvAccount").append("<option value='" + data.DataInfo.recvBankAccount.Id + "'>" + data.DataInfo.recvBankAccount.BankUserName + "(" + data.DataInfo.recvBankAccount.OutBankRemark + ")" + data.DataInfo.recvBankAccount.OutBankCard + "</option>");
                         $("#selPayMode").val(data.DataInfo.recvBankAccount.PayMode);
                         $("#BankUserName").html(data.DataInfo.recvBankAccount.BankUserName);
@@ -183,10 +183,10 @@ function btnReadCardQuery(e, saleSort) {
                 
                 SetDispUserInfo(data);
                 if (data.DataInfo.recvBankAccount != null) {
-                    if (data.DataInfo.jieqingFlag == false) {
-                        alert("您的账户尚有未结清的记录，请与供应站或相关管理科室联系");
-                        return false;
-                    }
+                    //if (data.DataInfo.jieqingFlag == false) {
+                    //    alert("您的账户尚有未结清的记录，请与供应站或相关管理科室联系");
+                    //    return false;
+                    //}
                     $("#selRecvAccount").append("<option value='" + data.DataInfo.recvBankAccount.Id + "'>" + data.DataInfo.recvBankAccount.BankUserName + "(" + data.DataInfo.recvBankAccount.OutBankRemark + ")" + data.DataInfo.recvBankAccount.OutBankCard+"</option>");
                     $("#selPayMode").val(data.DataInfo.recvBankAccount.PayMode);
                     $("#BankUserName").html(data.DataInfo.recvBankAccount.BankUserName);
