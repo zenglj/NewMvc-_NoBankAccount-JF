@@ -898,6 +898,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                     model.RcvDate = new DateTime(1900, 01, 01);
                     model.bankRcvFlag = 0;
                     model.Depositer = "";
+                    model.Remark = null == model.Remark ? "" : model.Remark;
                     new T_VcrdBLL().Add(model);
                     //_bll.Insert<T_Vcrd>(model);
                     _bll.ExecuteSql("update t_Criminal_Card set AmountD=AmountD-@changeAmount where FCrimeCode=@FCrimeCode"

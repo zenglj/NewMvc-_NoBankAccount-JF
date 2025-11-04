@@ -20,8 +20,10 @@ namespace SelfhelpOrderMgr.Model
         public decimal AmountA { get; set; }//A账户原金额
         public decimal AmountB { get; set; }//B账户原金额
         public decimal AmountC { get; set; }//C账户原金额
+        public decimal AmountD { get; set; }//C账户原金额
         public decimal AccPoints { get; set; }//会员积分
         public decimal XiaoFeiPoints { get; set; }//本月消费积分
+        public decimal JiFenMonthStandard { get; set; } = 600;//月消费积分标准
 
         //限额方法：
         //1是存款账户限额;
@@ -56,5 +58,6 @@ namespace SelfhelpOrderMgr.Model
         public decimal JaRi_Cy_Money { get; set; }//节假日补助金额
 
         public decimal JaRi_Cy_FTZSP_Money { get; set; }//节假日食品可用金额
+
     }
 }

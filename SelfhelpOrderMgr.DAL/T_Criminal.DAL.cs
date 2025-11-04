@@ -230,7 +230,7 @@ namespace SelfhelpOrderMgr.DAL
         {
 
             StringBuilder strSql = new StringBuilder();
-            strSql.Append("select FCode, FInDate, FOuDate, FAreaCode, FSubArea, FDesc, FStatus, FStatus2, FAddr_tmp, FCZY, fflag, FName, flimitflag, flimitamt, Frealareacode, amount, TP_YingYangCan_Money, RSB_Flag, FIdenNo, FAge, FSex, FAddr, FCrimeCode, FCYCode, FTerm, DamagesFlag, DamagesControlMoney, DamagesRetentionRate, DamagesEndDate ");
+            strSql.Append("select FCode, FInDate, FOuDate, FAreaCode, FSubArea, FDesc, FStatus, FStatus2, FAddr_tmp, FCZY, fflag, FName, flimitflag, flimitamt, Frealareacode, amount, TP_YingYangCan_Money, RSB_Flag, FIdenNo, FAge, FSex, FAddr, FCrimeCode, FCYCode, FTerm, DamagesFlag, DamagesControlMoney, DamagesRetentionRate, DamagesEndDate,CompletionRate,WorkType,PointsDate ");
             strSql.Append("  from T_Criminal ");
             strSql.Append(" where FCode=@FCode ");
             SqlParameter[] parameters = {
@@ -319,6 +319,21 @@ namespace SelfhelpOrderMgr.DAL
                 {
                     model.DamagesEndDate = DateTime.Parse(ds.Tables[0].Rows[0]["DamagesEndDate"].ToString());
                 }
+
+                if (ds.Tables[0].Rows[0]["CompletionRate"].ToString() != "")
+                {
+                    model.CompletionRate = decimal.Parse(ds.Tables[0].Rows[0]["CompletionRate"].ToString());
+                }
+                if (ds.Tables[0].Rows[0]["PointsDate"].ToString() != "")
+                {
+                    model.PointsDate = DateTime.Parse(ds.Tables[0].Rows[0]["PointsDate"].ToString());
+                }
+
+                if (ds.Tables[0].Rows[0]["WorkType"].ToString() != "")
+                {
+                    model.WorkType =ds.Tables[0].Rows[0]["WorkType"].ToString();
+                }
+
                 return model;
             }
             else

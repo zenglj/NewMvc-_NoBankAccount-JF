@@ -896,6 +896,23 @@ function printAllXiaofeiDan() {
 }
 
 
+//Excel导出消费单详情(省局格式)
+function ExcelOrderDetail() {
+    //alert("ddddd");
+    var objWhere = getObjSearchWhere();
+    console.log(objWhere);
+    $.post("/Super/ExcelOrderDetail/1", objWhere, function (data, status) {
+        if (status != "success") {
+            return false;
+        } else {
+            var words = data.split("|");
+            if (words[0] == "OK") {
+                window.open("/Upload/" + words[1]);
+            }
+        }
+    });
+}
+
 //Excel导出所有签字确认单
 function ExcelAllXiaofeiDan() {
     //alert("ddddd");

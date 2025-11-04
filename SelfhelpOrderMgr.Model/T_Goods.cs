@@ -252,6 +252,8 @@ namespace SelfhelpOrderMgr.Model
             set { _xgmode = value; }
         }
 
+        //商品的等级名称 如A、B、C、D
+        public string LevelName { get; set; }
     }
 }
 

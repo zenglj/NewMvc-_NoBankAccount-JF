@@ -633,6 +633,49 @@ namespace SelfhelpOrderMgr.Web.Controllers
         }
 
 
+        /// <summary>
+        /// 改变为离监状态
+        /// </summary>
+        /// <returns></returns>
+        [MyLogActionFilterAttribute]
+        public ActionResult OutCriminal()
+        {
+            string txtFCode = Request["txtFCode"];
+            if (string.IsNullOrEmpty(txtFCode))
+            {
+                return Content("Err|用户编号不能为空");
+            }
+
+            T_CZY czy = new T_CZYBLL().GetModel(Session["loginUserCode"].ToString());
+            if (czy.FPRIVATE == null || czy.FPRIVATE == 0)
+            {
+                return Content("Err|您不是管理员，无权变更，请与管理部门联系");
+            }
+
+            T_Criminal criminal = new T_CriminalBLL().GetModel(txtFCode);
+            if (criminal != null)
+            {
+                if (criminal.fflag != 0 || criminal.fflag ==null)
+                {
+                    return Content("Err|该犯人是离监状态，不需变更");
+                }
+                criminal.fflag = 1;
+                if (new T_CriminalBLL().Update(criminal))
+                {
+                    Log4NetHelper.logger.Warn("恢复离监人员为在押,操作员：" + Session["loginUserName"].ToString() + ",ID=" + criminal.FCode + ",用户名为：" + criminal.FName + "");
+                    return Content("OK|变更离监成功，请刷新记录列表");
+                }
+                else
+                {
+                    return Content("Err|离监失败");
+                }
+            }
+            else
+            {
+                return Content("Err|用户编号不存在");
+            }
+        }
+
         //Excel导出用户汇总总表
         public ActionResult ExcelCriminalSumOrder(string strJsonWhere, int id = 1)
         {

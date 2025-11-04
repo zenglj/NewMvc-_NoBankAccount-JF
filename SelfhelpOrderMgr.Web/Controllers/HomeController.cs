@@ -557,7 +557,9 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 endTime = DateTime.Now.ToShortDateString();
                 endTime = endTime + " " + DateTime.Now.ToShortTimeString();
             }
-            List<T_Invoice> invoices = new T_InvoiceBLL().GetModelList(10, "OrderDate>='" + startTime + "' and OrderDate<'" + endTime + "' and Flag=1 and FAreaCode in(select a.fareacode from t_czy_area a,t_czy b where a.fcode=b.fcode and a.fflag=2 and b.FManagerCard='" + managerCardNo + "')", "InvoiceNo");
+            //List<T_Invoice> invoices = new T_InvoiceBLL().GetModelList(10, "OrderDate>='" + startTime + "' and OrderDate<'" + endTime + "' and Flag=1 and FAreaCode in(select a.fareacode from t_czy_area a,t_czy b where a.fcode=b.fcode and a.fflag=2 and b.FManagerCard='" + managerCardNo + "')", "InvoiceNo");
+            List<T_Invoice> invoices = _baseDapperBLL.QueryList< T_Invoice >( $"select top {10} * from T_Invoice where  OrderDate>=@startTime and OrderDate<@endTime and Flag=1 and FAreaCode in(select a.fareacode from t_czy_area a,t_czy b where a.fcode=b.fcode and a.fflag=2 and b.FManagerCard=@managerCardNo) order by InvoiceNo ", new { startTime=startTime,endTime=endTime, managerCardNo= managerCardNo });
+
             ViewData["invoices"] = invoices;
 
             string invoiceNos = "";
@@ -573,7 +575,9 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 }
             }
             ViewData["invoiceNos"] = invoiceNos;
-            List<T_AREA> areas = new T_AREABLL().GetModelList(" FCode in(select a.fareacode from t_czy_area a,t_czy b where a.fcode=b.fcode and a.fflag=2 and b.FManagerCard='" + managerCardNo + "')");
+            //List<T_AREA> areas = new T_AREABLL().GetModelList(" FCode in(select a.fareacode from t_czy_area a,t_czy b where a.fcode=b.fcode and a.fflag=2 and b.FManagerCard='" + managerCardNo + "')");
+            List<T_AREA> areas = _baseDapperBLL.QueryList<T_AREA>("select * from T_AREA where FCode in(select a.fareacode from t_czy_area a,t_czy b where a.fcode=b.fcode and a.fflag=2 and b.FManagerCard=@managerCardNo)",new { managerCardNo = managerCardNo });
+
             ViewData["areas"] = areas;
 
             //List<T_SHO_SaleType> saleTypes = new T_SHO_SaleTypeBLL().GetModelList("FifoFlag=-1");
@@ -610,7 +614,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
             string strInvoices = Request["invoices"];
             char ee = (char)124;
             string[] invoices = strInvoices.Split(ee);
-            string myStrInvoices = "'" + strInvoices.Replace("|", "','") + "'";
+            //string myStrInvoices = "'" + strInvoices.Replace("|", "','") + "'";
+            string myStrInvoices = strInvoices.Replace("|", ",");
             if (new T_InvoiceBLL().UpdatePrintCount(myStrInvoices))
             {
                 return Content("OK|更新打印次数成功");
@@ -640,7 +645,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
             {
                 return Content("Err|管理卡号不能为空，请联系民警");
             }
-            List<T_CZY> czys = new T_CZYBLL().GetModelList("FManagerCard='" + managerCardNo + "'");
+            //List<T_CZY> czys = new T_CZYBLL().GetModelList("FManagerCard='" + managerCardNo + "'");
+            List<T_CZY> czys = _baseDapperBLL.QueryList<T_CZY>("select * from T_CZY where FManagerCard=@managerCardNo",new { managerCardNo = managerCardNo });
             if (czys.Count <= 0)
             {
                 return Content("Err|管理卡不存在，请更换一张有效的管理卡");
@@ -668,25 +674,32 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 " " + endTime + ":59:59" + "'";
             if (string.IsNullOrEmpty(areaName) == false)
             {
-                strWhere = strWhere + " and FAreaName='" + areaName + "'";
+                //strWhere = strWhere + " and FAreaName='" + areaName + "'";
+                strWhere = strWhere + " and FAreaName=@areaName";
             }
             if (string.IsNullOrEmpty(FName) == false)
             {
-                strWhere = strWhere + " and FCriminal like'%" + FName + "%'";
+                //strWhere = strWhere + " and FCriminal like'%" + FName + "%'";
+                strWhere = strWhere + " and FCriminal like '%'+ @FName +'%'";
             }
             if (string.IsNullOrEmpty(FCode) == false)
             {
-                strWhere = strWhere + " and FCrimeCode='" + FCode + "'";
+                //strWhere = strWhere + " and FCrimeCode='" + FCode + "'";
+                strWhere = strWhere + " and FCrimeCode=@FCode";
             }
             if (string.IsNullOrEmpty(FSaleType) == false)
             {
-                strWhere = strWhere + " and TypeFlag=" + FSaleType + "";
+                //strWhere = strWhere + " and TypeFlag=" + FSaleType + "";
+                strWhere = strWhere + " and TypeFlag=@FSaleType";
             }
-            strWhere = strWhere + " and FCrimeCode in( select c.fcode from t_czy_area a,t_czy b,t_criminal c where a.fcode=b.fcode and c.fareaCode=a.fareacode and a.fflag=2 and b.FManagerCard='" + managerCardNo + "' )";
+            //strWhere = strWhere + " and FCrimeCode in( select c.fcode from t_czy_area a,t_czy b,t_criminal c where a.fcode=b.fcode and c.fareaCode=a.fareacode and a.fflag=2 and b.FManagerCard='" + managerCardNo + "' )";
+            strWhere = strWhere + " and FCrimeCode in( select c.fcode from t_czy_area a,t_czy b,t_criminal c where a.fcode=b.fcode and c.fareaCode=a.fareacode and a.fflag=2 and b.FManagerCard=@managerCardNo )";
 
-            
 
-            List<T_Invoice> invoices = new T_InvoiceBLL().GetModelList(1000, strWhere + " and Flag=1", "FAreaCode,RoomNo,FCriminal");
+
+            //List<T_Invoice> invoices = new T_InvoiceBLL().GetModelList(1000, strWhere + " and Flag=1", "FAreaCode,RoomNo,FCriminal");
+            List<T_Invoice> invoices = _baseDapperBLL.QueryList<T_Invoice>($"select top {1000} * from T_Invoice where {strWhere}  and Flag=1 order by FAreaCode,RoomNo,FCriminal",new { areaName= areaName, FName= FName, FCode= FCode, FSaleType= FSaleType, managerCardNo= managerCardNo });
+
             JavaScriptSerializer jss = new JavaScriptSerializer();
             return Content("OK|"+jss.Serialize(invoices));
         }
@@ -698,13 +711,13 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 char ee = (char)124;
                 string[] invoices = strInvoices.Split(ee);
                 List<PrintInvoices> rtnInvs = new List<PrintInvoices>();
+                T_SHO_ManagerSet mgr = new T_SHO_ManagerSetBLL().GetModel("PrintSumOpion");
                 if (invoices.Length > 0)
                 {
                     for (int i = 0; i < invoices.Length; i++)
                     {
                         PrintInvoices rtnInv = new PrintInvoices();
                         rtnInv.invoice = new T_InvoiceBLL().GetModel(invoices[i]);
-                        T_SHO_ManagerSet mgr = new T_SHO_ManagerSetBLL().GetModel("PrintSumOpion");
                         if (mgr.MgrValue == "1")
                         {
                             rtnInv.details = new T_InvoiceDTLBLL().GetModelList("InvoiceNo='" + invoices[i] + "'", 1);
@@ -1004,8 +1017,9 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
             string tjFSaleType = Request["tjFSaleType"];
 
-            List<T_CZY> czys = new T_CZYBLL().GetModelList("FManagerCard='" + managerCardNo + "'");
-            if(czys.Count==0)
+            //List<T_CZY> czys = new T_CZYBLL().GetModelList("FManagerCard='" + managerCardNo + "'");
+            List<T_CZY> czys = _baseDapperBLL.QueryList<T_CZY>("select * from T_CZY where FManagerCard=@managerCardNo",new { managerCardNo = managerCardNo });
+            if (czys.Count==0)
             {
                 return Content("Err|管理卡不能为空");
             }
@@ -1043,29 +1057,50 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 
                 if (roomNoFlag == "0")
                 {
+                    //strSql.Append(@"select b.FAreaName FAreaName,'' RoomNo,a.SPShortCode SPShortCode
+                    //    ,a.gname GName,'' Remark
+                    //    ,a.gtxm GTXM,sum(a.qty) FCount,sum(a.amount) FMoney 
+                    //    from t_invoicedtl a,t_invoice b
+                    //                    where a.invoiceno=b.invoiceno and a.flag=1
+                    //    and a.OrderDate>='" + tjStartDate +" 00:00:00' and a.OrderDate<'"+ tjEndDate +@" 23:59:00'
+                    //    and b.FAreaCode='"+ tjFAreaName +@"'");
+
                     strSql.Append(@"select b.FAreaName FAreaName,'' RoomNo,a.SPShortCode SPShortCode
                         ,a.gname GName,'' Remark
                         ,a.gtxm GTXM,sum(a.qty) FCount,sum(a.amount) FMoney 
                         from t_invoicedtl a,t_invoice b
                                         where a.invoiceno=b.invoiceno and a.flag=1
-                        and a.OrderDate>='" + tjStartDate +" 00:00:00' and a.OrderDate<'"+ tjEndDate +@" 23:59:00'
-                        and b.FAreaCode='"+ tjFAreaName +@"'");
+                        and a.OrderDate>='" + tjStartDate + " 00:00:00' and a.OrderDate<'" + tjEndDate + @" 23:59:00'
+                        and b.FAreaCode=@tjFAreaName");
+
                     if (string.IsNullOrEmpty(tjSPShortCode) == false)
                     {
-                        strSql.Append(" and a.SPShortCode='" + tjSPShortCode + "'");
+                        //strSql.Append(" and a.SPShortCode='" + tjSPShortCode + "'");
+                        strSql.Append(" and a.SPShortCode=@tjSPShortCode");
                     }
                     if (string.IsNullOrEmpty(tjRoomNo) == false)
                     {
-                        strSql.Append(" and b.RoomNo='" + tjRoomNo + "'");
+                        //strSql.Append(" and b.RoomNo='" + tjRoomNo + "'");
+                        strSql.Append(" and b.RoomNo=@tjRoomNo");
                     }
                     if (string.IsNullOrEmpty(tjFSaleType) == false)
                     {
-                        strSql.Append(" and b.TypeFlag=" + tjFSaleType + "");
+                        //strSql.Append(" and b.TypeFlag=" + tjFSaleType + "");
+                        strSql.Append(" and b.TypeFlag=@tjFSaleType");
                     }                    
                     strSql.Append(" group by b.FAreaName,a.SPShortCode,a.gname,a.gtxm");
                 }
                 else
                 {
+                    //strSql.Append(@"select b.FAreaName FAreaName,isnull(b.roomNo,'') RoomNo
+                    //    ,a.SPShortCode SPShortCode,a.gname GName
+                    //    ,isnull(a.Remark,'') Remark,a.gtxm GTXM
+                    //    ,sum(a.qty) FCount,sum(a.amount) FMoney 
+                    //    from t_invoicedtl a,t_invoice b
+                    //                    where a.invoiceno=b.invoiceno and a.flag=1
+                    //    and a.OrderDate>='" + tjStartDate + " 00:00:00' and a.OrderDate<'" + tjEndDate + @" 23:59:00'
+                    //    and b.FAreaCode='" + tjFAreaName + @"'");
+
                     strSql.Append(@"select b.FAreaName FAreaName,isnull(b.roomNo,'') RoomNo
                         ,a.SPShortCode SPShortCode,a.gname GName
                         ,isnull(a.Remark,'') Remark,a.gtxm GTXM
@@ -1073,18 +1108,21 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         from t_invoicedtl a,t_invoice b
                                         where a.invoiceno=b.invoiceno and a.flag=1
                         and a.OrderDate>='" + tjStartDate + " 00:00:00' and a.OrderDate<'" + tjEndDate + @" 23:59:00'
-                        and b.FAreaCode='" + tjFAreaName + @"'");
+                        and b.FAreaCode=@tjFAreaName");
                     if (string.IsNullOrEmpty(tjSPShortCode)==false)
                     {
-                        strSql.Append(" and a.SPShortCode='" + tjSPShortCode + "'");
+                        //strSql.Append(" and a.SPShortCode='" + tjSPShortCode + "'");
+                        strSql.Append(" and a.SPShortCode=@tjSPShortCode");
                     }
                     if (string.IsNullOrEmpty(tjRoomNo) == false)
                     {
-                        strSql.Append(" and b.RoomNo='" + tjRoomNo + "'");
+                        //strSql.Append(" and b.RoomNo='" + tjRoomNo + "'");
+                        strSql.Append(" and b.RoomNo=@tjRoomNo");
                     }
                     if (string.IsNullOrEmpty(tjFSaleType) == false)
                     {
-                        strSql.Append(" and b.TypeFlag=" + tjFSaleType + "");
+                        //strSql.Append(" and b.TypeFlag=" + tjFSaleType + "");
+                        strSql.Append(" and b.TypeFlag=@tjFSaleType ");
                     }
                     if (string.IsNullOrEmpty(czys[0].FCode))
                     {
@@ -1106,16 +1144,22 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 strSql.Append(@" and a.OrderDate>='" + tjStartDate + " 00:00:00' and a.OrderDate<'" + tjEndDate + @" 23:59:00'");
                 if (string.IsNullOrEmpty(tjSPShortCode) == false)
                 {
-                    strSql.Append(" and a.SPShortCode='" + tjSPShortCode + "'");
+                    //strSql.Append(" and a.SPShortCode='" + tjSPShortCode + "'");
+                    strSql.Append(" and a.SPShortCode=@tjSPShortCode");
                 }
                 if (string.IsNullOrEmpty(tjFSaleType) == false)
                 {
-                    strSql.Append(" and b.TypeFlag=" + tjFSaleType + "");
+                    //strSql.Append(" and b.TypeFlag=" + tjFSaleType + "");
+                    strSql.Append(" and b.TypeFlag=@tjFSaleType");
                 }
                 strSql.Append(@" group by a.SPShortCode,a.gname,isnull(a.Remark,''),a.gtxm");
                 strSql.Append(@" order by a.SPShortCode");
             }
-            List<PeihuoDanPrintList> phds = new CommTableInfoBLL().GetListData(strSql.ToString());
+            //List<PeihuoDanPrintList> phds = new CommTableInfoBLL().GetListData(strSql.ToString());
+            List<PeihuoDanPrintList> phds = _baseDapperBLL.QueryList<PeihuoDanPrintList>(strSql.ToString()
+                ,new { tjFAreaName = tjFAreaName , tjSPShortCode = tjSPShortCode , tjRoomNo = tjRoomNo 
+                    ,tjFSaleType= tjFSaleType
+                });
             JavaScriptSerializer jss = new JavaScriptSerializer();
             return Content("OK|" + roomNoFlag + "|" + jss.Serialize(phds));
             
@@ -1141,8 +1185,10 @@ namespace SelfhelpOrderMgr.Web.Controllers
             }
             else
             {
-                List<T_Czy_area> areas = new T_Czy_areaBLL().GetModelList("FFlag=2 and FCode in(select fcode from t_czy where FManagerCard='" + managerCardNo + "')");
-                if(areas.Count>0)
+                //List<T_Czy_area> areas = new T_Czy_areaBLL().GetModelList("FFlag=2 and FCode in(select fcode from t_czy where FManagerCard='" + managerCardNo + "')");
+                List<T_Czy_area> areas = _baseDapperBLL.QueryList<T_Czy_area>("select * from T_Czy_area where FFlag=2 and FCode in(select fcode from t_czy where FManagerCard=@managerCardNo)",new { managerCardNo = managerCardNo });
+
+                if (areas.Count>0)
                 {
                     mxFAreas = "";
                     foreach (T_Czy_area item in areas)
@@ -1185,21 +1231,25 @@ namespace SelfhelpOrderMgr.Web.Controllers
             }
             if (string.IsNullOrEmpty(mxFSaleType)==false)
             {
-                strSql.Append(" and b.TypeFlag=" + mxFSaleType +"");
+                //strSql.Append(" and b.TypeFlag=" + mxFSaleType +"");
+                strSql.Append(" and b.TypeFlag=@mxFSaleType ");
             }
             if (string.IsNullOrEmpty(mxFAreaName) == false)
             {
-                strSql.Append(" and b.FAreaCode='" + mxFAreaName + "'");
+                //strSql.Append(" and b.FAreaCode='" + mxFAreaName + "'");
+                strSql.Append(" and b.FAreaCode=@mxFAreaName");
             }
 
             if (string.IsNullOrEmpty(mxSPShortCode) == false)
             {
-                strSql.Append(" and a.SPShortCode='" + mxSPShortCode + "'");
+                //strSql.Append(" and a.SPShortCode='" + mxSPShortCode + "'");
+                strSql.Append(" and a.SPShortCode=@mxSPShortCode");
             }
 
             if (string.IsNullOrEmpty(mxFCrimeCode) == false)
             {
-                strSql.Append(" and a.FCrimeCode='" + mxFCrimeCode + "'");
+                //strSql.Append(" and a.FCrimeCode='" + mxFCrimeCode + "'");
+                strSql.Append(" and a.FCrimeCode=@mxFCrimeCode");
             }
 
             if (string.IsNullOrEmpty(mxFAreas) == false)
@@ -1208,7 +1258,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
             }
             if (string.IsNullOrEmpty(mxFGoodsType)==false)
             {
-                strSql.Append(" and a.SPShortCode in(select spshortCode from t_goods where gtype='" + mxFGoodsType + "')");
+                //strSql.Append(" and a.SPShortCode in(select spshortCode from t_goods where gtype='" + mxFGoodsType + "')");
+                strSql.Append(" and a.SPShortCode in(select spshortCode from t_goods where gtype=@mxFGoodsType)");
             }
             //strSql.Append("");
             strSql.Append(" group by b.FAreaName,b.RoomNo,b.FCriminal,a.SPShortCode,a.GName,isnull(a.Remark,'')");
@@ -1217,15 +1268,28 @@ namespace SelfhelpOrderMgr.Web.Controllers
             strCountSql.Append(strSql.ToString());
             strCountSql.Append(" ) k");
 
-            DataTable dt = new CommTableInfoBLL().GetDataTable(strCountSql.ToString());
-            if(Convert.ToInt32( dt.Rows[0][0])>3000)
+            //DataTable dt = new CommTableInfoBLL().GetDataTable(strCountSql.ToString());
+            //if (Convert.ToInt32( dt.Rows[0][0])>3000)
+            //{
+            //    return Content("Err|您所查询的数据条数过多，请增加相应的查询条件");
+            //}
+            List<int> dt = _baseDapperBLL.QueryList<int>(strCountSql.ToString()
+                , new { mxFSaleType = mxFSaleType, mxFAreaName = mxFAreaName, mxSPShortCode = mxSPShortCode, mxFCrimeCode = mxFCrimeCode, mxFGoodsType = mxFGoodsType });
+            if (Convert.ToInt32(dt[0]) > 3000)
             {
                 return Content("Err|您所查询的数据条数过多，请增加相应的查询条件");
             }
 
             strSql.Append(" order by b.FAreaName,b.RoomNo,b.FCriminal,a.SPShortCode,a.GName,isnull(a.Remark,'')");
 
-            List<xfMingxi> xfmxs = new CommTableInfoBLL().GetXfMingxi(strSql.ToString());
+            //List<xfMingxi> xfmxs = new CommTableInfoBLL().GetXfMingxi(strSql.ToString());
+            List<xfMingxi> xfmxs = _baseDapperBLL.QueryList<xfMingxi>(strSql.ToString()
+                , new { mxFSaleType = mxFSaleType
+                        , mxFAreaName = mxFAreaName
+                        , mxSPShortCode = mxSPShortCode
+                        , mxFCrimeCode = mxFCrimeCode
+                        , mxFGoodsType = mxFGoodsType });
+
             JavaScriptSerializer jss = new JavaScriptSerializer();
             return Content("OK|" + jss.Serialize(xfmxs));
         }
@@ -1250,7 +1314,9 @@ namespace SelfhelpOrderMgr.Web.Controllers
             }
             else
             {
-                List<T_Czy_area> areas = new T_Czy_areaBLL().GetModelList("FFlag=2 and FCode in(select fcode from t_czy where FManagerCard='" + managerCardNo + "')");
+                //List<T_Czy_area> areas = new T_Czy_areaBLL().GetModelList("FFlag=2 and FCode in(select fcode from t_czy where FManagerCard='" + managerCardNo + "')");
+                List<T_Czy_area> areas = _baseDapperBLL.QueryList<T_Czy_area>("select * from T_Czy_area where FFlag=2 and FCode in(select fcode from t_czy where FManagerCard=@managerCardNo)",new { managerCardNo = managerCardNo });
+
                 if (areas.Count > 0)
                 {
                     mxFAreas = "";
@@ -1296,21 +1362,25 @@ namespace SelfhelpOrderMgr.Web.Controllers
             }
             if (string.IsNullOrEmpty(mxFSaleType) == false)
             {
-                strSql.Append(" and b.TypeFlag=" + mxFSaleType + "");
+                //strSql.Append(" and b.TypeFlag=" + mxFSaleType + "");
+                strSql.Append(" and b.TypeFlag=@mxFSaleType");
             }
             if (string.IsNullOrEmpty(mxFAreaName) == false)
             {
-                strSql.Append(" and b.FAreaCode='" + mxFAreaName + "'");
+                //strSql.Append(" and b.FAreaCode='" + mxFAreaName + "'");
+                strSql.Append(" and b.FAreaCode=@mxFAreaName");
             }
 
             if (string.IsNullOrEmpty(mxSPShortCode) == false)
             {
-                strSql.Append(" and a.SPShortCode='" + mxSPShortCode + "'");
+                //strSql.Append(" and a.SPShortCode='" + mxSPShortCode + "'");
+                strSql.Append(" and a.SPShortCode=@mxSPShortCode");
             }
 
             if (string.IsNullOrEmpty(mxFCrimeCode) == false)
             {
-                strSql.Append(" and a.FCrimeCode='" + mxFCrimeCode + "'");
+                //strSql.Append(" and a.FCrimeCode='" + mxFCrimeCode + "'");
+                strSql.Append(" and a.FCrimeCode=@mxFCrimeCode");
             }
 
             if (string.IsNullOrEmpty(mxFAreas) == false)
@@ -1319,7 +1389,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
             }
             if (string.IsNullOrEmpty(mxFGoodsType) == false)
             {
-                strSql.Append(" and a.SPShortCode in(select spshortCode from t_goods where gtype='" + mxFGoodsType + "')");
+                //strSql.Append(" and a.SPShortCode in(select spshortCode from t_goods where gtype='" + mxFGoodsType + "')");
+                strSql.Append(" and a.SPShortCode in(select spshortCode from t_goods where gtype=@mxFGoodsType)");
             }
             //strSql.Append("");
             strSql.Append(" group by b.FAreaName,b.RoomNo,b.FCriminal,a.SPShortCode,a.GName,isnull(a.Remark,''),a.fcrimecode,c.BankAccNo,d.SendDate,d.BankFlag");
@@ -1328,7 +1399,17 @@ namespace SelfhelpOrderMgr.Web.Controllers
             strCountSql.Append(strSql.ToString());
             strCountSql.Append(" ) k");
 
-            DataTable dt = new CommTableInfoBLL().GetDataTable(strCountSql.ToString());
+            //DataTable dt = new CommTableInfoBLL().GetDataTable(strCountSql.ToString());
+            DataTable dt = new CommTableInfoBLL().GetDataTable(strCountSql.ToString()
+                , new{
+                    mxFSaleType = mxFSaleType,
+                    mxFAreaName = mxFAreaName,
+                    mxSPShortCode = mxSPShortCode,
+                    mxFCrimeCode = mxFCrimeCode,
+                    mxFGoodsType = mxFGoodsType
+                }
+                );
+
             if (Convert.ToInt32(dt.Rows[0][0]) > 8000)
             {
                 return Content("Err|您所查询的数据条数过多，请增加相应的查询条件");
@@ -1337,7 +1418,15 @@ namespace SelfhelpOrderMgr.Web.Controllers
             strSql.Append(" order by b.FAreaName,b.RoomNo,b.FCriminal,a.SPShortCode,a.GName,isnull(a.Remark,''),a.fcrimecode,c.BankAccNo,d.SendDate,d.BankFlag");
 
 
-            DataTable excelDT = new CommTableInfoBLL().GetDataTable(strSql.ToString());
+            //DataTable excelDT = new CommTableInfoBLL().GetDataTable(strSql.ToString());
+            DataTable excelDT = new CommTableInfoBLL().GetDataTable(strSql.ToString()
+                ,new{
+                    mxFSaleType= mxFSaleType,
+                    mxFAreaName= mxFAreaName,
+                    mxSPShortCode= mxSPShortCode,
+                    mxFCrimeCode= mxFCrimeCode,
+                    mxFGoodsType= mxFGoodsType
+                });
             string strFileName = new CommonClass().GB2312ToUTF8("xfMingXi_List.xls");
             strFileName = Server.MapPath("~/Upload/" + strFileName); ;
             //ExcelRender.RenderToExcel(dt, context, strFileName);

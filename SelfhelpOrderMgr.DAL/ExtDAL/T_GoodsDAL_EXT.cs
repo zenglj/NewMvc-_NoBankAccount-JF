@@ -68,7 +68,7 @@ namespace SelfhelpOrderMgr.DAL
                 strSql.Append(@"select [GCODE] ,[GNAME] ,[GTYPE],[GUnit],[GStandard]
                       ,[GDJ],[GSupplyer],[GTXM],[SPShortCode],[CrtBy],[Crtdt],[ModBy]
                       ,[Moddt],[GBalance],[ACTIVE],[COMBFLAG],[gindj],[subflag],[madein]
-                      ,[Ffreeflag],[balflag],[Serviceflag],[gjm],[src],[data],[Xgsl],[XgMode]");
+                      ,[Ffreeflag],[balflag],[Serviceflag],[gjm],[src],[data],[Xgsl],[XgMode],LevelName");
                 strSql.Append(" from (");
                 strSql.Append( "select ROW_NUMBER() OVER (ORDER BY gcode) AS RowNumber,* from T_Goods");
                 if(strWhere!="")
@@ -114,7 +114,8 @@ namespace SelfhelpOrderMgr.DAL
             strSql.Append(" GDJ = @GDJ , ");
             strSql.Append(" GSupplyer = @GSupplyer , ");
             strSql.Append(" GTXM = @GTXM , ");
-            strSql.Append(" XgMode = @XgMode  ");
+            strSql.Append(" XgMode = @XgMode,  ");
+            strSql.Append(" LevelName = @LevelName  ");
             strSql.Append(" where SPShortCode = @SPShortCode  ");
 
             SqlParameter[] parameters = {
@@ -144,6 +145,7 @@ namespace SelfhelpOrderMgr.DAL
                         new SqlParameter("@GSupplyer", SqlDbType.VarChar,20) ,            
                         new SqlParameter("@GTXM", SqlDbType.VarChar,50) ,  
                         new SqlParameter("@XgMode", SqlDbType.Int,4) ,
+                        new SqlParameter("@LevelName", SqlDbType.VarChar,50) ,
                         new SqlParameter("@SPShortCode", SqlDbType.VarChar,50)             
               
             };
@@ -174,7 +176,8 @@ namespace SelfhelpOrderMgr.DAL
             parameters[23].Value = model.GSupplyer;
             parameters[24].Value = model.GTXM;
             parameters[25].Value = model.XgMode;
-            parameters[26].Value = model.SPShortCode;
+            parameters[26].Value = model.LevelName;
+            parameters[27].Value = model.SPShortCode;
             int rows = SqlHelper.ExecuteSql(strSql.ToString(), parameters);
             if (rows > 0)
             {

@@ -712,6 +712,7 @@
                                             {
                                                 vcrdMoney = vcrd.DAmount - vcrd.CAmount;
                                                 i++;
+                                                var senddate = vcrd.SendDate == null ? "" : ((DateTime)vcrd.SendDate).ToString("yyyy-MM-dd");
                                                 <tr>
                                                     <td>@i</td>
                                                     <td>@vcrd.FCrimeCode</td>
@@ -719,7 +720,7 @@
                                                     <td style="width:150px;">@vcrd.FAreaName</td>
                                                     <td>@vcrd.DType</td>
                                                     <td>@vcrd.CrtDate.ToShortDateString()</td>
-                                                    <td>@vcrd.SendDate?.ToShortDateString()</td>
+                                                    <td>@senddate</td>
                                                     <td>@vcrd.DAmount</td>
                                                     <td>@vcrd.CAmount</td>
                                                     <td class="text-right">@vcrdMoney</td>
@@ -777,6 +778,7 @@
                                                     groupDMoney = 0;
                                                     groupCMoney = 0;
                                                 }
+                                                var senddate = vcrd.SendDate == null ? "" : ((DateTime)vcrd.SendDate).ToString("yyyy-MM-dd");
                                                 <tr>
                                                     <td>@i</td>
                                                     <td>@vcrd.CrtDate.ToShortDateString()</td>
@@ -785,7 +787,7 @@
                                                     <td>@vcrd.CAmount</td>
                                                     <td class="text-right">@vcrdMoney</td>
                                                     <td class="text-center">@vcrd.BankFlag</td>
-                                                    <td>@vcrd.SendDate?.ToShortDateString()</td>
+                                                    <td>@senddate</td>
                                                 </tr>
                                                 sumMoney = sumMoney + vcrdMoney;
                                                 sumDAmount = sumDAmount + vcrd.DAmount;
@@ -941,6 +943,7 @@
                                             {
                                                 vcrdMoney = vcrd.DAmount - vcrd.CAmount;
                                                 i++;
+                                                var senddate = vcrd.SendDate == null ? "" : ((DateTime)vcrd.SendDate).ToString("yyyy-MM-dd");
                                                 <tr>
                                                     <td>@i</td>
                                                     <td>@vcrd.FCrimeCode</td>
@@ -948,7 +951,7 @@
                                                     <td style="width:150px;">@vcrd.FAreaName</td>
                                                     <td>@vcrd.DType</td>
                                                     <td>@vcrd.CrtDate.ToShortDateString()</td>
-                                                    <td>@vcrd.SendDate?.ToShortDateString()</td>
+                                                    <td>@senddate</td>
                                                     <td>@vcrd.DAmount</td>
                                                     <td>@vcrd.CAmount</td>
                                                     <td class="text-right">@vcrdMoney</td>
@@ -1006,9 +1009,10 @@
                                                     groupDMoney = 0;
                                                     groupCMoney = 0;
                                                 }
+                                                var senddate = vcrd.SendDate == null ? "" : ((DateTime)vcrd.SendDate).ToString("yyyy-MM-dd");
                                                 <tr>
                                                     <td>@i</td>
-                                                    <td>@vcrd.SendDate?.ToShortDateString()</td>
+                                                    <td>@senddate</td>
                                                     <td>@vcrd.DType</td>
                                                     <td>@vcrd.DAmount</td>
                                                     <td>@vcrd.CAmount</td>
@@ -1286,7 +1290,7 @@
                                             <tr>
 
                                                 <th colspan="2">分类合计金额：</th>
-                                                <th colspan="3">ATM机取款:@ls.Where(o => o.PayMode == 1).ToList().Sum(o => o.AmountB + o.AmountB + o.AmountC)</th>
+                                                <th colspan="3">ATM机取款:@ls.Where(o => o.PayMode == 1).ToList().Sum(o => o.AmountA + o.AmountB + o.AmountC)</th>
 
 
                                                 <th colspan="3">现金取款:@ls.Where(o => o.PayMode == 0).Sum(o => o.AmountA + o.AmountB + o.AmountC)</th>

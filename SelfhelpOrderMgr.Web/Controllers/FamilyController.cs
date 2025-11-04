@@ -490,18 +490,17 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
                         //1.获取系统数据中所有白名单的记录
                         //2.筛选已经存在的记录
-                        var familyAll = _baseDapperBll.GetModelList<T_Criminal_Family>("");
-                        var idennoArray = familyAll.Select(o => o.FIdenNo).ToArray();
-                        var idKuChongfuList=fls.Where(o => idennoArray.Contains(o.FIdenNo)).ToList();
-                        
+                        //var familyAll = _baseDapperBll.GetModelList<T_Criminal_Family>("");
+                        //var idennoArray = familyAll.Select(o => o.FIdenNo).ToArray();
+                        //var idKuChongfuList=fls.Where(o => idennoArray.Contains(o.FIdenNo)).ToList();
 
-                        foreach (var item in idKuChongfuList)
-                        {
-                            fls.Remove(item);
-                            item.OpeningBank = item.Remark;
-                            item.Remark = $"编号:{item.FCrimeCode},姓名:{item.FamilyName},身份证号【{item.FIdenNo}】 身份证号已经存在，请人工审核是否许可";
-                            errfls.Add(item);
-                        }
+                        //foreach (var item in idKuChongfuList)
+                        //{
+                        //    fls.Remove(item);
+                        //    item.OpeningBank = item.Remark;
+                        //    item.Remark = $"编号:{item.FCrimeCode},姓名:{item.FamilyName},身份证号【{item.FIdenNo}】 身份证号已经存在，请人工审核是否许可";
+                        //    errfls.Add(item);
+                        //}
 
                         #region 写入到数据库中
 
@@ -522,6 +521,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                                     _family.FIdenNo = item.FIdenNo;
                                     _family.FSex = item.FSex;
                                     _family.Relation = item.Relation;
+                                    _family.PhoneNum = item.PhoneNum;
                                     _baseDapperBll.Update(item);
                                 }
                             }

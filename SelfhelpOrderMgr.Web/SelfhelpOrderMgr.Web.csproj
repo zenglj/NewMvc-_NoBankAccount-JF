@@ -299,6 +299,7 @@
     <Compile Include="Controllers\CashPayController.cs" />
     <Compile Include="Controllers\ComAppController.cs" />
     <Compile Include="Controllers\CriminalController.cs" />
+    <Compile Include="Controllers\JfDengjiController.cs" />
     <Compile Include="Controllers\DamagesMgrController.cs" />
     <Compile Include="Controllers\DefaultController.cs" />
     <Compile Include="Controllers\BankRcvController.cs" />
@@ -373,7 +374,9 @@
     <Compile Include="Models\CustomTimeArea.cs" />
     <Compile Include="Models\DamagesPayVcrdEntity.cs" />
     <Compile Include="Models\IdentityModels.cs" />
+    <Compile Include="Models\JF_Koufen_ErrModel.cs" />
     <Compile Include="Models\LaobaoEntity.cs" />
+    <Compile Include="Models\JF_Comploetion_ErrModel.cs" />
     <Compile Include="Models\Pcj_ErrModel.cs" />
     <Compile Include="Models\RecvBankCardInfo.cs" />
     <Compile Include="Models\ReqBankInfo.cs" />
@@ -965,10 +968,12 @@
     <Content Include="Scripts\myJs\faceSelfLogin.js" />
     <Content Include="Scripts\myJs\BankAtmMgrIndex.js" />
     <Content Include="Scripts\myJs\ComAppFaceCollection.js" />
+    <Content Include="Scripts\myJs\jfOrderCommon -20250731.js" />
     <Content Include="Scripts\myJs\LeavePrisonBank.js" />
     <Content Include="Scripts\myJs\LodopFuncs6.198.js" />
     <Content Include="Scripts\myJs\myNewCommonJs.js" />
     <Content Include="Scripts\myJs\opertorXiaopiaoFunc - 复制.js" />
+    <Content Include="Scripts\myJs\orderCommon - 20250731.js" />
     <Content Include="Scripts\myJs\QueryAccount.js" />
     <Content Include="Scripts\myJs\FamilyIndex.js" />
     <Content Include="Scripts\myJs\RetentionAmountIndex.js" />
@@ -1423,6 +1428,12 @@
     <Content Include="Views\DamagesMgr\DamagesPayIndex.cshtml" />
     <Content Include="Views\CashPay\PayIndex.cshtml" />
     <Content Include="Views\CashPay\PayIndexExcelDR.cshtml" />
+    <Content Include="Views\JfDengji\Index.cshtml" />
+    <Content Include="Views\JfDengji\RequestRecIndex.cshtml" />
+    <Content Include="Views\JfDengji\GoodLevelIndex.cshtml" />
+    <Content Include="Views\JfDengji\KoufenRecIndex.cshtml" />
+    <Content Include="Views\Shopping\Index-20250731.cshtml" />
+    <Content Include="Views\JfDengji\SelfKoufenIndex.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

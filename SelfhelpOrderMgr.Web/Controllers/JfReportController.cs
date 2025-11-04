@@ -201,7 +201,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
         private string GetSearchWhere(string LoginCode, ref string startTime, ref string endTime, string areaName, string FName, string FCode, string CrtBy, string CriminalFlag, string CashTypes, string PayTypes, string AccTypes, string BankFlags, string FRemark, string FFlags,string CheckFlag,string CardTypeFlag, int id=1)
         {
             //string strWhere = "Flag=0 ";
-            string strWhere = "Flag in("+ FFlags+") ";
+            string strWhere = "Flag in(" + FFlags + ") ";
             if (string.IsNullOrEmpty(startTime) == false)
             {
                 DateTime sdt = Convert.ToDateTime(startTime);
@@ -218,20 +218,27 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 if (id != 26)
                 {
                     strWhere = strWhere + " and  CrtDate>='" + startTime + "'";
-                }                
+                }
             }
             if (string.IsNullOrEmpty(startTime) == false)
             {
                 strWhere = strWhere + " and  CrtDate<'" + endTime + "'";
             }
 
+            return GetMainWhere(LoginCode, areaName, FName, FCode, CrtBy, CriminalFlag, CashTypes, PayTypes, AccTypes, BankFlags, FRemark, CheckFlag, CardTypeFlag, ref strWhere);
+        }
+
+
+
+        private string GetMainWhere(string LoginCode, string areaName, string FName, string FCode, string CrtBy, string CriminalFlag, string CashTypes, string PayTypes, string AccTypes, string BankFlags, string FRemark, string CheckFlag, string CardTypeFlag, ref string strWhere)
+        {
             if (string.IsNullOrEmpty(areaName) == false)
             {
                 if (areaName != "请选择队别")
                 {
                     //strWhere = strWhere + " and FAreaName='" + areaName + "'";
                     strWhere = strWhere + @" and fcrimecode in( select fcode from t_Criminal 
-                        where FAreaCode in(select fcode from t_area where fcode='"+ areaName +@"' or fid in(
+                        where FAreaCode in(select fcode from t_area where fcode='" + areaName + @"' or fid in(
                         select id from t_area where fcode='" + areaName + "')))";
                 }
             }
@@ -294,11 +301,11 @@ namespace SelfhelpOrderMgr.Web.Controllers
             if (!string.IsNullOrWhiteSpace(CardTypeFlag))
             {
                 strWhere = strWhere + @" and fcrimecode in( select fcrimecode from t_Criminal_Card 
-                        where (case when isnull(Bankaccno,'')<>'' then 1 else 0 end )='"+CardTypeFlag+"')";
+                        where (case when isnull(Bankaccno,'')<>'' then 1 else 0 end )='" + CardTypeFlag + "')";
             }
 
             //验证用户的队别,如果设定了Vcrd验证用户队别，则要查看是否有相应的队别权限下的犯人才可以查询到
-            T_SHO_ManagerSet mset = _jifenMgrService.QueryModel<T_SHO_ManagerSet>("KeyName","VcrdCheckUserManagerAarea");
+            T_SHO_ManagerSet mset = _jifenMgrService.QueryModel<T_SHO_ManagerSet>("KeyName", "VcrdCheckUserManagerAarea");
             if (mset != null)
             {
                 if (mset.MgrValue == "1")
@@ -308,6 +315,61 @@ namespace SelfhelpOrderMgr.Web.Controllers
             }
             return strWhere;
         }
+
+
+        private string SetRequestShangqiJinEWhere(string LoginCode, int id = 1)
+        {
+            string startTime = Request["startTime"];
+            string endTime = Request["endTime"];
+            string areaName = Request["areaName"];
+            string FName = Request["FName"];
+            string FCode = Request["FCode"];
+            string cyName = Request["cyName"];
+            string CrtBy = Request["CrtBy"];
+            string CriminalFlag = Request["CriminalFlag"];//是否在押
+            string CashTypes = Request["CashTypes"];//存款类型
+            string PayTypes = Request["PayTypes"];//取款类型
+            string AccTypes = Request["AccTypes"];//账户类型
+            string BankFlags = Request["BankFlags"];//银行状态类型
+            string FRemark = Request["FRemark"];//备注
+            string FFlags = Request["FFlags"];//记录的有效状态值
+            string CheckFlag = Request["CheckFlag"]; //审核标志
+            string CardTypeFlag = Request["CardTypeFlag"];//烛光卡表示
+            if (string.IsNullOrEmpty(FFlags) == true)
+            {
+                FFlags = "0";
+            }
+
+            string strWhere = GetShangqiJinEWhere(LoginCode, ref startTime, ref endTime, areaName, FName, FCode, CrtBy, CriminalFlag, CashTypes, PayTypes, AccTypes, BankFlags, FRemark, FFlags, CheckFlag, CardTypeFlag, id);
+            return strWhere;
+        }
+        private string GetShangqiJinEWhere(string LoginCode, ref string startTime, ref string endTime, string areaName, string FName, string FCode, string CrtBy, string CriminalFlag, string CashTypes, string PayTypes, string AccTypes, string BankFlags, string FRemark, string FFlags, string CheckFlag, string CardTypeFlag, int id = 1)
+        {
+            //string strWhere = "Flag=0 ";
+            string strWhere = "Flag in(" + FFlags + ") ";
+            if (string.IsNullOrEmpty(startTime) == false)
+            {
+                DateTime sdt = Convert.ToDateTime(startTime);
+                startTime = sdt.Year.ToString() + "-" + sdt.Month.ToString() + "-" + sdt.Day.ToString() + " 00:00:00";
+            }
+            if (string.IsNullOrEmpty(endTime) == false)
+            {
+                DateTime edt = Convert.ToDateTime(endTime);
+                endTime = edt.Year.ToString() + "-" + edt.Month.ToString() + "-" + edt.Day.ToString() + " 23:59:00";
+            }
+
+            if (string.IsNullOrEmpty(startTime) == false)
+            {
+                if (id != 26)
+                {
+                    strWhere = strWhere + " and  CrtDate<'" + startTime + "'";
+                }
+            }
+
+            return GetMainWhere(LoginCode, areaName, FName, FCode, CrtBy, CriminalFlag, CashTypes, PayTypes, AccTypes, BankFlags, FRemark, CheckFlag, CardTypeFlag, ref strWhere);
+        }
+
+
 
         //打印用户汇总总表
         public ActionResult PrintCriminalSumOrder(int id=1)
@@ -364,7 +426,11 @@ namespace SelfhelpOrderMgr.Web.Controllers
             T_JF_Vcrd shangqiJinE = new T_JF_Vcrd();
             if (string.IsNullOrEmpty(startTime)==false)
             {
-                shangqiJinE = _jifenMgrService.QueryList<T_JF_Vcrd>("Select '上期结存' DType,sum(DAmount-CAmount) DAmount from t_JF_vcrd where flag=0 and not (fcrimecode is null) and crtdate<'" + startTime +"'",null)[0];
+                string shangqiJinEWhere = SetRequestShangqiJinEWhere(Session["loginUserCode"].ToString());
+                //shangqiJinE = _jifenMgrService.QueryList<T_JF_Vcrd>("Select '上期结存' DType,sum(DAmount-CAmount) DAmount from t_JF_vcrd where flag=0 and not (fcrimecode is null) and crtdate<'" + startTime +"'",null)[0];
+                shangqiJinE = _jifenMgrService.QueryList<T_JF_Vcrd>("Select '上期结存' DType,sum(DAmount-CAmount) DAmount from t_JF_vcrd where " + shangqiJinEWhere, null)[0];
+
+                
             }
             else
             {

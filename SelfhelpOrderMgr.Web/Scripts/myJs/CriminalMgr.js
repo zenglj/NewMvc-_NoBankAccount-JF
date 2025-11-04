@@ -587,6 +587,31 @@ function btnRecCriminal() {
     });
 }
 
+//设定为离监犯人
+function btnOutCriminal() {
+    var row = $("#test").datagrid('getSelected');
+    if (row == null) {
+        $.messager.alert("提示", "请选择一行要离监的记录");
+        return false;
+    }
+    $.messager.confirm('确认', '您确认想要改变为离监状态吗？', function (r) {
+        if (r) {
+            $.post('/Criminal/OutCriminal', { "txtFCode": $("#txtFCode").textbox('getValue') }, function (data, status) {
+                if ("success" != status) {
+                    return false;
+                } else {
+                    var words = data.split("|");
+                    if ("OK" == words[0]) {
+                        $("#txtFFlag").textbox('setValue', '离监');
+                        $.messager.alert("提示", data);
+                    } else {
+                        $.messager.alert("提示", data);
+                    }
+                }
+            });
+        }
+    });
+}
 function btnTP_YingYangCan() {
     $('#winTP_YingYanyCan').window('open');  // open a window    
 }

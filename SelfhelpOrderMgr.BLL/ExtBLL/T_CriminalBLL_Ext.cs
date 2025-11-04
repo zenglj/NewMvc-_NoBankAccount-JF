@@ -134,6 +134,7 @@ namespace SelfhelpOrderMgr.BLL
             model.AmountA = card.AmountA;
             model.AmountB = card.AmountB;
             model.AmountC = card.AmountC;
+            model.AmountD = card.AmountD;
             model.dongjieMoney = dongjieMoney;//斌值冻结金额
             model.OkUseAllMoney = 0;
             if (card.AmountA >= dongjieMoney)
@@ -260,7 +261,8 @@ namespace SelfhelpOrderMgr.BLL
 
             List<T_JF_Invoice> jfinvLists = new BaseDapperBLL().QueryList<T_JF_Invoice>(strWhere);
 
-            model.XiaoFeiPoints = jfinvLists.Sum(o => o.Amount);
+            //免限额的商品不计算在内
+            model.XiaoFeiPoints = jfinvLists.Sum(o => (o.Amount-o.FreeAmountA-o.FreeAmountB));
 
             //if (yyMset != null)
             //{
@@ -800,6 +802,22 @@ namespace SelfhelpOrderMgr.BLL
 
 
             model.AccPoints = card.AccPoints;//增加积分
+
+
+            //20250719增加积分等级标准，根据犯人类型和完成率来确定积分上限
+            var jfDengji=new JifenMgrService().QueryList<T_JF_DengjiType>("select * from T_JF_DengjiType where TypeFlag=@TypeFlag and CompletionRate<=@CompletionRate order by CompletionRate desc", new { TypeFlag=model.WorkType,CompletionRate=model.CompletionRate}).FirstOrDefault();
+            var maxPoints=new T_SHO_ManagerSetBLL().GetModel("JifenGouWuMaxPoints");
+            model.JiFenMonthStandard = 600;//默认每月600分
+            if (maxPoints != null)
+            {
+                //如果有设置积分上限，则以设置的为准
+                model.JiFenMonthStandard = Convert.ToDecimal( maxPoints.MgrValue);
+            }
+            if(jfDengji!=null)
+            {
+                model.JiFenMonthStandard = jfDengji.JfUseMaxPoints;
+            }
+            
 
             return model;
         }

@@ -227,28 +227,24 @@ namespace SelfhelpOrderMgr.Web.Controllers
             if (Request.Files.Count > 0)
             {
                 photo = Request.Files[0];
-                if (photo != null && !string.IsNullOrWhiteSpace( photo.FileName))
+                if (photo != null && !string.IsNullOrWhiteSpace(photo.FileName))
                 {
-                    //byte[] imageBytes = null;
-
-                    //using (var ms = new MemoryStream())
-                    //{
-                    //    photo.InputStream.CopyTo(ms);
-                    //    imageBytes = ms.GetBuffer();
-                    //}
-
-                    //string base64String = $"data:image/{Path.GetExtension(photo.FileName).Substring(1)};base64,{Convert.ToBase64String(imageBytes)}" ;
-                    //return base64String;
-
                     photoFileName = photo.FileName;
-
                     string savePath = Server.MapPath("~/Upload/" + photoFileName);
-                    photo.SaveAs(savePath);
-                    string base64String =Base64ToImageHelper.ImgToBase64StringByReturn(savePath);
-                    imageSrc = $"data:image/{Path.GetExtension(photoFileName).Substring(1)};base64,{base64String}" ;
-                    
-                    op.Photo = photoFileName;
 
+                    // 将流复制到文件
+                    using (var fileStream = new FileStream(savePath, FileMode.Create))
+                    {
+                        using (var stream = photo.InputStream)
+                        {
+                            stream.CopyTo(fileStream);
+                        }
+                    }
+
+                    string base64String = Base64ToImageHelper.ImgToBase64StringByReturn(savePath);
+                    imageSrc = $"data:image/{Path.GetExtension(photoFileName).Substring(1)};base64,{base64String}";
+
+                    op.Photo = photoFileName;
                 }
                 else
                 {
@@ -256,7 +252,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 }
             }
 
-            
+
             string strRes = "";
             if (czy != null)
             {

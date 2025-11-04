@@ -51,15 +51,21 @@ function getUserCardNo(saleSort) {
                             $("#tbodyOrderList").empty();
                             $("#myPromptBoxInfo").html(data);
                             $("#myPromptBox").modal("show");
-                        } else if (words[0] == "There") {
-                            $("#currUserCardNo").val(cardNo);
-                            $("#currOrderInfo").val(words[1]);
-                            $("#currSaleSort").val(saleSort);
-                            $('#askOrderHandle').modal('show');
-                        }
-                        else {
-                            SetAndDisplayCriminalInfo(words[1], saleSort);//显示抬头栏的账户余额信息
-                        }
+                        } else {
+                            if (words[0] == "There") {
+                                $("#currUserCardNo").val(cardNo);
+                                $("#currOrderInfo").val(words[1]);
+                                $("#currSaleSort").val(saleSort);
+                                $('#askOrderHandle').modal('show');
+                            }
+                            else {
+                                SetAndDisplayCriminalInfo(words[1], saleSort);//显示抬头栏的账户余额信息
+                            }
+                            var rts = $.parseJSON(words[1]);
+                            if (rts.dengjiMgrFlag == "1") {
+                                ReloadGoodsList(rts.gtypes, rts.goods);//重新加载商品列表
+                            }
+                        } 
                         if (saleSort != "selfOrder") {
                             $("#inputGtxm").focus();
                         }
@@ -74,6 +80,71 @@ function getUserCardNo(saleSort) {
     });
 }
 
+//重新加载商品列表
+function ReloadGoodsList(gtypes, goods) {
+    $("#myTab").empty();
+    var tabHtml = "";
+    for (var i = 0; i < gtypes.length; i++) {
+        if (i == 0) {
+            tabHtml += "<li class='active'><a href='#" + gtypes[i].Fcode + "' data-toggle='tab'>" + gtypes[i].Fname + "</a></li>";
+        } else {
+            tabHtml += "<li><a href='#" + gtypes[i].Fcode + "' data-toggle='tab'>" + gtypes[i].Fname + "</a></li>";
+        }
+    }
+    $("#myTab").append(tabHtml);
+
+    $("#myTabContent").empty();
+    var html = "";
+    for (var i = 0; i < gtypes.length; i++) {
+        html += "<div class='tab-pane fade in active' id='" + gtypes[i].Fcode + "'>";
+        html += "<div class='row'>";
+        for (var j = 0; j < goods.length; j++) {
+            if (goods[j].GTYPE == gtypes[i].Fcode) {
+                var good = goods[j];
+                html += "<div class='col-md-2'>";
+                html += "<div class='thumbnail' onclick='btnBuy(\"" + good.GTXM + "|" + good.GDJ + "|" + good.GNAME + "|" + good.Ffreeflag + "|" + good.Xgsl + "|" + good.GStandard + "|" + good.src + "|" + good.Balance + "\")'>";
+                if (good.src != null && good.src != "") {
+                    html += "<img class='lazy' src='" + good.data + "' width='300' height='150' data-src='' alt='gulpjs'>";
+                } else {
+                    html += "<img class='lazy' src='" + good.src + "' width='300' height='150' data-src='' alt='gulpjs'>";
+                }
+                html += "<div class='caption' onclick='btnBuy(\"" + good.GTXM + "|" + good.GDJ + "|" + good.GNAME + "|" + good.Ffreeflag + "|" + good.Xgsl + "|" + good.GStandard + "|" + good.src + "|" + good.Balance + "\")'>";
+                html += "<h3 style='height:70px; text-align:center;'>";
+                html += "<span class='MoneyFontColor'><small class='MoneyFontColor'><span class='glyphicon glyphicon-grain' aria-hidden='true'></span></small> " + good.GDJ + " 元</span><br />";
+                if (good.GNAME.Length >= 8) {
+                    html += "<a href='#goodDetail'>";
+                    html += "<span><small> " + good.GNAME.Substring(0, 8) + " </small></span><br>";
+                    html += "<span style='font-size:small'>";
+                    html += "条码：" + good.GTXM;
+                    html += "</span>";
+                    html += "</a>";
+                } else {
+                    html += "<a href='#goodDetail'>";
+                    html += "<span>";
+                    html += "<small> " + good.GNAME + "</small><br>";
+                    html += "<span style='font-size:small'>";
+                    html += "条码：" + good.GTXM;
+                    html += "</span>";
+                    html += "</a>";
+                }
+                html += "</h3>";
+                html += "<h4 style='text-align:center'>";
+                html += "<button class='btn btn-default' type='button'>";
+                html += "简码";
+                html += "<span class='badge'>" + good.SPShortCode + "</span>";
+                html += "</button>";
+                html += "</h4>";
+                html += "</div>";
+                html += "</div>";
+                html += "</div>";
+            }
+        }
+        html += "</div>";
+        html += "</div>";
+    }
+
+    $("#myTabContent").append(html);
+}
 
 
 
@@ -99,15 +170,21 @@ function btnAddOrder(e, saleSort) {
                     $("#myPromptBoxInfo").html(data);
                     $("#myPromptBox").modal("show");
                 }
-                else if (words[0] == "There") {
-                    $("#currUserCardNo").val(cardNo);
-                    $("#currOrderInfo").val(words[1]);
-                    $("#currSaleSort").val(saleSort);
-                    $('#askOrderHandle').modal('show');
-                }
                 else {
-                    SetAndDisplayCriminalInfo(words[1], saleSort);//显示抬头栏的账户余额信息
-                }
+                    if (words[0] == "There") {
+                        $("#currUserCardNo").val(cardNo);
+                        $("#currOrderInfo").val(words[1]);
+                        $("#currSaleSort").val(saleSort);
+                        $('#askOrderHandle').modal('show');
+                    }
+                    else {
+                        SetAndDisplayCriminalInfo(words[1], saleSort);//显示抬头栏的账户余额信息
+                    }
+                    var rts = $.parseJSON(words[1]);
+                    if (rts.dengjiMgrFlag == "1") {
+                        ReloadGoodsList(rts.gtypes, rts.goods);//重新加载商品列表
+                    }
+                } 
                 if (saleSort != "selfOrder") {
                     $("#inputGtxm").focus();
                 }
@@ -591,7 +668,8 @@ function SetPrintPayXiaopiao(words) {
         + "<div style='font-size:" + (parseInt($("#xiaoPiaoFontSize").val()) + 1) + "px;'>存款账户余额:" + inv.criminal.AmountA + "元</div>"
         + "<div style='font-size:" + (parseInt($("#xiaoPiaoFontSize").val()) + 1) + "px;'>报酬账户余额:" + inv.criminal.AmountB + "元</div>"
         + "<div style='font-size:" + (parseInt($("#xiaoPiaoFontSize").val()) + 1) + "px;'>留存账户余额:" + inv.criminal.AmountC + "元</div>"
-        + "<div style='font-size:" + (parseInt($("#xiaoPiaoFontSize").val()) + 1) + "px;'>账户总余额:" + toDecimal2(inv.criminal.AmountA + inv.criminal.AmountB + inv.criminal.AmountC) + "元</div>"
+        + "<div style='font-size:" + (parseInt($("#xiaoPiaoFontSize").val()) + 1) + "px;'>蓝风铃余额:" + inv.criminal.AmountD + "元</div>"
+            + "<div style='font-size:" + (parseInt($("#xiaoPiaoFontSize").val()) + 1) + "px;'>账户总余额:" + toDecimal2(inv.criminal.AmountA + inv.criminal.AmountB + inv.criminal.AmountC + inv.criminal.AmountD) + "元</div>"
         + "</div><br/></div>";
 
         $("#template").append(xiaopiao);
@@ -640,7 +718,8 @@ function SetPrintPayXiaopiao(words) {
         + "<div style='font-size:" + (parseInt($("#xiaoPiaoFontSize").val()) + 1) + "px;'>存款账户余额:" + inv.criminal.AmountA + "元</div>"
         + "<div style='font-size:" + (parseInt($("#xiaoPiaoFontSize").val()) + 1) + "px;'>报酬账户余额:" + inv.criminal.AmountB + "元</div>"
         + "<div style='font-size:" + (parseInt($("#xiaoPiaoFontSize").val()) + 1) + "px;'>留存账户余额:" + inv.criminal.AmountC + "元</div>"
-        + "<div style='font-size:" + (parseInt($("#xiaoPiaoFontSize").val()) + 1) + "px;'>账户总余额:" + toDecimal2(inv.criminal.AmountA + inv.criminal.AmountB + inv.criminal.AmountC) + "元</div>"
+        + "<div style='font-size:" + (parseInt($("#xiaoPiaoFontSize").val()) + 1) + "px;'>蓝风铃余额:" + inv.criminal.AmountD + "元</div>"
+            + "<div style='font-size:" + (parseInt($("#xiaoPiaoFontSize").val()) + 1) + "px;'>账户总余额:" + toDecimal2(inv.criminal.AmountA + inv.criminal.AmountB + inv.criminal.AmountC + inv.criminal.AmountD) + "元</div>"
         + "</div><br/></div>";
 
         $("#template").append(xiaopiao);

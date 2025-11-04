@@ -111,7 +111,30 @@ $(function () {
         }
     });
 
-}); 
+
+    //var today = new Date(); // 获取今天的日期
+    //var thirtyDaysAgo = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 30); // 计算30天前的日期
+    $('#paySearchCrtDate_Start').datetimebox('setValue', getFirstDayOfMonth()); // 设置datetimebox的值为30天前的日期
+
+
+});
+
+
+
+function getFirstDayOfMonth() {
+    var today = new Date(); // 获取当前日期
+    const year = today.getFullYear();
+    const month = (today.getMonth() + 1).toString().padStart(2, '0');
+    return `${year}-${month}-${1}`;
+}
+
+function formatDate(date) {
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
 
 
 

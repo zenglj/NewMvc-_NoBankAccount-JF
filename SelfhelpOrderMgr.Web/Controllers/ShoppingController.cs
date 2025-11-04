@@ -16,12 +16,16 @@ namespace SelfhelpOrderMgr.Web.Controllers
                                      //LoginController
     public class ShoppingController : LoginController
     {
+        private static JifenMgrService _jifenMgrService = new JifenMgrService();
         JavaScriptSerializer jss = new JavaScriptSerializer();
         BaseDapperBLL _baseDapperBLL = new BaseDapperBLL();
         private int loginSaleId = 1;
         string strLoginUserName = "";
         //IP地址最后3位
         string strIpAddr = "自助机"+ GetIpAddressLastCode( System.Web.HttpContext.Current.Request.UserHostAddress);
+        private static string _dengjiMgrFlag = new T_SHO_ManagerSetBLL().GetModel("ShangpinDengjiKongzhi")?.MgrValue;
+        private static List<T_JF_GoodsLevel> _goodsDjs = new JifenMgrService().GetModelList<T_JF_GoodsLevel>("");
+
         public ActionResult Index(int id = 1)//默认1是超市消费
         {
             //取消原来有在管理表设定的模式，改用在T_Sho_SaleType表设定
@@ -513,7 +517,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         List<T_SHO_OrderDTL> dtls = new T_SHO_OrderDTLBLL().GetModelList("OrderId='" + order.OrderID + "'");
                         if (dtls.Count > 0)
                         {
-                            status = GetOrderListInfo(status, criminal, orders);//获取订单列表信息
+                            status = GetOrderListInfo(status, criminal, orders, Convert.ToInt32(saleTypeId));//获取订单列表信息
                         }
                         else
                         {
@@ -569,7 +573,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
             return loginUserName;
         }
 
-        private static string GetOrderListInfo(string status, T_Criminal criminal, List<T_SHO_Order> orders)
+        private static string GetOrderListInfo(string status, T_Criminal criminal, List<T_SHO_Order> orders,int saleTypeId)
         {
             //status = "There|" + orders[0].OrderID.ToString() + "|" + criminal.FName + "|" + criminal.CyName + "|" + (criminal.NoXiaofeimoney - (orders[0].FAmount-orders[0].FreeAmount)).ToString()+"|"+ criminal.OkUseAllMoney.ToString()+"|" + orders[0].FAmount.ToString();
             decimal yue = criminal.NoXiaofeimoney - (orders[0].FAmount - orders[0].FreeAmount);
@@ -588,6 +592,22 @@ namespace SelfhelpOrderMgr.Web.Controllers
             List<T_SHO_OrderDTL> details = new T_SHO_OrderDTLBLL().GetModelList("OrderId='" + orders[0].OrderID.ToString() + "'");
 
             rts.lists = details;
+
+
+            //增加商品类型信息===Start===================
+            rts.dengjiMgrFlag = _dengjiMgrFlag;
+            if (_dengjiMgrFlag == "1")
+            {
+                decimal criminalKoufen = GetCurrMonthKoufen(criminal.FCode);
+                var goods = _jifenMgrService.QueryList<T_Goods>("select a.* from t_goods a,T_JF_GoodsLevel b,T_GoodsType c where a.ACTIVE='Y' and a.LevelName=b.LevelName and a.GType=c.FCode and c.saleTypeId=@saleTypeId and b.CompletionRate>=@CompletionRate ", new { CompletionRate = criminalKoufen, saleTypeId = saleTypeId });
+                var gtypes = _jifenMgrService.QueryList<T_GoodsType>("select * from t_goodstype where UseType=0 and saleTypeId=@saleTypeId and FCode in @fcodes", new { saleTypeId = saleTypeId, fcodes = goods.Select(g => g.GTYPE).Distinct().ToArray() });
+
+                rts.goods = goods;
+                rts.gtypes = gtypes;
+            }
+            
+            //增加商品类型信息===End===================
+
             //status = status + "|" + strDtl ;
             status = css.Serialize(rts);
             status = "There|" + status;
@@ -651,6 +671,21 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 rts.orderMoney = 0;
                 rts.FAreaName = criminal.FAreaName;
                 rts.FCrimeCode = criminal.FCode;
+
+
+
+                //增加商品类型信息===Start===================
+                rts.dengjiMgrFlag = _dengjiMgrFlag;
+                if (_dengjiMgrFlag == "1")
+                {
+                    decimal criminalKoufen = GetCurrMonthKoufen(criminal.FCode);
+                    var goods = _jifenMgrService.QueryList<T_Goods>("select a.* from t_goods a,T_JF_GoodsLevel b,T_GoodsType c where a.ACTIVE='Y' and a.LevelName=b.LevelName and a.GType=c.FCode and c.saleTypeId=@saleTypeId and b.CompletionRate>=@CompletionRate ", new { CompletionRate = criminalKoufen, saleTypeId = saleTypeId });
+                    var gtypes = _jifenMgrService.QueryList<T_GoodsType>("select * from t_goodstype where UseType=0 and saleTypeId=@saleTypeId and FCode in @fcodes", new { saleTypeId = saleTypeId, fcodes = goods.Select(g => g.GTYPE).Distinct().ToArray() });
+                    rts.goods = goods;
+                    rts.gtypes = gtypes;
+                }                    
+                //增加商品类型信息===End===================
+
                 JavaScriptSerializer css = new JavaScriptSerializer();
                 status = css.Serialize(rts);
                 status = "OK|" + status;
@@ -659,7 +694,23 @@ namespace SelfhelpOrderMgr.Web.Controllers
             return status;
         }
 
-        
+        /// <summary>
+        /// 计算扣分的值
+        /// </summary>
+        /// <param name="fcode"></param>
+        /// <returns></returns>
+        private static decimal GetCurrMonthKoufen(string fcode)
+        {
+            var year = DateTime.Today.AddMonths(-1).Year;
+            var month = DateTime.Today.AddMonths(-1).Month;
+            var ls=_jifenMgrService.QueryList<T_JF_KouFen>("select * from t_JF_KouFen where IsDelete=0 and CreateDate>=@CreateDate and FCode=@FCode"
+                , new { CreateDate =new DateTime(year,month,1), FCode = fcode });
+            if(ls.Count<=0)
+            {
+                return 0;
+            }
+            return ls.Sum(o=>o.ScoreValue);
+        }
 
         public ActionResult SearchGoodsInfo()
         {
@@ -684,10 +735,13 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 //Linq方式实现
                 var t = from item in types
                         select item.Fcode;
-                ptype = "'" + string.Join("','", t.ToArray()) + "'";
+                //ptype = "'" + string.Join("','", t.ToArray()) + "'";
+                ptype = string.Join(",", t.ToArray()) ;
 
 
-                List<T_Goods> goods = new T_GoodsBLL().GetModelList("Gtxm='" + gtxm + "' and GType in (" + ptype + ")");
+                //List<T_Goods> goods = new T_GoodsBLL().GetModelList("Gtxm='" + gtxm + "' and GType in (" + ptype + ")");
+                List<T_Goods> goods = _baseDapperBLL.QueryList<T_Goods>("select * from T_Goods where Gtxm=@gtxm and GType  in (SELECT value FROM Split(@ptype,',') )", new { gtxm= gtxm , ptype = ptype });
+
                 if (goods.Count > 0)
                 {
                     if (goods[0].ACTIVE == "N")
@@ -704,7 +758,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
                     status = "Error|没有查询到您要的商品";
                     if (!string.IsNullOrEmpty(gtxm))
                     {
-                        goods = new T_GoodsBLL().GetModelList("SPShortCode='" + gtxm + "' and GType in (" + ptype + ")");
+                        //goods = new T_GoodsBLL().GetModelList("SPShortCode='" + gtxm + "' and GType in (" + ptype + ")");
+                        goods = _baseDapperBLL.QueryList<T_Goods>("select * from T_Goods where SPShortCode=@gtxm and GType in (SELECT value FROM Split(@ptype,',') )", new { gtxm = gtxm ,ptype=ptype});
                         if (goods.Count > 0)
                         {
                             //JavaScriptSerializer jss = new JavaScriptSerializer();
@@ -878,6 +933,16 @@ namespace SelfhelpOrderMgr.Web.Controllers
                     return Content("Error|" + criminal.ErrInfo + "，请与管理人员联系");
                 }
 
+                //=====根据上个月的完成率看这类商品你是否有资格购买==20250719 zenglj===Start================
+                if (_dengjiMgrFlag == "1")
+                {
+                    if (_goodsDjs.Where(o => o.LevelName == good.LevelName && o.CompletionRate >= GetCurrMonthKoufen(criminal.FCode)).Count() <= 0)
+                    {
+                        return Content("Error|您有扣分,不能购买该类商品");
+                    }
+                }
+
+                //=====根据上个月的完成率看这类商品你是否有资格购买==20250719 zenglj===End================
 
                 T_SHO_ManagerSet xgMode = new T_SHO_ManagerSetBLL().GetModel("XianGouMode");
 
@@ -1098,7 +1163,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
                 string status = "";
                 List<T_SHO_Order> orders = new T_SHO_OrderBLL().GetModelList(" OrderId='" + orderId + "'");
-                status = GetOrderListInfo(status, criminal, orders);//获取订单列表信息
+                status = GetOrderListInfo(status, criminal, orders, saleTypes[0].Id);//获取订单列表信息
                 return Content(status);
             }
             else

@@ -119,6 +119,7 @@ function SetAndDisplayUserInfo(words) {
         $("#xiaofeiYuE").html(rts.UserInfo.NoXiaofeimoney);
         $("#accPoints").html(rts.UserInfo.AccPoints);
         $("#xiaofeiPoints").html(rts.UserInfo.XiaoFeiPoints);
+        $("#amountD").html(rts.UserCard.AmountD);
         $("#amountC").html(rts.UserInfo.AmountC);
         $("#amountB").html(rts.UserInfo.AmountB);
         $("#amountA").html(rts.UserInfo.AmountA);
@@ -162,6 +163,7 @@ function ClearUserDisplayInfo() {
     $("#okUseAllMoney").html("0.00");
     $("#xiaofeiYuE").html("0.00");
     $("#accPoints").html("0.00");
+    $("#amountD").html("0.00");
     $("#amountC").html("0.00");
     $("#amountB").html("0.00");
     $("#amountA").html("0.00");

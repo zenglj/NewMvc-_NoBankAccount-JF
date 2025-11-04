@@ -26,8 +26,12 @@ namespace SelfhelpOrderMgr.Web
 
         public decimal AccPoints { get; set; }//账户积分
         public decimal XiaoFeiPoints { get; set; }//本月已消费积分
-
+        public string dengjiMgrFlag { get; set; }//等级管理启用标志
+        public decimal keyongJifen { get; set; } //可用积分
         public List<T_SHO_OrderDTL> lists { get; set; }//订单列表
+
+        public List<T_GoodsType> gtypes { get; set; }//商品类别
+        public List<T_Goods> goods { get; set; }//商品信息
 
     }
     public class rtnDelResult

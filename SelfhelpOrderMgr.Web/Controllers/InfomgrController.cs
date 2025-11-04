@@ -931,15 +931,20 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
             if (payMode == 0)
             {
-                T_SHO_ManagerSet mySet = new T_SHO_ManagerSetBLL().GetModel("LijianHuifuXianJinStopFlag");
-                if (mySet != null)
+                //只有当天可以恢复，否则不允许恢复
+                if (bal.crtdate.Date != DateTime.Today)
                 {
-                    if (mySet.MgrValue == "1")
+                    T_SHO_ManagerSet mySet = new T_SHO_ManagerSetBLL().GetModel("LijianHuifuXianJinStopFlag");
+                    if (mySet != null)
                     {
-                        rs.ReMsg = "Err|现金结算的记录不能回复，请与管理部门联系";
-                        return Json(rs);
+                        if (mySet.MgrValue == "1")
+                        {
+                            rs.ReMsg = "Err|现金结算的记录不能回复，请与管理部门联系";
+                            return Json(rs);
+                        }
                     }
                 }
+                
             }
 
 

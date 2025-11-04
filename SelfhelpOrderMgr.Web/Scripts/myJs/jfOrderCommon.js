@@ -26,7 +26,7 @@ function readCardNo() {
     return cardNo;
 }
 
- 
+
 //获取用户IC卡信息
 function getUserCardNo(saleSort) {
     var getUserCardNo = "";
@@ -51,14 +51,21 @@ function getUserCardNo(saleSort) {
                             $("#tbodyOrderList").empty();
                             $("#myPromptBoxInfo").html(data);
                             $("#myPromptBox").modal("show");
-                        } else if (words[0] == "There") {
-                            $("#currUserCardNo").val(cardNo);
-                            $("#currOrderInfo").val(words[1]);
-                            $("#currSaleSort").val(saleSort);
-                            $('#askOrderHandle').modal('show');
-                        }
-                        else {
-                            SetAndDisplayCriminalInfo(words[1], saleSort);//显示抬头栏的账户余额信息
+                        } else {
+                            if (words[0] == "There") {
+                                $("#currUserCardNo").val(cardNo);
+                                $("#currOrderInfo").val(words[1]);
+                                $("#currSaleSort").val(saleSort);
+                                $('#askOrderHandle').modal('show');
+                            }
+                            else {
+                                SetAndDisplayCriminalInfo(words[1], saleSort);//显示抬头栏的账户余额信息
+                            }
+                            var rts = $.parseJSON(words[1]);
+                            if (rts.dengjiMgrFlag == "1") {
+                                ReloadGoodsList(rts.gtypes, rts.goods);//重新加载商品列表
+                            }
+                            
                         }
                         if (saleSort != "selfOrder") {
                             $("#inputGtxm").focus();
@@ -69,7 +76,7 @@ function getUserCardNo(saleSort) {
             } else {
                 alert(data);
             }
-            
+
         }
     });
 }
@@ -97,14 +104,20 @@ function btnAddOrder(e, saleSort) {
                     $("#myPromptBoxInfo").html(data);
                     $("#myPromptBox").modal("show");
                 }
-                else if (words[0] == "There") {
-                    $("#currUserCardNo").val(cardNo);
-                    $("#currOrderInfo").val(words[1]);
-                    $("#currSaleSort").val(saleSort);
-                    $('#askOrderHandle').modal('show');
-                }
                 else {
-                    SetAndDisplayCriminalInfo(words[1], saleSort);//显示抬头栏的账户余额信息
+                    if (words[0] == "There") {
+                        $("#currUserCardNo").val(cardNo);
+                        $("#currOrderInfo").val(words[1]);
+                        $("#currSaleSort").val(saleSort);
+                        $('#askOrderHandle').modal('show');
+                    }
+                    else {
+                        SetAndDisplayCriminalInfo(words[1], saleSort);//显示抬头栏的账户余额信息
+                    }
+                    var rts = $.parseJSON(words[1]);
+                    if (rts.dengjiMgrFlag == "1") {
+                        ReloadGoodsList(rts.gtypes, rts.goods);//重新加载商品列表
+                    }
                 }
                 if (saleSort != "selfOrder") {
                     $("#inputGtxm").focus();
@@ -113,11 +126,75 @@ function btnAddOrder(e, saleSort) {
         });
 
     }
-    
-
 }
 
 
+
+//重新加载商品列表
+function ReloadGoodsList(gtypes, goods) {
+    $("#myTab").empty();
+    var tabHtml = "";
+    for (var i = 0; i < gtypes.length; i++) {
+        if (i == 0) {
+            tabHtml += "<li class='active'><a href='#" + gtypes[i].Fcode + "' data-toggle='tab'>" + gtypes[i].Fname + "</a></li>";
+        } else {
+            tabHtml += "<li><a href='#" + gtypes[i].Fcode + "' data-toggle='tab'>" + gtypes[i].Fname + "</a></li>";
+        }
+    }
+    $("#myTab").append(tabHtml);
+
+    $("#myTabContent").empty();
+    var html = "";
+    for (var i = 0; i < gtypes.length; i++) {
+        html += "<div class='tab-pane fade in active' id='" + gtypes[i].Fcode + "'>";
+        html += "<div class='row'>";
+        for (var j = 0; j < goods.length; j++) {
+            if (goods[j].GTYPE == gtypes[i].Fcode) {
+                var good = goods[j];
+                html += "<div class='col-md-2'>";
+                html += "<div class='thumbnail' onclick='btnBuy(\"" + good.GTXM + "|" + good.GDJ + "|" + good.GNAME + "|" + good.Ffreeflag + "|" + good.Xgsl + "|" + good.GStandard + "|" + good.src + "|" + good.Balance + "\")'>";
+                if (good.src != null && good.src != "") {
+                    html += "<img class='lazy' src='" + good.data + "' width='300' height='150' data-src='' alt='gulpjs'>";
+                } else {
+                    html += "<img class='lazy' src='" + good.src + "' width='300' height='150' data-src='' alt='gulpjs'>";
+                }
+                html += "<div class='caption' onclick='btnBuy(\"" + good.GTXM + "|" + good.GDJ + "|" + good.GNAME + "|" + good.Ffreeflag + "|" + good.Xgsl + "|" + good.GStandard + "|" + good.src + "|" + good.Balance + "\")'>";
+                html += "<h3 style='height:70px; text-align:center;'>";
+                html += "<span class='MoneyFontColor'><small class='MoneyFontColor'><span class='glyphicon glyphicon-grain' aria-hidden='true'></span></small> " + good.GDJ + " 积分</span><br />";
+                if (good.GNAME.Length >= 8) {
+                    html += "<a href='#goodDetail'>";
+                    html += "<span><small> " + good.GNAME.Substring(0, 8) + " </small></span><br>";
+                    html += "<span style='font-size:small'>";
+                    html += "条码：" + good.GTXM;
+                    html += "</span>";
+                    html += "</a>";
+                } else {
+                    html += "<a href='#goodDetail'>";
+                    html += "<span>";
+                    html += "<small> " + good.GNAME + "</small><br>";
+                    html += "<span style='font-size:small'>";
+                    html += "条码：" + good.GTXM;
+                    html += "</span>";
+                    html += "</a>";
+                }
+                html += "</h3>";
+                html += "<h4 style='text-align:center'>";
+                html += "<button class='btn btn-default' type='button'>";
+                html += "简码";
+                html += "<span class='badge'>" + good.SPShortCode + "</span>";
+                html += "</button>";
+                html += "</h4>";
+                html += "</div>";
+                html += "</div>";
+                html += "</div>";
+            }
+        }
+        html += "</div>";
+        html += "</div>";
+    }
+
+    $("#myTabContent").append(html);
+}
 
 //取消当前订单信息，新一个信订单
 function CancelCurrOrderInfo() {
@@ -148,7 +225,7 @@ function CancelCurrOrderInfo() {
 //延续未提交订单信息
 function ContinueOrderInfo() {
     //alert（"确定"）    
-    var wordsInfo=$("#currOrderInfo").val();
+    var wordsInfo = $("#currOrderInfo").val();
     var saleSort = $("#currSaleSort").val();
     //console.info("载入:"+saleSort);
     SetAndDisplayCriminalInfo(wordsInfo, saleSort);//显示抬头栏的账户余额信息
@@ -163,14 +240,14 @@ function ContinueOrderInfo() {
 function SetAndDisplayCriminalInfo(words, saleSort) {
     var rts = $.parseJSON(words);
     $("#orderFcrimeCode").val(rts.FCrimeCode);
-    
+
     $("#orderFcrimeName").val(rts.FName);
     $("#orderCyName").val(rts.cyName);
     $("#orderFareaName").val(rts.FAreaName);
     $("#orderNumber").val(rts.orderId);
 
-    $("#criminalCyInfo").html("您好，" + rts.FName + "<span class='label label-default'>" + rts.cyName + "</span>,可消费积分：<span class='label label-default' id='xiaofeiYuE'>" + rts.AccPoints + "</span>,账户总积分：<span class='label label-default' id='okUseAllMoney'>" + rts.AccPoints + "</span>,本月已经消费：<span class='label label-warning' id='curMonthXFE'>" + rts.XiaoFeiPoints + "</span>");
-    
+    $("#criminalCyInfo").html("您好，" + rts.FName + "<span class='label label-default'>" + rts.cyName + "</span>,可消费积分：<span class='label label-default' id='xiaofeiYuE'>" + rts.keyongJifen + "</span>,账户总积分：<span class='label label-default' id='okUseAllMoney'>" + rts.AccPoints + "</span>,本月已经消费：<span class='label label-warning' id='curMonthXFE'>" + rts.XiaoFeiPoints + "</span>");
+
     $("#orderMoney").html(toDecimal2(rts.orderMoney));//订单金额    
     $("#submitMoney").html(toDecimal2(rts.orderMoney));//结算显示金额
     $("#curMonthXFE").html(toDecimal2(rts.XiaoFeiPoints));//本月已经消金额
@@ -191,7 +268,7 @@ function SetAndDisplayCriminalInfo(words, saleSort) {
                     option = "<tr><td><input type='checkbox'" + checkflag + "/></td><td>" + detail.SPShortCode + "</td><td>" + detail.GName + "</td><td>" + detail.GCount + "</td><td>" + detail.GAmount + "</td><td><a class='btn btn-default btn-sm' href='#' role='button' onclick='btnDelDetailById(" + detail.ID + ",\"" + saleSort + "\")'>删除</a></td></tr>";
                 } else {
                     option = "<tr><td>" + detail.SPShortCode + "</td><td>" + detail.GName + "</td><td>" + detail.SPShortCode + "</td><td>" + detail.GPrice + "</td><td>" + detail.GCount + "</td><td>" + detail.GAmount + "</td><td><input type='checkbox'" + checkflag + "/></td><td><a class='btn btn-default btn-sm' href='#' role='button' onclick='btnDelDetailById(" + detail.ID + ")'>删除</a></td></tr>";
-                }                
+                }
                 $("#tbodyOrderList").append(option);
                 optionJS = "<tr><td><img src='" + detail.src + "' style='height:40px;' /></td><td>" + detail.SPShortCode + "</td><td>" + detail.GName + "</td><td>" + detail.GTXM + "</td><td>" + detail.GCount + "</td><td>" + detail.GAmount + "</td><td><a class='btn btn-default btn-sm' href='#' role='button' onclick='btnDelDetailById(" + detail.ID + ")'>删除</a></td></tr>";
                 $("#tbodyJieShuanList").append(optionJS);
@@ -215,7 +292,7 @@ function btnDelDetailById(detailId, saleSort) {
                 //alert(data);
             } else {
                 //删除一条记细记录
-                
+
                 SetAndDisplayCriminalInfo(words[1], saleSort);//显示抬头栏的账户余额信息
                 //更新当前余额
 
@@ -265,7 +342,7 @@ function DisplayPayModel(mode) {
     $("#userRoomNO").focus();
     //if (mode == 'sale') {
     //    $("#Head_Top").hide();
-        
+
     //    window.location.href = "#userRoom";
     //    $("#userRoomNO").focus();
     //} else {
@@ -275,7 +352,7 @@ function DisplayPayModel(mode) {
 
 //结算提交
 function PayCheckSubmit() {
-    if ($("#userRoomNO").val()=="") {
+    if ($("#userRoomNO").val() == "") {
         alert("请输入收货房间号");
         $("#userRoomNO").focus();
         return false;
@@ -317,8 +394,7 @@ function PayCheckSubmit() {
                 $("#orderMoney").html('');
                 $("#orderFcrimeName").val('');
                 $("#orderFareaName").val('');
-                if (printFlag == "1")
-                {
+                if (printFlag == "1") {
                     var inv = $.parseJSON(words[2]);
                     SetPrintPayXiaopiao(words[2]);
                     //myTestHtml("#template");
@@ -338,7 +414,7 @@ function PayCheckSubmit() {
                             }
                         });
                     }
-                }                
+                }
             }
             //alert(data);
             $("#myPromptBoxInfo").html(words[1]);
@@ -349,13 +425,13 @@ function PayCheckSubmit() {
 }
 
 //房间号录入检测验证
-function roomNoCheckInput(keyCode,id) {
+function roomNoCheckInput(keyCode, id) {
     if (keyCode == 13) {
         PayCheckSubmit();
     } else {
         checkRate(id)
     }
-        
+
 }
 
 //检测并增加一条购买商品记录
@@ -373,7 +449,7 @@ function CheckAndAddBuyList(saleSort) {
     var iprice = $("#inputPrice").html();
     var imoney = toDecimal2(parseFloat(iprice) * parseFloat(inum));//转成两位小数点
 
-    var iallMoney =parseFloat( imoney) + parseFloat(iorderMoney);
+    var iallMoney = parseFloat(imoney) + parseFloat(iorderMoney);
     var xiaofeiYue = $("#xiaofeiYuE").html();
     var okUseAllMoney = $("#okUseAllMoney").html();
     var nowYue = parseFloat(xiaofeiYue) - imoney;
@@ -398,7 +474,7 @@ function CheckAndAddBuyList(saleSort) {
             DoInsertBuyDetail(iallMoney, nowYue, saleSort);
         }
     }
-    
+
 }
 
 //提交到后台执行插入购买记录操作DoInsertBuyDetail(iallMoney, nowYue)
@@ -425,25 +501,25 @@ function DoInsertBuyDetail(iallMoney, nowYue, saleSort) {
                 }
                 var inum = $("#inputGcount").val();
                 var iprice = $("#inputPrice").html();
-                if ("selfOrder" == saleSort) {                    
+                if ("selfOrder" == saleSort) {
                     var iName = $("#inputGname").html();
                     var iGtxm = $("#inputGtxm").html();
-                    
+
                 } else {
                     var iName = $("#inputGname").val();
-                    var iGtxm = $("#inputGtxm").val();                    
+                    var iGtxm = $("#inputGtxm").val();
                 }
-                
+
                 var checkflag = "";
                 if ($("#strGoodFreeFlag").val() == "1") {
                     checkflag = "checked='checked'"
                 }
                 var imoney = toDecimal2(parseFloat(iprice) * parseFloat(inum));
-                
+
                 //console.info("插入:" + saleSort);
                 //option = "<tr><td>" + iGtxm + "</td><td>" + iName + "</td><td>" + iprice + "</td><td>" + inum + "</td><td>" + imoney + "</td><td><input type='checkbox'" + checkflag + "/></td><td><a class='btn btn-default btn-sm' href='#' role='button' " + "onclick=\'btnDelDetailById(" + words[1] + ")\'" + ">删除</a></td></tr>";
                 if ("selfOrder" == saleSort) {
-                    option = "<tr><td><input type='checkbox'/></td><td>" + iGtxm + "</td><td>" + iName + "</td><td>" + inum + "</td><td>" + imoney + "</td><td><a class='btn btn-default btn-sm' href='#' role='button' onclick='btnDelDetailById(" + words[1] +",\""+saleSort+"\")'>删除</a></td></tr>";
+                    option = "<tr><td><input type='checkbox'/></td><td>" + iGtxm + "</td><td>" + iName + "</td><td>" + inum + "</td><td>" + imoney + "</td><td><a class='btn btn-default btn-sm' href='#' role='button' onclick='btnDelDetailById(" + words[1] + ",\"" + saleSort + "\")'>删除</a></td></tr>";
                 } else {
                     var infos = $.parseJSON(words[4]);
                     option = "<tr><td>" + infos.SPShortCode + "</td><td>" + iName + "</td><td>" + infos.GTXM + "</td><td>" + iprice + "</td><td>" + inum + "</td><td>" + imoney + "</td><td><input type='checkbox'" + checkflag + "/></td><td><a class='btn btn-default btn-sm' href='#' role='button' onclick='btnDelDetailById(" + words[1] + ")'>删除</a></td></tr>";
@@ -460,29 +536,29 @@ function DoInsertBuyDetail(iallMoney, nowYue, saleSort) {
                 else {
                     $("#tbodyOrderList").append(option);
                 }
-                
 
-                
+
+
 
                 //$("#tbodyOrderList").append(option);
                 $("#inputGcount").val('');
                 //$("#inputGtxm").focus();
-                
+
                 if ("selfOrder" == saleSort) {
                     $("#inputGtxm").html('');
                     $("#inputGname").html('');
                     $("#goodInfoView").show();
                     $("#goodDetail").hide();
-                    
+
                     //window.location.href("#topInfo");
-                    window.location.href=("#topInfo");
+                    window.location.href = ("#topInfo");
                 } else {
                     $("#inputGtxm").val('');
                     $("#inputGname").val('');
                     $("#inputGtxm").focus();
                 }
-                
-                
+
+
             } else {
                 //alert(data);
                 $("#myPromptBoxInfo").html(data);
@@ -496,7 +572,7 @@ function DoInsertBuyDetail(iallMoney, nowYue, saleSort) {
 //设定填写结算小票的内容
 function SetPrintPayXiaopiao(words) {
     var inv = $.parseJSON(words);
-   
+
 
     $("#template").empty();//清空
     $("#PrintXPItemS").val('');
@@ -511,22 +587,22 @@ function SetPrintPayXiaopiao(words) {
             PrintXPItemS = PrintXPItemS + "|temp" + k;
         }
         var xiaopiao = "<div id='temp" + k + "'><div> <div style='text-align:left;font-size:" + (parseInt($("#xiaoPiaoFontSize").val()) + 3) + "px;'>消费一卡通系统</div>"
-        + "<table style='font-size:" + $("#xiaoPiaoFontSize").val() + "px; width:200px;'>"
-        + "<tbody>"
-        + "<tr><td>单号：" + inv.invoice.InvoiceNo + "</td></tr>"
-        + "<tr><td>日期：" + getLongTime(inv.invoice.OrderDate) + "</td></tr>"
-        + "<tr><td>编号：" + inv.invoice.FCrimeCode + "</td></tr>"
-        + "<tr><td>姓名：" + inv.invoice.FCriminal + "</td></tr>"
-        + "<tr><td colspan='2'>队别：" + inv.invoice.FAreaName + "（房号:" + inv.invoice.RoomNo + "）</td></tr>"
-        + "<tr><td>消费时首次打印</td></tr>"
-        + "</tbody>"
-        + "</table>"
-        + "<hr />"
-        + "<table style='font-size:" + $("#xiaoPiaoFontSize").val() + "px;'>"
-        + "<thead>"
-        + "<tr><th>品名</th><th style='width:30px;'>单价</th><th style='width:30px;'>数量</th><th style='width:30px;'>金额</th></tr>"
-        + "</thead>"
-        + "<tbody>";
+            + "<table style='font-size:" + $("#xiaoPiaoFontSize").val() + "px; width:200px;'>"
+            + "<tbody>"
+            + "<tr><td>单号：" + inv.invoice.InvoiceNo + "</td></tr>"
+            + "<tr><td>日期：" + getLongTime(inv.invoice.OrderDate) + "</td></tr>"
+            + "<tr><td>编号：" + inv.invoice.FCrimeCode + "</td></tr>"
+            + "<tr><td>姓名：" + inv.invoice.FCriminal + "</td></tr>"
+            + "<tr><td colspan='2'>队别：" + inv.invoice.FAreaName + "（房号:" + inv.invoice.RoomNo + "）</td></tr>"
+            + "<tr><td>消费时首次打印</td></tr>"
+            + "</tbody>"
+            + "</table>"
+            + "<hr />"
+            + "<table style='font-size:" + $("#xiaoPiaoFontSize").val() + "px;'>"
+            + "<thead>"
+            + "<tr><th>品名</th><th style='width:30px;'>单价</th><th style='width:30px;'>数量</th><th style='width:30px;'>金额</th></tr>"
+            + "</thead>"
+            + "<tbody>";
 
         for (var j = 0; j < 20; j++) {
             var remark = "";
@@ -534,14 +610,14 @@ function SetPrintPayXiaopiao(words) {
                 remark = "【" + inv.details[j].Remark + "】";
             }
             xiaopiao = xiaopiao + "<tr><td>" + inv.details[j].GTXM + "</td><td align='center'>" + inv.details[j].GDJ + "</td><td align='center'>" + inv.details[j].QTY + "</td><td align='right'>" + inv.details[j].AMOUNT + "</td></tr>"
-            + "<tr><td colspan='4' style=' border-bottom:dashed;border-bottom-width:1px;'>" + inv.details[j].GNAME + remark + "</td></tr>"
+                + "<tr><td colspan='4' style=' border-bottom:dashed;border-bottom-width:1px;'>" + inv.details[j].GNAME + remark + "</td></tr>"
 
         }
 
         xiaopiao = xiaopiao + "</tbody>"
-        + "</table>"
-        + "<div>（这里第1页），下面还有内容</div>"
-        + "</div><br/></div>";
+            + "</table>"
+            + "<div>（这里第1页），下面还有内容</div>"
+            + "</div><br/></div>";
 
         $("#template").append(xiaopiao);
 
@@ -554,11 +630,11 @@ function SetPrintPayXiaopiao(words) {
             PrintXPItemS = PrintXPItemS + "|temp" + k;
         }
         var xiaopiao = "<div id='temp" + k + "'><div> <div style='text-align:center'>" + inv.invoice.InvoiceNo + " (第2页)</div>"
-        + "<table style='font-size:" + $("#xiaoPiaoFontSize").val() + "px;'>"
-        + "<thead>"
-        + "<tr><th>品名</th><th style='width:30px;'>单价</th><th style='width:30px;'>数量</th><th style='width:40px;'>金额</th></tr>"
-        + "</thead>"
-        + "<tbody>";
+            + "<table style='font-size:" + $("#xiaoPiaoFontSize").val() + "px;'>"
+            + "<thead>"
+            + "<tr><th>品名</th><th style='width:30px;'>单价</th><th style='width:30px;'>数量</th><th style='width:40px;'>金额</th></tr>"
+            + "</thead>"
+            + "<tbody>";
 
         for (var j = 20; j < inv.details.length; j++) {
             var remark = "";
@@ -566,19 +642,19 @@ function SetPrintPayXiaopiao(words) {
                 remark = "【" + inv.details[j].Remark + "】";
             }
             xiaopiao = xiaopiao + "<tr><td>" + inv.details[j].GTXM + "</td><td align='center'>" + inv.details[j].GDJ + "</td><td align='center'>" + inv.details[j].QTY + "</td><td align='right'>" + inv.details[j].AMOUNT + "</td></tr>"
-            + "<tr><td colspan='4' style=' border-bottom:dashed;border-bottom-width:1px;'>" + inv.details[j].GNAME + remark + "</td></tr>"
+                + "<tr><td colspan='4' style=' border-bottom:dashed;border-bottom-width:1px;'>" + inv.details[j].GNAME + remark + "</td></tr>"
 
         }
 
         xiaopiao = xiaopiao + "</tbody>"
-        + "</table>"
-        + "<hr />"
-        + "<span>消费合计：" + inv.invoice.Amount + "分</span><hr/>"
-        //+ "<div style='font-size:" + (parseInt($("#xiaoPiaoFontSize").val()) + 1) + "px;'>存款账户余额:" + inv.criminal.AmountA + "元</div>"
-        //+ "<div style='font-size:" + (parseInt($("#xiaoPiaoFontSize").val()) + 1) + "px;'>报酬账户余额:" + inv.criminal.AmountB + "元</div>"
-        //+ "<div style='font-size:" + (parseInt($("#xiaoPiaoFontSize").val()) + 1) + "px;'>留存账户余额:" + inv.criminal.AmountC + "元</div>"
+            + "</table>"
+            + "<hr />"
+            + "<span>消费合计：" + inv.invoice.Amount + "分</span><hr/>"
+            //+ "<div style='font-size:" + (parseInt($("#xiaoPiaoFontSize").val()) + 1) + "px;'>存款账户余额:" + inv.criminal.AmountA + "元</div>"
+            //+ "<div style='font-size:" + (parseInt($("#xiaoPiaoFontSize").val()) + 1) + "px;'>报酬账户余额:" + inv.criminal.AmountB + "元</div>"
+            //+ "<div style='font-size:" + (parseInt($("#xiaoPiaoFontSize").val()) + 1) + "px;'>留存账户余额:" + inv.criminal.AmountC + "元</div>"
             + "<div style='font-size:" + (parseInt($("#xiaoPiaoFontSize").val()) + 1) + "px;'>账户总积分:" + toDecimal2(inv.criminal.AccPoints) + "分</div>"
-        + "</div><br/></div>";
+            + "</div><br/></div>";
 
         $("#template").append(xiaopiao);
         k++;
@@ -592,22 +668,22 @@ function SetPrintPayXiaopiao(words) {
             PrintXPItemS = PrintXPItemS + "|temp" + k;
         }
         var xiaopiao = "<div id='temp" + k + "'><div> <div style='text-align:left;font-size:" + (parseInt($("#xiaoPiaoFontSize").val()) + 3) + "px;'>监狱一卡通系统</div>"
-        + "<table style='font-size:" + $("#xiaoPiaoFontSize").val() + "px; width:200px;'>"
-        + "<tbody>"
-        + "<tr><td>单号：" + inv.invoice.InvoiceNo + "</td></tr>"
-        + "<tr><td>日期：" + getLongTime(inv.invoice.OrderDate) + "</td></tr>"
-        + "<tr><td>编号：" + inv.invoice.FCrimeCode + "</td></tr>"
-        + "<tr><td>姓名：" + inv.invoice.FCriminal + "</td></tr>"
-        + "<tr><td colspan='2'>队别：" + inv.invoice.FAreaName + "（房号:" + inv.invoice.RoomNo + "）</td></tr>"
-        + "<tr><td>消费时首次打印</td></tr>"
-        + "</tbody>"
-        + "</table>"
-        + "<hr />"
-        + "<table style='font-size:" + $("#xiaoPiaoFontSize").val() + "px;'>"
-        + "<thead>"
-        + "<tr><th>品名</th><th style='width:30px;'>单价</th><th style='width:30px;'>数量</th><th style='width:40px;'>金额</th></tr>"
-        + "</thead>"
-        + "<tbody>";
+            + "<table style='font-size:" + $("#xiaoPiaoFontSize").val() + "px; width:200px;'>"
+            + "<tbody>"
+            + "<tr><td>单号：" + inv.invoice.InvoiceNo + "</td></tr>"
+            + "<tr><td>日期：" + getLongTime(inv.invoice.OrderDate) + "</td></tr>"
+            + "<tr><td>编号：" + inv.invoice.FCrimeCode + "</td></tr>"
+            + "<tr><td>姓名：" + inv.invoice.FCriminal + "</td></tr>"
+            + "<tr><td colspan='2'>队别：" + inv.invoice.FAreaName + "（房号:" + inv.invoice.RoomNo + "）</td></tr>"
+            + "<tr><td>消费时首次打印</td></tr>"
+            + "</tbody>"
+            + "</table>"
+            + "<hr />"
+            + "<table style='font-size:" + $("#xiaoPiaoFontSize").val() + "px;'>"
+            + "<thead>"
+            + "<tr><th>品名</th><th style='width:30px;'>单价</th><th style='width:30px;'>数量</th><th style='width:40px;'>金额</th></tr>"
+            + "</thead>"
+            + "<tbody>";
 
         for (var j = 0; j < inv.details.length; j++) {
             var remark = "";
@@ -615,19 +691,19 @@ function SetPrintPayXiaopiao(words) {
                 remark = "【" + inv.details[j].Remark + "】";
             }
             xiaopiao = xiaopiao + "<tr><td>" + inv.details[j].GTXM + "</td><td align='center' style='width:30px;'>" + inv.details[j].GDJ + "</td><td align='center' style='width:30px;'>" + inv.details[j].QTY + "</td><td align='right' style='width:30px;'>" + inv.details[j].AMOUNT + "</td></tr>"
-            + "<tr><td colspan='4' style=' border-bottom:dashed;border-bottom-width:1px;'>" + inv.details[j].GNAME + remark + "</td></tr>"
+                + "<tr><td colspan='4' style=' border-bottom:dashed;border-bottom-width:1px;'>" + inv.details[j].GNAME + remark + "</td></tr>"
 
         }
 
         xiaopiao = xiaopiao + "</tbody>"
-        + "</table>"
-        + "<hr />"
-        + "<span>消费合计：" + inv.invoice.Amount + "分</span><hr/>"
-        //+ "<div style='font-size:" + (parseInt($("#xiaoPiaoFontSize").val()) + 1) + "px;'>存款账户余额:" + inv.criminal.AmountA + "元</div>"
-        //+ "<div style='font-size:" + (parseInt($("#xiaoPiaoFontSize").val()) + 1) + "px;'>报酬账户余额:" + inv.criminal.AmountB + "元</div>"
-        //+ "<div style='font-size:" + (parseInt($("#xiaoPiaoFontSize").val()) + 1) + "px;'>留存账户余额:" + inv.criminal.AmountC + "元</div>"
-            + "<div style='font-size:" + (parseInt($("#xiaoPiaoFontSize").val()) + 1) + "px;'>账户总积分:" + toDecimal2(inv.criminal.AccPoints ) + "分</div>"
-        + "</div><br/></div>";
+            + "</table>"
+            + "<hr />"
+            + "<span>消费合计：" + inv.invoice.Amount + "分</span><hr/>"
+            //+ "<div style='font-size:" + (parseInt($("#xiaoPiaoFontSize").val()) + 1) + "px;'>存款账户余额:" + inv.criminal.AmountA + "元</div>"
+            //+ "<div style='font-size:" + (parseInt($("#xiaoPiaoFontSize").val()) + 1) + "px;'>报酬账户余额:" + inv.criminal.AmountB + "元</div>"
+            //+ "<div style='font-size:" + (parseInt($("#xiaoPiaoFontSize").val()) + 1) + "px;'>留存账户余额:" + inv.criminal.AmountC + "元</div>"
+            + "<div style='font-size:" + (parseInt($("#xiaoPiaoFontSize").val()) + 1) + "px;'>账户总积分:" + toDecimal2(inv.criminal.AccPoints) + "分</div>"
+            + "</div><br/></div>";
 
         $("#template").append(xiaopiao);
         k++;
@@ -636,7 +712,7 @@ function SetPrintPayXiaopiao(words) {
 }
 
 //返回销售
-function goSaleHead() {    
+function goSaleHead() {
     $("#userRoom").hide();
     $("#Head_Top").show();
     window.location.href = "#Head_Top";

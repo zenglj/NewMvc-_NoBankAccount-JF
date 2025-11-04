@@ -173,6 +173,20 @@ namespace SelfhelpOrderMgr.BLL
                         model.DamagesEndDate = DateTime.Parse(dt.Rows[n]["DamagesEndDate"].ToString());
                     }
 
+                    if (dt.Rows[0]["CompletionRate"].ToString() != "")
+                    {
+                        model.CompletionRate = decimal.Parse(dt.Rows[0]["CompletionRate"].ToString());
+                    }
+                    if (dt.Rows[0]["PointsDate"].ToString() != "")
+                    {
+                        model.PointsDate = DateTime.Parse(dt.Rows[0]["PointsDate"].ToString());
+                    }
+
+                    if (dt.Rows[0]["WorkType"].ToString() != "")
+                    {
+                        model.WorkType = dt.Rows[0]["WorkType"].ToString();
+                    }
+
                     modelList.Add(model);
                 }
             }

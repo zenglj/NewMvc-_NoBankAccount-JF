@@ -18,6 +18,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
     {
         //
         // GET: /ComApp/
+        BaseDapperBLL _bll = new BaseDapperBLL();
         JavaScriptSerializer jss = new JavaScriptSerializer();
         string ip = "";
         public ActionResult Index()
@@ -209,7 +210,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 string status = "Error|查询失败";
 
                 //FManagerCard = FManagerCard.Substring(3);
-                List<T_CZY> czys = new T_CZYBLL().GetModelList("FManagerCard='" + FManagerCard + "'");
+                //List<T_CZY> czys = new T_CZYBLL().GetModelList("FManagerCard='" + FManagerCard + "'");
+                List<T_CZY> czys = _bll.QueryList<T_CZY>("select * from t_czy where FManagerCard=@FManagerCard ",new { FManagerCard = FManagerCard });
                 if (czys.Count == 0)
                 {
                     return Content("Error|无效的管理卡，请联系统民警");

@@ -16,7 +16,7 @@ using System.Web.Script.Serialization;
 
 namespace SelfhelpOrderMgr.Web.Controllers
 {
-    [MyLogActionFilterAttribute]
+    //[MyLogActionFilterAttribute]
     public class BankATMController : Controller
     {
         JavaScriptSerializer jss = new JavaScriptSerializer();
@@ -614,9 +614,10 @@ namespace SelfhelpOrderMgr.Web.Controllers
             string strIp = IpAddressHelper.GetHostAddress();
             //string title = "人脸识别";
             //人脸识别检测
+
             var _result = FaceCheckService.SendAndCheckFace("", reqJson.FaceData, "0001", null);
             Log4NetHelper.logger.Info("查看人脸的检查结果");
-            Log4NetHelper.logger.Info(Newtonsoft.Json.JsonConvert.SerializeObject( _result));
+            Log4NetHelper.logger.Info(Newtonsoft.Json.JsonConvert.SerializeObject(_result));
             if (_result.Flag == false)
             {
                 return _result;
@@ -629,10 +630,14 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 return rs;
             }
             Log4NetHelper.logger.Info("人脸比对成功的请求用户编号");
-            Log4NetHelper.logger.Info("请求查询ATM记录的编号："+faceRs.UserCode);
+            Log4NetHelper.logger.Info("请求查询ATM记录的编号：" + faceRs.UserCode);
             string[] fcodes = faceRs.UserCode.Split((char)124);
             Log4NetHelper.logger.Info("请求查询ATM记录的狱政编号：" + fcodes[0]);
             var ss = GetCardInfoByFCode(fcodes[0]);
+
+
+            //var ss = GetCardInfoByFCode("35100002994");
+            
             return ss;
 
         }

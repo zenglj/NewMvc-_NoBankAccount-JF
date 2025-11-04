@@ -548,91 +548,104 @@
                             break;
                         case 8:
                             {
-                                <table class="table table-striped contentFontSizeSmall">
-                                    <thead>
-                                        <tr>
-                                            <th style="width:50px;">序号</th>
-                                            <th>编号</th>
-                                            <th style="width:80px;">姓名</th>
-                                            <th style="width:150px;">队别</th>
-                                            <th style="width:80px;">类别</th>
-                                            <th style="width:100px;">日期</th>
-                                            <th style="width:60px;">收入</th>
-                                            <th style="width:60px;">支出</th>
-                                            <th class="text-right">积分</th>
-                                            <th style="width:80px;">扣款状态</th>
-                                            <th style="width:200px;">备注</th>
-                                            <th style="width:80px;">用户签字</th>
-                                        </tr>
-                                    </thead>
-                                    @if (ViewData["vcrds"] != null)
-                                    {
-                                        int i = 0;
-                                        decimal vcrdMoney = 0;
-                                        decimal sumMoney = 0;
-                                        <tbody>
-                                            @foreach (SelfhelpOrderMgr.Model.T_JF_Vcrd vcrd in ViewData["vcrds"] as List<SelfhelpOrderMgr.Model.T_JF_Vcrd>)
-                                            {
-                                                vcrdMoney = vcrd.DAmount - vcrd.CAmount;
-                                                i++;
-                                                <tr>
-                                                    <td>@i</td>
-                                                    <td>@vcrd.FCrimeCode</td>
-                                                    <td>@vcrd.FCriminal</td>
-                                                    <td style="width:150px;">@vcrd.FAreaName</td>
-                                                    <td>@vcrd.DType</td>
-                                                    <td>@vcrd.CrtDate.ToShortDateString()</td>
-                                                    <td>@vcrd.DAmount</td>
-                                                    <td>@vcrd.CAmount</td>
-                                                    <td class="text-right">@vcrdMoney</td>
-                                                    @switch (vcrd.BankFlag)
-                                                    {
-                                                        case 0:
-                                                            {
-                                                                <td>待发送</td>
-                                                            }
-                                                            break;
-                                                        case 1:
-                                                            {
-                                                                <td>发送中</td>
-                                                            }
-                                                            break;
-                                                        case 2:
-                                                            {
-                                                                <td>成功</td>
-                                                            }
-                                                            break;
-                                                        case 3:
-                                                            {
-                                                                <td>手动成功</td>
-                                                            }
-                                                            break;
-                                                        case -1:
-                                                            {
-                                                                <td>扣款失败</td>
-                                                            }
-                                                            break;
-                                                        default:
-                                                            {
-                                                                <td>未知状态</td>
-                                                            }
-                                                            break;
-                                                    }
-                                                    <td>@vcrd.Remark</td>
-                                                    <td></td>
-                                                </tr>
-                                                sumMoney = sumMoney + vcrdMoney;
-                                            }
-                                            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>合计:</td><td class="text-right">@sumMoney 积分</td><td></td><td></td><td></td></tr>
-                                            <tr><td colspan="2">经办人:</td><td></td><td colspan="2">监区领导:</td><td></td><td>供应站:</td><td></td><td></td><td></td><td></td><td></td></tr>
+            <table class="table table-striped contentFontSizeSmall">
+                <thead>
+                    <tr>
+                        <th style="width:50px;">序号</th>
+                        <th>编号</th>
+                        <th style="width:80px;">姓名</th>
+                        <th style="width:150px;">队别</th>
+                        <th style="width:80px;">类别</th>
+                        <th style="width:100px;">日期</th>
+                        <th style="width:60px;">收入</th>
+                        <th style="width:60px;">支出</th>
+                        <th class="text-right">积分</th>
+                        <th style="width:80px;">扣款状态</th>
+                        <th style="width:200px;">备注</th>
+                        <th style="width:80px;">用户签字</th>
+                    </tr>
+                </thead>
+                @if (ViewData["vcrds"] != null)
+                {
+                    int i = 0;
+                    decimal vcrdMoney = 0;
+                    decimal sumMoney = 0;
+                    var vcrds= ViewData["vcrds"] as List<SelfhelpOrderMgr.Model.T_JF_Vcrd>;
 
-                                        </tbody>
-                                    }
-                                </table>
+                    DateTime startDate = Convert.ToDateTime( ViewData["startTime"]);
+                    DateTime endDate = Convert.ToDateTime(ViewData["endTime"]);
+
+                    int months = ((endDate.Year - startDate.Year) * 12) + endDate.Month - startDate.Month+1;
+
+                    decimal shangqiJinE = ((SelfhelpOrderMgr.Model.T_JF_Vcrd)ViewData["shangqiJinE"]).DAmount;
+
+            <tbody>
+                @foreach (SelfhelpOrderMgr.Model.T_JF_Vcrd vcrd in vcrds)
+                {
+                    vcrdMoney = vcrd.DAmount - vcrd.CAmount;
+                    i++;
+                    <tr>
+                        <td>@i</td>
+                        <td>@vcrd.FCrimeCode</td>
+                        <td>@vcrd.FCriminal</td>
+                        <td style="width:150px;">@vcrd.FAreaName</td>
+                        <td>@vcrd.DType</td>
+                        <td>@vcrd.CrtDate.ToShortDateString()</td>
+                        <td>@vcrd.DAmount</td>
+                        <td>@vcrd.CAmount</td>
+                        <td class="text-right">@vcrdMoney</td>
+                        @switch (vcrd.BankFlag)
+                        {
+                            case 0:
+                                {
+                                    <td>待发送</td>
+                                }
+                                break;
+                            case 1:
+                                {
+                                    <td>发送中</td>
+                                }
+                                break;
+                            case 2:
+                                {
+                                    <td>成功</td>
+                                }
+                                break;
+                            case 3:
+                                {
+                                    <td>手动成功</td>
+                                }
+                                break;
+                            case -1:
+                                {
+                                    <td>扣款失败</td>
+                                }
+                                break;
+                            default:
+                                {
+                                    <td>未知状态</td>
+                                }
+                                break;
+                        }
+                        <td>@vcrd.Remark</td>
+                        <td></td>
+                    </tr>
+                    sumMoney = sumMoney + vcrdMoney;
+                }
+                <tr><td></td><td>合计:</td><td></td><td></td><td></td><td></td><td>@vcrds.Sum(o => o.DAmount)</td><td>@vcrds.Sum(o => o.CAmount)</td><td class="text-right">@sumMoney</td><td></td><td></td><td></td></tr>
+                <tr><td></td><td>上期结存:</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="text-right">@shangqiJinE</td><td></td><td></td><td></td></tr>
+                <tr><td></td><td>总结余:</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="text-right">@(shangqiJinE + sumMoney)</td><td></td><td></td><td></td></tr>
+                <tr><td></td><td>月均消费:</td><td></td><td></td><td></td><td></td><td></td><td>@months 个月</td><td class="text-right">@Convert.ToDecimal(vcrds.Sum(o => o.CAmount) / months).ToString("0.00")</td><td></td><td></td><td></td></tr>
+
+                <tr><td colspan="2">经办人:</td><td></td><td colspan="2">监区领导:</td><td></td><td>供应站:</td><td></td><td></td><td></td><td></td><td></td></tr>
+
+            </tbody>
+                }
+            </table>
                             }
-                            break;
-                        case 9:
-                            {
+                                break;
+                            case 9:
+                                {
                                 <table class="table table-striped table-condensed">
                                     <thead>
                                         <tr>
@@ -646,17 +659,17 @@
                                         </tr>
                                     </thead>
                                     @if (ViewData["vcrds"] != null)
-                                    {
-                                        int i = 0;
-                                        decimal vcrdMoney = 0;
-                                        decimal sumMoney = 0;
-                                        decimal sumDAmount = 0;
-                                        decimal sumCAmount = 0;
+                        {
+                            int i = 0;
+                            decimal vcrdMoney = 0;
+                            decimal sumMoney = 0;
+                            decimal sumDAmount = 0;
+                            decimal sumCAmount = 0;
                                         <tbody>
                                             @foreach (SelfhelpOrderMgr.Model.T_JF_Vcrd vcrd in ViewData["vcrds"] as List<SelfhelpOrderMgr.Model.T_JF_Vcrd>)
                                             {
-                                                vcrdMoney = vcrd.CAmount - vcrd.DAmount;
-                                                i++;
+                                vcrdMoney = vcrd.CAmount - vcrd.DAmount;
+                                i++;
                                                 <tr>
                                                     <td>@i</td>
                                                     <td>@vcrd.Depositer</td>
@@ -703,16 +716,16 @@
                                     </thead>
                                     @if (ViewData["vcrds"] != null)
                                     {
-                                        int i = 0;
-                                        decimal vcrdMoney = 0;
-                                        decimal sumMoney = 0;
-                                        decimal sumDAmount = 0;
-                                        decimal sumCAmount = 0;
+                    int i = 0;
+                    decimal vcrdMoney = 0;
+                    decimal sumMoney = 0;
+                    decimal sumDAmount = 0;
+                    decimal sumCAmount = 0;
                                         <tbody>
                                             @foreach (SelfhelpOrderMgr.Model.T_JF_Vcrd vcrd in ViewData["vcrds"] as List<SelfhelpOrderMgr.Model.T_JF_Vcrd>)
                                             {
-                                                vcrdMoney = vcrd.DAmount - vcrd.CAmount;
-                                                i++;
+                        vcrdMoney = vcrd.DAmount - vcrd.CAmount;
+                        i++;
                                                 <tr>
                                                     <td>@i</td>
                                                     <td>@vcrd.FCrimeCode</td>
@@ -727,8 +740,8 @@
                                                     <td></td>
                                                 </tr>
                                                 sumMoney = sumMoney + vcrdMoney;
-                                                sumDAmount = sumDAmount + vcrd.DAmount;
-                                                sumCAmount = sumCAmount + vcrd.CAmount;
+                sumDAmount = sumDAmount + vcrd.DAmount;
+                sumCAmount = sumCAmount + vcrd.CAmount;
                                             }
                                             <tr><td></td><td></td><td></td><td></td><td></td><td></td><td>合计:</td><td>@sumDAmount</td><td>@sumCAmount</td><td class="text-right">@sumMoney 积分</td><td></td></tr>
                                         </tbody>
@@ -753,30 +766,30 @@
                                     </thead>
                                     @if (ViewData["vcrds"] != null)
                                     {
-                                        int i = 0;
-                                        decimal vcrdMoney = 0;
-                                        decimal sumMoney = 0;
-                                        decimal sumDAmount = 0;
-                                        decimal sumCAmount = 0;
+                    int i = 0;
+                    decimal vcrdMoney = 0;
+                    decimal sumMoney = 0;
+                    decimal sumDAmount = 0;
+                    decimal sumCAmount = 0;
 
-                                        decimal groupDMoney = 0;
-                                        decimal groupCMoney = 0;
-                                        decimal groupMoney = 0;
-                                        string typeName = "";
-                                        string groupTypeName = "";
+                    decimal groupDMoney = 0;
+                    decimal groupCMoney = 0;
+                    decimal groupMoney = 0;
+                    string typeName = "";
+                    string groupTypeName = "";
                                         <tbody>
                                             @foreach (SelfhelpOrderMgr.Model.T_JF_Vcrd vcrd in ViewData["vcrds"] as List<SelfhelpOrderMgr.Model.T_JF_Vcrd>)
                                             {
-                                                vcrdMoney = vcrd.CAmount - vcrd.DAmount;
-                                                i++;
-                                                typeName = vcrd.CrtDate.ToShortDateString();
-                                                if (groupTypeName != typeName && i != 1)
-                                                {
+                        vcrdMoney = vcrd.CAmount - vcrd.DAmount;
+                        i++;
+                        typeName = vcrd.CrtDate.ToShortDateString();
+                        if (groupTypeName != typeName && i != 1)
+                        {
                                                     <tr><td colspan="3">@groupTypeName</td><td>@groupDMoney</td><td>@groupCMoney</td><td class="text-right">@groupMoney</td><td></td><td></td></tr>
                                                     groupTypeName = typeName;
-                                                    groupMoney = 0;
-                                                    groupDMoney = 0;
-                                                    groupCMoney = 0;
+                groupMoney = 0;
+                groupDMoney = 0;
+                groupCMoney = 0;
                                                 }
                                                 <tr>
                                                     <td>@i</td>
@@ -789,14 +802,14 @@
                                                     <td>@vcrd.SendDate?.ToShortDateString()</td>
                                                 </tr>
                                                 sumMoney = sumMoney + vcrdMoney;
-                                                sumDAmount = sumDAmount + vcrd.DAmount;
-                                                sumCAmount = sumCAmount + vcrd.CAmount;
+                sumDAmount = sumDAmount + vcrd.DAmount;
+                sumCAmount = sumCAmount + vcrd.CAmount;
 
-                                                typeName = vcrd.CrtDate.ToShortDateString();
-                                                groupTypeName = vcrd.CrtDate.ToShortDateString();
-                                                groupMoney = groupMoney + vcrdMoney;
-                                                groupDMoney = groupDMoney + vcrd.DAmount;
-                                                groupCMoney = groupCMoney + vcrd.CAmount;
+                typeName = vcrd.CrtDate.ToShortDateString();
+                groupTypeName = vcrd.CrtDate.ToShortDateString();
+                groupMoney = groupMoney + vcrdMoney;
+                groupDMoney = groupDMoney + vcrd.DAmount;
+                groupCMoney = groupCMoney + vcrd.CAmount;
                                             }
                                             <tr><td colspan="3">@groupTypeName</td><td>@groupDMoney</td><td>@groupCMoney</td><td class="text-right">@groupMoney</td><td></td><td></td></tr>
 
@@ -835,14 +848,14 @@
                                     </thead>
                                     @if (ViewData["vcrds"] != null)
                                     {
-                                        int i = 0;
-                                        decimal vcrdMoney = 0;
-                                        decimal sumMoney = 0;
+                    int i = 0;
+                    decimal vcrdMoney = 0;
+                    decimal sumMoney = 0;
                                         <tbody>
                                             @foreach (SelfhelpOrderMgr.Model.T_JF_Vcrd vcrd in ViewData["vcrds"] as List<SelfhelpOrderMgr.Model.T_JF_Vcrd>)
                                             {
-                                                vcrdMoney = vcrd.CAmount;
-                                                i++;
+                        vcrdMoney = vcrd.CAmount;
+                        i++;
                                                 <tr>
                                                     <td>@i</td>
                                                     <td>@vcrd.FCrimeCode</td>
@@ -853,7 +866,7 @@
                                                     <td>@vcrd.CrtDate.ToShortDateString()</td>
                                                 </tr>
                                                 sumMoney = sumMoney + vcrdMoney;
-                                            }
+                    }
                                             <tr><td colspan="4"></td><td>合计:</td><td>@sumMoney 积分</td><td></td></tr>
                                         </tbody>
                                     }
@@ -876,16 +889,16 @@
                                     </thead>
                                     @if (ViewData["vcrds"] != null)
                                     {
-                                        int i = 0;
-                                        decimal vcrdMoney = 0;
-                                        decimal sumMoney = 0;
-                                        decimal sumDAmount = 0;
-                                        decimal sumCAmount = 0;
+                    int i = 0;
+                    decimal vcrdMoney = 0;
+                    decimal sumMoney = 0;
+                    decimal sumDAmount = 0;
+                    decimal sumCAmount = 0;
                                         <tbody>
                                             @foreach (SelfhelpOrderMgr.Model.T_JF_Vcrd vcrd in ViewData["vcrds"] as List<SelfhelpOrderMgr.Model.T_JF_Vcrd>)
                                             {
-                                                vcrdMoney = vcrd.CAmount - vcrd.DAmount;
-                                                i++;
+                        vcrdMoney = vcrd.CAmount - vcrd.DAmount;
+                        i++;
                                                 <tr>
                                                     <td>@i</td>
                                                     <td>@vcrd.Depositer</td>
@@ -896,8 +909,8 @@
                                                     <td class="text-center">@vcrd.Remark</td>
                                                 </tr>
                                                 sumMoney = sumMoney + vcrdMoney;
-                                                sumDAmount = sumDAmount + vcrd.DAmount;
-                                                sumCAmount = sumCAmount + vcrd.CAmount;
+                sumDAmount = sumDAmount + vcrd.DAmount;
+                sumCAmount = sumCAmount + vcrd.CAmount;
                                             }
                                             <tr>
                                                 <td colspan="3">合计</td>
@@ -932,16 +945,16 @@
                                     </thead>
                                     @if (ViewData["vcrds"] != null)
                                     {
-                                        int i = 0;
-                                        decimal vcrdMoney = 0;
-                                        decimal sumMoney = 0;
-                                        decimal sumDAmount = 0;
-                                        decimal sumCAmount = 0;
+                    int i = 0;
+                    decimal vcrdMoney = 0;
+                    decimal sumMoney = 0;
+                    decimal sumDAmount = 0;
+                    decimal sumCAmount = 0;
                                         <tbody>
                                             @foreach (SelfhelpOrderMgr.Model.T_JF_Vcrd vcrd in ViewData["vcrds"] as List<SelfhelpOrderMgr.Model.T_JF_Vcrd>)
                                             {
-                                                vcrdMoney = vcrd.DAmount - vcrd.CAmount;
-                                                i++;
+                        vcrdMoney = vcrd.DAmount - vcrd.CAmount;
+                        i++;
                                                 <tr>
                                                     <td>@i</td>
                                                     <td>@vcrd.FCrimeCode</td>
@@ -956,8 +969,8 @@
                                                     <td></td>
                                                 </tr>
                                                 sumMoney = sumMoney + vcrdMoney;
-                                                sumDAmount = sumDAmount + vcrd.DAmount;
-                                                sumCAmount = sumCAmount + vcrd.CAmount;
+                sumDAmount = sumDAmount + vcrd.DAmount;
+                sumCAmount = sumCAmount + vcrd.CAmount;
                                             }
                                             <tr><td></td><td></td><td></td><td></td><td></td><td></td><td>合计:</td><td>@sumDAmount</td><td>@sumCAmount</td><td class="text-right">@sumMoney 积分</td><td></td></tr>
                                         </tbody>
@@ -982,30 +995,30 @@
                                     </thead>
                                     @if (ViewData["vcrds"] != null)
                                     {
-                                        int i = 0;
-                                        decimal vcrdMoney = 0;
-                                        decimal sumMoney = 0;
-                                        decimal sumDAmount = 0;
-                                        decimal sumCAmount = 0;
+                    int i = 0;
+                    decimal vcrdMoney = 0;
+                    decimal sumMoney = 0;
+                    decimal sumDAmount = 0;
+                    decimal sumCAmount = 0;
 
-                                        decimal groupDMoney = 0;
-                                        decimal groupCMoney = 0;
-                                        decimal groupMoney = 0;
-                                        string typeName = "";
-                                        string groupTypeName = "";
+                    decimal groupDMoney = 0;
+                    decimal groupCMoney = 0;
+                    decimal groupMoney = 0;
+                    string typeName = "";
+                    string groupTypeName = "";
                                         <tbody>
                                             @foreach (SelfhelpOrderMgr.Model.T_JF_Vcrd vcrd in ViewData["vcrds"] as List<SelfhelpOrderMgr.Model.T_JF_Vcrd>)
                                             {
-                                                vcrdMoney = vcrd.CAmount - vcrd.DAmount;
-                                                i++;
-                                                typeName = vcrd.SendDate!=null?((DateTime)vcrd.SendDate).ToShortDateString():"";
-                                                if (groupTypeName != typeName && i != 1)
-                                                {
+                        vcrdMoney = vcrd.CAmount - vcrd.DAmount;
+                        i++;
+                        typeName = vcrd.SendDate!=null?((DateTime)vcrd.SendDate).ToShortDateString():"";
+                        if (groupTypeName != typeName && i != 1)
+                        {
                                                     <tr><td colspan="3">@groupTypeName</td><td>@groupDMoney</td><td>@groupCMoney</td><td class="text-right">@groupMoney</td><td></td><td></td></tr>
                                                     groupTypeName = typeName;
-                                                    groupMoney = 0;
-                                                    groupDMoney = 0;
-                                                    groupCMoney = 0;
+                groupMoney = 0;
+                groupDMoney = 0;
+                groupCMoney = 0;
                                                 }
                                                 <tr>
                                                     <td>@i</td>
@@ -1018,14 +1031,14 @@
                                                     <td>@vcrd.CrtDate.ToShortDateString()</td>
                                                 </tr>
                                                 sumMoney = sumMoney + vcrdMoney;
-                                                sumDAmount = sumDAmount + vcrd.DAmount;
-                                                sumCAmount = sumCAmount + vcrd.CAmount;
+                sumDAmount = sumDAmount + vcrd.DAmount;
+                sumCAmount = sumCAmount + vcrd.CAmount;
 
-                                                typeName = vcrd.SendDate != null ? ((DateTime)vcrd.SendDate).ToShortDateString() : "";
-                                                groupTypeName = vcrd.SendDate != null ? ((DateTime)vcrd.SendDate).ToShortDateString() : "";
-                                                groupMoney = groupMoney + vcrdMoney;
-                                                groupDMoney = groupDMoney + vcrd.DAmount;
-                                                groupCMoney = groupCMoney + vcrd.CAmount;
+                typeName = vcrd.SendDate != null ? ((DateTime)vcrd.SendDate).ToShortDateString() : "";
+                groupTypeName = vcrd.SendDate != null ? ((DateTime)vcrd.SendDate).ToShortDateString() : "";
+                groupMoney = groupMoney + vcrdMoney;
+                groupDMoney = groupDMoney + vcrd.DAmount;
+                groupCMoney = groupCMoney + vcrd.CAmount;
                                             }
                                             <tr><td colspan="3">@groupTypeName</td><td>@groupDMoney</td><td>@groupCMoney</td><td class="text-right">@groupMoney</td><td></td><td></td></tr>
 

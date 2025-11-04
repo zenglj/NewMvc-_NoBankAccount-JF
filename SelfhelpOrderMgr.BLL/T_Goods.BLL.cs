@@ -155,7 +155,7 @@ namespace SelfhelpOrderMgr.BLL
                     model.GSupplyer = dt.Rows[n]["GSupplyer"].ToString();
                     model.GTXM = dt.Rows[n]["GTXM"].ToString();
                     model.SPShortCode = dt.Rows[n]["SPShortCode"].ToString();
-
+                    model.LevelName = dt.Rows[n]["LevelName"].ToString();
 
                     modelList.Add(model);
                 }

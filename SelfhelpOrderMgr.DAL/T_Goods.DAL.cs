@@ -248,7 +248,7 @@ namespace SelfhelpOrderMgr.DAL
         {
 
             StringBuilder strSql = new StringBuilder();
-            strSql.Append("select GCODE, CrtBy, Crtdt, ModBy, Moddt, GBalance, ACTIVE, COMBFLAG, gindj, subflag, madein, GNAME, Ffreeflag, balflag, Serviceflag, gjm, src, data, Xgsl, XgMode, GTYPE, GUnit, GStandard, GDJ, GSupplyer, GTXM, SPShortCode  ");
+            strSql.Append("select GCODE, CrtBy, Crtdt, ModBy, Moddt, GBalance, ACTIVE, COMBFLAG, gindj, subflag, madein, GNAME, Ffreeflag, balflag, Serviceflag, gjm, src, data, Xgsl, XgMode, GTYPE, GUnit, GStandard, GDJ, GSupplyer, GTXM, SPShortCode,LevelName  ");
             strSql.Append("  from T_Goods ");
             strSql.Append(" where GTXM=@GTXM ");
             SqlParameter[] parameters = {
@@ -324,7 +324,7 @@ namespace SelfhelpOrderMgr.DAL
                 model.GSupplyer = ds.Tables[0].Rows[0]["GSupplyer"].ToString();
                 model.GTXM = ds.Tables[0].Rows[0]["GTXM"].ToString();
                 model.SPShortCode = ds.Tables[0].Rows[0]["SPShortCode"].ToString();
-
+                model.LevelName = ds.Tables[0].Rows[0]["LevelName"].ToString();
                 return model;
             }
             else

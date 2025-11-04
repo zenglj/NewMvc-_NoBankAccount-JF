@@ -62,13 +62,14 @@
                 <input type="hidden" id="goodPriceMset" value="0" />
             }
             <form id="ffGoodEdit" method="post" enctype="multipart/form-data">
+
                 <input type="hidden" id="dotype" name="Dotype" />
                 <table>
                     <tr>
                         <th align="right">编号：</th>
-                        <td><input disabled="disabled" id="GCODE" name="GCode" style="width: 150px;" /></td>
+                        <td><input disabled="disabled" id="GCODE" name="GCODE" style="width: 150px;" /></td>
                         <th align="right">名称：</th>
-                        <td><input id="GNAME" name="GName" style="width: 150px; " /></td>
+                        <td><input id="GNAME" name="GNAME" style="width: 150px; " /></td>
                     </tr>
 
                     <tr>
@@ -77,7 +78,7 @@
 
                         <th align="right">类别：</th>
                         <td>
-                            <input id="FGtype" name="GType" value="请选择类别" style="width: 155px; " />
+                            <input id="FGtype" name="GTYPE" value="请选择类别" style="width: 155px; " />
                         </td>
 
                     </tr>
@@ -113,15 +114,16 @@
                     <tr>
                         <th align="right">产地：</th>
                         <td>
-                            <input id="FMadein" name="GMadein" style="width: 150px; " />
+                            <input id="FMadein" name="madein" style="width: 150px; " />
                         </td>
-                        <th align="right">限购数量：
-                            
+                        <th align="right">
+                            限购数量：
+
                         </th>
                         <td>
                             <input id="Xgsl" name="GXgsl" style="width: 150px; " />
                         </td>
-                        
+
                     </tr>
 
                     <tr>
@@ -129,7 +131,7 @@
                         <td>
                             <input id="Ffreeflag" name="GFreeflag" style="width: 150px; " />
                         </td>
-                        
+
                         <th align="right">限购模式：</th>
                         <td>
                             <select id="XgMode" name="XgMode" style="width: 155px; " class="easyui-combobox">
@@ -138,6 +140,20 @@
                                 <option value="2">按月</option>
                                 <option value="3">按季度</option>
                                 <option value="4">按年</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">划分等级：</th>
+                        <td>
+                            <select id="LevelName" name="LevelName" style="width: 155px; " class="easyui-combobox">
+                                @if (ViewData["jifenDjs"] != null)
+                                {
+                                    foreach (SelfhelpOrderMgr.Model.T_JF_GoodsLevel djType in ViewData["jifenDjs"] as List<SelfhelpOrderMgr.Model.T_JF_GoodsLevel>)
+                                    {
+                                        <option value="@djType.LevelName">@djType.LevelName</option>
+                                    }
+                                }
                             </select>
                         </td>
                     </tr>
@@ -232,6 +248,21 @@
                                     foreach (SelfhelpOrderMgr.Model.T_GoodsType type in ViewData["goodtypes"] as List<SelfhelpOrderMgr.Model.T_GoodsType>)
                                     {
                                         <option value="@type.Fcode">@type.Fname</option>
+                                    }
+                                }
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">消费等级：</th>
+                        <td align="left">
+                            <select id="FLevelName" name="LevelName" class="easyui-combobox" style="width:120px;">
+                                <option value="0" selected="selected">请选择</option>
+                                @if (ViewData["jifenDjs"] != null)
+                                {
+                                    foreach (SelfhelpOrderMgr.Model.T_JF_GoodsLevel type in ViewData["jifenDjs"] as List<SelfhelpOrderMgr.Model.T_JF_GoodsLevel>)
+                                    {
+                                        <option value="@type.LevelName">@type.LevelName</option>
                                     }
                                 }
                             </select>

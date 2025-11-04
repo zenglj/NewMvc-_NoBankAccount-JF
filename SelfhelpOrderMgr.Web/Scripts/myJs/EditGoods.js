@@ -65,7 +65,7 @@ $(function () {
         sortName: 'GCODE',
         sortOrder: 'asc',
         remoteSort: false,
-        singleSelect: true,
+        //singleSelect: true,
         idField: 'GCODE',
         pageSize: 10,
         pageList: [10, 20],
@@ -80,7 +80,8 @@ $(function () {
                     { field: 'GUnit', title: '单位', width: 60 },
 					{ field: 'GStandard', title: '规格', width: 80 },
 					{ field: 'GDJ', title: '单价', width: 80 },
-					{ field: 'GSupplyer', title: '供应商', width: 120 },					
+                    { field: 'GSupplyer', title: '供应商', width: 120 },
+                    { field: 'LevelName', title: '分类等级', width: 80 },
 					{ field: 'CrtBy', title: '创建人', width: 80 },
 					{ field: 'ModBy', title: '修改人', width: 80 },
 					{ field: 'Moddt', title: '修改时间', width: 100 },
@@ -151,42 +152,28 @@ $(function () {
 
         //    }
         //}],
-        onSelect: function (rowIndex, rowData) {
-            $("#GCODE").val(rowData.GCODE);
-            $("#GNAME").val(rowData.GNAME);            
-            
-            $("#FGtype").combobox('setValue', rowData.GTYPE);		        
-            $("#FUnit").val(rowData.GUnit);//  
-            $("#FStandard").val(rowData.GStandard);//  
-            $('#FPrice').numberbox('setValue', rowData.GDJ);
-            $("#FSupplyer").combobox('setValue', rowData.GSupplyer); 
-            $('#FGTXM').numberbox('setValue', rowData.GTXM);
-            $("#FMadein").val(rowData.madein);// 
-            //$("#FGtype").combobox('select', rowData.GTcode);
-            //$("#FSupplyer").combobox('select', rowData.GScode);
-            if (rowData.Ffreeflag == "1") {
-                $("#Ffreeflag").combobox('setValue', rowData.Ffreeflag);
-            } else {
-                $("#Ffreeflag").combobox('setValue', rowData.Ffreeflag);
-            }
-            $("#Xgsl").val(rowData.Xgsl);
-            $("#XgMode").combobox('setValue', rowData.XgMode);
-            $("#picSrc").attr("src", rowData.src);
-            $("#SPShortCode").val(rowData.SPShortCode);
+        //onSelect
+        onCheck: function (rowIndex, rowData) {
+            //设置行数据到隐藏域中，以便提交表单时可以获取选中行的数据。
+            SetSelectRowData(rowData);
 
-            //商品属性框
-            $("#attrGCode").val(rowData.GCODE);
-            $("#attrGName").val(rowData.GNAME);
-            $("#attrGTXM").val(rowData.GTXM);
-            $("#attrSPShortCode").val(rowData.SPShortCode);
-            $('#attrTable').datagrid('load', {
-                GCode: rowData.GCODE
-            });
-            $("#GoodAttr").val('');
-            $('#btnGoodAttrAdd').linkbutton('enable');
-            $('#btnGoodAttrSave').linkbutton('disable');
-            $('#btnGoodAttrDel').linkbutton('disable');
+            //var checked = $(this).datagrid('getChecked'); // 获取已选中的行
+            //var selectedIndex = $(this).datagrid('getRowIndex', rowData); // 获取当前点击行的索引
+
+            //// 如果当前行已在选中状态，则取消选中；否则选中当前行
+            //if ($.inArray(rowData, checked) != -1) {
+            //    $(this).datagrid('uncheckRow', selectedIndex);
+            //    //取消选中行数据，以便提交表单时可以获取选中行的数据。
+            //    ClearUnSelectRowData();
+            //} else {
+            //    $(this).datagrid('checkRow', selectedIndex);
+            //    //设置行数据到隐藏域中，以便提交表单时可以获取选中行的数据。
+            //    SetSelectRowData(rowData);
+            //}
             
+        },
+        onUncheck: function (rowIndex, rowData) {
+            ClearUnSelectRowData();
         }
     });
 
@@ -217,6 +204,86 @@ $(function () {
 
 });
 
+
+//选中行数据赋值到编辑框中
+function SetSelectRowData(rowData) {
+    $("#GCODE").val(rowData.GCODE);
+    $("#GNAME").val(rowData.GNAME);
+
+    $("#FGtype").combobox('setValue', rowData.GTYPE);
+    $("#FUnit").val(rowData.GUnit);//  
+    $("#FStandard").val(rowData.GStandard);//  
+    $('#FPrice').numberbox('setValue', rowData.GDJ);
+    $("#FSupplyer").combobox('setValue', rowData.GSupplyer);
+    $('#FGTXM').numberbox('setValue', rowData.GTXM);
+    $("#FMadein").val(rowData.madein);// 
+    //$("#FGtype").combobox('select', rowData.GTcode);
+    //$("#FSupplyer").combobox('select', rowData.GScode);
+    if (rowData.Ffreeflag == "1") {
+        $("#Ffreeflag").combobox('setValue', rowData.Ffreeflag);
+    } else {
+        $("#Ffreeflag").combobox('setValue', rowData.Ffreeflag);
+    }
+    $("#Xgsl").val(rowData.Xgsl);
+    $("#XgMode").combobox('setValue', rowData.XgMode);
+    $("#picSrc").attr("src", rowData.src);
+    $("#SPShortCode").val(rowData.SPShortCode);
+
+    $("#LevelName").combobox('setValue', rowData.LevelName);
+
+    //商品属性框
+    $("#attrGCode").val(rowData.GCODE);
+    $("#attrGName").val(rowData.GNAME);
+    $("#attrGTXM").val(rowData.GTXM);
+    $("#attrSPShortCode").val(rowData.SPShortCode);
+    $('#attrTable').datagrid('load', {
+        GCode: rowData.GCODE
+    });
+    $("#GoodAttr").val('');
+    $('#btnGoodAttrAdd').linkbutton('enable');
+    $('#btnGoodAttrSave').linkbutton('disable');
+    $('#btnGoodAttrDel').linkbutton('disable');
+
+}
+
+//选中行数据赋值到编辑框中
+function ClearUnSelectRowData() {
+    $("#GCODE").val('');
+    $("#GNAME").val('');
+
+    $("#FGtype").combobox('setValue', '');
+    $("#FUnit").val('');//  
+    $("#FStandard").val('');//  
+    $('#FPrice').numberbox('setValue', '');
+    $("#FSupplyer").combobox('setValue', '');
+    $('#FGTXM').numberbox('setValue', '');
+    $("#FMadein").val(rowData.madein);// 
+    //$("#FGtype").combobox('select', rowData.GTcode);
+    //$("#FSupplyer").combobox('select', rowData.GScode);
+    if (rowData.Ffreeflag == "1") {
+        $("#Ffreeflag").combobox('setValue', '');
+    } else {
+        $("#Ffreeflag").combobox('setValue', '');
+    }
+    $("#Xgsl").val('');
+    $("#XgMode").combobox('setValue', '');
+    $("#picSrc").attr("src", '');
+    $("#SPShortCode").val('');
+
+    //商品属性框
+    $("#attrGCode").val('');
+    $("#attrGName").val('');
+    $("#attrGTXM").val('');
+    $("#attrSPShortCode").val('');
+    //$('#attrTable').datagrid('load', {
+    //    GCode: rowData.GCODE
+    //});
+    $("#GoodAttr").val('');
+    $('#btnGoodAttrAdd').linkbutton('enable');
+    $('#btnGoodAttrSave').linkbutton('disable');
+    $('#btnGoodAttrDel').linkbutton('disable');
+
+}
 
 //商品属性类型
 var consumeType = [{ "value": "1", "text": "口味" }, { "value": "2", "text": "尺码" }, { "value": "3", "text": "规格" }];
@@ -512,17 +579,26 @@ function AddGoodsContent() {
 
 //修改模式
 function AlterGoodsContent() {
-    $('#editWindows').window({
-        modal: true,
-        closed: false
-    });
-    $("#dotype").val("update");//
-    $('#FPrice').attr('disabled', "disabled");
-    if ("0" == $("#goodPriceMset").val()) {
-        $("#FPrice").numberbox('enable');
-    } else {
-        $("#FPrice").numberbox('disable');
+
+    const row = $('#test').datagrid('getSelected');
+    if (row !=null) {
+        $('#editWindows').dialog('open').dialog('setTitle', '编辑');
+        //$('#ffGoodEdit').form('load', row);
+
+        $("#dotype").val("update");//
+        $('#FPrice').attr('disabled', "disabled");
+        if ("0" == $("#goodPriceMset").val()) {
+            $("#FPrice").numberbox('enable');
+        } else {
+            $("#FPrice").numberbox('disable');
+        }
     }
+
+    //$('#editWindows').window({
+    //    modal: true,
+    //    closed: false
+    //});
+    
     
 }
 
@@ -540,37 +616,32 @@ function ChangeGoodsPrice() {
 function SetGoodsContent(e) {
     $.messager.confirm('Confirm', '您确认要改变该商品吗?', function (r) {
         if (r) {
-            var row = $('#test').datagrid('getSelected');
-            var idx = $('#test').datagrid('getRowIndex', row);
-            //console.info(row);
-            $.post("/Super/ChangeGoodsStatus", {
-                "action": "ChangeGoodsStatus",
-                "GTXM": row.GTXM,
-                "GActive": e
-            }, function (data, status) {
-                if ("success" != status) {
-                    return false;
-                } else {
-                    $.messager.alert('提示', data);
-                    if (data == "更新成功") {
-                        if (e == "N") {
-                            $('#test').datagrid('updateRow', {
-                                index: idx,
-                                row: {
-                                    ACTIVE: 'N'
-                                }
-                            });
-                        } else {
-                            $('#test').datagrid('updateRow', {
-                                index: idx,
-                                row: {
-                                    ACTIVE: 'Y'
-                                }
-                            });
-                        }
+            //var row = $('#test').datagrid('getSelected');
+            var rows = $('#test').datagrid('getChecked');
+            // 创建一个空数组来存储条码
+            var gtxms = rows.map(function (row) {
+                return row.GTXM;
+            });
+
+            var jsonGtxms = JSON.stringify(gtxms); // 将对象转换为JSON字符串
+                //var idx = $('#test').datagrid('getRowIndex', row);
+                //console.info(row);
+                $.post("/Super/ChangeMulGoodsStatus", {
+                    "action": "ChangeGoodsStatus",
+                    "gtxms": jsonGtxms,
+                    "GActive": e
+                }, function (data, status) {
+                    if ("success" != status) {
+                        return false;
+                    } else {
+                        $.messager.alert('提示', data);
                     }
-                }
-            })
+                })
+
+            
+
+
+            
         }
     });
 }
@@ -619,8 +690,9 @@ function FilterSearch() {
         Active: $('#FGoodsStatus').combobox('getValue'),
         FFreeFlag: $('#FGoodsIsXianE').combobox('getValue'),
         selSupplyer: $('#selSupplyer').combobox('getValue'),
-        FGoodsShortCode: $('#FGoodsShortCode').val()
-        
+        FGoodsShortCode: $('#FGoodsShortCode').val(),
+        FLevelName: $('#FLevelName').combobox('getValue'),
+
     });
 }
 
@@ -632,6 +704,7 @@ function clearSearch() {
     $('#FGoodsType').combobox('setValue', '0');
     $('#FGoodsIsXianE').combobox('setValue', '2');
     $('#FGoodsStatus').combobox('setValue', '-2');
+    $('#FLevelName').combobox('setValue', '0');
 }
 
 

@@ -82,6 +82,8 @@
     <Compile Include="DapperModel\ResultInfo.cs" />
     <Compile Include="DapperModel\T_Area_MacIpAddr.cs" />
     <Compile Include="DapperModel\t_BankProve_ext.cs" />
+    <Compile Include="DapperModel\T_JF_KouFen_Search.cs" />
+    <Compile Include="DapperModel\T_JF_Completion_Search.cs" />
     <Compile Include="DapperModel\T_Bank_SubAccBalance.cs" />
     <Compile Include="DapperModel\T_Bank_ATMCashBoxDetail.cs" />
     <Compile Include="DapperModel\T_Bank_ATMCashBoxMain.cs" />
@@ -110,9 +112,14 @@
     <Compile Include="DapperModel\T_Criminal_Family.cs" />
     <Compile Include="DapperModel\T_JF_BONUS.cs" />
     <Compile Include="DapperModel\T_JF_BONUSDTL.cs" />
+    <Compile Include="DapperModel\T_JF_Completion.cs" />
+    <Compile Include="DapperModel\T_JF_DictCode.cs" />
+    <Compile Include="DapperModel\T_JF_GoodsLevel.cs" />
     <Compile Include="DapperModel\T_JF_Invoice.cs" />
     <Compile Include="DapperModel\T_JF_InvoiceDTL.cs" />
+    <Compile Include="DapperModel\T_JF_KouFen.cs" />
     <Compile Include="DapperModel\T_JF_Vcrd.cs" />
+    <Compile Include="DapperModel\T_JF_DengjiType.cs" />
     <Compile Include="DapperModel\T_PCJ_BaseType.cs" />
     <Compile Include="DapperModel\T_PCJ_RequestRecord_Search.cs" />
     <Compile Include="DapperModel\T_PCJ_RequestRecord.cs" />

@@ -265,6 +265,20 @@ namespace SelfhelpOrderMgr.Model
         //赔偿金的有效日期
         public DateTime DamagesEndDate { get; set; }
 
+        /// <summary>
+        /// 完成率
+        /// </summary>
+        public decimal CompletionRate { get; set; }
+        /// <summary>
+        /// 积分日期
+        /// </summary>
+        public DateTime PointsDate { get; set; }
+        /// <summary>
+        /// 工作类型
+        /// </summary>
+        public string WorkType { get; set; }
+
+
     }
 }
 

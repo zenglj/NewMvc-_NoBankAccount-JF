@@ -482,11 +482,14 @@ namespace SelfhelpOrderMgr.DAL
 
         public bool UpdatePrintCount(string invoices)
         {
-            string strSql = "update T_Invoice set printCount=printCount +1 where invoiceno in(" + invoices + ")";
+            //string strSql = "update T_Invoice set printCount=printCount +1 where invoiceno in(" + invoices + ")";
+            string strSql = "update T_Invoice set printCount=printCount +1 where invoiceno in (SELECT value FROM Split(@invoices, ',') )";
+            
+            
             using (IDbConnection conn = new SqlConnection(SqlHelper.getConnstr()))
             {
                 conn.Open();
-                int i = conn.Execute(strSql.ToString());
+                int i = conn.Execute(strSql.ToString(),new { invoices = invoices });
                 if (i > 0)
                 {
                     return true;

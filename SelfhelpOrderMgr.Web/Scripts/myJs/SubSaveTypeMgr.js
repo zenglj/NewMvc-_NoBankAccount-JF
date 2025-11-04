@@ -100,7 +100,7 @@ $(function () {
         }
     }
 
-    var selectAccountName = [{ "value": "0", "text": "存款账户" }, { "value": "1", "text": "报酬账户" }, { "value": "2", "text": "留存账户" }];
+    var selectAccountName = [{ "value": "0", "text": "存款账户" }, { "value": "1", "text": "报酬账户" }, { "value": "2", "text": "留存账户" }, { "value": "4", "text": "赔偿金账户" }];
 
     function selectAccountNameformatter(value, rowData, rowIndex) {
         //if (value == 0) {
