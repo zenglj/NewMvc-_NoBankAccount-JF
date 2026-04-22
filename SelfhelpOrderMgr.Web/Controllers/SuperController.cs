@@ -1062,7 +1062,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
             }
 
             //是否已经到第二个月，并且大于30天了
-            List<T_Invoice> dayInvs = new T_InvoiceBLL().GetModelList("Invoiceno in(" + strInvoices + ") and DATEADD(day,30, OrderDate)<getdate()");
+            List<T_Invoice> dayInvs = new T_InvoiceBLL().GetModelList("Invoiceno in(" + strInvoices + ") and DATEADD(day,60, OrderDate)<getdate()");
             if (dayInvs.Count > 0)
             {
                 return Content("Err|您选的消费单超过30天不能撤单，不能撤消");
@@ -1865,7 +1865,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 strWhere = strWhere + " and SPShortCode = '" + FGoodsShortCode + "'";
             }
 
-            string sql = @"SELECT b.[FNAME] 类别,a.[GNAME] 品名,[GTXM] 条码,[SPShortCode] 店内码,[GUnit] 单位,[GStandard] 规格,[GDJ] 单价,Case Active when 'Y' then '正常' else '下架' end 状态
+            string sql = @"SELECT a.LevelName 商品级别,b.[FNAME] 类别,a.[GNAME] 品名,[GTXM] 条码,[SPShortCode] 店内码,[GUnit] 单位,[GStandard] 规格,[GDJ] 单价,Case Active when 'Y' then '正常' else '下架' end 状态
                 FROM [T_Goods] a,[T_GoodsType] b where b.FCode=a.GType and " + strWhere + " order by SPShortCode";
             DataTable dt = new CommTableInfoBLL().GetDataTable(sql);
             string strFileName = new CommonClass().GB2312ToUTF8("ExcelOut_GoodsInfo.xls");

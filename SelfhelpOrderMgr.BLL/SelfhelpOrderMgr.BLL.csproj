@@ -53,9 +53,9 @@
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Web" />
+    <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Web.Services" />
@@ -239,6 +239,10 @@
     <ProjectReference Include="..\SelfhelpOrderMgr.DAL\SelfhelpOrderMgr.DAL.csproj">
       <Project>{9f86d12a-992e-463d-b629-372bda5cdc61}</Project>
       <Name>SelfhelpOrderMgr.DAL</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SelfhelpOrderMgr.Dto\SelfhelpOrderMgr.Dto.csproj">
+      <Project>{859a109d-b490-4501-9464-035e265dbe55}</Project>
+      <Name>SelfhelpOrderMgr.Dto</Name>
     </ProjectReference>
     <ProjectReference Include="..\SelfhelpOrderMgr.Model\SelfhelpOrderMgr.Model.csproj">
       <Project>{c50495e3-c96e-4f6f-b33d-337417d6ea00}</Project>

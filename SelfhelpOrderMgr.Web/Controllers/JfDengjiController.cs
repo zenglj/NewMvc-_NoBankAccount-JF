@@ -1,15 +1,17 @@
-﻿using SelfhelpOrderMgr.BLL;
+﻿using NPOI.HSSF.UserModel;
+using NPOI.SS.UserModel;
+using NPOI.XSSF.UserModel;
+using SelfhelpOrderMgr.BLL;
+using SelfhelpOrderMgr.Model;
+using SelfhelpOrderMgr.Web.Filters;
+using SelfhelpOrderMgr.Web.Models;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Transactions;
 using System.Web;
 using System.Web.Mvc;
-using SelfhelpOrderMgr.Model;
-using System.Transactions;
-using SelfhelpOrderMgr.Web.Models;
-using SelfhelpOrderMgr.Web.Filters;
-using System.IO;
-using NPOI.XSSF.UserModel;
 
 namespace SelfhelpOrderMgr.Web.Controllers
 {
@@ -649,7 +651,18 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 //var dataList = ParseExcel(file.InputStream);
                 //完成率导入的Excel的模版
                 //编号、姓名、队别、工作类型、月份、产值、完成率、备注
-                var workbook = new XSSFWorkbook(file.InputStream);
+
+                IWorkbook workbook = null;
+                try
+                {
+                    workbook = new XSSFWorkbook(file.InputStream); // 2007版本  
+                }
+                catch
+                {
+                    workbook = new HSSFWorkbook(file.InputStream); // 2003版本  
+                }
+
+                //var workbook = new XSSFWorkbook(file.InputStream);
                 var worksheet = workbook.GetSheetAt(0);
                 var rows = worksheet.LastRowNum; // 跳过标题行
 
@@ -722,8 +735,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
                             FAreaName = row.GetCell(2).StringCellValue,
                             WorkTypeName = row.GetCell(3).StringCellValue,
                             YearMonth = row.GetCell(4).ToString(),
-                            OutputValue = row.GetCell(5).NumericCellValue.ToString() == "" ? 0 : decimal.Parse(row.GetCell(5).NumericCellValue.ToString()),
-                            CompletionRate = row.GetCell(6).NumericCellValue.ToString() == "" ? 0 : decimal.Parse(row.GetCell(6).NumericCellValue.ToString()),
+                            OutputValue = row.GetCell(5) == null ? 0 : decimal.Parse(row.GetCell(5).NumericCellValue.ToString()),
+                            CompletionRate = row.GetCell(6) ==null ? 0 : decimal.Parse(row.GetCell(6).NumericCellValue.ToString()),
                             WorkResult = row.GetCell(7) == null ? "" : row.GetCell(7).ToString(),
                             Remark = row.GetCell(8)==null?"": row.GetCell(8).ToString(),
                             ErrInfo = _errInfo
@@ -740,8 +753,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         WorkType= _baseType.FCode,//工作类型编码
                         WorkTypeName=row.GetCell(3).StringCellValue,
                         YearMonth = row.GetCell(4).ToString(),
-                        OutputValue = row.GetCell(5).NumericCellValue.ToString()==""?0: decimal.Parse(row.GetCell(5).NumericCellValue.ToString()),
-                        CompletionRate = row.GetCell(6).NumericCellValue.ToString()==""?0: decimal.Parse(row.GetCell(6).NumericCellValue.ToString()),
+                        OutputValue = row.GetCell(5)==null ?0: decimal.Parse(row.GetCell(5).NumericCellValue.ToString()),
+                        CompletionRate = row.GetCell(6)==null ?0: decimal.Parse(row.GetCell(6).NumericCellValue.ToString()),
                         WorkResult = row.GetCell(7) == null ? "" : row.GetCell(7).ToString(),
                         Remark = row.GetCell(8) == null ? "" : row.GetCell(8).ToString(),
                         Flag=0,
@@ -760,8 +773,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         FAreaName = row.GetCell(2).StringCellValue,
                         WorkTypeName = row.GetCell(3).StringCellValue,
                         YearMonth = row.GetCell(4).ToString(),
-                        OutputValue = row.GetCell(5).NumericCellValue.ToString() == "" ? 0 : decimal.Parse(row.GetCell(5).NumericCellValue.ToString()),
-                        CompletionRate = row.GetCell(6).NumericCellValue.ToString() == "" ? 0 : decimal.Parse(row.GetCell(6).NumericCellValue.ToString()),
+                        OutputValue = row.GetCell(5) == null ? 0 : decimal.Parse(row.GetCell(5).NumericCellValue.ToString()),
+                        CompletionRate = row.GetCell(6) == null ? 0 : decimal.Parse(row.GetCell(6).NumericCellValue.ToString()),
                         WorkResult = row.GetCell(7) == null ? "" : row.GetCell(7).ToString(),
                         Remark = row.GetCell(8) == null ? "" : row.GetCell(8).ToString(),
                         ErrInfo = "导入成功"
@@ -1235,7 +1248,17 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 //var dataList = ParseExcel(file.InputStream);
                 //完成率导入的Excel的模版
                 //编号、姓名、队别、工作类型、月份、产值、完成率、备注
-                var workbook = new XSSFWorkbook(file.InputStream);
+
+                IWorkbook workbook = null;
+                try
+                {
+                    workbook = new XSSFWorkbook(file.InputStream); // 2007版本  
+                }
+                catch
+                {
+                    workbook = new HSSFWorkbook(file.InputStream); // 2003版本  
+                }
+                //var workbook = new XSSFWorkbook(file.InputStream);
                 var worksheet = workbook.GetSheetAt(0);
                 var rows = worksheet.LastRowNum; // 跳过标题行
 
@@ -1275,7 +1298,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                             FName = row.GetCell(1).StringCellValue,
                             FAreaName = row.GetCell(2).StringCellValue,
                             Memo = row.GetCell(3).StringCellValue,
-                            ScoreValue = decimal.Parse(row.GetCell(4).NumericCellValue.ToString()),
+                            ScoreValue = row.GetCell(4)==null?0: decimal.Parse(row.GetCell(4).NumericCellValue.ToString()),
                             Remark = row.GetCell(5) == null ? "" : row.GetCell(5).ToString(),
                             ErrInfo = _errInfo
                         });
@@ -1290,7 +1313,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         FAreaName = row.GetCell(2).StringCellValue,
                         FAreaCode = _criminal.FAreaCode,
                         Memo = row.GetCell(3).StringCellValue,
-                        ScoreValue = row.GetCell(4).NumericCellValue.ToString() == "" ? 0 : decimal.Parse(row.GetCell(4).NumericCellValue.ToString()),
+                        ScoreValue = row.GetCell(4) == null ? 0 : decimal.Parse(row.GetCell(4).NumericCellValue.ToString()),
                         Remark = row.GetCell(5) == null ? "" : row.GetCell(8).ToString(),
                         CrtBy = base.loginUserName,//操作员
                         CreateDate = DateTime.Now,
@@ -1305,7 +1328,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         FName = row.GetCell(1).StringCellValue,
                         FAreaName = row.GetCell(2).StringCellValue,
                         Memo = row.GetCell(3).StringCellValue,
-                        ScoreValue = decimal.Parse(row.GetCell(4).NumericCellValue.ToString()),
+                        ScoreValue = row.GetCell(4)==null? 0:decimal.Parse(row.GetCell(4).NumericCellValue.ToString()),
                         Remark = row.GetCell(5) == null ? "" : row.GetCell(5).ToString(),
                         ErrInfo = "导入成功"
                     });

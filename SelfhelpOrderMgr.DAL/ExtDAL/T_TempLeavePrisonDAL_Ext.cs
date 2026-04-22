@@ -240,7 +240,7 @@ namespace SelfhelpOrderMgr.DAL
 
                 return "OK|InsertOK";
             }
-            catch
+            catch(Exception ex)
             {
                 return "Err|InsertErr";
             }

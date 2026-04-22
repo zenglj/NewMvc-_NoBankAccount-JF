@@ -397,6 +397,10 @@ namespace SelfhelpOrderMgr.Web.Controllers
                                 }
 
                             }
+                            else
+                            {
+                                return Content("Error|本模块未设置你队的购买日期，请与管理员联系");
+                            }
                         }
 
                     }
@@ -679,7 +683,16 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 if (_dengjiMgrFlag == "1")
                 {
                     decimal criminalKoufen = GetCurrMonthKoufen(criminal.FCode);
+                    //====zenglj 2026-03-10 增加完成率部分的积分转换===Start===============================
+                    decimal jifen =CompletionRateToJifen(criminal.CompletionRate);
+                    if(criminalKoufen< jifen)
+                    {
+                        criminalKoufen = jifen;
+                    }
+                    //====zenglj 2026-03-10 增加完成率部分的积分转换===End===============================
+
                     var goods = _jifenMgrService.QueryList<T_Goods>("select a.* from t_goods a,T_JF_GoodsLevel b,T_GoodsType c where a.ACTIVE='Y' and a.LevelName=b.LevelName and a.GType=c.FCode and c.saleTypeId=@saleTypeId and b.CompletionRate>=@CompletionRate ", new { CompletionRate = criminalKoufen, saleTypeId = saleTypeId });
+
                     var gtypes = _jifenMgrService.QueryList<T_GoodsType>("select * from t_goodstype where UseType=0 and saleTypeId=@saleTypeId and FCode in @fcodes", new { saleTypeId = saleTypeId, fcodes = goods.Select(g => g.GTYPE).Distinct().ToArray() });
                     rts.goods = goods;
                     rts.gtypes = gtypes;
@@ -934,13 +947,25 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 }
 
                 //=====根据上个月的完成率看这类商品你是否有资格购买==20250719 zenglj===Start================
+                
                 if (_dengjiMgrFlag == "1")
                 {
+                    //1、判断扣分情况
                     if (_goodsDjs.Where(o => o.LevelName == good.LevelName && o.CompletionRate >= GetCurrMonthKoufen(criminal.FCode)).Count() <= 0)
                     {
                         return Content("Error|您有扣分,不能购买该类商品");
                     }
+
+                    //2、判断完成率情况
+                    if (_goodsDjs.Where(o => o.LevelName == good.LevelName && o.CompletionRate >= CompletionRateToJifen(criminal.CompletionRate)).Count() <= 0)
+                    {
+                        return Content("Error|您有生产完成率等级不够,不能购买该类商品");
+                    }
+                    
+
                 }
+
+
 
                 //=====根据上个月的完成率看这类商品你是否有资格购买==20250719 zenglj===End================
 
@@ -1082,6 +1107,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
             return Content(status);
         }
 
+
+        
         private static string DoAddOrderDetail(string status, T_SHO_OrderDTL model, string strFreeFlag)
         {
             //2016-10-29日 曾林进 取消单步执行模式，改采用Dapper事务模式
@@ -1115,6 +1142,53 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 status = "Error|更新主单金额失败";
             }
             return status;
+        }
+
+        /// <summary>
+        /// 根据完成率获取积分比例转换值。
+        /// </summary>
+        /// <param name="completionRate"></param>
+        /// <returns></returns>
+        private static decimal CompletionRateToJifen(decimal completionRate)
+        {
+            decimal jifen = 0;
+            var comRateLevel = _goodsDjs.Where(o => o.UseType == 1 && o.CompletionRate <= completionRate)
+                .OrderByDescending(p => p.CompletionRate).FirstOrDefault();
+            if (comRateLevel != null)
+            {
+                switch (comRateLevel.LevelName)
+                {
+                    case "A":
+                        {
+                            jifen = _goodsDjs.Where(o => o.UseType == 0 && o.LevelName == "一级").First().CompletionRate;
+                        }
+                        break;
+                    case "B":
+                        {
+                            jifen = _goodsDjs.Where(o => o.UseType == 0 && o.LevelName == "二级").First().CompletionRate;
+                        }
+                        break;
+                    case "C":
+                        {
+                            jifen = _goodsDjs.Where(o => o.UseType == 0 && o.LevelName == "三级").First().CompletionRate;
+                        }
+                        break;
+                    default:
+                        {
+                            jifen = _goodsDjs.Where(o => o.UseType == 0 && o.LevelName == "四级").First().CompletionRate;
+                            break;
+                        }
+                }
+
+            }
+            else
+            {
+                //默认只能购买四级积分商品，所以直接返回四级积分商品的积分比例
+                var row = _goodsDjs.Where(o => o.UseType == 0 && o.LevelName == "四级").FirstOrDefault();
+                jifen= row==null?0: row.CompletionRate;
+            }
+
+            return jifen;
         }
 
         //获取订单明细记录

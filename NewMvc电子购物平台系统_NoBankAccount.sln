@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SelfhelpOrderMgr.SocketServ
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SelfhelpOrderMgr.YuZhengJieKou", "SelfhelpOrderMgr.YuZhengJieKou\SelfhelpOrderMgr.YuZhengJieKou.csproj", "{CA66A5C3-3C20-4A03-845A-A6D005B61583}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SelfhelpOrderMgr.Dto", "SelfhelpOrderMgr.Dto\SelfhelpOrderMgr.Dto.csproj", "{859A109D-B490-4501-9464-035E265DBE55}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,10 @@ Global
 		{CA66A5C3-3C20-4A03-845A-A6D005B61583}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CA66A5C3-3C20-4A03-845A-A6D005B61583}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CA66A5C3-3C20-4A03-845A-A6D005B61583}.Release|Any CPU.Build.0 = Release|Any CPU
+		{859A109D-B490-4501-9464-035E265DBE55}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{859A109D-B490-4501-9464-035E265DBE55}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{859A109D-B490-4501-9464-035E265DBE55}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{859A109D-B490-4501-9464-035E265DBE55}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

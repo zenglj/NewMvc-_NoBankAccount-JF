@@ -5,7 +5,7 @@ using System.Data;
 namespace SelfhelpOrderMgr.Model
 {
     //T_Goods
-    public partial class T_Goods
+    public partial class T_Goods:BaseModel
     {
 
         /// <summary>

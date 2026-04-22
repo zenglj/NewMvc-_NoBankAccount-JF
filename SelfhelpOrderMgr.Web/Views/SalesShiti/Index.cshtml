@@ -1,0 +1,261 @@
+﻿@{ Layout = null; }
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智慧超市 - 处遇兑现中心</title>
+    <!-- 引入 Bootstrap 3.0 CSS -->
+    <!--<link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css">-->
+    <!-- 引入 FontAwesome 4.7 图标库 -->
+    <!--<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">-->
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Content/font-awesome.min.css" rel="stylesheet" />
+    <style>
+        /* 1. 全局与背景设置 */
+        body, html {
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            font-family: "Microsoft YaHei", "Heiti SC", sans-serif;
+            overflow: hidden; /* 防止出现滚动条，适配全屏终端 */
+            background-color: #000;
+        }
+
+        /* 超市背景图 - 使用 Unsplash 的高质量超市图片 */
+        .supermarket-bg {
+            /* 这里的图片是一张虚化的超市货架图 */
+            background: url('/Content/images/superCenterBG.jpg?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80') no-repeat center center;
+            background-size: cover;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        /* 深色遮罩层：让背景变暗，突出中间的白色登录框 */
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.75); /* 0.75 的透明度，让背景稍微暗一点 */
+            backdrop-filter: blur(3px); /* 给背景加一点点模糊效果，更高级 */
+        }
+
+        /* 2. 登录卡片容器 */
+        .login-container {
+            z-index: 10;
+            text-align: center;
+            width: 80%; /* 在大屏上占据80%宽度 */
+            max-width: 900px;
+        }
+
+        /* 顶部 Logo 和 欢迎语 */
+        .brand-header {
+            margin-bottom: 60px;
+            animation: fadeInDown 1s ease-out;
+        }
+
+            .brand-header h1 {
+                color: #fff;
+                font-size: 60px; /* 超大字号适配大屏 */
+                margin: 0;
+                text-shadow: 0 4px 10px rgba(0,0,0,0.5);
+                font-weight: 300;
+            }
+
+            .brand-header p {
+                color: #ddd;
+                font-size: 24px;
+                margin-top: 15px;
+                letter-spacing: 2px;
+            }
+
+        /* 3. 登录按钮区域 */
+        .login-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 50px; /* 两个按钮之间的间距 */
+            animation: fadeInUp 1s ease-out;
+        }
+
+        /* 按钮通用样式 */
+        .huge-btn {
+            width: 380px; /* 按钮宽度 */
+            height: 280px; /* 按钮高度 - 非常大 */
+            border-radius: 20px;
+            border: none;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* 弹性动画 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+            /* 按钮图标 */
+            .huge-btn i {
+                font-size: 80px; /* 超大图标 */
+                margin-bottom: 20px;
+                display: block;
+            }
+
+            /* 按钮文字 */
+            .huge-btn span {
+                font-size: 32px;
+                font-weight: bold;
+            }
+
+            .huge-btn small {
+                font-size: 18px;
+                opacity: 0.8;
+                margin-top: 10px;
+                font-weight: normal;
+            }
+
+            /* 按钮悬停效果 */
+            .huge-btn:hover {
+                transform: scale(1.05) translateY(-10px);
+                box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            }
+
+        /* 按钮1：IC卡样式 (白色/灰色系) */
+        .btn-icard {
+            background: linear-gradient(135deg, #ffffff 0%, #f1f1f1 100%);
+            color: #333;
+            border: 4px solid #fff;
+        }
+
+            .btn-icard i {
+                color: #d9534f;
+            }
+        /* 红色图标 */
+
+        /* 按钮2：人脸样式 (蓝色系) */
+        .btn-face {
+            background: linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%);
+            color: #fff;
+            border: 4px solid #2193b0;
+        }
+
+            .btn-face i {
+                color: #fff;
+            }
+
+        /* 4. 模拟交互界面 (默认隐藏) */
+        .interaction-modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 100;
+            background: #fff;
+            padding: 40px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+            width: 500px;
+        }
+
+        /* 扫描线动画 */
+        .scan-line {
+            width: 100%;
+            height: 4px;
+            background: #0f0;
+            box-shadow: 0 0 10px #0f0;
+            position: absolute;
+            top: 0;
+            left: 0;
+            animation: scan 2s infinite linear;
+            display: none;
+        }
+
+        
+    </style>
+</head>
+<body>
+
+    <div class="supermarket-bg">
+        <!-- 遮罩层 -->
+        <div class="overlay"></div>
+
+        <!-- 主要内容区 -->
+        <div class="container login-container">
+
+            <!-- 品牌头部 -->
+            <div class="brand-header">
+                <h1><i class="fa fa-shopping-basket"></i> 处遇兑现中心</h1>
+                <p>智能自助购物终端</p>
+            </div>
+
+            <!-- 登录按钮组 -->
+            <div class="login-buttons" id="main-buttons">
+
+                <!-- 方式1：IC卡登录 -->
+                <button class="huge-btn btn-icard" onclick="handleCardLogin()">
+                    <i class="glyphicon glyphicon-check"></i>
+                    <span>IC卡刷卡登录</span>
+                    <small>请将IC卡贴近感应区</small>
+                </button>
+
+                <!-- 方式2：人脸识别登录 -->
+                <button class="huge-btn btn-face" onclick="handleFaceLogin()">
+                    <i class="glyphicon glyphicon-user"></i>
+                    <span>人脸识别登录</span>
+                    <small>刷脸即可快速支付</small>
+                </button>
+
+            </div>
+        </div>
+
+
+        <!-- 模拟交互弹窗：人脸 -->
+        <!--<div id="modal-face" class="interaction-modal" style="background: #000; color: #fff; width: 600px; height: 400px; display: flex; align-items: center; justify-content: center;">
+            <div style="position: relative; width: 100%; height: 100%;">
+                <div class="scan-line" id="scan-line"></div>
+                <div style="text-align: center; padding-top: 50px;">
+                    <i class="fa fa-camera fa-5x" style="margin-bottom: 20px;"></i>
+                    <h2>正在检测人脸...</h2>
+                    <p>请将面部置于屏幕中央</p>
+                </div>
+            </div>
+        </div>-->
+
+    </div>
+
+    <!-- 引入 jQuery -->
+    <!--<script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>-->
+    <!-- 引入 Bootstrap 3.0 JS -->
+    <!--<script src="https://netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>-->
+    <script src="~/Scripts/jquery-1.11.3.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <script>
+        // 获取元素
+        const $mainButtons = $('#main-buttons');
+        const $modalCard = $('#modal-card');
+        const $modalFace = $('#modal-face');
+        const $scanLine = $('#scan-line');
+
+        // 1. IC卡登录逻辑
+        function handleCardLogin() {
+
+            window.open('/SalesShiti/CardIndex', "_self");
+        }
+
+        // 2. 人脸登录逻辑
+        function handleFaceLogin() {
+
+            window.open('/SalesShiti/FaceIndex', "_self");
+        }
+    </script>
+</body>
+</html>
+

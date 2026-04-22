@@ -83,10 +83,6 @@ namespace SelfhelpOrderMgr.BLL
 
                     sendsocket.Send(orgByte);
 
-                    //==================================================
-                    //接收数据
-
-
                     msgByte = new byte[1024 * 1024 * 8];
                     length = 0;
                     string stringdata = "";
@@ -100,11 +96,6 @@ namespace SelfhelpOrderMgr.BLL
                             var model = Newtonsoft.Json.JsonConvert.DeserializeObject<FaceCheckResult>(rs.DataInfo.ToString());
                             model.UserCode = $"{model.UserCode}|{MD5ProcessHelper.GetMD5(model.UserCode)}";
                             rs.DataInfo = model;
-
-                            //stringdata = ("人脸比对结果：" + Encoding.UTF8.GetString(msgByte, 0, length));
-
-                            //Log4NetHelper.logger.Info(strConnectRcv);//写入连接记录
-
                         }
                     }
                     catch

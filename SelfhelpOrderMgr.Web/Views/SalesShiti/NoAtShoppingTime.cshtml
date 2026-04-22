@@ -1,0 +1,145 @@
+﻿@{ Layout = null; }
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>停止购物通知</title>
+    <!-- 样式依赖 -->
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Scripts/diyUpload/css/webuploader.css" rel="stylesheet" />
+    <link href="~/Scripts/diyUpload/css/diyUpload.css" rel="stylesheet" />
+    <link href="~/Content/font-awesome.min.css" rel="stylesheet" />
+    <link href="~/Content/timeline.css" rel="stylesheet" />
+
+    <style>
+        /* 全局重置与背景 */
+        body {
+            font-family: "Microsoft YaHei", sans-serif;
+            background: radial-gradient(circle, #2b32b2 0%, #1488cc 100%);
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #333;
+        }
+
+        /* 容器布局 */
+        #content {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .header-title {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #1a1a1a;
+        }
+
+        /* 视频与画布容器 */
+        .video-container {
+            position: relative;
+            width: 400px;
+            height: 300px;
+            margin: 0 auto 20px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        video, canvas {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        /* 指导框样式 (蓝色框) */
+        #canvas1 {
+            pointer-events: none; /* 画布不阻挡鼠标事件 */
+            border: 2px solid transparent;
+        }
+
+        /* 操作按钮 */
+        .action-btn {
+            display: inline-block;
+            width: 150px;
+            height: 40px;
+            line-height: 40px;
+            margin: 10px;
+            cursor: pointer;
+            border-radius: 8px;
+            background-color: deeppink;
+            color: white;
+            font-weight: bold;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+            .action-btn:hover {
+                transform: scale(1.05);
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            }
+
+        /* 状态信息 */
+        #faceCheckResultInfo {
+            font-size: 18px;
+            margin: 10px 0;
+            min-height: 30px;
+            color: #d9534f;
+        }
+
+        /* 隐藏类 */
+        .hide {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="content">
+
+        <div class="header-title"><span style="color:red">未在指定时间内购物的通知</span></div>
+
+
+        <div class="video-container">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4>各监区、分监区、直属队：</h4>
+                </div>
+                <div class="panel-body">
+                    <p>　　为配合监/所管理部门及银行联网的规定需要，请在规定的时间:{ @ViewData["saleTimeArea"] }内进行过购物，其它时间段暂停购物。</p>
+                    <p>请大家给予支持配合，谢谢。</p>
+                </div>
+                <div class="panel-footer text-right">
+                    <h4>物资供应站/服务部</h4>
+                </div>
+            </div>
+        </div>
+
+        <!-- 操作按钮组 -->
+        <div class="btn-group">
+
+            <a href="/SalesShiti/Index" class="btn btn-default btn-lg" role="button">返回首页</a>
+        </div>
+
+
+    </div>
+
+    <!-- 依赖库 -->
+    <script src="~/Scripts/jquery-1.11.3.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <script src="~/Scripts/tracking-js/tracking-min.js"></script>
+    <script src="~/Scripts/tracking-js/face-min.js"></script>
+    <script src="~/Scripts/EasyUI/jquery.easyui.min.js"></script>
+    <script src="~/Scripts/diyUpload/js/webuploader.html5only.min.js"></script>
+    <script src="~/Scripts/diyUpload/js/diyUpload.js"></script>
+    <script src="~/Scripts/myJs/minghuaICcardCommon.js"></script>
+
+</body>
+</html>

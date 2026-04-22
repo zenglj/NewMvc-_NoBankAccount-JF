@@ -238,6 +238,12 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         break;
                 }
             }
+
+            var ls = _baseDapperBll.QueryList<T_Vcrd>("select * from t_Vcrd where flag=0 and fcrimecode=@fcrimecode and crtdate<@endDate"
+                    , new { fcrimecode = lists[0].fcrimecode, endDate = strEndDate });
+            xfsuminfo.AmcountC = ls.Where(o=>o.AccType==2).Sum(x => x.DAmount-x.CAmount);
+            xfsuminfo.AmcountD = ls.Where(o => o.AccType == 4).Sum(x => x.DAmount - x.CAmount);
+
             ViewData["xfsuminfo"] = xfsuminfo;
             ViewData["startDate"] = startDate;
             ViewData["endDate"] = endDate;
@@ -418,34 +424,46 @@ namespace SelfhelpOrderMgr.Web.Controllers
             string cardStatus = Request["cardStatus"]; //IC卡的状态
 
             StringBuilder strSql = new StringBuilder();
-    //        strSql.Append(@"select a.FCode 编号,a.FName 姓名,c.Fname 队别,b.SecondaryBankCard 中银结算卡,isnull(d.FMoneyIn,0) 本期收入,isnull(d.FMoneyOut,0) 本期支出,(b.AmountA+b.AmountB+b.AmountC) 总余额,b.AmountC 留存不可用金额
+            //        strSql.Append(@"select a.FCode 编号,a.FName 姓名,c.Fname 队别,b.SecondaryBankCard 中银结算卡,isnull(d.FMoneyIn,0) 本期收入,isnull(d.FMoneyOut,0) 本期支出,(b.AmountA+b.AmountB+b.AmountC) 总余额,b.AmountC 留存不可用金额
+            //            from t_Criminal a left join T_Criminal_Card b on a.fcode=b.fcrimecode 
+            //left join t_Area c on a.FAreaCode=c.fcode
+            //left outer join
+            //            (select fcrimecode,isnull(sum(Damount),0) FMoneyIn,isnull(sum(Camount),0) FMoneyOut 
+            //            from t_vcrd where flag=0 and Crtdate>='" + StartDate.Substring(0,10) + "' and CrtDate<'"+ EndDate.Substring(0,10) +@"'
+            //            group by fcrimecode) d on a.fcode=d.fcrimecode 
+            //            where a.fcode=b.fcrimecode and a.fAreaCode=c.fcode and isnull(a.fflag,0)=0
+            //            ");
+
+
+    //       var ddssd= @"select a.FCode 编号,a.FName 姓名,c.Fname 队别,b.SecondaryBankCard 中银结算卡,isnull(d.FMoneyIn,0) 本期收入,isnull(d.FMoneyOut,0) 本期支出,(b.AmountA+b.AmountB+b.AmountC+b.AmountD) 总余额,b.AmountC 留存不可用金额,b.AmountD 赔偿储备金,b.AccPoints 积分
     //            from t_Criminal a left join T_Criminal_Card b on a.fcode=b.fcrimecode 
 				//left join t_Area c on a.FAreaCode=c.fcode
 				//left outer join
     //            (select fcrimecode,isnull(sum(Damount),0) FMoneyIn,isnull(sum(Camount),0) FMoneyOut 
-    //            from t_vcrd where flag=0 and Crtdate>='" + StartDate.Substring(0,10) + "' and CrtDate<'"+ EndDate.Substring(0,10) +@"'
-    //            group by fcrimecode) d on a.fcode=d.fcrimecode 
-    //            where a.fcode=b.fcrimecode and a.fAreaCode=c.fcode and isnull(a.fflag,0)=0
-    //            ");
+    //            from t_vcrd where flag=0 ";
 
-            strSql.Append(@"select a.FCode 编号,a.FName 姓名,c.Fname 队别,b.SecondaryBankCard 中银结算卡,isnull(d.FMoneyIn,0) 本期收入,isnull(d.FMoneyOut,0) 本期支出,(b.AmountA+b.AmountB+b.AmountC+b.AmountD) 总余额,b.AmountC 留存不可用金额,b.AmountD 赔偿储备金,b.AccPoints 积分
+            strSql.Append(@"select a.FCode 编号,a.FName 姓名,c.Fname 队别,isnull(d.FMoneyIn,0) 本期收入,isnull(d.FMoneyOut,0) 本期支出,(b.AmountA+b.AmountB+b.AmountC+b.AmountD) 总余额,(b.AmountA) 存款账户,(b.AmountB) 报酬账户,b.AmountC 留存不可用金额,b.AmountD 赔偿储备金,b.AccPoints 积分
                 from t_Criminal a left join T_Criminal_Card b on a.fcode=b.fcrimecode 
 				left join t_Area c on a.FAreaCode=c.fcode
 				left outer join
                 (select fcrimecode,isnull(sum(Damount),0) FMoneyIn,isnull(sum(Camount),0) FMoneyOut 
-                from t_vcrd where flag=0 ");
+                from t_vcrd where flag=0 and Crtdate>='" + StartDate.Substring(0, 10) + "' and CrtDate<'" + EndDate.Substring(0, 10) + @"'
+                group by fcrimecode) d on a.fcode=d.fcrimecode 
+                where a.fcode=b.fcrimecode and a.fAreaCode=c.fcode and isnull(a.fflag,0)=0
+                ");
 
-            if (string.IsNullOrWhiteSpace(StartDate) == false)
-            {
-                strSql.Append(@" and Crtdate>='" + StartDate.Substring(0, 10) + "'");
-            }
+            //if (string.IsNullOrWhiteSpace(StartDate) == false)
+            //{
+            //    strSql.Append(@" and Crtdate>='" + StartDate.Substring(0, 10) + "'");
+            //}
 
-            if (string.IsNullOrWhiteSpace(EndDate) == false)
-            {
-                strSql.Append(@" and Crtdate<'" + EndDate.Substring(0, 10) + "'");
-            }
-            strSql.Append(@"  group by fcrimecode) d on a.fcode=d.fcrimecode 
-                where a.fcode=b.fcrimecode  ");
+            //if (string.IsNullOrWhiteSpace(EndDate) == false)
+            //{
+            //    strSql.Append(@" and Crtdate<'" + EndDate.Substring(0, 10) + "'");
+            //}
+
+            //strSql.Append(@"  group by fcrimecode) d on a.fcode=d.fcrimecode 
+            //    where a.fcode=b.fcrimecode  ");
 
 
             if (!string.IsNullOrEmpty(strFCrimeCode))
@@ -1688,6 +1706,9 @@ namespace SelfhelpOrderMgr.Web.Controllers
         public decimal BuKeYongMoney { get; set; }//不可用金额
         public string BankAccCode { get; set; }//银行卡号
         public string FAreaName { get; set; }//队别名称
+
+        public decimal AmcountC { get; set; }//留存账户
+        public decimal AmcountD { get; set; }//蓝风铃账户
     }
 
      

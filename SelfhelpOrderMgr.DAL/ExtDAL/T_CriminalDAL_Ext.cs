@@ -281,7 +281,7 @@ namespace SelfhelpOrderMgr.DAL
                 StringBuilder strSql = new StringBuilder();
                 strSql.Append("select * from ( ");
                 strSql.Append("select ROW_NUMBER() OVER (ORDER BY fcode) AS RowNumber,* from ( ");
-                strSql.Append("select a.fcode FCode,a.fname FName,b.fName FAreaName,a.FAreaCode FAreaCode,isnull(a.fflag,0) FFlag,c.CardCodea CardCode,c.AmountA AmountA,c.AmountB AmountB,c.AmountC AmountC,(c.AmountA+c.AmountB+c.AmountC) AllMoney,c.BankAccNo BankAccNo,c.AccPoints AccPoints ");
+                strSql.Append("select a.fcode FCode,a.fname FName,b.fName FAreaName,a.FAreaCode FAreaCode,isnull(a.fflag,0) FFlag,c.CardCodea CardCode,c.AmountA AmountA,c.AmountB AmountB,c.AmountC AmountC,c.AmountD AmountD,(c.AmountA+c.AmountB+c.AmountC+c.AmountD) AllMoney,c.BankAccNo BankAccNo,c.AccPoints AccPoints ");
                 strSql.Append("from t_criminal a left outer join t_area b on a.fareacode=b.fcode ");
                 strSql.Append(" left outer join t_criminal_card c on a.fcode=c.fcrimecode  ");
                 strSql.Append(") d ");
@@ -303,7 +303,7 @@ namespace SelfhelpOrderMgr.DAL
                 conn.Open();
                 StringBuilder strSql = new StringBuilder();
                 strSql.Append("select * from ( ");
-                strSql.Append("select a.fcode FCode,a.fname FName,b.fName FAreaName,isnull(a.fflag,0) FFlag,c.CardCodea CardCode,c.AmountA AmountA,c.AmountB AmountB,c.AmountC AmountC,(c.AmountA+c.AmountB+c.AmountC) AllMoney,c.BankAccNo BankAccNo ,c.AccPoints as AccPoints ");
+                strSql.Append("select a.fcode FCode,a.fname FName,b.fName FAreaName,isnull(a.fflag,0) FFlag,c.CardCodea CardCode,c.AmountA AmountA,c.AmountB AmountB,c.AmountC AmountC,c.AmountD AmountD,(c.AmountA+c.AmountB+c.AmountC+c.AmountD) AllMoney,c.BankAccNo BankAccNo ,c.AccPoints as AccPoints ");
                 strSql.Append("from t_criminal a,t_area b,t_criminal_card c ");
                 strSql.Append("where a.fareacode=b.fcode and a.fcode=c.fcrimecode ");
                 strSql.Append(") d ");

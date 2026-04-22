@@ -1,0 +1,332 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>超市自助购物机结算</title>
+    <!-- Bootstrap 3.0 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f5f5f5;
+            font-family: 'Microsoft YaHei', sans-serif;
+        }
+
+        .container {
+            width: 900px;
+            height: 1600px;
+            margin: 0 auto;
+            padding: 0;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            height: 200px;
+            background-color: #1261AE;
+            color: white;
+            padding: 20px;
+        }
+
+        .barcode-section {
+            padding: 15px;
+            background-color: #e7e7e7;
+        }
+
+        .product-list {
+            height: 800px;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .footer {
+            height: 100px;
+            background-color: #333;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .product-item {
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+            .product-item:last-child {
+                border-bottom: none;
+            }
+
+        .face-pay-icon {
+            font-size: 60px;
+            margin-bottom: 15px;
+        }
+
+        .bg_topDiv {
+            background-image: url(/Content/images/SelfOrderManager1.jpg);
+            padding: 0;
+            margin-bottom: 0;
+            height: 70px;
+        }
+
+        /* =============== 核心修改区域 =============== */
+        /* 移除了单独的 .product-td 定义，改为统一表格样式 */
+
+        /* 1. 强制表格所有单元格垂直居中 */
+        .table tbody td,
+        .table thead th {
+            vertical-align: middle !important;
+            text-align: center; /* 保持水平居中 */
+            font-size: large; /* 将原有的 large 字体大小移到这里，应用给所有单元格 */
+        }
+
+        /* 2. 专门优化图片样式，防止图片导致垂直居中失效 */
+        .table td img {
+            max-height: 60px;
+            width: auto;
+            display: block;
+            margin: 0 auto; /* 图片在单元格内水平居中 */
+        }
+        /* =============== 核心修改区域 =============== */
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="bg_topDiv">
+            @*<img src="~/Content/images/SelfOrderManager1.jpg" />*@
+            <div class="row">
+                <div class="col-sm-10"></div>
+                <div class="col-sm-2">
+                    <div>
+                        <div style="height:40px;">
+                        </div>
+                        <div>
+                            <a class="btn btn-link" href="/Message/Index"><span class="glyphicon glyphicon-envelope colorWhite" aria-hidden="true"> 通知消息(New)</span></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- 顶部人员信息区域 -->
+
+        <div class="header">
+            <div class="row">
+                <div class="col-xs-12 col-sm-6">
+                    <div class="text-center">
+                        <span class="glyphicon glyphicon-user face-pay-icon"></span>
+                        <h2>人脸支付结算</h2>
+                    </div>
+                </div>
+                <div class="col-xs-6 col-sm-6">
+                    <div class="user-info">
+                        <p><strong>会员姓名：</strong>张三</p>
+                        <p><strong>会员卡号：</strong>VIP123456789</p>
+                        <p><strong>积分余额：</strong>1250分</p>
+                        <p><strong>当前时间：</strong><span id="current-time">2023-05-15 14:30:25</span></p>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+
+        <!-- 条码输入区域 -->
+        <div class="barcode-section">
+            <div class="row">
+                <div class="col-sm-6">
+
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group ">
+                        <div class="input-group">
+                            <span class="input-group-btn">
+                                <label class="btn"><strong>扫描商品条码：</strong></label>
+                            </span>
+                            <input type="text" class="form-control" id="barcode-input" placeholder="请扫描或输入商品条码">
+                            <span class="input-group-btn">
+                                <button class="btn btn-primary" type="button">扫描</button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- 商品列表区域 -->
+        <div class="product-list">
+            <h3>已选商品</h3>
+            <table class="table table-condensed">
+                <thead class=" text-center">
+                    <tr>
+                        <th>图片</th>
+                        <th>名称</th>
+                        <th>单价</th>
+                        <th>数量</th>
+                        <th>小计</th>
+                    </tr>
+                </thead>
+                <tbody id="productList">
+                    <tr>
+                        <td>
+                            <img src="~/Content/GoodsImages/chart.js.png" alt="商品1" class="img-responsive" style="height:60px">
+                        </td>
+                        <td class="product-td">可口可乐 330ml</td>
+                        <td class="product-td">¥3.50</td>
+                        <td class="product-td">1</td>
+                        <td class="product-td">¥3.50</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <img src="~/Content/GoodsImages/gruntjs.png" alt="商品1" class="img-responsive" style="height:60px">
+                        </td>
+                        <td class="product-td">乐事薯片 原味 104g</td>
+                        <td class="product-td">¥7.80</td>
+                        <td class="product-td">1</td>
+                        <td class="product-td">¥7.80</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <img src="~/Content/GoodsImages/chart.js.png" alt="商品1" class="img-responsive" style="height:60px">
+                        </td>
+                        <td class="product-td">康师傅红烧牛肉面 105g</td>
+                        <td class="product-td">¥4.50</td>
+                        <td class="product-td">2</td>
+                        <td class="product-td">¥9.00</td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <img src="~/Content/GoodsImages/chart.js.png" alt="商品1" class="img-responsive" style="height:60px">
+                        </td>
+                        <td class="product-td">可口可乐 330ml</td>
+                        <td class="product-td">¥3.50</td>
+                        <td class="product-td">1</td>
+                        <td class="product-td">¥3.50</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <img src="~/Content/GoodsImages/gruntjs.png" alt="商品1" class="img-responsive" style="height:60px">
+                        </td>
+                        <td class="product-td">乐事薯片 原味 104g</td>
+                        <td class="product-td">¥7.80</td>
+                        <td class="product-td">1</td>
+                        <td class="product-td">¥7.80</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <img src="~/Content/GoodsImages/chart.js.png" alt="商品1" class="img-responsive" style="height:60px">
+                        </td>
+                        <td class="product-td">康师傅红烧牛肉面 105g</td>
+                        <td class="product-td">¥4.50</td>
+                        <td class="product-td">2</td>
+                        <td class="product-td">¥9.00</td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <img src="~/Content/GoodsImages/chart.js.png" alt="商品1" class="img-responsive" style="height:60px">
+                        </td>
+                        <td class="product-td">可口可乐 330ml</td>
+                        <td class="product-td">¥3.50</td>
+                        <td class="product-td">1</td>
+                        <td class="product-td">¥3.50</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <img src="~/Content/GoodsImages/gruntjs.png" alt="商品1" class="img-responsive" style="height:60px">
+                        </td>
+                        <td class="product-td">乐事薯片 原味 104g</td>
+                        <td class="product-td">¥7.80</td>
+                        <td class="product-td">1</td>
+                        <td class="product-td">¥7.80</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <img src="~/Content/GoodsImages/chart.js.png" alt="商品1" class="img-responsive" style="height:60px">
+                        </td>
+                        <td class="product-td">康师傅红烧牛肉面 105g</td>
+                        <td class="product-td">¥4.50</td>
+                        <td class="product-td">2</td>
+                        <td class="product-td">¥9.00</td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <img src="~/Content/GoodsImages/chart.js.png" alt="商品1" class="img-responsive" style="height:60px">
+                        </td>
+                        <td class="product-td">可口可乐 330ml</td>
+                        <td class="product-td">¥3.50</td>
+                        <td class="product-td">1</td>
+                        <td class="product-td">¥3.50</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <img src="~/Content/GoodsImages/gruntjs.png" alt="商品1" class="img-responsive" style="height:60px">
+                        </td>
+                        <td class="product-td">乐事薯片 原味 104g</td>
+                        <td class="product-td">¥7.80</td>
+                        <td class="product-td">1</td>
+                        <td class="product-td">¥7.80</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <img src="~/Content/GoodsImages/chart.js.png" alt="商品1" class="img-responsive" style="height:60px">
+                        </td>
+                        <td class="product-td">康师傅红烧牛肉面 105g</td>
+                        <td class="product-td">¥4.50</td>
+                        <td class="product-td">2</td>
+                        <td class="product-td">¥9.00</td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+
+        </div>
+
+        <!-- 底部结算区域 -->
+        <div class="footer">
+            <button class="btn btn-success btn-lg" style="width: 80%;">
+                <span class="glyphicon glyphicon-ok"></span> 确认结算 (¥20.30)
+            </button>
+        </div>
+
+    </div>
+
+
+    <!-- jQuery和Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js"></script>
+    <script>
+        // 更新当前时间
+        function updateTime() {
+            const now = new Date();
+            const timeStr = now.toLocaleString('zh-CN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            }).replace(/\//g, '-');
+            document.getElementById('current-time').textContent = timeStr;
+        }
+
+        // 每秒更新时间
+        setInterval(updateTime, 1000);
+        updateTime(); // 初始化时立即更新
+    </script>
+</body>
+</html>

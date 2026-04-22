@@ -34,5 +34,9 @@ namespace SelfhelpOrderMgr.Model
         /// 用户类别，0犯人，1民警
         /// </summary>
         public int typeFlag { get; set; }
+        /// <summary>
+        /// url地址，用于调用的URL
+        /// </summary>
+        public string url{ get; set; }
     }
 }

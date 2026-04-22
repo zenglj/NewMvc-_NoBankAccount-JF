@@ -82,6 +82,19 @@ namespace SelfhelpOrderMgr.BLL
 
 
         /// <summary>
+        /// 积分批量删除已经导入的取扣款记录
+        /// </summary>
+        /// <param name="pkId"></param>
+        /// <param name="crtby"></param>
+        /// <returns></returns>
+        public bool plDeleteByPKIdByJF(string pkId, string crtby, int typeflag)
+        {
+            return new T_BatchMoneyTradeDAL().plDeleteByPKId(pkId, crtby, typeflag);
+        }
+
+        
+
+        /// <summary>
         /// 批量Excel存取款数据导入，并写入数据库
         /// </summary>
         /// <param name="strFBid"></param>

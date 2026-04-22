@@ -341,6 +341,54 @@ namespace SelfhelpOrderMgr.DAL
         }
 
 
+
+        /// <summary>
+        /// 积分批量删除已经导入的取扣款记录
+        /// </summary>
+        /// <param name="pkId"></param>
+        /// <param name="crtby"></param>
+        /// <returns></returns>
+        public bool plDeleteByPKIdByJF(string pkId, string crtby, int typeflag)
+        {
+            using (IDbConnection conn = new SqlConnection(SqlHelper.getConnstr()))
+            {
+                conn.Open();
+                IDbTransaction myTran = conn.BeginTransaction();
+                try
+                {
+                    StringBuilder strSql = new StringBuilder();
+
+
+                    #region 增加SQL脚本
+                    strSql.Append(@"update t_Criminal_Card set AccPoints=a.AccPoints-b.AccPoints from  t_Criminal_card a,(
+                                select fcrimecode,sum(damount-camount) AccPoints from t_JF_Vcrd 
+                                where flag=0 and isnull(bankflag,0)<=0 and typeflag=@typeflag and origid=@pkId
+                                group by fcrimecode) b
+                                where a.fcrimecode=b.fcrimecode;");
+                    //strSql.Append("update t_bonusdtl set Remark='该记录财务入账时，已离监销户了' where flag=0 and bid=@BID;");
+                    strSql.Append(@"update t_JF_Vcrd set flag=1,delby=@crtby,deldate=getdate(),remark='已补批量删除:' +isnull(remark,'') 
+                                    where flag in(0,-2) and isnull(bankflag,0)<=0 and typeflag=@typeflag and origid=@pkId;");
+                    strSql.Append(@"delete from T_BatchMoneyTrade_dtl where bid=@pkId;");
+                    strSql.Append(@"delete from T_BatchMoneyTrade where bid=@pkId;");
+                    strSql.Append(@"delete from T_BatchMoneyTrade_ErrList where pc=@pkId;");
+                    #endregion
+
+
+
+                    object param = new { pkId = pkId, crtBy = crtby, typeflag = typeflag };
+                    conn.Execute(strSql.ToString(), param, myTran);
+                    myTran.Commit();
+                    return true;
+                }
+                catch
+                {
+                    myTran.Rollback();
+                }
+            }
+            return false;
+        }
+
+
         /// <summary>
         /// 批量Excel存取款数据导入，并写入数据库
         /// </summary>

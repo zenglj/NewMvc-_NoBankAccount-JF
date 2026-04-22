@@ -1116,15 +1116,15 @@ namespace SelfhelpOrderMgr.Web.Controllers
             //    return Content("Err|该主单号没有对应的Vcrd记录，无法批量删除！");
             //}
 
-            List<T_Vcrd> vcrds = new T_VcrdBLL().GetModelList(" flag in(0,-2) and typeflag='" + typeflag.ToString() + "' and Origid='" + pkId + "' and isnull(bankflag,0)>=1");
+            List<T_JF_Vcrd> vcrds = _jifenMgrService.QueryList<T_JF_Vcrd>("select * from T_JF_Vcrd where flag in(0,-2) and typeflag='" + typeflag.ToString() + "' and Origid='" + pkId + "' and isnull(bankflag,0)>=1");
             if (vcrds.Count > 0)
             {
                 return Content("Err|该主单号的数据已经发送到银行了，不能删除！");
             }
 
-            //开始删除数据
+            //开始删除积分数据
 
-            if(new T_BatchMoneyTradeBLL().plDeleteByPKId(pkId, strLoginName, typeflag))
+            if(new T_BatchMoneyTradeBLL().plDeleteByPKIdByJF(pkId, strLoginName, typeflag))
             {
                 return Content("OK|删除成功！");
             }

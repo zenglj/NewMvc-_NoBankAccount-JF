@@ -82,6 +82,8 @@
     <Compile Include="DapperModel\ResultInfo.cs" />
     <Compile Include="DapperModel\T_Area_MacIpAddr.cs" />
     <Compile Include="DapperModel\t_BankProve_ext.cs" />
+    <Compile Include="DapperModel\T_Bank_Recharge.cs" />
+    <Compile Include="DapperModel\T_Bank_Recharge_Search.cs" />
     <Compile Include="DapperModel\T_JF_KouFen_Search.cs" />
     <Compile Include="DapperModel\T_JF_Completion_Search.cs" />
     <Compile Include="DapperModel\T_Bank_SubAccBalance.cs" />
@@ -138,6 +140,7 @@
     <Compile Include="DapperModel\ViewCriminalInfo.cs" />
     <Compile Include="DapperModel\ViewFamilyInfo.cs" />
     <Compile Include="DapperModel\ViewFamilyInfo_Search.cs" />
+    <Compile Include="DapperModel\ViewGoodStockQty.cs" />
     <Compile Include="DapperModel\ViewPaymentRecordExtend.cs" />
     <Compile Include="DapperModel\T_Vcrd_Search.cs" />
     <Compile Include="DapperModel\T_Bank_DepositList_Search.cs" />
@@ -264,6 +267,7 @@
     <Compile Include="T_SHO_OrderDTL.cs" />
     <Compile Include="T_SHO_SaleDayList.cs" />
     <Compile Include="T_SHO_SaleType.cs" />
+    <Compile Include="T_Stock_Search.cs" />
     <Compile Include="T_Stock.cs" />
     <Compile Include="T_StockDTL.cs" />
     <Compile Include="T_SUB_AREA.cs" />

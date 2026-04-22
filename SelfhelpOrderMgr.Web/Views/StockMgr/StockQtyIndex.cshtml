@@ -1,0 +1,259 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商品库存查询系统</title>
+    <!-- 1. 引入 EasyUI 的 CSS 样式 (必须放在最前面) -->
+    <!-- 核心样式 -->
+    <link href="~/Scripts/EasyUI/themes/default/easyui.css" rel="stylesheet" />
+    <!-- 图标样式 -->
+    <link href="~/Scripts/EasyUI/themes/icon.css" rel="stylesheet" />
+
+    <!-- 2. 引入 jQuery (必须在 easyui JS 之前) -->
+    <script src="~/Scripts/jquery-1.11.3.min.js"></script>
+    <!-- 3. 引入 EasyUI 核心 JS -->
+    <script src="~/Scripts/EasyUI/jquery.easyui.min.js"></script>
+    <!-- 4. 引入中文语言包 (可选，让界面显示中文) -->
+    <script src="~/Scripts/EasyUI/locale/easyui-lang-zh_CN.js"></script>
+    <script src="~/Scripts/myJs/commonJs.js"></script>
+
+    <style>
+
+
+        /*html, body {
+            font-family: '微软雅黑', sans-serif;
+            margin: 0;
+            padding: 10px;
+            background-color: #f0f2f5;*/
+            /*height: 100%; */
+            /*overflow: hidden;*/ /* 防止出现双滚动条 */
+        /*}*/
+
+        #mainContainer {
+            width: 98%;
+            height: 80%;
+            margin: 10px auto;
+            background: #fff;
+            padding: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-radius: 4px;
+        }
+
+        .search-row {
+            margin-bottom: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .search-item {
+            display: flex;
+            align-items: center;
+        }
+
+            .search-item label {
+                width: 80px;
+                text-align: right;
+                padding-right: 10px;
+                font-weight: bold;
+                color: #555;
+            }
+
+        .toolbar {
+            padding: 5px;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 10px;
+            background: #f3f3f3;
+        }
+    </style>
+</head>
+<body>
+
+
+
+    <!-- 1. 外层容器使用 layout -->
+    <div class="easyui-layout" data-options="fit:true">
+
+        <!-- 2. 顶部区域：放查询条件和按钮 -->
+        <div data-options="region:'north', border:false" style="height: 200px; padding: 10px; background: #fff;">
+            
+            <!-- 查询条件区域 -->
+        <div class="easyui-panel" title="库存查询条件" style="width:100%;" data-options="border:false, iconCls:'icon-search'">
+            <form id="searchForm">
+                <div class="search-row">
+                    <div class="search-item">
+                        <label>商品名称:</label>
+                        <input id="GName" name="GName" class="easyui-textbox" style="width:180px;" data-options="prompt:'支持模糊查询'">
+                    </div>
+                    <div class="search-item">
+                        <label>商品条码:</label>
+                        <input id="GTXM" name="GTXM" class="easyui-textbox" style="width:180px;" data-options="prompt:'扫描或输入条码'">
+                    </div>
+                </div>
+                <div class="search-row">
+                    <div class="search-item">
+                        <label>商品类别:</label>
+                        <input id="GType" name="GType" class="easyui-combobox" style="width:180px;" data-options="valueField:'id',textField:'name'">
+                    </div>
+                    <div class="search-item">
+                        <label>商品简码:</label>
+                        <input id="SPShortCode" name="SPShortCode" class="easyui-textbox" style="width:180px;" data-options="prompt:'助记码/简码'">
+                    </div>
+                </div>
+                <div class="search-row">
+                    <div class="search-item">
+                        <label>消费类型:</label>
+                        <input id="SaleTypeId" name="SaleTypeId" class="easyui-combobox" style="width:180px;" data-options="valueField:'Id',textField:'PType'">
+                    </div>
+                    <div class="search-item">
+                        <a href="#" class="easyui-linkbutton" iconCls="icon-search"  onclick="doSearch()">查询</a>
+                        &ensp;<a href="#" class="easyui-linkbutton" iconCls="icon-clear"  onclick="resetSearch()">重置</a>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+
+            <!-- 按钮工具栏 -->
+            <div class="toolbar">
+                <a href="#" class="easyui-linkbutton" iconCls="icon-print"  onclick="alert('正在导出Excel...')">导出</a>
+            </div>
+        </div>
+
+        <!-- 3. 中间区域：放 DataGrid，它会自动填满剩余空间 -->
+        <div data-options="region:'center', border:false" style="overflow: hidden;">
+            <table id="dg-stock"></table>
+        </div>
+    </div>
+
+    <script>
+        $(function () {
+            // 1. 模拟数据源 (类别)
+            var categories = [
+                { id: 1, name: '数码产品' },
+                { id: 2, name: '食品饮料' },
+                { id: 3, name: '家居用品' },
+                { id: 4, name: '服装鞋帽' }
+            ];
+            $('#GType').combobox('loadData', categories);
+
+
+            // 1. 模拟数据源 (类别)
+            var saleTypes = [
+                { Id: 1, PType: '超市消费' },
+                { Id: 2, PType: '订购水果' },
+                { Id: 3, PType: '购买刑满便服' },
+                { Id: 4, PType: '积分消费' }
+            ];
+            $('#SaleTypeId').combobox('loadData', saleTypes);
+
+            // 2. 模拟数据源 (库存列表 - 模拟后台返回)
+
+            // 3. 初始化 DataGrid
+            $('#dg-stock').datagrid({
+                url: '/StockMgr/GetStockQtyList',
+                //data: mockData, // 使用本地模拟数据，实际项目中应使用 url: '/api/...'
+                fit: true,
+                height: '100%',
+                fitColumns: true,
+                striped: true,
+                rownumbers: true,
+                pagination: true,
+                singleSelect: true,
+                showFooter: true, // 开启底部统计
+                pageSize: 10,
+                pageList: [5, 10, 20],
+                columns: [[
+                    { field: 'Id', title: 'Id', width: 60, halign: 'center' },
+                    { field: 'GName', title: '商品名称', width: 120, halign: 'center' },
+                    { field: 'GTXM', title: '商品条码', width: 130 },
+                    { field: 'SPShortCode', title: '简码', width: 130 },
+                    { field: 'GType', title: '类别', width: 80 },
+                    { field: 'TypeName', title: '类别名称', width: 80 },
+                    { field: 'GUnit', title: '单位', width: 80 },
+                    {
+                        field: 'Balance',
+                        title: '库存数量',
+                        width: 90,
+                        align: 'right',
+                        sortable: true,
+                        styler: function (val, row) {
+                            if (val < 10) return 'color:red;font-weight:bold;'; // 低库存预警
+                        }
+                    },                    
+                    { field: 'PType', title: '消费类型', width: 80 },
+                    { field: 'SaleTypeId', title: '消费类型Id', width: 80 }
+                ]],
+                onLoadSuccess: function (data) {
+                    // 计算 Footer 合计
+                    var totalQty = 0;
+                    if (data.rows) {
+                        $.map(data.rows, function (row) {
+                            totalQty += (parseInt(row.Balance) || 0);
+                        });
+                        // 刷新底部
+                        $(this).datagrid('reloadFooter', [
+                            { prodName: '<b>合计</b>', Balance: '<b>' + totalQty + '</b>' }
+                        ]);
+                    }
+                }
+            });
+        });
+
+        // 4. 查询功能
+        function doSearch() {
+            // 在实际项目中，这里会使用 $('#dg-stock').datagrid('load', {...}) 来请求后台
+            // 为了演示单页面效果，这里仅弹出提示
+            //var params = {
+            //    prodName: $('#prodName').val(),
+            //    barcode: $('#barcode').val(),
+            //    category: $('#category').combobox('getValue'),
+            //    simpleCode: $('#simpleCode').val()
+            //};
+
+
+
+
+            var data = $("#searchForm").serializeObject();          
+
+            $('#dg-stock').datagrid('load', data);
+
+
+        }
+
+
+        // 扩展 jQuery 原型
+        $.fn.serializeObject = function () {
+            var o = {};
+            var a = this.serializeArray();
+            $.each(a, function () {
+                if (o[this.name]) {
+                    // 如果属性已存在，说明是同名元素（如 checkbox），转为数组处理
+                    if (!o[this.name].push) {
+                        o[this.name] = [o[this.name]];
+                    }
+                    o[this.name].push(this.value || '');
+                } else {
+                    // 单个值直接赋值
+                    o[this.name] = this.value || '';
+                }
+            });
+            return o;
+        };
+
+        // 5. 重置功能
+        function resetSearch() {
+            $('#searchForm').form('clear');
+            // 重置后重新加载数据
+            // $('#dg-stock').datagrid('load', {});
+        }
+    </script>
+
+</body>
+</html>

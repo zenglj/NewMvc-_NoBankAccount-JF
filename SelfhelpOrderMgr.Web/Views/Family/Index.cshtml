@@ -31,17 +31,17 @@
         <table id="tbPay" class="easyui-datagrid" style="width:100%;height:200px" toolbar="#toolBarPay_11"></table>
         <div id="toolBarPay_11" style="padding:5px;height:auto;">
             <div style="margin-bottom:5px">
-                <a href="#" id="btnAdd" class="easyui-linkbutton" iconcls="icon-add" plain="true">创建家属信息</a><label>|</label>
-                @if (ViewData["id"].ToString() == "1")
+                @if (ViewData["id"].ToString() == "0")
                 {
+                    <a href="#" id="btnAdd" class="easyui-linkbutton" iconcls="icon-add" plain="true">创建家属信息</a><label>|</label>
+                    <a href="#" id="btnSubmit" class="easyui-linkbutton" iconcls="icon-edit" plain="true" onclick="SubmitMain()">编辑</a><label>|</label>
+                    <a href="#" id="btnDel" class="easyui-linkbutton" iconcls="icon-cancel" plain="true" onclick="DeleteMain()">删除</a><label>|</label>
 
                 }
                 else
                 {
-                    <a href="#" id="btnSubmit" class="easyui-linkbutton" iconcls="icon-edit" plain="true" onclick="SubmitMain()">编辑</a><label>|</label>
                 }
 
-                <a href="#" id="btnDel" class="easyui-linkbutton" iconcls="icon-cancel" plain="true" onclick="DeleteMain()">删除</a><label>|</label>
                 <a href="javascript:void(0)" id="mb" class="easyui-menubutton"
                    data-options="menu:'#mmp',iconCls:'icon-print'">打印报表</a>
                 <div id="mmp" style="width:150px;">
@@ -53,9 +53,16 @@
                     <div data-options="iconCls:'icon-reload'" onclick="btnPrintRepeatDetailReport(0)">身份证重复预警报表</div>
                 </div> <label>|</label>
 
-                <form id="ff" method="post" action="/upload" enctype="multipart/form-data">
-                    请选择Excel文件：<input type="file" name="file" /><a href="#" id="btnInport" class="easyui-linkbutton" iconcls="icon-reload" plain="true" onclick="ExcelInport()">开始导入</a>
-                </form>
+                @if (ViewData["id"].ToString() == "0")
+                {
+                    <form id="ff" method="post" action="/upload" enctype="multipart/form-data">
+                        请选择Excel文件：<input type="file" name="file" /><a href="#" id="btnInport" class="easyui-linkbutton" iconcls="icon-reload" plain="true" onclick="ExcelInport()">开始导入</a>
+                    </form>
+                }
+                else
+                {
+                }
+
             </div>
         </div>
 

@@ -10,6 +10,8 @@ using SelfhelpOrderMgr.Web.Models;
 using SelfhelpOrderMgr.Web.Filters;
 using System.IO;
 using NPOI.XSSF.UserModel;
+using NPOI.SS.UserModel;
+using NPOI.HSSF.UserModel;
 
 namespace SelfhelpOrderMgr.Web.Controllers
 {
@@ -578,7 +580,18 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 }
                 //var dataList = ParseExcel(file.InputStream);
 
-                var workbook = new XSSFWorkbook(file.InputStream);
+                IWorkbook workbook = null;
+                try
+                {
+                    workbook = new XSSFWorkbook(file.InputStream); // 2007版本  
+                }
+                catch
+                {
+                    workbook = new HSSFWorkbook(file.InputStream); // 2003版本  
+                }
+                //var workbook = new XSSFWorkbook(file.InputStream);
+
+
                 var worksheet = workbook.GetSheetAt(0);
                 var rows = worksheet.LastRowNum; // 跳过标题行
 
@@ -918,6 +931,9 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
         }
 
+
+
+
         /// <summary>
         /// 删除赔偿金取款Vcrd记录
         /// </summary>
@@ -998,6 +1014,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 return Json(rs);
             }
         }
+
+
 
 
         /// <summary>

@@ -100,9 +100,9 @@ namespace SelfhelpOrderMgr.BLL
                 for (int n = 0; n < rowsCount; n++)
                 {
                     model = new SelfhelpOrderMgr.Model.T_StockDTL();
-                    if (dt.Rows[n]["SeqId"].ToString() != "")
+                    if (dt.Rows[n]["Id"].ToString() != "")
                     {
-                        model.SeqId = int.Parse(dt.Rows[n]["SeqId"].ToString());
+                        model.Id = int.Parse(dt.Rows[n]["Id"].ToString());
                     }
                     model.Remark = dt.Rows[n]["Remark"].ToString();
                     model.WareHouseCode = dt.Rows[n]["WareHouseCode"].ToString();

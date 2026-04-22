@@ -5,7 +5,7 @@ using System.Data;
 namespace SelfhelpOrderMgr.Model
 {
     //T_Stock
-    public class T_Stock
+    public class T_Stock:BaseModel
     {
 
         /// <summary>
@@ -83,8 +83,8 @@ namespace SelfhelpOrderMgr.Model
         /// <summary>
         /// CheckDt
         /// </summary>		
-        private DateTime _checkdt;
-        public DateTime CheckDt
+        private DateTime? _checkdt;
+        public DateTime? CheckDt
         {
             get { return _checkdt; }
             set { _checkdt = value; }

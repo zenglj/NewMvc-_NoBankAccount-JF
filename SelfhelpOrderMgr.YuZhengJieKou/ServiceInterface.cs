@@ -570,7 +570,8 @@ namespace SelfhelpOrderMgr.YuZhengJieKou
 	                            [FBirthday] [varchar](max) NULL,	                            
 	                            [FAddr] [varchar](max) NULL,
                                 [jtqh] [varchar](max) NULL,
-                                [FTel] [varchar](max) NULL
+                                [FTel] [varchar](max) NULL,
+	                            [CrtDate] [datetime] NULL CONSTRAINT [DF_YzglTempShgx_CrtDate]  DEFAULT (getdate())
                             ) ON [PRIMARY]                            
                             ";
 
@@ -653,14 +654,14 @@ namespace SelfhelpOrderMgr.YuZhengJieKou
                 {
                     id = o.id,
                     zfbh = o.zfbh,
-                    FamilyName= SqlEscapeHelper.SqlEscape(o.xm),
+                    FamilyName= string.IsNullOrWhiteSpace(o.xm)==true?"": SqlEscapeHelper.SqlEscape(o.xm),
                     FSex=o.xb=="2"?"女":"男",
-                    FRelation= SqlEscapeHelper.SqlEscape(o.gxlb),
-                    FIdenNo= SqlEscapeHelper.SqlEscape(o.zjhm),
-                    FBirthday= SqlEscapeHelper.SqlEscape(o.csrq),
-                    FAddr= SqlEscapeHelper.SqlEscape(o.jtmx),
-                    jtqh= SqlEscapeHelper.SqlEscape(o.jtqh),
-                    FTel= SqlEscapeHelper.SqlEscape(o.dh)
+                    FRelation= string.IsNullOrWhiteSpace(o.gxlb) == true ? "" : SqlEscapeHelper.SqlEscape(o.gxlb),
+                    FIdenNo= string.IsNullOrWhiteSpace(o.zjhm) == true ? "" : SqlEscapeHelper.SqlEscape(o.zjhm),
+                    FBirthday= string.IsNullOrWhiteSpace(o.csrq) == true ? "" : SqlEscapeHelper.SqlEscape(o.csrq),
+                    FAddr= string.IsNullOrWhiteSpace(o.jtmx) == true ? "" : SqlEscapeHelper.SqlEscape(o.jtmx),
+                    jtqh= string.IsNullOrWhiteSpace(o.jtqh) == true ? "" : SqlEscapeHelper.SqlEscape(o.jtqh),
+                    FTel= string.IsNullOrWhiteSpace(o.dh) == true ? "" : SqlEscapeHelper.SqlEscape(o.dh)
                 }).ToList();
 
                 new BaseDapperBLL().ExecuteSql(strTemp, selList);

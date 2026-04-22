@@ -1,0 +1,398 @@
+@{ Layout = null; }
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>购物人脸识别系统</title>
+    <!-- 样式依赖 -->
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Scripts/diyUpload/css/webuploader.css" rel="stylesheet" />
+    <link href="~/Scripts/diyUpload/css/diyUpload.css" rel="stylesheet" />
+    <link href="~/Content/font-awesome.min.css" rel="stylesheet" />
+    <link href="~/Content/timeline.css" rel="stylesheet" />
+
+    <style>
+        /* 全局重置与背景 */
+        body {
+            font-family: "Microsoft YaHei", sans-serif;
+            background: radial-gradient(circle, #2b32b2 0%, #1488cc 100%);
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #333;
+        }
+
+        /* 容器布局 */
+        #content {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .header-title {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #1a1a1a;
+        }
+
+        /* 视频与画布容器 */
+        .video-container {
+            position: relative;
+            width: 400px;
+            height: 300px;
+            margin: 0 auto 20px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        video, canvas {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        /* 指导框样式 (蓝色框) */
+        #canvas1 {
+            pointer-events: none; /* 画布不阻挡鼠标事件 */
+            border: 2px solid transparent;
+        }
+
+        /* 操作按钮 */
+        .action-btn {
+            display: inline-block;
+            width: 100px;
+            height: 40px;
+            line-height: 40px;
+            margin: 10px;
+            cursor: pointer;
+            border-radius: 8px;
+            background-color: deeppink;
+            color: white;
+            font-weight: bold;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+            .action-btn:hover {
+                transform: scale(1.05);
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            }
+
+        /* 状态信息 */
+        #faceCheckResultInfo {
+            font-size: 18px;
+            margin: 10px 0;
+            min-height: 30px;
+            color: #d9534f;
+        }
+
+        /* 隐藏类 */
+        .hide {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="content">
+        <div class="header-title">购物人脸识别</div>
+
+        <div id="faceCheckResultInfo">点击【开始识别】按钮进行识别</div>
+
+        <div class="video-container">
+            <!-- 视频流 -->
+            <video id="video" width="400" height="300" preload="auto" loop playsinline muted autoplay></video>
+
+            <!-- 跟踪框画布 (绿色) -->
+            <canvas id="canvas" width="400" height="300"></canvas>
+
+            <!-- 指导框画布 (蓝色) -->
+            <canvas id="canvas1" width="400" height="300"></canvas>
+        </div>
+
+        <!-- 操作按钮组 -->
+        <div class="btn-group">
+            <div id="btn" class="action-btn">开始识别</div>
+            <div id="keepImg" class="action-btn hide">保存图片</div>
+        </div>
+
+        <!-- 缩略图与结果展示 -->
+        <canvas id="shortCut" width="200" height="200" class="hide"></canvas>
+        @*<div id="img" class="hide"></div>*@
+        <div id="img" ></div>
+
+        <!-- 数据提交表单 -->
+        <form id="checkForm" method="post" action="/Home/CheckFace">
+            <input type="hidden" id="imageSrc" name="imageSrc" />
+            <input type="hidden" id="loginCheck" name="loginCheck" value="@ViewData["loginCheck"]" />
+            <input type="hidden" id="FaceMode" name="FaceMode" value="@ViewData["FaceMode"]" />
+            <input type="hidden" id="smFCrimeCode" name="fcrimecode" />
+        </form>
+    </div>
+
+    <!-- 依赖库 -->
+    <script src="~/Scripts/jquery-1.11.3.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <script src="~/Scripts/tracking-js/tracking-min.js"></script>
+    <script src="~/Scripts/tracking-js/face-min.js"></script>
+    <script src="~/Scripts/EasyUI/jquery.easyui.min.js"></script>
+    <script src="~/Scripts/diyUpload/js/webuploader.html5only.min.js"></script>
+    <script src="~/Scripts/diyUpload/js/diyUpload.js"></script>
+
+    <script>
+        /**
+         * ==================================================
+         * 全局变量与配置
+         * ==================================================
+         */
+        const synth = window.speechSynthesis;
+        let utterance = new SpeechSynthesisUtterance();
+        utterance.lang = 'zh-CN'; // 设置语言为中文
+
+        let faceStartFlag = 0;
+        let saveArray = {}; // 存储人脸坐标
+        let detectionInterval = null;
+
+        // DOM 元素缓存
+        const $video = $('#video');
+        const $canvas = $('#canvas')[0];
+        const $ctx = $canvas.getContext('2d');
+        const $guideCanvas = $('#canvas1')[0];
+        const $guideCtx = $guideCanvas.getContext('2d');
+        const $snapshotCanvas = $('#shortCut')[0];
+        const $snapshotCtx = $snapshotCanvas.getContext('2d');
+        const $resultInfo = $('#faceCheckResultInfo');
+        const $form = $('#checkForm');
+
+        /**
+         * ==================================================
+         * 核心人脸识别与绘图逻辑
+         * ==================================================
+         */
+
+        /**
+         * 初始化人脸跟踪器
+         */
+        function initTracker() {
+            const tracker = new tracking.ObjectTracker('face');
+            tracker.setInitialScale(4);
+            tracker.setStepSize(2);
+            tracker.setEdgesDensity(0.1);
+
+            // 跟踪事件处理
+            tracker.on('track', (event) => {
+                $ctx.clearRect(0, 0, $canvas.width, $canvas.height);
+
+                event.data.forEach((rect) => {
+                    // 绘制绿色跟踪框
+                    $ctx.strokeStyle = '#fff';
+                    $ctx.strokeRect(rect.x, rect.y, rect.width, rect.height);
+                    saveArray = { x: rect.x, y: rect.y, width: rect.width, height: rect.height };
+                });
+            });
+
+            // 启动跟踪
+            tracking.track('#video', tracker, { camera: true });
+        }
+
+        /**
+         * 绘制屏幕中央的蓝色指导框
+         */
+        function drawGuideFrame() {
+            $guideCtx.clearRect(0, 0, $guideCanvas.width, $guideCanvas.height);
+            $guideCtx.strokeStyle = "#0000FF";
+            $guideCtx.strokeRect(100, 50, 200, 200); // x, y, width, height
+        }
+
+        /**
+         * 截图并处理图像
+         */
+        function captureFace() {
+            try {
+                if (!saveArray.x) throw new Error("未检测到有效人脸区域");
+
+                // 将人脸区域绘制到缩略图画布
+                $snapshotCtx.drawImage($video[0],
+                    saveArray.x, saveArray.y,
+                    saveArray.width, saveArray.height,
+                    0, 0, 140, 140
+                );
+
+                const imageData = convertCanvasToImage($snapshotCanvas);
+                $('#faceImage').attr("src", imageData.src);
+                console.log(imageData.src);
+
+                $resultInfo.html("已截取图片，正在识别...");
+                faceStartFlag = 0; // 停止自动检测
+                checkFace();
+
+            } catch (error) {
+                console.error("截图失败:", error);
+                $resultInfo.html("截图失败: " + error.message);
+            }
+        }
+
+        /**
+         * Canvas 转 Image 对象
+         */
+        function convertCanvasToImage(canvas) {
+            const image = new Image();
+            image.src = canvas.toDataURL("image/png");
+            return image;
+        }
+
+        /**
+         * ==================================================
+         * 业务逻辑与事件处理
+         * ==================================================
+         */
+
+        /**
+         * 自动检测逻辑：当人脸进入蓝色框时自动截图
+         */
+        function startAutoDetection() {
+            clearInterval(detectionInterval);
+            detectionInterval = setInterval(() => {
+                if (isValidFacePosition(saveArray) && faceStartFlag === 1) {
+                    console.log("自动截图...");
+                    captureFace();
+                    clearInterval(detectionInterval);
+                    // 3秒后重新开启检测
+                    setTimeout(startAutoDetection, 3000);
+                }
+            }, 300);
+        }
+
+        /**
+         * 验证人脸是否在指导框内且大小合适
+         */
+        function isValidFacePosition(faceData) {
+            return faceData.x > 100 &&
+                faceData.x + faceData.width < 300 &&
+                faceData.y > 50 &&
+                faceData.y + faceData.height < 250 &&
+                faceData.width < 180 &&
+                faceData.height < 180;
+        }
+
+        /**
+         * 提交表单进行人脸识别
+         */
+        function checkFace() {
+            const imageSrc = $('#faceImage').attr("src");
+            if (!imageSrc) {
+                $resultInfo.html("没有可提交的图片");
+                return;
+            }
+
+            $('#imageSrc').val(imageSrc);
+            $('#smFCrimeCode').val($('#fcrimecode').val());
+
+            $form.form({
+                onSubmit: function () {
+                    $resultInfo.html("识别中，请稍候...");
+                    return true;
+                },
+                success: handleServerResponse
+            });
+
+            $form.submit();
+        }
+
+        /**
+         * 处理服务器返回的结果
+         */
+        function handleServerResponse(responedata) {
+            try {
+                const data = $.parseJSON(responedata);
+                let speechText = "";
+
+                if (data.Flag === true) {
+                    const loginCheck = $('#loginCheck').val();
+                    const faceMode = $('#FaceMode').val();
+
+                    if (loginCheck == 2) {
+                        if (data.DataInfo.typeFlag == 1) {
+                            speechText = "登录成功";
+                            redirectToCallback("LoginOK122342124121123131231122", data.DataInfo.UserCode);
+                        } else {
+                            speechText = "请联系民警刷脸登录";
+                        }
+                    } else {
+                        if (data.DataInfo.typeFlag == 0) {
+                            const modeParam = faceMode == "0002" ? "FaceMode=0002" : "FaceMode=0001";
+                            speechText = faceMode == "0002" ? data.ReMsg : data.DataInfo.UserName;
+                            redirectToCallback(modeParam, data.DataInfo.UserCode);
+                        } else {
+                            $resultInfo.html("系统管理用户不能用于消费购物");
+                            setTimeout(() => faceStartFlag = 1, 2000);
+                        }
+                    }
+                } else {
+                    $resultInfo.html(data.ReMsg || "识别失败");
+                    setTimeout(() => faceStartFlag = 1, 2000);
+                }
+
+                // 语音播报
+                utterance.text = speechText;
+                synth.speak(utterance);
+
+            } catch (e) {
+                console.error("解析响应失败:", e);
+                $resultInfo.html("服务器响应错误");
+                setTimeout(() => faceStartFlag = 1, 2000);
+            }
+        }
+
+        /**
+         * 页面跳转辅助函数
+         */
+        function redirectToCallback(param, userCode) {
+            const callbackUrl = $('#callback').val();
+            const newWindowUrl = `${callbackUrl}&${param}&printFlag=LoginOK122342124121123131231122&loginFlag=LoginOK122342124121123131231122&fcrimecode=${userCode}`;
+            window.open(newWindowUrl, "_self");
+        }
+
+        /**
+         * ==================================================
+         * 初始化与事件绑定
+         * ==================================================
+         */
+        $(document).ready(() => {
+            // 初始化画布
+            drawGuideFrame();
+
+            // 绑定按钮事件
+            $('#btn').on('click', () => {
+                utterance.text = "开始识别，请将人像移到蓝色提示框内";
+                synth.speak(utterance);
+                faceStartFlag = 1;
+                $resultInfo.html("正在检测人脸，请保持面部在蓝色框内...");
+                startAutoDetection();
+            });
+
+            $('#keepImg').on('click', () => {
+                const img = convertCanvasToImage($snapshotCanvas);
+                $('#img').append(`<img src="${img.src}" alt="抓拍"/>`).removeClass('hide');
+            });
+
+            // 1秒后自动开始语音提示
+            setTimeout(() => {
+                utterance.text = "系统已就绪";
+                synth.speak(utterance);
+            }, 1000);
+        });
+
+        // 页面加载完成后初始化跟踪
+        window.onload = initTracker;
+    </script>
+</body>
+</html>

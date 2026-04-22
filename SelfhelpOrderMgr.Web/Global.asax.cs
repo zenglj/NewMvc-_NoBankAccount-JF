@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SelfhelpOrderMgr.Web.CommonHeler;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -23,6 +24,11 @@ namespace SelfhelpOrderMgr.Web
             //RouteDebug.RouteDebugger.RewriteRoutesForTesting(RouteTable.Routes);
 
             log4net.Config.XmlConfigurator.Configure(new FileInfo(Server.MapPath("~/Web.config")));
+
+
+            // 2. 在这里调用映射初始化
+            // 这样应用启动时就会加载所有规则
+            DtoMappingProfile.Initialize();
         }
 
         #region 单点登录 - 在Session过期或者退出系统时释放资源

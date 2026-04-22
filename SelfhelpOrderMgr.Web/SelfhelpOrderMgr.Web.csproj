@@ -211,6 +211,9 @@
       <HintPath>..\packages\Microsoft.AspNet.WebPages.3.0.0\lib\net45\System.Web.WebPages.Razor.dll</HintPath>
     </Reference>
     <Reference Include="System.Xml.Linq" />
+    <Reference Include="TinyMapper, Version=3.0.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\TinyMapper.3.0.3\lib\net40\TinyMapper.dll</HintPath>
+    </Reference>
     <Reference Include="WebGrease">
       <Private>True</Private>
       <HintPath>..\packages\WebGrease.1.5.2\lib\WebGrease.dll</HintPath>
@@ -270,8 +273,10 @@
     <Compile Include="CommonHeler\Base64ConvertHelpercs.cs" />
     <Compile Include="CommonHeler\BinarySerializerHelper.cs" />
     <Compile Include="CommonHeler\CommonClass.cs" />
+    <Compile Include="CommonHeler\CustomJsonResultHelper.cs" />
     <Compile Include="CommonHeler\DataTableToListHelper.cs" />
     <Compile Include="CommonHeler\DocxToPdfConvertHelper.cs" />
+    <Compile Include="CommonHeler\DtoMappingProfile.cs" />
     <Compile Include="CommonHeler\ExcelRender.cs" />
     <Compile Include="CommonHeler\HardwareInfo.cs" />
     <Compile Include="CommonHeler\IdentityCardHelper.cs" />
@@ -291,6 +296,8 @@
     <Compile Include="Controllers\BankPaymentController.cs" />
     <Compile Include="Controllers\BankRcvPayController.cs" />
     <Compile Include="Controllers\BankRptController.cs" />
+    <Compile Include="Controllers\StockMgrController.cs" />
+    <Compile Include="Controllers\BankVitualCardController.cs" />
     <Compile Include="Controllers\BaseController.cs" />
     <Compile Include="Controllers\BaseInfoMgrController.cs" />
     <Compile Include="Controllers\BaseMenuController.cs" />
@@ -337,6 +344,7 @@
     <Compile Include="Controllers\RegMgrController.cs" />
     <Compile Include="Controllers\ReportController.cs" />
     <Compile Include="Controllers\RetentionAmountController.cs" />
+    <Compile Include="Controllers\SalesShitiController.cs" />
     <Compile Include="Controllers\SalesController.cs" />
     <Compile Include="Controllers\SelfDongJieController.cs" />
     <Compile Include="Controllers\SelfPaymentController.cs" />
@@ -448,6 +456,7 @@
     <Content Include="Content\images\computer.jpg" />
     <Content Include="Content\images\corn.png" />
     <Content Include="Content\images\dot.png" />
+    <Content Include="Content\images\superCenterBG.jpg" />
     <Content Include="Content\images\img-sprite.png" />
     <Content Include="Content\images\logo.png" />
     <Content Include="Content\images\MeetRecordManager.jpg" />
@@ -468,6 +477,7 @@
     <Content Include="Content\images\pi7.jpg" />
     <Content Include="Content\images\police.png" />
     <Content Include="Content\images\PrisonInfo.jpg" />
+    <Content Include="Content\images\ReadCard.png" />
     <Content Include="Content\images\RecordMgr.jpg" />
     <Content Include="Content\images\return-back.png" />
     <Content Include="Content\images\s.png" />
@@ -965,6 +975,7 @@
     <Content Include="Scripts\jquery.wmuSlider.js" />
     <Content Include="Scripts\jsCustom\bootstrap-messager.css" />
     <Content Include="Scripts\jsCustom\bootstrap-messager.js" />
+    <Content Include="Scripts\jsCustom\my-alert.js" />
     <Content Include="Scripts\myJs\faceSelfLogin.js" />
     <Content Include="Scripts\myJs\BankAtmMgrIndex.js" />
     <Content Include="Scripts\myJs\ComAppFaceCollection.js" />
@@ -1434,6 +1445,19 @@
     <Content Include="Views\JfDengji\KoufenRecIndex.cshtml" />
     <Content Include="Views\Shopping\Index-20250731.cshtml" />
     <Content Include="Views\JfDengji\SelfKoufenIndex.cshtml" />
+    <Content Include="Views\BankVitualCard\FfjRecIndex.cshtml" />
+    <Content Include="Views\SalesShiti\FaceShopping.cshtml" />
+    <Content Include="Views\SalesShiti\Medicine.cshtml" />
+    <Content Include="Views\SalesShiti\Index - 复制.cshtml" />
+    <Content Include="Views\SalesShiti\Index1.cshtml" />
+    <Content Include="Views\SalesShiti\Index-face.cshtml" />
+    <Content Include="Views\SalesShiti\Index.cshtml" />
+    <Content Include="Views\SalesShiti\FaceIndex.cshtml" />
+    <Content Include="Views\SalesShiti\CardIndex.cshtml" />
+    <Content Include="Views\StockMgr\Index.cshtml" />
+    <Content Include="Views\SalesShiti\StopShoppingNotice.cshtml" />
+    <Content Include="Views\SalesShiti\NoAtShoppingTime.cshtml" />
+    <Content Include="Views\StockMgr\StockQtyIndex.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -1463,6 +1487,10 @@
     <ProjectReference Include="..\SelfhelpOrderMgr.Common\SelfhelpOrderMgr.Common.csproj">
       <Project>{bb3714bd-1096-40fc-a045-e92bed1985ee}</Project>
       <Name>SelfhelpOrderMgr.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SelfhelpOrderMgr.Dto\SelfhelpOrderMgr.Dto.csproj">
+      <Project>{859a109d-b490-4501-9464-035e265dbe55}</Project>
+      <Name>SelfhelpOrderMgr.Dto</Name>
     </ProjectReference>
     <ProjectReference Include="..\SelfhelpOrderMgr.Model\SelfhelpOrderMgr.Model.csproj">
       <Project>{c50495e3-c96e-4f6f-b33d-337417d6ea00}</Project>

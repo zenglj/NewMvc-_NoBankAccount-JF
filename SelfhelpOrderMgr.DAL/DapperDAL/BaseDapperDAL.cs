@@ -37,6 +37,8 @@ namespace SelfhelpOrderMgr.DAL
             }
         }
 
+
+        
         /// <summary>
         /// 查询Model
         /// </summary>
@@ -135,6 +137,23 @@ namespace SelfhelpOrderMgr.DAL
             }
         }
 
+        public List<T> QueryListByTableName<T>(string strWhere,object paramObj)
+        {
+            using (SqlConnection conn = new SqlConnection(SqlHelper.getConnstr()))
+            {
+                Type type = typeof(T);
+                string sql = $"select * from {type.Name} ";
+                if (!string.IsNullOrWhiteSpace(strWhere))
+                {
+                    sql = sql + "where " + strWhere;
+                }
+
+                var list = SqlMapper.Query<T>(conn, sql,paramObj).AsList<T>();//这里的【0】可以去掉，因为我这个只是返回一条记录，实际使用可以根据情况返回数组
+                return list;
+            }
+        }
+
+
         public T QueryBySql<T>(string sql)
         {
             using (SqlConnection conn = new SqlConnection(SqlHelper.getConnstr()))
@@ -154,6 +173,202 @@ namespace SelfhelpOrderMgr.DAL
 
 
 
+        /// <summary>
+        /// 核心方法：根据 DTO 自动构建查询条件
+        /// </summary>
+        /// <param name="tableName">数据库表名 (例如 "T_Stock")</param>
+        /// <param name="dto">查询条件 DTO (例如 StockSearchDto)</param>
+        /// <returns>符合条件的实体列表</returns>
+        public List<T> QueryListByDto<T,S>(string tableName, S dto)
+        {
+            using (var connection = new SqlConnection(SqlHelper.getConnstr()))
+            {
+                // 1. 基础 SQL
+                var sql = new StringBuilder($"SELECT * FROM {tableName} WHERE 1=1");
+
+                // 2. 动态参数容器
+                var parameters = new DynamicParameters();
+
+                // 3. 反射获取 DTO 的所有属性
+                var properties = typeof(S).GetProperties();
+
+                foreach (var prop in properties)
+                {
+                    // 获取属性值
+                    var value = prop.GetValue(dto);
+
+                    // 核心逻辑：如果值不为 null，则添加查询条件
+                    // 注意：如果是字符串，通常还需要判断 !string.IsNullOrEmpty
+                    if (value != null)
+                    {
+                        // 处理字符串模糊查询 (可选逻辑)
+                        if (prop.PropertyType == typeof(string))
+                        {
+                            string strVal = value.ToString();
+                            if (!string.IsNullOrWhiteSpace(strVal))
+                            {
+                                if (prop.Name.Contains("Name") || prop.Name.Contains("Remark") || prop.Name.Contains("Title") || prop.Name.Contains("Desc"))
+                                {
+                                    // 假设我们要做模糊查询
+                                    sql.Append($" AND {prop.Name} LIKE @{prop.Name}");
+                                    parameters.Add(prop.Name, $"%{strVal}%");
+                                }
+                                else
+                                {
+                                    sql.Append($" AND {prop.Name} = @{prop.Name}");
+                                    parameters.Add(prop.Name, value);
+                                }
+                            }
+                        }
+                        else if (prop.PropertyType == typeof(DateTime) && value is DateTime dateTimeValue && dateTimeValue.Year > 1900)
+                        {
+                            if (prop.Name.EndsWith("_Start"))
+                            {
+                                sql.Append($" AND {prop.Name.Replace("_Start","")} >= @{prop.Name}");
+                                parameters.Add(prop.Name, value);
+                            }
+                            else if (prop.Name.EndsWith("_End"))
+                            {
+                                sql.Append($" AND {prop.Name.Replace("_End","")} <= @{prop.Name}");
+                                parameters.Add(prop.Name, value);
+                            }
+                            else
+                            {
+                                sql.Append($" AND {prop.Name} = @{prop.Name}");
+                                parameters.Add(prop.Name, value);
+                            }
+
+                        }
+                        else
+                        {
+                            // 普通精确查询 (int, DateTime, bool 等)
+                            sql.Append($" AND {prop.Name} = @{prop.Name}");
+                            parameters.Add(prop.Name, value);
+                        }
+                    }
+                }
+
+                // 4. 执行查询
+                return connection.Query<T>(sql.ToString(), parameters).ToList();
+            }
+        }
+
+        /// <summary>
+        /// 简化版，直接传入 DTO 实例 (不需要指定泛型参数 S)
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="tableName"></param>
+        /// <param name="dto"></param>
+        /// <returns></returns>
+        public List<T> QueryListByDto<T>(string tableName, T dto)
+        {
+            // 调用泛型方法，传入 DTO 的类型和实例
+            return QueryListByDto<T, T>(tableName, dto);
+        }
+
+        public PageResult<T> QueryPageListByDto<T, S>(string tableName, S dto,int pageIndex=1,int pageSize=10,string orderField="",string otherWhere="")
+        {
+            PageResult<T> pageResult=new PageResult<T>();
+
+            using (var connection = new SqlConnection(SqlHelper.getConnstr()))
+            {
+                // 1. 基础 SQL
+                var sql = new StringBuilder($"SELECT * FROM {tableName} WHERE 1=1");
+
+                // 2. 动态参数容器
+                var parameters = new DynamicParameters();
+
+                // 3. 反射获取 DTO 的所有属性
+                var properties = typeof(S).GetProperties();
+
+                foreach (var prop in properties)
+                {
+                    // 获取属性值
+                    var value = prop.GetValue(dto);
+
+                    // 核心逻辑：如果值不为 null，则添加查询条件
+                    // 注意：如果是字符串，通常还需要判断 !string.IsNullOrEmpty
+                    if (value != null)
+                    {
+                        Type propType = prop.PropertyType;
+                        var ss=propType.Name;
+                        // 处理字符串模糊查询 (可选逻辑)
+                        if (propType == typeof(string))
+                        {
+                            string strVal = value.ToString();
+                            if (!string.IsNullOrWhiteSpace(strVal))
+                            {
+                                if (prop.Name.Contains("Name") || prop.Name.Contains("Remark") || prop.Name.Contains("Title") || prop.Name.Contains("Desc"))
+                                {
+                                    // 假设我们要做模糊查询
+                                    sql.Append($" AND {prop.Name} LIKE @{prop.Name}");
+                                    parameters.Add(prop.Name, $"%{strVal}%");
+                                }
+                                else
+                                {
+                                    sql.Append($" AND {prop.Name} = @{prop.Name}");
+                                    parameters.Add(prop.Name, value);
+                                }
+                            }
+                        }
+                        else if (propType == typeof(DateTime) || propType == typeof(DateTime?))
+                        {
+                            if (value is DateTime dateTimeValue && dateTimeValue.Year > 1900)
+                            {
+                                if (prop.Name.EndsWith("_Start"))
+                                {
+                                    sql.Append($" AND {prop.Name.Replace("_Start", "")} >= @{prop.Name}");
+                                    parameters.Add(prop.Name, value);
+                                }
+                                else if (prop.Name.EndsWith("_End"))
+                                {
+                                    sql.Append($" AND {prop.Name.Replace("_End", "")} <= @{prop.Name}");
+                                    parameters.Add(prop.Name, value);
+                                }
+                                else
+                                {
+                                    sql.Append($" AND {prop.Name} = @{prop.Name}");
+                                    parameters.Add(prop.Name, value);
+                                }
+
+                            }
+
+                        }
+                        else
+                        {
+                            // 普通精确查询 (int, DateTime, bool 等)
+                            sql.Append($" AND {prop.Name} = @{prop.Name}");
+                            parameters.Add(prop.Name, value);
+                        }
+                    }
+                }
+
+                if (!string.IsNullOrWhiteSpace(otherWhere))
+                {
+                    sql.Append($" and {otherWhere}");
+                }
+
+                string countSql = $"SELECT COUNT(1) FROM ({sql.ToString()})b";
+                if(!string.IsNullOrEmpty(orderField))
+                {
+                    sql.Append($" ORDER BY {orderField}");
+                }
+                sql.Append($" OFFSET {(pageIndex - 1) * pageSize} ROWS FETCH NEXT {pageSize} ROWS ONLY;");
+
+                // 4. 执行查询
+                pageResult.rows= connection.Query<T>(sql.ToString(), parameters).ToList();
+                pageIndex=pageIndex;
+                pageResult.PageSize=pageSize;
+                pageResult.total = connection.Query<int>(countSql, parameters).FirstOrDefault();
+                return pageResult;
+            }
+        }
+
+        public PageResult<T> QueryPageListByDto<T>(string tableName, T dto, int pageIndex = 1, int pageSize = 10, string orderField = "", string otherWhere = "")
+        {
+            // 调用泛型方法，传入 DTO 的类型和实例
+            return QueryPageListByDto<T, T>(tableName, dto, pageIndex, pageSize, orderField,otherWhere);
+        }
         public T Insert<T>(T t) where T : BaseModel
         {
             using (SqlConnection conn = new SqlConnection(SqlHelper.getConnstr()))

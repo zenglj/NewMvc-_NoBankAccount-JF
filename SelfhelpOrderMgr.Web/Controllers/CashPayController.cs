@@ -302,12 +302,12 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 
 
                     //验证金额是否够扣
-                if (card.AmountA + card.AmountB + card.AmountC - (dongjeJinE) < Convert.ToDecimal(strFMoney))
+                if (card.AmountA + card.AmountB + card.AmountC + card.AmountD - (dongjeJinE) < Convert.ToDecimal(strFMoney))
                 {
                     if (savetypes[0].FuShuFlag == 0)//判断是否可以透支
                     {
                         //2020年改为：可以扣三个账户
-                        if (card.AmountA + card.AmountB + card.AmountC > Convert.ToDecimal(strFMoney))
+                        if (card.AmountA + card.AmountB + card.AmountC + card.AmountD > Convert.ToDecimal(strFMoney))
                         {
                             return Content("Err|账户余额不足,有冻结金额:" + dongjeJinE.ToString() + "，不可用");
                         }
@@ -631,7 +631,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                     //NPOI.SS.UserModel.Sheet
                     int rows = sheet.LastRowNum;
                     int ErrNums = 0;
-                    if (rows < 2)
+                    if (rows < 1)
                     {
                         return Content("Err|Excel表为空表,无数据!");
                     }

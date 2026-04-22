@@ -177,6 +177,12 @@ namespace SelfhelpOrderMgr.DAL
                                     ,@RoomNo,@OrderId");
                 strInvo.Append(");select @INVNO");
 
+
+                decimal fmoneyA = 0;
+                decimal fmoneyB = 0;
+                decimal fmoneyC = 0;
+                decimal fmoneyD = 0;
+
                 object paramVcrd;
                 int seq = 0;
                 List<int> seqs;
@@ -202,9 +208,10 @@ namespace SelfhelpOrderMgr.DAL
                 }
                 else
                 {
-                    decimal fmoneyA = 0;
-                    decimal fmoneyB = 0;
-                    decimal fmoneyC = 0;
+                    fmoneyA = 0;
+                    fmoneyB = 0;
+                    fmoneyC = 0;
+                    fmoneyD = 0;
 
                     //A账户扣款
                     //fmoneyA = card.AmountA;
@@ -215,70 +222,131 @@ namespace SelfhelpOrderMgr.DAL
 
                     switch (savetype.AccType)
                     {
-                        case 1://先B，再A，最后C
+                        case 1://先B，再AC，最后D
                             {
-                                if (card.AmountB + card.AmountA < fmoney)//A+B钱不够扣
-                                {//分别从三个账户扣款
-                                    fmoneyB = card.AmountB;
-                                    fmoneyA = card.AmountA;
-                                    fmoneyC = (fmoney - card.AmountA - card.AmountB);
-
-                                }
-                                else if (card.AmountB < fmoney)
-                                {//分别从三个账户扣款
-                                    fmoneyB = card.AmountB;
-                                    fmoneyA = (fmoney - card.AmountB);
-                                    fmoneyC = 0;
-                                }
-                                else
-                                {
-                                    fmoneyA = 0;
+                                if (card.AmountB >= fmoney)//B钱够扣
+                                {//分别从D账户扣款
                                     fmoneyB = fmoney;
+                                    fmoneyA = 0;
                                     fmoneyC = 0;
+                                    fmoneyD = 0;
+                                }
+                                else if (card.AmountB + card.AmountA >= fmoney)//B+A钱够扣
+                                {//分别从DA个账户扣款
+                                    fmoneyB = card.AmountB;
+                                    fmoneyA = fmoney - card.AmountA;
+                                    fmoneyC = 0;
+                                    fmoneyD = 0;
+                                }
+                                else if (card.AmountB + card.AmountA + card.AmountC >= fmoney)//B+A+C钱够扣
+                                {//分别从三个账户扣款
+                                    fmoneyB = card.AmountB;
+                                    fmoneyA = card.AmountA;
+                                    fmoneyC = fmoney - card.AmountB - card.AmountA;
+                                    fmoneyD = 0;
+                                }
+                                else
+                                {//分别从三个账户扣款
+                                    fmoneyB = card.AmountB;
+                                    fmoneyA = card.AmountA;
+                                    fmoneyC = card.AmountC;
+                                    fmoneyD = fmoney - card.AmountB - card.AmountA - card.AmountC;
                                 }
                             }
                             break;
-                        case 2://先C，再A，最后B
+                        case 2://先C，再AB，最后D,
                             {
-                                if (card.AmountC + card.AmountA < fmoney)//A+B钱不够扣
-                                {//分别从三个账户扣款
-                                    fmoneyC = card.AmountC;
-                                    fmoneyA = card.AmountA;
-                                    fmoneyB = (fmoney - card.AmountC - card.AmountA);
-                                }
-                                else if (card.AmountC < fmoney)
-                                {//分别从三个账户扣款
-                                    fmoneyC = card.AmountC;
-                                    fmoneyA = (fmoney - card.AmountC);
-                                    fmoneyB = 0;
-                                }
-                                else
-                                {
+                                if (card.AmountC >= fmoney)//C钱够扣
+                                {//分别从D账户扣款
+                                    fmoneyC = fmoney;
                                     fmoneyA = 0;
                                     fmoneyB = 0;
-                                    fmoneyC = fmoney;
+                                    fmoneyD = 0;
+                                }
+                                else if (card.AmountC + card.AmountA >= fmoney)//C+A钱够扣
+                                {//分别从DA个账户扣款
+                                    fmoneyC = card.AmountC;
+                                    fmoneyA = fmoney - card.AmountA;
+                                    fmoneyB = 0;
+                                    fmoneyD = 0;
+                                }
+                                else if (card.AmountC + card.AmountA + card.AmountB >= fmoney)//C+A+B钱够扣
+                                {//分别从三个账户扣款
+                                    fmoneyC = card.AmountC;
+                                    fmoneyA = card.AmountA;
+                                    fmoneyB = fmoney - card.AmountC - card.AmountA;
+                                    fmoneyD = 0;
+                                }
+                                else
+                                {//分别从三个账户扣款
+                                    fmoneyC = card.AmountC;
+                                    fmoneyA = card.AmountA;
+                                    fmoneyB = card.AmountB;
+                                    fmoneyD = fmoney - card.AmountC - card.AmountA - card.AmountB;
                                 }
                             }
                             break;
-                        default://先A，再B，最后C
+                        case 4://先D，再A、B，最后C
                             {
-                                if (card.AmountA + card.AmountB < fmoney)//A+B钱不够扣
-                                {//分别从三个账户扣款
-                                    fmoneyA = card.AmountA;
-                                    fmoneyB = card.AmountB;
-                                    fmoneyC = (fmoney - card.AmountA - card.AmountB);
+                                if (card.AmountD >= fmoney)//D钱够扣
+                                {//分别从D账户扣款
+                                    fmoneyD = fmoney;
+                                    fmoneyA = 0;
+                                    fmoneyB = 0;
+                                    fmoneyC = 0;
                                 }
-                                else if (card.AmountA < fmoney)
+                                else if (card.AmountD+card.AmountA >= fmoney)//D+A钱够扣
+                                {//分别从DA个账户扣款
+                                    fmoneyD = card.AmountD;
+                                    fmoneyA = fmoney - card.AmountA;
+                                    fmoneyB = 0;
+                                    fmoneyC = 0;
+                                }
+                                else if (card.AmountD + card.AmountA + card.AmountB >= fmoney)//D+A+B钱够扣
                                 {//分别从三个账户扣款
+                                    fmoneyD = card.AmountD;
                                     fmoneyA = card.AmountA;
-                                    fmoneyB = (fmoney - card.AmountA);
+                                    fmoneyB = fmoney - card.AmountD - card.AmountA;
                                     fmoneyC = 0;
                                 }
                                 else
-                                {
+                                {//分别从三个账户扣款
+                                    fmoneyD = card.AmountD;
+                                    fmoneyA = card.AmountA;
+                                    fmoneyB = card.AmountB;
+                                    fmoneyC = fmoney - card.AmountD - card.AmountA - card.AmountB;
+                                }
+                            }
+                            break;
+                        default://先A，再BC，最后C
+                            {
+                                if (card.AmountA >= fmoney)//D钱够扣
+                                {//分别从D账户扣款
                                     fmoneyA = fmoney;
                                     fmoneyB = 0;
                                     fmoneyC = 0;
+                                    fmoneyD = 0;
+                                }
+                                else if (card.AmountA + card.AmountB >= fmoney)//D+A钱够扣
+                                {//分别从AB个账户扣款
+                                    fmoneyA = card.AmountA;
+                                    fmoneyB = fmoney-card.AmountA;
+                                    fmoneyC = 0;
+                                    fmoneyD = 0;
+                                }
+                                else if (card.AmountA + card.AmountB + card.AmountC >= fmoney)//A+B+C钱够扣
+                                {//分别从三个账户扣款
+                                    fmoneyA = card.AmountA;
+                                    fmoneyB = card.AmountB;
+                                    fmoneyC = fmoney - card.AmountA - card.AmountB;
+                                    fmoneyD = 0;
+                                }
+                                else
+                                {//分别从三个账户扣款
+                                    fmoneyA = card.AmountA;
+                                    fmoneyB = card.AmountB;
+                                    fmoneyC = card.AmountC;
+                                    fmoneyD = fmoney - card.AmountA - card.AmountB - card.AmountC;
                                 }
                             }
                             break;
@@ -324,7 +392,7 @@ namespace SelfhelpOrderMgr.DAL
                         seq = Convert.ToInt32(seqs[0]);
                         seqnos = seq.ToString();
                         //写入明细记录
-                        WriteInvoice(criminal, fmoneyA, savetype, crtby, remark, conn, strInvo, myTran, seqnos, fmoneyA, 0, seq);
+                        //WriteInvoice(criminal, fmoneyA, savetype, crtby, remark, conn, strInvo, myTran, seqnos, fmoneyA, 0, seq);
                     }
                     if (fmoneyB > 0)
                     {
@@ -357,6 +425,21 @@ namespace SelfhelpOrderMgr.DAL
                         }
                     }
 
+                    if (fmoneyD > 0)
+                    {
+                        object paramVcrdD = new { cardcode = criminal.CardCode, fcrimecode = criminal.FCode, DAMOUNT = 0, CAMOUNT = fmoneyD, crtBy = crtby, CRTDATE = DateTime.Now, DTYPE = savetype.fname, DEPOSITER = apply, REMARK = remark, flag = 0, fareacode = criminal.FAreaCode, fareaName = criminal.FAreaName, fcriminal = criminal.FName, Frealareacode = "", FrealAreaName = "", ptype = "", udate = DateTime.Now.Year + "-" + DateTime.Now.Month + "-1", origid = invoiceno, cardtype = 0, TypeFlag = 2, acctype = 4, Bankflag = 0, checkflag = checkFlag, checkby = crtby, pc = 0, curUserAmount = criminal.OkUseAllMoney, curAllAmount = criminal.AmountAmoney + criminal.AmountBmoney + criminal.AmountCmoney, SubTypeFlag = savetype.fcode };
+                        seqs = (List<int>)conn.Query<int>(strSql.ToString(), paramVcrdD, myTran);
+                        seq = Convert.ToInt32(seqs[0]);
+                        if (seqnos == "")
+                        {
+                            seqnos = seq.ToString();
+                        }
+                        else
+                        {
+                            seqnos = seqnos + "," + seq.ToString();
+                        }
+                    }
+
 
                     //写入明细记录
                     //2020-01-09 消费记录，如果C账户大于0 则消费账户B的金额为B+C之和。
@@ -366,7 +449,7 @@ namespace SelfhelpOrderMgr.DAL
                 {
                     //更新账户T_Criminal_Card金额
                     strSql = new StringBuilder();
-                    strSql.Append("update t_criminal_card set amounta=amounta+@fmoneyA,amountb=amountb+@fmoneyB,amountC=amountC+@fmoneyC where fcrimecode=@fcrimecode;");
+                    strSql.Append("update t_criminal_card set amounta=amounta+@fmoneyA,amountb=amountb+@fmoneyB,amountC=amountC+@fmoneyC,amountD=amountD+@fmoneyD where fcrimecode=@fcrimecode;");
                     //2020修改为根据savetype的 acctype 值
                     if (savetype.AccType == null)
                     {
@@ -375,7 +458,7 @@ namespace SelfhelpOrderMgr.DAL
 
                     if (ivcrdflag == -2 && flag == 1)//如果需要审核后才可以入账的话，变动金额就全部置为0
                     {
-                        paramVcrd = new { fmoneyA = 0, fmoneyB = 0, fmoneyC = 0, fcrimecode = criminal.FCode };
+                        paramVcrd = new { fmoneyA = 0, fmoneyB = 0, fmoneyC = 0, fmoneyD = 0, fcrimecode = criminal.FCode };
 
                     }
                     else
@@ -384,17 +467,22 @@ namespace SelfhelpOrderMgr.DAL
                         {
                             case 1:
                                 {
-                                    paramVcrd = new { fmoneyA = 0, fmoneyB = fmoney * flag, fmoneyC = 0, fcrimecode = criminal.FCode };
+                                    paramVcrd = new { fmoneyA = 0, fmoneyB = fmoney * flag, fmoneyC = 0, fmoneyD = 0, fcrimecode = criminal.FCode };
                                 }
                                 break;
                             case 2:
                                 {
-                                    paramVcrd = new { fmoneyA = 0, fmoneyB = 0, fmoneyC = fmoney * flag, fcrimecode = criminal.FCode };
+                                    paramVcrd = new { fmoneyA = 0, fmoneyB = 0, fmoneyC = fmoney * flag, fmoneyD = 0, fcrimecode = criminal.FCode };
+                                }
+                                break;
+                            case 4:
+                                {
+                                    paramVcrd = new { fmoneyA = 0, fmoneyB = 0, fmoneyC = 0, fmoneyD = fmoney * flag, fcrimecode = criminal.FCode };
                                 }
                                 break;
                             default:
                                 {
-                                    paramVcrd = new { fmoneyA = fmoney * flag, fmoneyB = 0, fmoneyC = 0, fcrimecode = criminal.FCode };
+                                    paramVcrd = new { fmoneyA = fmoney * flag, fmoneyB = 0, fmoneyC = 0, fmoneyD = 0, fcrimecode = criminal.FCode };
                                 }
                                 break;
                         }
@@ -404,47 +492,48 @@ namespace SelfhelpOrderMgr.DAL
 
                     if (flag == -1)
                     {
-                        switch (savetype.AccType)
-                        {
-                            case 1://先B，再A，最后C
-                                {
-                                    if (card.AmountB + card.AmountA < fmoney)//A+B钱不够扣
-                                    {//分别从三个账户扣款
-                                        paramVcrd = new { fmoneyB = card.AmountB * flag, fmoneyA = card.AmountA * flag, fmoneyC = (fmoney - card.AmountA - card.AmountB) * flag, fcrimecode = criminal.FCode };
-                                    }
-                                    else if (card.AmountB < fmoney)
-                                    {//分别从三个账户扣款
-                                        paramVcrd = new { fmoneyB = card.AmountB * flag, fmoneyA = (fmoney - card.AmountB) * flag, fmoneyC = 0, fcrimecode = criminal.FCode };
-                                    }
-                                }
-                                break;
-                            case 2://先C，再A，最后B
-                                {
-                                    if (card.AmountC + card.AmountA < fmoney)//A+B钱不够扣
-                                    {//分别从三个账户扣款
-                                        paramVcrd = new { fmoneyC = card.AmountC * flag, fmoneyA = card.AmountA * flag, fmoneyB = (fmoney - card.AmountC - card.AmountA) * flag, fcrimecode = criminal.FCode };
-                                    }
-                                    else if (card.AmountC < fmoney)
-                                    {//分别从三个账户扣款
-                                        paramVcrd = new { fmoneyC = card.AmountC * flag, fmoneyA = (fmoney - card.AmountC) * flag, fmoneyB = 0, fcrimecode = criminal.FCode };
-                                    }
+                        //switch (savetype.AccType)
+                        //{
+                        //    case 1://先B，再A，最后C
+                        //        {
+                        //            if (card.AmountB + card.AmountA < fmoney)//A+B钱不够扣
+                        //            {//分别从三个账户扣款
+                        //                paramVcrd = new { fmoneyB = card.AmountB * flag, fmoneyA = card.AmountA * flag, fmoneyC = (fmoney - card.AmountA - card.AmountB) * flag, fcrimecode = criminal.FCode };
+                        //            }
+                        //            else if (card.AmountB < fmoney)
+                        //            {//分别从三个账户扣款
+                        //                paramVcrd = new { fmoneyB = card.AmountB * flag, fmoneyA = (fmoney - card.AmountB) * flag, fmoneyC = 0, fcrimecode = criminal.FCode };
+                        //            }
+                        //        }
+                        //        break;
+                        //    case 2://先C，再A，最后B
+                        //        {
+                        //            if (card.AmountC + card.AmountA < fmoney)//A+B钱不够扣
+                        //            {//分别从三个账户扣款
+                        //                paramVcrd = new { fmoneyC = card.AmountC * flag, fmoneyA = card.AmountA * flag, fmoneyB = (fmoney - card.AmountC - card.AmountA) * flag, fcrimecode = criminal.FCode };
+                        //            }
+                        //            else if (card.AmountC < fmoney)
+                        //            {//分别从三个账户扣款
+                        //                paramVcrd = new { fmoneyC = card.AmountC * flag, fmoneyA = (fmoney - card.AmountC) * flag, fmoneyB = 0, fcrimecode = criminal.FCode };
+                        //            }
 
-                                }
-                                break;
-                            default://先A，再A，最后C
-                                {
-                                    if (card.AmountA + card.AmountB < fmoney)//A+B钱不够扣
-                                    {//分别从三个账户扣款
-                                        paramVcrd = new { fmoneyA = card.AmountA * flag, fmoneyB = card.AmountB * flag, fmoneyC = (fmoney - card.AmountA - card.AmountB) * flag, fcrimecode = criminal.FCode };
-                                    }
-                                    else if (card.AmountA < fmoney)
-                                    {//分别从三个账户扣款
-                                        paramVcrd = new { fmoneyA = card.AmountA * flag, fmoneyB = (fmoney - card.AmountA) * flag, fmoneyC = 0, fcrimecode = criminal.FCode };
-                                    }
-                                }
-                                break;
-                        }
+                        //        }
+                        //        break;
+                        //    default://先A，再A，最后C
+                        //        {
+                        //            if (card.AmountA + card.AmountB < fmoney)//A+B钱不够扣
+                        //            {//分别从三个账户扣款
+                        //                paramVcrd = new { fmoneyA = card.AmountA * flag, fmoneyB = card.AmountB * flag, fmoneyC = (fmoney - card.AmountA - card.AmountB) * flag, fcrimecode = criminal.FCode };
+                        //            }
+                        //            else if (card.AmountA < fmoney)
+                        //            {//分别从三个账户扣款
+                        //                paramVcrd = new { fmoneyA = card.AmountA * flag, fmoneyB = (fmoney - card.AmountA) * flag, fmoneyC = 0, fcrimecode = criminal.FCode };
+                        //            }
+                        //        }
+                        //        break;
+                        //}
 
+                        paramVcrd = new { fmoneyA= fmoneyA * flag, fmoneyB = fmoneyB * flag, fmoneyC = fmoneyC * flag, fmoneyD = fmoneyD * flag, fcrimecode = criminal.FCode };
 
                     }
 

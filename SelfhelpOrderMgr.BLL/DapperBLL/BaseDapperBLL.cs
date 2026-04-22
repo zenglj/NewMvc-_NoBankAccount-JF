@@ -46,6 +46,57 @@ namespace SelfhelpOrderMgr.BLL
         }
 
 
+        public List<T> QueryListByTableName<T>(string strWhere, object paramObj)
+        {
+            return dapperDal.QueryListByTableName<T>(strWhere, paramObj);
+        }
+
+        /// <summary>
+        /// 核心方法：根据 DTO 自动构建查询条件
+        /// </summary>
+        /// <param name="tableName">数据库表名 (例如 "T_Stock")</param>
+        /// <param name="dto">查询条件 DTO (例如 StockSearchDto)</param>
+        /// <returns>符合条件的实体列表</returns>
+        public List<T> QueryListByDto<T, S>(string tableName, S dto)
+        {
+            return dapperDal.QueryListByDto<T,S>(tableName, dto);
+        }
+
+        /// <summary>
+        /// 简化版，直接传入 DTO 实例 (不需要指定泛型参数 S)
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="tableName"></param>
+        /// <param name="dto"></param>
+        /// <returns></returns>
+        public List<T> QueryListByDto<T>(string tableName, T dto)
+        {
+            // 调用泛型方法，传入 DTO 的类型和实例
+            return dapperDal.QueryListByDto<T>(tableName, dto);
+        }
+
+        /// <summary>
+        /// 分页查询，根据 DTO 自动构建查询条件
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="S"></typeparam>
+        /// <param name="tableName"></param>
+        /// <param name="dto"></param>
+        /// <param name="pageIndex"></param>
+        /// <param name="pageSize"></param>
+        /// <param name="orderField"></param>
+        /// <returns></returns>
+        public PageResult<T> QueryPageListByDto<T,S>(string tableName, S dto, int pageIndex = 1, int pageSize = 10, string orderField = "", string otherWhere = "")
+        {
+            // 调用泛型方法，传入 DTO 的类型和实例
+            return dapperDal.QueryPageListByDto<T, S>(tableName, dto, pageIndex, pageSize, orderField,otherWhere);
+        }
+        public PageResult<T> QueryPageListByDto<T>(string tableName, T dto, int pageIndex = 1, int pageSize = 10, string orderField = "",string otherWhere = "")
+        {
+            // 调用泛型方法，传入 DTO 的类型和实例
+            return dapperDal.QueryPageListByDto<T, T>(tableName, dto, pageIndex, pageSize, orderField,otherWhere);
+        }
+
         public T Insert<T>(T t) where T : BaseModel
         {
             return dapperDal.Insert<T>(t);

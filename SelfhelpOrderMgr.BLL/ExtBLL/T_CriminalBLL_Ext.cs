@@ -323,7 +323,9 @@ namespace SelfhelpOrderMgr.BLL
             //2018-11-02  zenglj
             //增加节假日判断，如是传统节日增加相应的金额            
             List<T_CY_ChinaFestival> festivalDates = new T_CY_ChinaFestivalBLL().GetModelList("FDate>='" + startDate + "' and FDate<'" + endDate + "'");
-            if (festivalDates.Count <= 0)
+            if (festivalDates.Count <= 0 
+                //有参加蓝风铃计划，则不增加假日额度
+                || model.DamagesFlag == 1)
             {
                 cy.JaRi_Cy_Money = 0;
 

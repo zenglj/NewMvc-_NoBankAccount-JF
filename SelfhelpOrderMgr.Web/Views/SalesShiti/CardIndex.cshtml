@@ -1,0 +1,231 @@
+﻿@{ Layout = null; }
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>购物人脸识别系统</title>
+    <!-- 样式依赖 -->
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Scripts/diyUpload/css/webuploader.css" rel="stylesheet" />
+    <link href="~/Scripts/diyUpload/css/diyUpload.css" rel="stylesheet" />
+    <link href="~/Content/font-awesome.min.css" rel="stylesheet" />
+    <link href="~/Content/timeline.css" rel="stylesheet" />
+
+    <style>
+        /* 全局重置与背景 */
+        body {
+            font-family: "Microsoft YaHei", sans-serif;
+            background: radial-gradient(circle, #2b32b2 0%, #1488cc 100%);
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #333;
+        }
+
+        /* 容器布局 */
+        #content {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .header-title {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #1a1a1a;
+        }
+
+        /* 视频与画布容器 */
+        .video-container {
+            position: relative;
+            width: 400px;
+            height: 300px;
+            margin: 0 auto 20px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        video, canvas {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        /* 指导框样式 (蓝色框) */
+        #canvas1 {
+            pointer-events: none; /* 画布不阻挡鼠标事件 */
+            border: 2px solid transparent;
+        }
+
+        /* 操作按钮 */
+        .action-btn {
+            display: inline-block;
+            width: 150px;
+            height: 40px;
+            line-height: 40px;
+            margin: 10px;
+            cursor: pointer;
+            border-radius: 8px;
+            background-color: deeppink;
+            color: white;
+            font-weight: bold;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+            .action-btn:hover {
+                transform: scale(1.05);
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            }
+
+        /* 状态信息 */
+        #faceCheckResultInfo {
+            font-size: 18px;
+            margin: 10px 0;
+            min-height: 30px;
+            color: #d9534f;
+        }
+
+        /* 隐藏类 */
+        .hide {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="content">
+
+        <div class="header-title">处遇兑现中心购物</div>
+
+        <div id="faceCheckResultInfo">点击【开始读卡】按钮进行购物</div>
+
+        <div class="video-container">
+            <img src="~/Content/images/ReadCard.png" />
+        </div>
+
+        <!-- 操作按钮组 -->
+        <div class="btn-group">
+            <object id=MWRFATL style="WIDTH: 0px; HEIGHT: 0px"
+                    codebase=eyeFZ.cab#version =1,0,0,1
+                    classid=CLSID:CD851DCA-5D3C-4DA9-A0F7-DE018FDC0A7F></object> @*加载数明华读卡器控件*@
+
+                    <div id="btn" class="action-btn" onclick="startReadCard()">开始读卡</div>
+
+                </div>
+
+
+                <!-- 数据提交表单 -->
+                <form id="checkForm" method="post" action="/Home/CheckFace">
+                    @*<img id="faceImage" src="" name="faceImage" alt="" width="50" height="50">*@
+                    <input type="hidden" id="imageSrc" name="imageSrc" />
+                    <input type="hidden" id="loginCheck" name="loginCheck" value="@ViewData["loginCheck"]" />
+                    <input type="hidden" id="FaceMode" name="FaceMode" value="@ViewData["FaceMode"]" />
+                    <input type="hidden" id="smFCrimeCode" name="fcrimecode" />
+                </form>
+            </div>
+
+            <!-- 依赖库 -->
+            <script src="~/Scripts/jquery-1.11.3.min.js"></script>
+            <script src="~/Scripts/bootstrap.min.js"></script>
+            <script src="~/Scripts/tracking-js/tracking-min.js"></script>
+            <script src="~/Scripts/tracking-js/face-min.js"></script>
+            <script src="~/Scripts/EasyUI/jquery.easyui.min.js"></script>
+            <script src="~/Scripts/diyUpload/js/webuploader.html5only.min.js"></script>
+            <script src="~/Scripts/diyUpload/js/diyUpload.js"></script>
+            <script src="~/Scripts/myJs/minghuaICcardCommon.js"></script>
+
+            <script>
+
+
+
+                //读取IC卡号
+                function readCardNo() {
+                    //$("#lblInfo").html("0000000");
+                    var cardNo = "";
+                    Connect();//连接读卡器
+                    //$("#lblInfo").html("连接成功");
+                    var xunka = Scard();//寻卡
+                    if (xunka != "") {
+                        //$("#lblInfo").html(xunka);
+                        var rlk = ReaderLoadKey();//装载密码
+                        if (rlk == "1") {
+                            //$("#lblInfo").html("装载密码成功");
+                            var athk = authenticationKey();//验证密码
+                            if (athk == "1") {
+                                // $("#lblInfo").html("验证密码成功");
+                                cardNo = readDataHex();//以16进制的方式读卡
+                                if (cardNo != "") {
+                                    //$("#lblInfo").html("读卡完成");
+                                }
+                            }
+                        }
+                    }
+                    //$("#lblInfo").html(xunka);
+                    //alert(cardNo);
+                    exit();//断开读卡器连接
+                    return cardNo;
+                }
+
+                function startReadCard() {
+                    console.log("点击开始读卡");
+
+                    
+                    var cardNo = readCardNo();
+                    console.log(cardNo);
+                    
+                    $.post("/SalesShiti/CheckICCard", { "cardCode": cardNo, "checkFlag": "1" }, function (data, status) {
+                        if ("success" != status) {
+                            return false;
+                        } else {
+                            console.log(data);
+                            if (data.Flag == true) {
+                                if (data.DataInfo.typeFlag == 0) {
+                                    if ($("#FaceMode").val() == "0002") {
+                                        speechText = data.ReMsg;
+                                        window.open(data.DataInfo.url + "?fcrimecode=" + data.DataInfo.UserCode + "&loginUrl=/SalesShiti/CardIndex", "_self");
+                                    } else {
+                                        speechText = data.DataInfo.UserName;
+                                        window.open(data.DataInfo.url + "?fcrimecode=" + data.DataInfo.UserCode + "&loginUrl=/SalesShiti/CardIndex", "_self");
+                                    }
+                                } else {
+                                    //alert(data.DataInfo.typeFlag);
+                                    $("#faceCheckResultInfo").html("系统管理用户不能用于消费购物");
+                                    //speechSU.text = "系统管理用户不能用于消费购物";
+
+                                    //失败后休眠2秒后开始验证
+                                    //setTimeout(function () {
+                                    //    faceStartFlag = 1;//重新启动人脸检测捕捉
+                                    //}, 2000);
+
+                                }
+
+                            } else {
+                                //$("#userId").html(data.ReMsg);
+                                $("#faceCheckResultInfo").html(data.ReMsg);
+
+                                ////失败后休眠2秒后开始验证
+                                //setTimeout(function () {
+                                //    faceStartFlag = 1;//重新启动人脸检测捕捉
+                                //}, 2000);
+
+                            }
+                        }
+                    });
+
+                    
+                }
+
+            
+
+            </script>
+        </body>
+</html>

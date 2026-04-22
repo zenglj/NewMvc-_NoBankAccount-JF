@@ -148,6 +148,13 @@ namespace SelfhelpOrderMgr.Web.Controllers
                     model.CrtDate = DateTime.Now;
                     model.CrtBy = base.loginUserName;
 
+                    model.FamilyName = model.FamilyName.Trim();
+                    model.FIdenNo = model.FIdenNo.Trim();
+                    model.Relation = model.Relation.Trim();
+                    model.PhoneNum = model.PhoneNum.Trim();
+                    model.FAddress = model.FAddress.Trim();
+                    model.BankCard = model.BankCard.Trim();
+                    model.OpeningBank = model.OpeningBank.Trim();
                     model = _baseDapperBll.Insert<T_Criminal_Family>(model);
                     rs.Flag = true;
                     rs.ReMsg = "OK|新增成功";
@@ -158,16 +165,16 @@ namespace SelfhelpOrderMgr.Web.Controllers
                     T_Criminal_Family _m = _baseDapperBll.GetModel<T_Criminal_Family>(model.Id);
                     _m.ModDate = DateTime.Now;
                     _m.ModBy = base.loginUserName;
-                    _m.FamilyName = model.FamilyName;
+                    _m.FamilyName = model.FamilyName.Trim();
                     _m.FSex = model.FSex;
-                    _m.FIdenNo = model.FIdenNo;
-                    _m.Relation = model.Relation;
+                    _m.FIdenNo = model.FIdenNo.Trim();
+                    _m.Relation = model.Relation.Trim();
 
-                    _m.PhoneNum = model.PhoneNum;
+                    _m.PhoneNum = model.PhoneNum.Trim();
                     _m.UserAuthCode = model.UserAuthCode;
-                    _m.FAddress = model.FAddress;
-                    _m.BankCard = model.BankCard;
-                    _m.OpeningBank = model.OpeningBank;
+                    _m.FAddress = model.FAddress.Trim();
+                    _m.BankCard = model.BankCard.Trim();
+                    _m.OpeningBank = model.OpeningBank.Trim();
                     _m.Remark = model.Remark;
                     if (_baseDapperBll.Update<T_Criminal_Family>(_m))
                     {
@@ -365,13 +372,13 @@ namespace SelfhelpOrderMgr.Web.Controllers
                             string FRemark = row.GetCell(10)?.StringCellValue; //备注
 
                             _family.FCrimeCode = FCrimeCode;
-                            _family.FamilyName = FamilyName;
-                            _family.FIdenNo = FIdenNo;
+                            _family.FamilyName = FamilyName.Trim();
+                            _family.FIdenNo = FIdenNo.Trim();
                             _family.FSex = FSex;
-                            _family.Relation = Relation;
-                            _family.PhoneNum = PhoneNum;
-                            _family.BankCard = BankCard;
-                            _family.OpeningBank = OpeningBank;
+                            _family.Relation = Relation.Trim();
+                            _family.PhoneNum = PhoneNum.Trim();
+                            _family.BankCard = BankCard.Trim();
+                            _family.OpeningBank = OpeningBank.Trim();
                             _family.UserAuthCode = "";
                             _family.CrtBy = loginUserName;
                             _family.CrtDate = DateTime.Now;

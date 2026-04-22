@@ -1,0 +1,808 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>商品入库管理系统 - 最终版</title>
+
+    <!-- 1. 引入 EasyUI 的 CSS 样式 (必须放在最前面) -->
+    <!-- 核心样式 -->
+    <link href="~/Scripts/EasyUI/themes/default/easyui.css" rel="stylesheet" />
+    <!-- 图标样式 -->
+    <link href="~/Scripts/EasyUI/themes/icon.css" rel="stylesheet" />
+
+    <!-- 2. 引入 jQuery (必须在 easyui JS 之前) -->
+    <script src="~/Scripts/jquery-1.11.3.min.js"></script>
+    <!-- 3. 引入 EasyUI 核心 JS -->
+    <script src="~/Scripts/EasyUI/jquery.easyui.min.js"></script>
+    <!-- 4. 引入中文语言包 (可选，让界面显示中文) -->
+    <script src="~/Scripts/EasyUI/locale/easyui-lang-zh_CN.js"></script>
+    <script src="~/Scripts/myJs/commonJs.js"></script>
+    <style>
+        body {
+            padding: 10px;
+            font-family: 'Microsoft YaHei', sans-serif;
+        }
+
+        .toolbar {
+            padding: 5px;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 10px;
+            background: #f3f3f3;
+        }
+
+        /* 查询面板样式 */
+        .search-panel .panel-body {
+            padding: 10px;
+        }
+
+        .search-row {
+            margin-bottom: 5px;
+        }
+
+        /* 弹窗内部样式 */
+        .dialog-content {
+            padding: 10px;
+        }
+
+        .form-row {
+            margin-bottom: 10px;
+        }
+
+        .footer-btns {
+            padding: 10px;
+            text-align: right;
+            border-top: 1px solid #ddd;
+            background: #fafafa;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 1. 顶部工具栏 -->
+    <div class="toolbar">
+        <a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="openCreateDialog()">新建入库单</a>
+        <a href="#" class="easyui-linkbutton" iconCls="icon-reload" plain="true" onclick="resetSearch()">重置查询</a>
+        <a href="#" class="easyui-linkbutton" iconCls="icon-redo" plain="true" onclick="auditCurrent()">审核</a>
+        <a href="#" class="easyui-linkbutton" iconCls="icon-undo" plain="true" onclick="unAuditCurrent()">撤销审核</a>
+        <a href="#" class="easyui-linkbutton" iconCls="icon-cancel" plain="true" onclick="deleteCurrent()">删除主单</a>
+    </div>
+
+    <!-- 2. 查询条件面板 -->
+    <div id="p-search" class="easyui-panel search-panel" title="高级查询" style="width:100%;margin-bottom:10px;"
+         data-options="iconCls:'icon-search',collapsible:true">
+        <form id="searchForm">
+            <div class="search-row">
+                <label>入库单号:</label>
+                <input id="s_StockId" class="easyui-textbox" style="width:200px;">
+
+                <label>入库类型:</label>
+                <select id="s_StockType" class="easyui-combobox" style="width:150px;">
+                    <option value="">--全部--</option>
+                    <option value="采购入库">采购入库</option>
+                    <option value="退货入库">退货入库</option>
+                    <option value="盘点入库">盘点入库</option>
+                </select>
+            </div>
+            <div class="search-row">
+                <label>入库日期:</label>
+                <input id="s_StartDate" class="easyui-datebox" style="width:150px;"> 至
+                <input id="s_EndDate" class="easyui-datebox" style="width:150px;">
+                <label>备注:</label>
+                <input id="s_Remark" class="easyui-textbox" style="width:200px;"> 
+
+                <a href="#" class="easyui-linkbutton" iconCls="icon-search" onclick="doSearch()">查询</a>
+                <a href="#" class="easyui-linkbutton" iconCls="icon-clear" onclick="clearSearchForm()">清空</a>
+            </div>
+
+
+        </form>
+    </div>
+
+    <!-- 3. 主界面：入库单列表 -->
+    <table id="dg-list" class="easyui-datagrid" title="入库单列表" style="width:100%;height:350px;"
+           url="/StockMgr/GetRecordList"
+           data-options="rownumbers:true,singleSelect:true,autoRowHeight:false,pagination:true,fitColumns:true,onDblClickRow:onClickList">
+        <thead>
+            <tr>
+                <th data-options="field:'Id',width:80">Id</th>
+                <th data-options="field:'StockId',width:120">入库单号</th>
+                <th data-options="field:'StockType',width:100,formatter:formatType">入库类型</th>
+                <th data-options="field:'InOutDate',width:100,formatter:formatDate">入库日期</th>
+                <th data-options="field:'CheckFlag',width:80,formatter:formatFlag">审核状态</th>
+                <th data-options="field:'Remark',width:200">备注</th>
+            </tr>
+        </thead>
+    </table>
+
+    <!-- 4. 弹窗：新建/编辑入库单 (默认隐藏) -->
+    <div id="dlg-edit" class="easyui-dialog" style="width:950px;height:550px;padding:10px"
+         data-options="title:'入库单录入',modal:true,closed:true,iconCls:'icon-edit',buttons:'#dlg-buttons'">
+
+        <!-- 弹窗内：主单信息 -->
+        <div id="p-form" class="easyui-panel" title="主单信息" style="width:100%;margin-bottom:10px;" data-options="border:false">
+            <form id="stockForm">
+                <div class="form-row">
+                    <label>入库单号:</label>
+                    <input id="StockId" name="StockId" class="easyui-textbox" style="width:200px;" readonly>
+                    <label>入库类型:</label>
+                    <select id="StockType" name="StockType" class="easyui-combobox" style="width:150px;">
+                        @if (ViewData["GetStokType"] != null)
+                        {
+                            var types = ViewData["GetStokType"] as List<SelfhelpOrderMgr.Model.T_CommonTypeTab>;
+                            foreach (var item in types)
+                            {
+                                <option value="@item.FName">@item.FName</option>
+                            }
+                        }
+                        @*<option value="采购入库">采购入库</option>
+                        <option value="退货入库">退货入库</option>
+                        <option value="盘点入库">盘点入库</option>*@
+                    </select>
+                    <label>入库日期:</label>
+                    <input id="InOutDate" name="InOutDate" class="easyui-datebox" style="width:150px;" editable="false">
+                </div>
+                <div class="form-row">
+                    <label>审核状态:</label>
+                    <input id="CheckFlag" name="CheckFlag" class="easyui-textbox" style="width:100px;" readonly value="未审核">
+                    <label>备注:</label>
+                    <input id="Remark" name="Remark" class="easyui-textbox" style="width:300px;">
+                </div>
+            </form>
+        </div>
+
+        <!-- 弹窗内：明细表格 -->
+        <table id="dg-detail" class="easyui-datagrid" title="入库商品明细" style="width:100%;height:320px;"
+               data-options="singleSelect:true,collapsible:true,showFooter: true,toolbar:'#tb-detail',onAfterEdit:onAfterEdit">
+            <thead>
+                <tr>
+                    <th data-options="field:'Id',width:60">Id</th>
+                    <th data-options="field:'GTXM',width:120,editor:'textbox'">商品条码</th>
+                    <th data-options="field:'GCode',width:80,editor:'textbox'">商品编码</th>
+                    <th data-options="field:'GName',width:200,editor:'textbox'">商品名称</th>
+                    <th data-options="field:'GCount',width:80,editor:{type:'numberbox',options:{precision:2}},align:'right'">入库数量</th>
+                    <th data-options="field:'GDJ',width:80,editor:{type:'numberbox',options:{precision:2}},align:'right'">单价</th>
+                    <th data-options="field:'ProductDate',width:120,formatter:formatDate,editor:'datebox'">生产日期</th>
+                    <th data-options="field:'Remark',width:150,editor:'textbox'">备注</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+
+    <!-- 弹窗底部按钮 -->
+    <div id="dlg-buttons">
+        <a href="#" class="easyui-linkbutton" iconCls="icon-save" onclick="saveCurrentBill()">保存</a>
+        @*<a href="#" class="easyui-linkbutton" iconCls="icon-undo" onclick="unAuditCurrent()">撤审</a>*@
+        <a href="#" class="easyui-linkbutton" iconCls="icon-cancel" onclick="closeDialog()">关闭</a>
+    </div>
+
+    <!-- 明细表格工具栏 -->
+    <div id="tb-detail">
+        <a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="appendRow()">增加行</a>
+        <a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="removeRow()">删除行</a>
+        <a href="#" class="easyui-linkbutton" iconCls="icon-download" plain="true" onclick="importExcel()">Excel导入</a>
+        <input type="file" id="excelFile" style="display:none" accept=".xls,.xlsx">
+    </div>
+
+    <script>
+        // --- 模拟数据 ---
+        // 模拟 T_Stock 主表数据
+        var stockMasterData = [
+            { StockId: '', StockType: '采购入库', InOutDate: '2026-04-01', CheckFlag: 1, Remark: '' },
+        ];
+
+        // 模拟 T_GOODSSTOCKMAIN 库存表
+        var goodsStockMain = [{ GCode: 'G001', BALANCE: 100 }, { GCode: 'G002', BALANCE: 50 }];
+
+        var currentStockId = null;
+
+        $(function () {
+            // 初始化主列表
+            $('#dg-list').datagrid({
+                data: stockMasterData,
+                onLoadSuccess: function (data) {
+                    // 列表加载成功
+                }
+            });
+
+            // 初始化弹窗内的明细表
+            $('#dg-detail').datagrid({
+                data: [],
+                onClickRow: function (index) {
+                    //判断是否已审核过了
+                    if ($("#CheckFlag").textbox('getValue') == "1") {
+                        //$.messager.alert("提示", "主单已经审核不能修改");
+                        return false;
+                    }
+                    $(this).datagrid('beginEdit', index);
+                },
+                // 关键配置：开始编辑时初始化 Combobox
+                onBeginEdit: function (index, row) {
+                    // 1. 获取 GTXM 列的编辑器对象
+                    var gtxmEditor = $(this).datagrid('getEditor', { index: index, field: 'GTXM' });
+                    console.log("行数据");
+                    console.log(row);
+                    console.log(index);
+                    // 2. 将该编辑器初始化为 Combobox
+                    // 注意：这里假设你已经有一个包含所有商品的下拉数据源，或者使用 url 远程加载
+                    $(gtxmEditor.target).combobox({
+                        url: '/StockMgr/GetProductList?q=', // 后台返回商品列表的接口
+                        valueField: 'GTXM',      // 值字段：对应条码
+                        textField: 'GName',      // 显示字段：对应商品名称（下拉列表中显示名称，选中后存条码）
+                        editable: true,          // 允许手动输入条码
+                        panelHeight: 'auto',     // 面板高度
+                        mode: 'remote',          // 远程搜索模式（如果数据量大建议开启）
+
+                        // 3. 关键逻辑：选择商品后，自动填充同行其他列
+                        onSelect: function (record) {
+                            // record 是你选中的那行商品数据（包含 GTXM, GCode, GName 等）
+
+                            // 获取其他列的编辑器
+                            var gdjEditor = $('#dg-detail').datagrid('getEditor', { index: index, field: 'GDJ' });
+                            var gcodeEditor = $('#dg-detail').datagrid('getEditor', { index: index, field: 'GCode' });
+                            var gnameEditor = $('#dg-detail').datagrid('getEditor', { index: index, field: 'GName' });
+                            
+
+                            // 自动赋值
+                            if (gcodeEditor) $(gcodeEditor.target).textbox('setValue', record.GCode);
+                            if (gnameEditor) $(gnameEditor.target).textbox('setValue', record.GName);
+                            if (gdjEditor) $(gdjEditor.target).textbox('setValue', record.Price);
+
+                            // 可选：自动跳到下一列（如数量），提升录入效率
+                            // var countEditor = $('#dg-detail').datagrid('getEditor', { index: index, field: 'GCount' });
+                            // if(countEditor) $(countEditor.target).textbox('textbox').focus();
+                        },
+
+                        // 4. 处理手动输入的情况（如果用户不想下拉，直接粘贴条码）
+                        onChange: function (newValue, oldValue) {
+                            // 如果手动输入的值不在下拉列表中，onSelect 不会触发
+                            // 你可以在这里加防抖逻辑去后台校验这个 newValue
+                            // 或者留空，让用户按回车触发你之前的校验逻辑
+                            // 只有当输入值不为空，或者你想支持清空显示全部时，才进行重载
+                            // 这里直接利用 combobox 的 reload 方法，它会自动把输入框的值作为参数传给 url
+                            $(this).combobox('reload', '/StockMgr/GetProductList?q=' + newValue);
+                        },
+                        onLoadSuccess: function () {
+                            // 数据加载回来后，强制让下拉面板显示出来
+                            // 这一步能解决“数据有了但面板缩在里面”的问题
+                            $(this).combobox('showPanel');
+                        }
+                    });
+                },
+
+                // 结束编辑时，确保 GTXM 列的值是条码（valueField），而不是商品名称（textField）
+                onEndEdit: function (index, row, changes) {
+                    var gtxmEditor = $(this).datagrid('getEditor', { index: index, field: 'GTXM' });
+                    if (gtxmEditor) {
+                        // 确保保存的是 GTXM 的值，防止保存成中文名称
+                        row.GTXM = $(gtxmEditor.target).combobox('getValue');
+                    }
+                }
+            });
+
+
+
+            // 绑定 Excel 上传事件
+            $('#excelFile').change(function () { handleFileUpload(this); });
+        });
+
+        // --- 格式化函数 ---
+        function formatType(val) { return val; }
+        function formatFlag(val) { return val == 1 ? '<span style="color:green">已审核</span>' : '<span style="color:red">未审核</span>'; }
+        function formatDate(val) { return val ? val : ''; }
+        function formatNSDate(val) {
+            //console.log(val);
+            return val ? getShortTime(val) : '';
+            //if (val != null || val != '' || val != undefined) {
+            //    return getShortTime(val);
+            //}
+            //else {
+            //    return ''
+            //}
+            
+        }
+
+        
+
+
+        // ================= 查询功能逻辑 =================
+
+        function doSearch() {
+            var sId = $('#s_StockId').val();
+            var sType = $('#s_StockType').combobox('getValue');
+            var sStart = $('#s_StartDate').datebox('getValue');
+            var sEnd = $('#s_EndDate').datebox('getValue');
+            var sRemark = $('#s_Remark').val();;
+
+            $('#dg-list').datagrid('load', {
+                "StockId": sId,
+                "StockType": sType,
+                "CrtDt_Start": sStart,
+                "CrtDt_End": sEnd,
+                "Remark": sRemark
+            });
+
+            //$.post("/StockMgr/GetRecordList", {
+            //    "StockId": sId,
+            //    "StockType": sType,
+            //    "CrtDt_Start": sStart,
+            //    "CrtDt_End": sEnd,
+            //    "Remark":sRemark
+            //}, function (data, status) {
+            //    if ("success" == status) {
+            //        console.log(data);
+
+            //        // 模拟前端过滤数据
+            //        //var filteredData = data.rows;
+
+            //        $('#dg-list').datagrid('loadData', data);
+
+            //        if (data.rows.length === 0) {
+            //            $.messager.show({ title: '提示', msg: '没有找到符合条件的记录' });
+            //        }
+            //    }
+            //});
+
+            //// 模拟前端过滤数据
+            //var filteredData = stockMasterData.filter(function (item) {
+            //    var matchId = !sId || item.StockId.indexOf(sId) > -1;
+            //    var matchType = !sType || item.StockType === sType;
+            //    var matchDate = true;
+            //    if (sStart && item.InOutDate < sStart) matchDate = false;
+            //    if (sEnd && item.InOutDate > sEnd) matchDate = false;
+
+            //    return matchId && matchType && matchDate;
+            //});
+
+            //$('#dg-list').datagrid('loadData', filteredData);
+
+            //if (filteredData.length === 0) {
+            //    $.messager.show({ title: '提示', msg: '没有找到符合条件的记录' });
+            //}
+        }
+
+        function clearSearchForm() {
+            $('#searchForm').form('clear');
+            $('#dg-list').datagrid('loadData', stockMasterData); // 恢复显示全部
+        }
+
+        function resetSearch() {
+            clearSearchForm();
+        }
+
+        // ================= 新建与弹窗逻辑 =================
+
+        // 1. 点击【新建入库单】
+        function openCreateDialog() {
+            // 重置表单
+            $('#stockForm').form('clear');
+            // 生成新单号 (模拟数据库自增)
+            var newId = 'STK' + new Date().getTime();
+            currentStockId = newId;
+            console.log(new Date());
+            $('#StockId').textbox('setValue', newId);
+            $('#InOutDate').datebox('setValue', getTime());
+            $('#CheckFlag').textbox('setValue', '未审核');
+            $('#Remark').textbox('setValue', '');
+
+            // 清空明细
+            $('#dg-detail').datagrid('loadData', []);
+
+            // 打开弹窗
+            $('#dlg-edit').dialog('open').dialog('setTitle', '新建入库单');
+        }
+
+        // 2. 点击列表行 (查看/编辑)
+        function onClickList(index, row) {
+            // 加载主单数据到弹窗
+            $('#stockForm').form('clear');
+            $('#stockForm').form('load', row);
+
+            currentStockId = row.StockId;
+
+            // 模拟加载明细数据 (实际应根据StockId去后台查 T_StockDTL)
+            // 这里为了演示，随机生成一些假数据
+            var mockDetails = [];
+            //if (row.StockType === '采购入库') {
+            //    mockDetails = [
+            //        { GCODE: 'G001', GTXM: '690001', GCOUNT: 50, GDJ: 10.0, Remark: '模拟明细' },
+            //        { GCODE: 'G002', GTXM: '690002', GCOUNT: 20, GDJ: 25.0, Remark: '模拟明细' }
+            //    ];
+            //}
+
+            $.post("/StockMgr/GetStockDetailJson", { "StockId": currentStockId },
+                function(data,status) {
+                    if ("success" == status) {
+                        mockDetails = data;
+
+                        LoadStockDetailList(mockDetails);
+                    }
+                });
+            
+
+            $('#dlg-edit').dialog('open').dialog('setTitle', '查看/编辑入库单 - ' + row.StockId);
+        }
+
+
+        //加载dg-detail的表格数据
+        function LoadStockDetailList(data) {
+            // 2. 计算合计值
+            var totalCount = 0;
+            var totalAmount = 0;
+
+            $.each(data, function (i, row) {
+                totalCount += row.GCount; // 累加数量
+                totalAmount += (row.GCount * row.GDJ); // 累加总金额
+            });
+
+            var loadedData = {
+                rows: data, // 原始行数据
+                footer: [          // 【关键】Footer 数据，是一个数组
+                    {
+                        GTXM: '<b>本页合计</b>', // 在第一列显示文字 (对应 field: 'GTXM')
+                        GCount: totalCount,      // 数量列显示合计
+                        GDJ: totalAmount.toFixed(2) // 总价列显示合计
+                        // 注意：不需要为每一列都赋值，没赋值的列会显示为空
+                    }
+                ]
+            };
+
+            $('#dg-detail').datagrid('loadData', loadedData);
+        }
+        // ================= 明细操作逻辑 =================
+
+        function appendRow() {
+            //判断是否已审核过了
+            if ($("#CheckFlag").textbox('getValue') == "1") {
+                $.messager.alert("提示", "主单已经审核不能修改");
+                return false;
+            }
+            var oldRows = $('#dg-detail').datagrid('getRows');
+            var addId = 1;
+            if (oldRows != null) {
+                addId = oldRows.length + 1;
+            }
+            $('#dg-detail').datagrid('appendRow', { Id: addId, GTXM: '', GCode: '', GName: '',ProductDate:'2026-04-11', GCount: 1, GDJ: 0, Remark: '' });
+            var rows = $('#dg-detail').datagrid('getRows');
+            $('#dg-detail').datagrid('selectRow', rows.length - 1);
+        }
+
+        function removeRow() {
+            //判断是否已审核过了
+            if ($("#CheckFlag").textbox('getValue') == "1") {
+                $.messager.alert("提示", "主单已经审核不能修改");
+                return false;
+            }
+            var row = $('#dg-detail').datagrid('getSelected');
+            if (row) {
+                var index = $('#dg-detail').datagrid('getRowIndex', row);
+                $('#dg-detail').datagrid('deleteRow', index);
+            }
+        }
+
+
+        
+
+        function onAfterEdit(index, row, changes) {
+            
+        }
+
+        // Excel 导入模拟
+        function importExcel() {
+            $('#excelFile').click();
+        }
+
+
+        function handleFileUpload(fileInput) {
+            // 1. 检查是否选择了文件
+            if (fileInput.files.length === 0) {
+                $.messager.alert('提示', '请选择一个Excel文件！');
+                return;
+            }
+            if (fileInput.value == "") return;
+
+            var file = fileInput.files[0]; // 获取文件对象
+            var formData = new FormData();
+            //var dto = {
+            //    "stock": {
+            //        "StockId": $("#StockId").textbox('getValue'),
+            //        "StockType": $("#StockType").combobox('getValue'),
+            //        "InOutDate": $("#InOutDate").datebox('getValue'),
+            //        "Remark": $("#Remark").textbox('getValue')
+            //    },
+            //    "details": rows
+            //};
+            // 2. 将文件添加到FormData对象中
+            // 'excelFile' 这个名字需要和后台接收的参数名一致
+
+            formData.append('StockId', $("#StockId").textbox('getValue'));
+            formData.append('StockType', $("#StockType").combobox('getValue'));
+            formData.append('InOutDate', $("#InOutDate").datebox('getValue'));
+            formData.append('Remark', $("#Remark").textbox('getValue'));
+            formData.append('excelFile', file);
+
+            // 3. 发送Ajax请求
+            $.ajax({
+                url: '/StockMgr/ImportExcel', // 替换为你实际的后台Controller和Action路径
+                type: 'POST',
+                data: formData,
+                processData: false,  // 必须为false，告诉jQuery不要处理数据
+                contentType: false,  // 必须为false，告诉jQuery不要设置内容类型
+                success: function (response) {
+                    // 4. 处理后台返回的成功响应
+                    if (response.Flag==true) {
+                        // 假设后台返回了处理后的数据
+                        $('#stockForm').form('load', response.DataInfo.stock);
+                        mockDetails = response.DataInfo.details;
+                        //$('#dg-detail').datagrid('loadData', mockDetails);
+                        LoadStockDetailList(mockDetails);
+
+                        $.messager.show({ title: '成功', msg: response.ReMsg || '导入成功！' });
+                    } else {
+                        $.messager.alert('错误', response.message || '导入失败。');
+                    }
+                },
+                error: function (xhr, status, error) {
+                    // 5. 处理错误
+                    console.error('上传失败:', error);
+                    $.messager.alert('错误', '系统异常，上传失败。');
+                },
+                complete: function () {
+                    // 6. 无论成功失败，都清空文件输入框
+                    fileInput.value = '';
+                }
+            });
+        }
+
+        // ================= 保存与审核逻辑 =================
+
+        function saveCurrentBill() {
+
+            // 结束编辑，确保数据已更新到行
+            
+
+            var rows = $('#dg-detail').datagrid('getRows');
+            if (rows!=null && rows.length === 0) {
+                $.messager.alert('警告', '请至少添加一行商品！', 'warning');
+                return;
+            }
+
+            // 结束编辑，确保数据已更新到行（所有行）
+            rows.forEach(selectedRow => {
+                //
+                $('#dg-detail').datagrid('endEdit', $('#dg-detail').datagrid('getRowIndex', selectedRow));
+
+            });
+            //if (selectedRow) {
+            //    $('#dg-detail').datagrid('endEdit', $('#dg-detail').datagrid('getRowIndex', selectedRow));
+            //}
+
+            console.log(rows);
+
+            //var dto = {
+            //    "stock": {
+            //        "StockId": 'STK20260401', "StockType": '采购入库', "InOutFlag": 1, "Remark": '第一批春季采购' },
+            //     "details":[
+            //         {
+            //             "Id": 0, "GCode": 'G001', "GTXM": '690001', "GCount": 50, "GDJ": 10.0, "Remark": '模拟明细' },
+            //         { "Id": 0, "GCode": 'G003', "GTXM": '690003', "GCount": 50, "GDJ": 10.0, "Remark": '模拟明细' }
+            //        ]
+            //};
+
+
+            var dto = {
+                "stock": {
+                    "StockId": $("#StockId").textbox('getValue'), "StockType": $("#StockType").combobox('getValue'), "InOutDate": $("#InOutDate").datebox('getValue'), "Remark": $("#Remark").textbox('getValue')
+                },
+                "details": rows
+            };
+
+            //var dto =  { StockId: 'STK20260401', StockType: '采购入库', InOutFlag: 1, Remark: '第一批春季采购' };
+
+            
+            $.ajax({
+                url: '/StockMgr/SaveStockInfo',
+                type: 'POST',
+                // 1. 必须设置 Content-Type 为 application/json
+                contentType: 'application/json; charset=utf-8',
+                // 2. 必须使用 JSON.stringify 将对象转为字符串
+                data: JSON.stringify(dto),
+                dataType: 'json',
+                success: function (response) {
+                    console.log('成功', response);
+                    if (response.Flag == true) {
+                        $('#stockForm').form('load', response.DataInfo.stock);
+                        mockDetails = response.DataInfo.details;
+                        //$('#dg-detail').datagrid('loadData', mockDetails);
+                        LoadStockDetailList(mockDetails);
+                    }                    
+                    $.messager.alert('提示', response.ReMsg, 'warning');
+                },
+                error: function (xhr) {
+                    console.log('失败', xhr.responseText);
+                }
+            });
+
+            //// 结束编辑，确保数据已更新到行
+            //var selectedRow = $('#dg-detail').datagrid('getSelected');
+            //if (selectedRow) {
+            //    $('#dg-detail').datagrid('endEdit', $('#dg-detail').datagrid('getRowIndex', selectedRow));
+            //}
+
+            //var rows = $('#dg-detail').datagrid('getRows');
+            //if (rows.length === 0) {
+            //    $.messager.alert('警告', '请至少添加一行商品！', 'warning');
+            //    return;
+            //}
+
+            //// 模拟更新库存 (T_GOODSSTOCKMAIN)
+            //rows.forEach(function (item) {
+            //    var stockItem = goodsStockMain.find(function (g) { return g.GCODE === item.GCODE; });
+            //    if (stockItem) {
+            //        stockItem.BALANCE += parseFloat(item.GCOUNT);
+            //    } else {
+            //        goodsStockMain.push({ GCODE: item.GCODE, BALANCE: parseFloat(item.GCOUNT) });
+            //    }
+            //});
+
+            //// 更新主单状态
+            //$('#CHECKFLAG').textbox('setValue', '已审核');
+
+            //// 刷新主界面列表数据
+            //var formData = $('#stockForm').form('getData');
+            //formData.CHECKFLAG = 1; // 标记为已审核用于显示
+
+            //// 检查列表里是否已有该单号，有则更新，无则添加
+            //var exists = false;
+            //for (var i = 0; i < stockMasterData.length; i++) {
+            //    if (stockMasterData[i].StockId == currentStockId) {
+            //        stockMasterData[i] = formData;
+            //        exists = true;
+            //    }
+            //}
+            //if (!exists) stockMasterData.push(formData);
+
+            //$('#dg-list').datagrid('loadData', stockMasterData); // 刷新列表
+
+            //$.messager.alert('成功', '入库单已保存并审核，库存已更新！');
+            //// 不关闭弹窗，方便继续录入或查看
+        }
+
+        function auditCurrent() {
+            $.messager.confirm('确认', '您确认想要审核该记录吗？', function (r) {
+                if (r) {
+                    var row = $('#dg-list').datagrid('getSelected');
+                    // 简单的撤审逻辑
+                    if (row == null || row.CheckFlag == 1) {
+                        $.messager.show({ title: '提示', msg: '该记录不能重新审核' });
+                        return false;
+                    }
+
+                    var dto = {
+                        Id: row.Id
+                    }
+
+                    $.ajax({
+                        url: '/StockMgr/AuditStock',
+                        type: 'POST',
+                        // 1. 必须设置 Content-Type 为 application/json
+                        contentType: 'application/json; charset=utf-8',
+                        // 2. 必须使用 JSON.stringify 将对象转为字符串
+                        data: JSON.stringify(dto),
+                        dataType: 'json',
+                        success: function (response) {
+                            console.log('成功', response);
+                            if (response.Flag == true) {
+                                var idx = $('#dg-list').datagrid('getRowIndex', row);
+                                $('#dg-list').datagrid('updateRow', {
+                                    index: idx,
+                                    row: response.DataInfo
+                                });
+                            }
+                            $.messager.alert('提示', response.ReMsg, 'warning');
+                        },
+                        error: function (xhr) {
+                            console.log('失败', xhr.responseText);
+                        }
+                    });
+                }
+            });
+            
+        }
+
+
+        function unAuditCurrent() {
+
+            $.messager.confirm('确认', '您确认想要撤销审核该记录吗？', function (r) {
+                if (r) {
+                    var row = $('#dg-list').datagrid('getSelected');
+                    // 简单的撤审逻辑
+                    if (row == null || row.CheckFlag == 0) {
+                        $.messager.show({ title: '提示', msg: '该记录不能未审核，不用撤审' });
+                        return false;
+                    }
+
+                    var dto = {
+                        Id: row.Id
+                    }
+
+                    $.ajax({
+                        url: '/StockMgr/UnAuditStock',
+                        type: 'POST',
+                        // 1. 必须设置 Content-Type 为 application/json
+                        contentType: 'application/json; charset=utf-8',
+                        // 2. 必须使用 JSON.stringify 将对象转为字符串
+                        data: JSON.stringify(dto),
+                        dataType: 'json',
+                        success: function (response) {
+                            console.log('成功', response);
+                            if (response.Flag == true) {
+                                var idx = $('#dg-list').datagrid('getRowIndex', row);
+                                $('#dg-list').datagrid('updateRow', {
+                                    index: idx,
+                                    row: response.DataInfo
+                                });
+                            }
+                            $.messager.alert('提示', response.ReMsg, 'warning');
+                        },
+                        error: function (xhr) {
+                            console.log('失败', xhr.responseText);
+                        }
+                    });
+                }
+            });
+            
+        }
+
+
+        //删除
+        function deleteCurrent() {
+
+            $.messager.confirm('确认', '您确认想要删除该记录吗？', function (r) {
+                if (r) {
+                    var row = $('#dg-list').datagrid('getSelected');
+                    // 简单的撤审逻辑
+                    if (row == null || row.CheckFlag == 1) {
+                        $.messager.show({ title: '提示', msg: '该记录已审核，不用删除' });
+                        return false;
+                    }
+
+                    var dto = {
+                        Id: row.Id
+                    }
+
+                    $.ajax({
+                        url: '/StockMgr/DeleteStock',
+                        type: 'POST',
+                        // 1. 必须设置 Content-Type 为 application/json
+                        contentType: 'application/json; charset=utf-8',
+                        // 2. 必须使用 JSON.stringify 将对象转为字符串
+                        data: JSON.stringify(dto),
+                        dataType: 'json',
+                        success: function (response) {
+                            console.log('成功', response);
+                            if (response.Flag == true) {
+                                var idx = $('#dg-list').datagrid('getRowIndex', row);
+                                $('#dg-list').datagrid('deleteRow', idx);
+                            }
+                            $.messager.alert('提示', response.ReMsg, 'warning');
+                        },
+                        error: function (xhr) {
+                            console.log('失败', xhr.responseText);
+                        }
+                    });
+                }
+            });
+
+        }
+
+        function closeDialog() {
+            $('#dlg-edit').dialog('close');
+        }
+    </script>
+</body>
+</html>

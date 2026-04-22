@@ -117,8 +117,15 @@
                                                             条码：@good.GTXM
                                                         </p>
                                                         <h3 style="text-align:center">
-                                                            @*<a href="#" title="" target="_blank" onclick="_hmt.push(['_trackEvent', 'tile', 'click', 'gulp'])">@good.GDJ 元<br><small>@good.GNAME</small></a>*@
-                                                            <small style="color: #FF4400; ">¥</small><span style="color: #FF4400; ">@good.GDJ 元</span>
+                                                            @if (type.UseType == 1)
+                                                            {
+                                                                <small style="color: #FF4400; ">¥</small><span style="color: #FF4400; ">@good.GDJ 积分</span>
+                                                            }
+                                                            else
+                                                            {
+                                                                <small style="color: #FF4400; ">¥</small><span style="color: #FF4400; ">@good.GDJ 元</span>
+                                                            }
+
                                                         </h3>
                                                     </div>
                                                 </div>

@@ -1,0 +1,384 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>人脸登录 - 极速重开版</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+    <style>
+        /* 全局背景 */
+        body {
+            background-color: #1a1a1a;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: "Microsoft YaHei", sans-serif;
+            background: radial-gradient(circle, #2b32b2 0%, #1488cc 100%);
+            overflow: hidden;
+        }
+
+        /* --- 核心布局：1080x1920 竖屏容器 --- */
+        #app-container {
+            width: 1080px;
+            height: 1920px;
+            position: relative;
+            background: #fff;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+            transform-origin: center center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .header-title {
+            margin-top: 80px;
+            font-size: 60px;
+            color: #333;
+            font-weight: bold;
+            z-index: 10;
+        }
+
+        /* --- 摄像头区域 (800x1000) --- */
+        .camera-wrapper {
+            position: relative;
+            margin-top: 80px;
+            width: 800px;
+            height: 1000px;
+            background: #000;
+            border-radius: 30px;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            z-index: 10;
+            border: 2px solid #eee;
+        }
+
+        video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transform: scaleX(-1); /* 镜像显示 */
+        }
+
+        /* 调试Canvas */
+        #debug-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transform: scaleX(-1);
+            z-index: 20;
+            pointer-events: none;
+        }
+
+        /* 视觉引导框 */
+        .visual-guide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 15;
+            pointer-events: none;
+        }
+
+            /* 蓝色识别框 (宽45%, 高54%) */
+            .visual-guide::after {
+                content: '';
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                width: 45%;
+                height: 54%;
+                border: 4px solid #00BFFF;
+                box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.7);
+                border-radius: 15px;
+                box-sizing: border-box;
+            }
+
+        .status-text {
+            margin-top: 50px;
+            font-size: 40px;
+            color: #333;
+            font-weight: bold;
+            z-index: 10;
+        }
+
+        .trigger-btn {
+            margin-top: 60px;
+            padding: 25px 70px;
+            font-size: 36px;
+            background: linear-gradient(45deg, #00d2ff, #3a7bd5);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            z-index: 10;
+            box-shadow: 0 10px 20px rgba(0, 150, 255, 0.3);
+        }
+
+        .result-modal {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px;
+            height: 700px;
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+            z-index: 100;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .result-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 10px;
+            transform: scaleX(-1);
+        }
+
+        .close-btn {
+            margin-top: 20px;
+            padding: 15px 40px;
+            font-size: 28px;
+            background: #ff4b1f;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="app-container">
+        <div class="header-title">人脸识别登录</div>
+
+        <div class="camera-wrapper" id="camera-wrapper">
+            <div class="visual-guide"></div>
+            <video id="video" playsinline crossorigin="anonymous"></video>
+            <canvas id="debug-canvas"></canvas>
+        </div>
+
+        <div class="status-text" id="statusText">系统就绪，请点击开始</div>
+
+        <button class="trigger-btn" onclick="activateSystem()">开始识别</button>
+
+        <div class="result-modal" id="resultModal">
+            <img id="resultImage" class="result-img" src="" alt="抓拍结果">
+            <button class="close-btn" onclick="closeResult()">关闭并重新开始</button>
+        </div>
+    </div>
+
+    <!-- 音频标签 -->
+    <audio id="success-audio" preload="auto">
+        <source src="success.mp3" type="audio/mpeg">
+    </audio>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tracking.js/1.1.3/tracking-min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tracking.js/1.1.3/data/face-min.js"></script>
+
+    <script>
+        const video = document.getElementById('video');
+        const debugCanvas = document.getElementById('debug-canvas');
+        const ctx = debugCanvas.getContext('2d');
+        const statusText = document.getElementById('statusText');
+        const resultModal = document.getElementById('resultModal');
+        const resultImage = document.getElementById('resultImage');
+        const container = document.getElementById('app-container');
+        const audioElement = document.getElementById('success-audio');
+
+        let tracker;
+        let stream = null;
+        let isCaptured = false;
+        let isSystemActive = false;
+
+        let videoRealWidth = 0;
+        let videoRealHeight = 0;
+        let displayWidth = 800;
+        let displayHeight = 1000;
+
+        // 屏幕适配
+        function fitScreen() {
+            const targetWidth = 1080;
+            const targetHeight = 1920;
+            const scaleX = window.innerWidth / targetWidth;
+            const scaleY = window.innerHeight / targetHeight;
+            const scale = Math.min(scaleX, scaleY);
+            container.style.transform = `scale(${scale})`;
+        }
+        window.addEventListener('resize', fitScreen);
+        fitScreen();
+
+        // 页面加载时静默初始化摄像头
+        window.addEventListener('load', () => {
+            initCameraSilent();
+        });
+
+        function initCameraSilent() {
+            navigator.mediaDevices.getUserMedia({
+                audio: false,
+                video: { facingMode: "user", width: { ideal: 1280 }, height: { ideal: 720 } }
+            }).then(function (mediaStream) {
+                stream = mediaStream;
+                video.srcObject = stream;
+
+                video.onloadedmetadata = () => {
+                    videoRealWidth = video.videoWidth;
+                    videoRealHeight = video.videoHeight;
+                    // 注意：这里不调用 video.play()，等待用户交互
+                };
+            }).catch(err => {
+                console.warn("预加载摄像头失败:", err);
+            });
+        }
+
+        // 激活系统（响应用户点击）
+        function activateSystem() {
+            if (isCaptured) {
+                closeResult();
+                return;
+            }
+
+            isSystemActive = true;
+            statusText.innerText = "正在识别...";
+            resultModal.style.display = 'none';
+
+            // 播放视频（如果预加载成功，这里会瞬间显示）
+            video.play().then(() => {
+                // 播放提示音
+                if (audioElement) {
+                    audioElement.currentTime = 0;
+                    audioElement.play().catch(() => { });
+                }
+                // 启动追踪器
+                initTracker();
+            }).catch(err => {
+                // 如果预加载失败，这里重新请求
+                if (!stream) initCameraSilent();
+                statusText.innerText = "摄像头启动中...";
+            });
+        }
+
+        function initTracker() {
+            if (tracker) tracker.stop();
+
+            tracker = new tracking.ObjectTracker('face');
+            tracker.setInitialScale(1.2);
+            tracker.setStepSize(2);
+            tracker.setEdgesDensity(0.2);
+
+            tracker.on('track', function (event) {
+                if (!isSystemActive || isCaptured) {
+                    if (isCaptured) ctx.clearRect(0, 0, debugCanvas.width, debugCanvas.height);
+                    return;
+                }
+
+                ctx.clearRect(0, 0, debugCanvas.width, debugCanvas.height);
+
+                const boxRatioW = 0.45;
+                const boxRatioH = 0.54;
+
+                const guideW = displayWidth * boxRatioW;
+                const guideH = displayHeight * boxRatioH;
+                const guideX = (displayWidth - guideW) / 2;
+                const guideY = (displayHeight - guideH) / 2;
+
+                ctx.strokeStyle = '#00BFFF';
+                ctx.lineWidth = 4;
+                ctx.strokeRect(guideX, guideY, guideW, guideH);
+
+                if (event.data.length > 0) {
+                    event.data.forEach(function (rect) {
+                        ctx.strokeStyle = '#00FF00';
+                        ctx.lineWidth = 3;
+                        ctx.strokeRect(rect.x, rect.y, rect.width, rect.height);
+
+                        if (isInsideBox(rect, { x: guideX, y: guideY, width: guideW, height: guideH })) {
+                            captureArea(guideX, guideY, guideW, guideH);
+                        }
+                    });
+                }
+            });
+
+            tracking.track('#video', tracker);
+        }
+
+        function isInsideBox(face, box) {
+            const cx = face.x + face.width / 2;
+            const cy = face.y + face.height / 2;
+            return (cx > box.x && cx < box.x + box.width &&
+                cy > box.y && cy < box.y + box.height);
+        }
+
+        function captureArea(cssX, cssY, cssW, cssH) {
+            isCaptured = true;
+            statusText.innerText = "抓拍成功！";
+
+            if (audioElement) {
+                audioElement.currentTime = 0;
+                audioElement.play().catch(() => { });
+            }
+
+            const tempCanvas = document.createElement('canvas');
+            const tCtx = tempCanvas.getContext('2d');
+
+            tempCanvas.width = cssW;
+            tempCanvas.height = cssH;
+
+            const scaleX = videoRealWidth / displayWidth;
+            const scaleY = videoRealHeight / displayHeight;
+
+            const sourceX = cssX * scaleX;
+            const sourceY = cssY * scaleY;
+            const sourceW = cssW * scaleX;
+            const sourceH = cssH * scaleY;
+
+            tCtx.drawImage(video, sourceX, sourceY, sourceW, sourceH, 0, 0, cssW, cssH);
+
+            // 生成 Base64 存入隐藏域
+            const base64Data = tempCanvas.toDataURL('image/png');
+            // 这里假设你在外层有 input，如果没有可以忽略这行
+            const photoInput = document.getElementById('photoInput');
+            if (photoInput) photoInput.value = base64Data;
+
+            resultImage.src = base64Data;
+            resultModal.style.display = 'block';
+        }
+
+        // --- 优化点：关闭时不关闭摄像头，实现极速重开 ---
+        function closeResult() {
+            resultModal.style.display = 'none';
+            isCaptured = false;
+            statusText.innerText = "请点击按钮重新开始";
+
+            // 注意：这里不再调用 stopCamera()
+            // 摄像头保持开启，下次点击“开始”时只需调用 video.play() 即可，速度极快
+        }
+
+        // 仅在页面卸载时彻底关闭摄像头
+        window.addEventListener('beforeunload', () => {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+        });
+
+    </script>
+</body>
+</html>

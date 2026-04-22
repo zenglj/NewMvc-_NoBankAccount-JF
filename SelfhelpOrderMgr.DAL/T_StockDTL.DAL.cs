@@ -10,16 +10,16 @@ namespace SelfhelpOrderMgr.DAL
     public partial class T_StockDTLDAL
     {
 
-        public bool Exists(int SeqId)
+        public bool Exists(int Id)
         {
             StringBuilder strSql = new StringBuilder();
             strSql.Append("select count(1) from T_StockDTL");
             strSql.Append(" where ");
-            strSql.Append(" SeqId = @SeqId  ");
+            strSql.Append(" Id = @Id  ");
             SqlParameter[] parameters = {
-					new SqlParameter("@SeqId", SqlDbType.Int,4)
+					new SqlParameter("@Id", SqlDbType.Int,4)
 			};
-            parameters[0].Value = SeqId;
+            parameters[0].Value = Id;
 
             return SqlHelper.Exists(strSql.ToString(), parameters);
         }
@@ -96,10 +96,10 @@ namespace SelfhelpOrderMgr.DAL
             strSql.Append(" Flag = @Flag , ");
             strSql.Append(" StockFlag = @StockFlag , ");
             strSql.Append(" InOutFlag = @InOutFlag  ");
-            strSql.Append(" where SeqId=@SeqId ");
+            strSql.Append(" where Id=@Id ");
 
             SqlParameter[] parameters = {
-			            new SqlParameter("@SeqId", SqlDbType.Int,4) ,            
+			            new SqlParameter("@Id", SqlDbType.Int,4) ,            
                         new SqlParameter("@Remark", SqlDbType.VarChar,50) ,            
                         new SqlParameter("@WareHouseCode", SqlDbType.VarChar,20) ,            
                         new SqlParameter("@StockId", SqlDbType.VarChar,20) ,            
@@ -113,7 +113,7 @@ namespace SelfhelpOrderMgr.DAL
               
             };
 
-            parameters[0].Value = model.SeqId;
+            parameters[0].Value = model.Id;
             parameters[1].Value = model.Remark;
             parameters[2].Value = model.WareHouseCode;
             parameters[3].Value = model.StockId;
@@ -139,16 +139,16 @@ namespace SelfhelpOrderMgr.DAL
         /// <summary>
         /// 删除一条数据
         /// </summary>
-        public bool Delete(int SeqId)
+        public bool Delete(int Id)
         {
 
             StringBuilder strSql = new StringBuilder();
             strSql.Append("delete from T_StockDTL ");
-            strSql.Append(" where SeqId=@SeqId");
+            strSql.Append(" where Id=@Id");
             SqlParameter[] parameters = {
-					new SqlParameter("@SeqId", SqlDbType.Int,4)
+					new SqlParameter("@Id", SqlDbType.Int,4)
 			};
-            parameters[0].Value = SeqId;
+            parameters[0].Value = Id;
 
 
             int rows = SqlHelper.ExecuteSql(strSql.ToString(), parameters);
@@ -165,11 +165,11 @@ namespace SelfhelpOrderMgr.DAL
         /// <summary>
         /// 批量删除一批数据
         /// </summary>
-        public bool DeleteList(string SeqIdlist)
+        public bool DeleteList(string Idlist)
         {
             StringBuilder strSql = new StringBuilder();
             strSql.Append("delete from T_StockDTL ");
-            strSql.Append(" where ID in (" + SeqIdlist + ")  ");
+            strSql.Append(" where ID in (" + Idlist + ")  ");
             int rows = SqlHelper.ExecuteSql(strSql.ToString());
             if (rows > 0)
             {
@@ -185,17 +185,17 @@ namespace SelfhelpOrderMgr.DAL
         /// <summary>
         /// 得到一个对象实体
         /// </summary>
-        public SelfhelpOrderMgr.Model.T_StockDTL GetModel(int SeqId)
+        public SelfhelpOrderMgr.Model.T_StockDTL GetModel(int Id)
         {
 
             StringBuilder strSql = new StringBuilder();
-            strSql.Append("select SeqId, Remark, WareHouseCode, StockId, GCode, GTXM, GCount, GDJ, Flag, StockFlag, InOutFlag  ");
+            strSql.Append("select Id, Remark, WareHouseCode, StockId, GCode, GTXM, GCount, GDJ, Flag, StockFlag, InOutFlag  ");
             strSql.Append("  from T_StockDTL ");
-            strSql.Append(" where SeqId=@SeqId");
+            strSql.Append(" where SeqId=@Id");
             SqlParameter[] parameters = {
-					new SqlParameter("@SeqId", SqlDbType.Int,4)
+					new SqlParameter("@Id", SqlDbType.Int,4)
 			};
-            parameters[0].Value = SeqId;
+            parameters[0].Value = Id;
 
 
             SelfhelpOrderMgr.Model.T_StockDTL model = new SelfhelpOrderMgr.Model.T_StockDTL();
@@ -203,9 +203,9 @@ namespace SelfhelpOrderMgr.DAL
 
             if (ds.Tables[0].Rows.Count > 0)
             {
-                if (ds.Tables[0].Rows[0]["SeqId"].ToString() != "")
+                if (ds.Tables[0].Rows[0]["Id"].ToString() != "")
                 {
-                    model.SeqId = int.Parse(ds.Tables[0].Rows[0]["SeqId"].ToString());
+                    model.Id = int.Parse(ds.Tables[0].Rows[0]["Id"].ToString());
                 }
                 model.Remark = ds.Tables[0].Rows[0]["Remark"].ToString();
                 model.WareHouseCode = ds.Tables[0].Rows[0]["WareHouseCode"].ToString();
