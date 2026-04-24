@@ -1,18 +1,20 @@
 ﻿using Nelibur.ObjectMapper;
 using Newtonsoft.Json;
+using NPOI.HSSF.UserModel;
 using NPOI.SS.Formula.Functions;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
 using SelfhelpOrderMgr.BLL;
 using SelfhelpOrderMgr.Common;
+using SelfhelpOrderMgr.Dto;
 using SelfhelpOrderMgr.Model;
 using SelfhelpOrderMgr.Web.CommonHeler;
-using SelfhelpOrderMgr.Dto;
 using SelfhelpOrderMgr.Web.Filters;
 using SelfhelpOrderMgr.Web.Models;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Data.Entity.Core.Common.CommandTrees.ExpressionBuilder;
 using System.Drawing.Drawing2D;
 using System.EnterpriseServices;
 using System.IO;
@@ -25,7 +27,6 @@ using System.Web.Services.Description;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using System.Web.Util;
-using NPOI.HSSF.UserModel;
 
 namespace SelfhelpOrderMgr.Web.Controllers
 {
@@ -40,7 +41,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
         int _SaleTypeId = 61;
 
-        #region ==========福费缴汇款记录模块Start==============
+        #region ==========出入库管理模块Start==============
 
         /// <summary>
         /// 库存管理首页
@@ -323,109 +324,9 @@ namespace SelfhelpOrderMgr.Web.Controllers
             
         }
 
-        /// <summary>
-        /// 获取福费缴的分页记录
-        /// </summary>
-        /// <param name="strJsonWhere"></param>
-        /// <param name="page"></param>
-        /// <param name="rows"></param>
-        /// <returns></returns>
-        public ActionResult GetFfjRecordJson(string strJsonWhere = "", int page = 1, int rows = 10)
-        {
-
-            var list = _bll.GetPageList<T_Bank_Recharge, T_Bank_Recharge_Search>("Id", strJsonWhere, page, rows);
-            return Json(list);
-        }
 
 
 
-        /// <summary>
-        /// 根据Id获取福费缴记录
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
-        public ActionResult GetFfjRecords(int id)
-        {
-            var model = _bll.GetModel<T_Bank_Recharge>(id);
-            return Json(model);
-        }
-
-
-        /// <summary>
-        /// Excel导出
-        /// </summary>
-        /// <param name="strJsonWhere"></param>
-        /// <returns></returns>
-        public ActionResult DoFfjExcelOut(string strJsonWhere)
-        {
-            ResultInfo rs = new ResultInfo();
-            var list = _bll.GetPageList<T_Bank_Recharge, T_Bank_Recharge_Search>("Id", strJsonWhere, 1, 10000);
-            if (list.rows.Count <= 0)
-            {
-                return Json(Newtonsoft.Json.JsonConvert.SerializeObject(rs));
-
-            }
-            string strFileName = "福费缴汇款记录" + DateTime.Today.ToString("yyyyMMdd") + ".xls";
-            string fullName = Server.MapPath("~/Upload/" + strFileName);
-            ExcelRender.RenderListToExcel(list.rows, "福费缴汇款记录", fullName);
-            rs.Flag = true;
-            rs.DataInfo = strFileName;
-            rs.ReMsg = "OK|成功";
-            return Json(rs);
-            //return File(ms.ToArray(), "application/vnd.ms-excel", "赔偿金申请记录" + DateTime.Today.ToString("yyyyMMdd")+".xls");
-
-        }
-
-
-
-        #endregion =====福费缴汇款记录模块End============
-
-
-
-
-        /// <summary>
-        /// 获取队别信息
-        /// </summary>
-        /// <returns></returns>
-        public ActionResult GetAreas()
-        {
-            //队别
-            List<T_AREA> areas = new T_AREABLL().GetModelList("");
-            return Content(Newtonsoft.Json.JsonConvert.SerializeObject(areas));
-        }
-
-
-        /// <summary>
-        /// 获取用户信息
-        /// </summary>
-        /// <param name="fcrimecode"></param>
-        /// <returns></returns>
-        public ActionResult GetUserName(string fcrimecode)
-        {
-            ResultInfo rs = new ResultInfo();
-            //队别
-            var crim = _bll.QueryModel<T_Criminal>("FCode", fcrimecode);
-            if (crim == null)
-            {
-                rs.Flag = false;
-                rs.ReMsg = "Err|编号不存在";
-
-            }
-            else if (crim.fflag == 1)
-            {
-                rs.Flag = true;
-                rs.ReMsg = "OK|成功,但已经离监了";
-                rs.DataInfo = crim;
-
-            }
-            else
-            {
-                rs.Flag = true;
-                rs.ReMsg = "OK|成功";
-                rs.DataInfo = crim;
-            }
-            return Json(rs);
-        }
 
 
 
@@ -562,10 +463,32 @@ namespace SelfhelpOrderMgr.Web.Controllers
         }
 
 
+        
+        /// <summary>
+        /// 打印库存单据
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public ActionResult PrintStockBill(int id)
+        {
+            var _model = _bll.GetModel<T_Stock>(id);
+            ViewBag.StockTaking = _model;
+            var details = _bll.QueryListByTableName<T_StockDTL>("StockId=@StockId", new { StockId = _model.StockId });
+            ViewBag.Details = details;
+            return View();
+        }
+
+
+        #endregion =====出入库管理模块End============
 
         #region 库存数量管理
         public ActionResult StockQtyIndex()
         {
+
+            var saleTypes=_bll.GetModelList<T_SHO_SaleType>("");
+            var goodTypes = _bll.GetModelList<T_GoodsType>("");
+            ViewBag.SaleTypes = saleTypes;
+            ViewBag.GoodTypes = goodTypes;
             return View();
         }
 
@@ -586,6 +509,614 @@ namespace SelfhelpOrderMgr.Web.Controllers
             //return Content(Newtonsoft.Json.JsonConvert.SerializeObject(list.rows));
             return Content(Newtonsoft.Json.JsonConvert.SerializeObject(list));
         }
+
+        /// <summary>
+        /// 获取商品类型下拉列表数据
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public ActionResult GetGoodTypes(int id=0)
+        {
+            var list = new List<T_GoodsType>();
+            if (id == 0)
+            {
+                list = _bll.GetModelList<T_GoodsType>("");
+            }
+            else
+            {
+                list = _bll.GetModelList<T_GoodsType>(Newtonsoft.Json.JsonConvert.SerializeObject(new { SaleTypeId=id }));
+            }
+            return Content(Newtonsoft.Json.JsonConvert.SerializeObject(list));
+        }
+
+
+        /// <summary>
+        /// 导出库存数量
+        /// </summary>
+        /// <param name="dto"></param>
+        /// <returns></returns>
+        public ActionResult ExcelOutStockBalance(StockQtyQueryDto dto)
+        {
+            ResultInfo rs = new ResultInfo();
+            try
+            {
+                var list = _bll.QueryPageListByDto<ViewGoodStockQty, StockQtyQueryDto>("ViewGoodStockQty", dto, 1, 1000, "Id desc", "");
+
+                if (list.rows.Count <= 0)
+                {
+                    return Json(Newtonsoft.Json.JsonConvert.SerializeObject(rs));
+                }
+                string strFileName = "库存清单" + DateTime.Today.ToString("yyyyMMdd") + ".xls";
+                string fullName = Server.MapPath("~/Upload/" + strFileName);
+                ExcelRender.RenderListToExcel(list.rows, "库存清单", fullName);
+                rs.Flag = true;
+                rs.DataInfo = strFileName;
+                rs.ReMsg = "OK|成功";
+                return Json(rs);
+            }
+            catch (Exception ex)
+            {
+                rs.ReMsg="处理文件时发生错误：" + ex.Message;
+                return Json(rs);
+            }
+
+            
+
+        }
+
+        #endregion
+
+
+        #region 库存盘点
+
+        public ActionResult StockTaking()
+        {
+            var cangkus = _bll.GetModelList<T_CommonTypeTab>(JsonConvert.SerializeObject(new { FType = "CangK" }));
+            ViewBag.Cangkus = cangkus;
+            var goodTypes = _bll.GetModelList<T_GoodsType>("");            
+            ViewBag.GoodTypes = goodTypes;
+            return View();
+        }
+
+        /// <summary>
+        /// 库存单盘点列表查询
+        /// </summary>
+        /// <param name="dto"></param>
+        /// <param name="page"></param>
+        /// <param name="rows"></param>
+        /// <returns></returns>
+        public ActionResult GetStockTakingList(StockTakingQueryDto dto, int page = 1, int rows = 10)
+        {
+            //T_Stock_Search wherDto = TinyMapper.Map<T_Stock_Search>(dto);
+            var list = _bll.QueryPageListByDto<T_StockTaking, StockTakingQueryDto>("T_StockTaking", dto, page, rows,"Id desc", "");
+
+            //return Content(Newtonsoft.Json.JsonConvert.SerializeObject(list.rows));
+            return Content(Newtonsoft.Json.JsonConvert.SerializeObject(list));
+        }
+
+        /// <summary>
+        /// 添加库存盘点单信息
+        /// </summary>
+        /// <param name="dto"></param>
+        /// <returns></returns>
+        public ActionResult AddStockTaking(T_StockTaking dto)
+        {
+            ResultInfo rs = new ResultInfo();
+            try
+            {
+                var maxModel = _bll.QueryListByTableName<T_StockTaking>(
+                    " CrtDate>=@StartDate and CrtDate<@EndDate ",
+                    new
+                    {
+                        StartDate = DateTime.Today,
+                        EndDate = DateTime.Today.AddDays(1)
+                    }).OrderByDescending(o=>o.CrtDate).FirstOrDefault();
+
+                string subNo = "0001";
+                if (maxModel != null)
+                {
+                    subNo = (Convert.ToInt32(maxModel.StockTakingNo
+                        .Replace($"PD{DateTime.Now.ToString("yyMMdd")}", "")) + 1)
+                        .ToString("0000");
+                }
+
+
+
+                dto.StockTakingNo = $"PD{DateTime.Now.ToString("yyMMdd")}{subNo}";
+                dto.CrtDate = DateTime.Now;
+                dto.CheckFlag = 0;
+
+                dto = _bll.Insert(dto);
+
+                rs.Flag = true;
+                rs.ReMsg = "盘点单创建成功";
+                rs.DataInfo = dto;
+                return new CustomJsonResult { Data = rs };
+            }
+            catch (Exception ex)
+            {
+                rs.ReMsg = $"Err|{ex.Message}";
+                return Json(rs);
+            }            
+            
+        }
+
+
+
+        /// <summary>
+        /// 获取盘点商品库存信息列表查询
+        /// </summary>
+        /// <param name="dto"></param>
+        /// <param name="page"></param>
+        /// <param name="rows"></param>
+        /// <returns></returns>
+        public ActionResult GetGoodStockQty(StockTakingQueryQtyDto dto, int page = 1, int rows = 10)
+        {
+
+            //T_Stock_Search wherDto = TinyMapper.Map<T_Stock_Search>(dto);
+            var list = _bll.QueryPageListByDto<ViewGoodStockQty, StockTakingQueryQtyDto>("ViewGoodStockQty", dto, page, rows, "Id desc", "");
+
+            //return Content(Newtonsoft.Json.JsonConvert.SerializeObject(list.rows));
+            return Content(Newtonsoft.Json.JsonConvert.SerializeObject(list));
+        }
+
+        /// <summary>
+        /// 添加库存盘点单信息
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="dto"></param>
+        /// <returns></returns>
+        public ActionResult AddStockTakingDetai(int id, List<ViewGoodStockQty> dto)
+        {
+            ResultInfo rs = new ResultInfo();
+            try
+            {
+                //T_Stock_Search wherDto = TinyMapper.Map<T_Stock_Search>(dto);
+                var model = _bll.GetModel<T_StockTaking>(id);
+                if (model == null || model.CheckFlag >= 1)
+                {
+                    rs.ReMsg = "盘点单不存在或已审核，不能添加商品";
+                    return Json(rs);
+                }
+                var list = TinyMapper.Map<List<T_StockTakingDetail>>(dto);
+                var _pdMain = _bll.GetModel<T_StockTaking>(id);
+                var oldList = _bll.GetModelList<T_StockTakingDetail>(JsonConvert.SerializeObject(new { StockTakingNo = _pdMain.StockTakingNo }));
+                List<string> gtxms = new List<string>();
+                if (oldList.Count > 0)
+                {
+                    gtxms = oldList.Select(o => o.GTXM).ToList();
+                }
+                //return Content(Newtonsoft.Json.JsonConvert.SerializeObject(list.rows));
+                var newList = list.Where(o => !gtxms.Contains(o.GTXM)).ToList();
+                newList.ForEach(o => { 
+                        o.StockTakingNo = model.StockTakingNo;
+                        o.WareHouseCode = model.WareHouseCode;
+                });
+                if (newList.Count > 0)
+                {
+                    _bll.Insert(newList);
+                }
+                oldList = _bll.GetModelList<T_StockTakingDetail>(JsonConvert.SerializeObject(new { StockTakingNo = _pdMain.StockTakingNo }));
+                var rsList = oldList.Where(o => newList.Select(p => p.GTXM).ToList().Contains(o.GTXM)).ToList();
+
+                rs.Flag = true;
+                rs.ReMsg = "添加成功";
+                rs.DataInfo = rsList;
+                return new CustomJsonResult { Data = rs };
+            }
+            catch (Exception ex)
+            {
+                rs.ReMsg = $"Err{ex.Message}";
+                return Json(rs);
+            }
+            
+
+            
+        }
+
+        public ActionResult GetStockTakingDetaiById(string StockTakingNo)
+        {
+            ResultInfo rs = new ResultInfo();
+            try
+            {
+                var list=new List<T_StockTakingDetail>();
+                if (!string.IsNullOrWhiteSpace(StockTakingNo))
+                {
+                    list = _bll.GetModelList<T_StockTakingDetail>(JsonConvert.SerializeObject(new { StockTakingNo = StockTakingNo }));
+                }
+
+                return Content(Newtonsoft.Json.JsonConvert.SerializeObject(list));
+            }
+            catch (Exception ex)
+            {
+                rs.ReMsg = $"Err{ex.Message}";
+                return Json(rs);
+            }
+
+
+
+        }
+
+
+        /// <summary>
+        /// 保存库存盘点单信息
+        /// </summary>
+        /// <param name="dto"></param>
+        /// <returns></returns>
+        public ActionResult SaveStockTakingDetail(List<T_StockTakingDetail> dto)
+        {
+            ResultInfo rs = new ResultInfo();
+            try
+            {
+                var stock = _bll.QueryModel<T_StockTaking>("StockTakingNo", dto[0].StockTakingNo);
+                if (stock.CheckFlag >= 1)
+                {
+                    rs.ReMsg = "盘点单已审核，不能修改";
+                    return Json(rs);
+                }
+                dto.ForEach(o => { o.DiffCount = o.RealCount-o.Balance; });
+                _bll.Update(dto);
+
+                rs.ReMsg = $"OK|保存成功";
+                return Json(rs);
+            }
+            catch (Exception ex)
+            {
+                rs.ReMsg = $"Err{ex.Message}";
+                return Json(rs);
+            }
+
+        }
+
+        /// <summary>
+        /// 删除库存盘点单信息
+        /// </summary>
+        /// <param name="dto"></param>
+        /// <returns></returns>
+        public ActionResult DeleteStockTakingDetail(List<T_StockTakingDetail> dto)
+        {
+            ResultInfo rs = new ResultInfo();
+            try
+            {
+                var model = _bll.GetModelFirst<T_StockTaking>(JsonConvert.SerializeObject(new{ StockTakingNo= dto[0].StockTakingNo}));
+                if (model.CheckFlag >= 1){
+                    rs.ReMsg = "盘点单已审核，不能删除";
+                    return Json(rs);
+                }
+
+                List<int> ids= dto.Select(o => o.Id).ToList();
+                _bll.Delete<T_StockTakingDetail>(ids);
+                var list = _bll.GetModelList<T_StockTakingDetail>(JsonConvert.SerializeObject(new { StockTakingNo = dto[0].StockTakingNo }));
+
+                rs.Flag=true;
+                rs.DataInfo = list;
+                rs.ReMsg = $"OK|删除成功";
+                return new CustomJsonResult { Data=rs };
+            }
+            catch (Exception ex)
+            {
+                rs.ReMsg = $"Err{ex.Message}";
+                return Json(rs);
+            }
+        }
+
+
+        /// <summary>
+        /// 审核库存盘点单信息
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public ActionResult AuditStockTaking(int id)
+        {
+            ResultInfo rs = new ResultInfo();
+            try
+            {
+                var _model = _bll.GetModel<T_StockTaking>(id);
+                if (_model == null)
+                {
+                    rs.ReMsg = "盘点单不存在";
+                    return Json(rs);
+                }
+                if (_model.CheckFlag >= 1)
+                {
+                    rs.ReMsg = "盘点单已审核，不能重复操作";
+                    return Json(rs);
+                }
+                _model.CheckFlag = 1;
+                if (_bll.Update(_model))
+                {
+                    rs.Flag = true;
+                    rs.ReMsg = "盘点单审核成功";
+                    rs.DataInfo = _model;
+                }
+                else
+                {
+                    rs.Flag = false;
+                    rs.ReMsg = "审核失败";
+                }
+                return Json(rs);
+            }
+            catch (Exception ex)
+            {
+                rs.ReMsg = $"Err|{ex.Message}";
+                return Json(rs);
+            }
+
+        }
+
+        /// <summary>
+        /// 取消审核
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public ActionResult UnAuditStockTaking(int id)
+        {
+            ResultInfo rs = new ResultInfo();
+            try
+            {
+                var model = _bll.GetModel<T_StockTaking>(id);
+                if (model==null || model.CheckFlag != 1)
+                {
+                    rs.ReMsg = "盘点单状态不正确，不能撤销审核";
+                    return Json(rs);
+                }
+                model.CheckFlag = 0;
+                _bll.Update<T_StockTaking>(model);
+
+                rs.Flag = true;
+                rs.DataInfo = null;
+                rs.ReMsg = $"OK|撤销审核成功";
+                return new CustomJsonResult { Data = rs };
+            }
+            catch (Exception ex)
+            {
+                rs.ReMsg = $"Err{ex.Message}";
+                return Json(rs);
+            }
+        }
+
+        /// <summary>
+        /// 生成盈亏调整
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public ActionResult AdjustStockTaking(int id)
+        {
+            ResultInfo rs = new ResultInfo();
+            try
+            {
+                var model = _bll.GetModel<T_StockTaking>(id);
+                if (model == null || model.CheckFlag != 1)
+                {
+                    rs.ReMsg = "盘点单状态不正确，生成盈亏调整";
+                    return Json(rs);
+                }
+                var details = _bll.GetModelList<T_StockTakingDetail>(JsonConvert.SerializeObject(new { StockTakingNo = model.StockTakingNo }));
+
+                var addDetails= details.Where(o => o.DiffCount > 0).ToList();
+                var subDetails = details.Where(o => o.DiffCount < 0).ToList();
+
+                var _goods=_bll.GetModelList<T_Goods>("");
+                var _goodsStockMain = _bll.QueryListByTableName<T_GOODSSTOCKMAIN>("","");
+
+                using (var ts = new TransactionScope())
+                {
+                    //添加盘盈入库单
+                    if (addDetails.Count > 0)
+                    {
+                        string stockId = GetStockPanDianId();
+
+                        var stockAdd = new T_Stock
+                        {
+                            StockId = stockId,
+                            CrtDt = DateTime.Now,
+                            InOutDate = DateTime.Now,
+                            Flag = -1,
+                            Stockflag = 109,
+                            InOutFlag = 1,
+                            StockType = "盘盈入库",
+                            CrtBy = base.loginUserName,
+                            CheckFlag = 1,
+                            CheckBy = base.loginUserName,
+                            CheckDt = DateTime.Now,
+                            WareHouseCode = model.WareHouseCode,
+                            Remark = "",
+                            InvoiceNo = model.StockTakingNo
+                        };
+                        _bll.Insert<T_Stock>(stockAdd);
+
+                        var stockAddDetails = addDetails.Select(o => new T_StockDTL
+                        {
+                            StockId = stockAdd.StockId,
+                            GCode = o.GCode,
+                            GName = o.GName,
+                            GTXM = o.GTXM,
+                            GCount = o.DiffCount ?? 0,
+                            GDJ = _goods.Where(g => g.GTXM == o.GTXM).FirstOrDefault().GDJ,
+                            Flag = 1,
+                            StockFlag = 109,
+                            InOutFlag = 1,
+                            Remark = "",
+                            ProductDate = DateTime.Today,
+                            WareHouseCode = o.WareHouseCode
+                        }).ToList();
+
+                        _bll.Insert<T_StockDTL>(stockAddDetails);
+
+                        var stockAddQtys = stockAddDetails.Select(o=>new PartChangeDto()
+                        {
+                            Id= _goodsStockMain.Where(g=>g.GCODE==o.GCode).FirstOrDefault().SEQNO,
+                            ChangeValue=o.GCount
+                        }).ToList();
+
+                        _bll.UpdatePartValueInfo<T_GOODSSTOCKMAIN>("Balance","seqno", stockAddQtys);
+
+                        addDetails.ForEach(o =>
+                        {
+                            o.StockId = stockId;
+                        });
+                        _bll.Update<T_StockTakingDetail>(addDetails);
+                    }
+
+                    //添加盘亏出库单
+                    if (subDetails.Count > 0)
+                    {
+                        string stockSubId = GetStockPanDianId();
+
+                        var stockSub = new T_Stock
+                        {
+                            StockId = stockSubId,
+                            CrtDt = DateTime.Now,
+                            InOutDate = DateTime.Now,
+                            Flag = -1,
+                            Stockflag = 119,
+                            InOutFlag = -1,
+                            StockType = "盘亏出库",
+                            CrtBy = base.loginUserName,
+                            CheckFlag = 1,
+                            CheckBy = base.loginUserName,
+                            CheckDt = DateTime.Now,
+                            WareHouseCode = model.WareHouseCode,
+                            Remark = "",
+                            InvoiceNo = model.StockTakingNo
+                        };
+                        _bll.Insert<T_Stock>(stockSub);
+
+                        var stockSubDetails = subDetails.Select(o => new T_StockDTL
+                        {
+                            StockId = stockSub.StockId,
+                            GCode = o.GCode,
+                            GName = o.GName,
+                            GTXM = o.GTXM,
+                            GCount = -(o.DiffCount ?? 0),
+                            GDJ = _goods.Where(g => g.GTXM == o.GTXM).FirstOrDefault().GDJ,
+                            Flag = 1,
+                            StockFlag = 119,
+                            InOutFlag = -1,
+                            Remark = "",
+                            ProductDate = DateTime.Today,
+                            WareHouseCode = o.WareHouseCode
+                        }).ToList();
+
+                        _bll.Insert<T_StockDTL>(stockSubDetails);
+
+                        var stockSubQtys = stockSubDetails.Select(o => new PartChangeDto()
+                        {
+                            Id = _goodsStockMain.Where(g => g.GCODE == o.GCode).FirstOrDefault().SEQNO,
+                            ChangeValue = -o.GCount
+                        }).ToList();
+
+                        _bll.UpdatePartValueInfo<T_GOODSSTOCKMAIN>("Balance","seqno", stockSubQtys);
+                        
+                        //更新盘点明细的对应的库存单编号
+                        subDetails.ForEach(o =>
+                        {
+                            o.StockId = stockSubId;
+                        });
+                        _bll.Update<T_StockTakingDetail>(subDetails);
+                    }
+
+                    //更新盘点单的状态
+                    model.CheckFlag = 2;
+                    _bll.Update<T_StockTaking>(model);
+
+                    rs.Flag = true;
+                    rs.DataInfo = model;
+                    rs.ReMsg = $"OK|生成盈亏调整成功";
+                    ts.Complete();
+                    return new CustomJsonResult { Data = rs };
+                }
+            }
+            catch (Exception ex)
+            {
+                rs.ReMsg = $"Err{ex.Message}";
+                return Json(rs);
+            }
+        }
+
+        /// <summary>
+        /// 生成盘盈盘亏单编号
+        /// </summary>
+        /// <returns></returns>
+        private string GetStockPanDianId()
+        {
+            var maxModel = _bll.QueryListByTableName<T_Stock>(
+                                    " CrtDt>=@StartDate and CrtDt<@EndDate and StockId like 'SPD%'",
+                                new
+                                {
+                                    StartDate = DateTime.Today,
+                                    EndDate = DateTime.Today.AddDays(1)
+                                }).OrderByDescending(o => o.StockId).FirstOrDefault();
+
+            string subNo = "0001";
+            if (maxModel != null)
+            {
+                subNo = (Convert.ToInt32(maxModel.StockId
+                    .Replace($"SPD{DateTime.Now.ToString("yyMMdd")}", "")) + 1)
+                    .ToString("0000");
+            }
+
+            string stockId = $"SPD{DateTime.Now.ToString("yyMMdd")}{subNo}";
+            return stockId;
+        }
+
+
+        
+        /// <summary>
+        /// 删除盘点单
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public ActionResult DeleteStockTaking(int id)
+        {
+            ResultInfo rs = new ResultInfo();
+            try
+            {
+                var _model = _bll.GetModel<T_StockTaking>(id);
+                if (_model == null)
+                {
+                    rs.ReMsg = "盘点单不存在";
+                    return Json(rs);
+                }
+                if (_model.CheckFlag >= 1)
+                {
+                    rs.ReMsg = "盘点单已审核，不能删除";
+                    return Json(rs);
+                }
+                using(TransactionScope ts = new TransactionScope())
+                {
+                    _bll.Delete<T_StockTaking>(id);
+                    _bll.Delete<T_StockTakingDetail>("StockTakingNo", _model.StockTakingNo);
+                    rs.Flag = true;
+                    rs.ReMsg = "OK|删除成功";
+                    rs.DataInfo = null;
+                    ts.Complete();
+                    return Json(rs);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                rs.ReMsg = $"Err|{ex.Message}";
+                return Json(rs);
+            }
+
+        }
+
+        /// <summary>
+        /// 打印盘点单
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public ActionResult PrintStockTaking(int id)
+        {
+            var _model = _bll.GetModel<T_StockTaking>(id);
+            ViewBag.StockTaking = _model;
+            var details = _bll.QueryListByTableName<T_StockTakingDetail>("StockTakingNo=@StockTakingNo",new { StockTakingNo = _model.StockTakingNo });
+            ViewBag.Details = details;
+            return View();
+        }
+
         #endregion
     }
 }

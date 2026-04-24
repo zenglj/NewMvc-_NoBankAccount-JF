@@ -1458,6 +1458,9 @@
     <Content Include="Views\SalesShiti\StopShoppingNotice.cshtml" />
     <Content Include="Views\SalesShiti\NoAtShoppingTime.cshtml" />
     <Content Include="Views\StockMgr\StockQtyIndex.cshtml" />
+    <Content Include="Views\StockMgr\StockTaking.cshtml" />
+    <Content Include="Views\StockMgr\PrintStockTaking.cshtml" />
+    <Content Include="Views\StockMgr\PrintStockBill.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

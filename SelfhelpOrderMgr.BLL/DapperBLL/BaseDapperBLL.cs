@@ -1,10 +1,12 @@
-﻿using SelfhelpOrderMgr.Model;
+﻿using SelfhelpOrderMgr.DAL;
+using SelfhelpOrderMgr.Dto;
+using SelfhelpOrderMgr.Model;
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Web;
-using SelfhelpOrderMgr.DAL;
-using System.Data;
 
 namespace SelfhelpOrderMgr.BLL
 {
@@ -156,6 +158,11 @@ namespace SelfhelpOrderMgr.BLL
         public bool Delete<T>(int id) where T : BaseModel
         {
             return dapperDal.Delete<T>(id);
+        }
+
+        public bool Delete<T>(List<int> idsToDelete) where T : BaseModel
+        {
+            return dapperDal.Delete<T>(idsToDelete);
         }
 
         public bool Delete<T>(string fieldName, string fieldValue) where T : BaseModel
@@ -341,6 +348,20 @@ namespace SelfhelpOrderMgr.BLL
         public bool UpdatePartInfo<T>(object paramUpdateInfo, string strwhere, object paramWhere)
         {
             return dapperDal.UpdatePartInfo<T>(paramUpdateInfo, strwhere, paramWhere);
+        }
+
+
+        /// <summary>
+        /// 部分字段更新数值
+        /// </summary>
+        /// <typeparam name="T">表名</typeparam>
+        /// <param name="fieldName">字段名</param>
+        /// <param name="objUpdates">更新的对象列表</param>
+        /// <returns></returns>
+        public bool UpdatePartValueInfo<T>(string changeField,string whereField, List<PartChangeDto> objUpdates)
+        {
+            return dapperDal.UpdatePartValueInfo<T>(changeField, whereField, objUpdates);
+
         }
 
         public string ExecuteProc(string procName, Dictionary<string, string> dict)

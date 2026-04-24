@@ -1,0 +1,110 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>出入库单打印</title>
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Content/buttons.css" rel="stylesheet" />
+    <link href="~/Content/PrintReportCss.css" rel="stylesheet" />
+</head>
+<body>
+    <div>
+        <div class="row">
+            <div class="col-sm-1"></div>
+            <div class="col-sm-10">
+                <div class="page-header text-center">
+                    <h3> 出入库单 <small>报表日期: @DateTime.Today.ToShortDateString()</small></h3>
+                    <div class="row">
+                        <div class="col-sm-7 text-left">日期:</div>
+                        <div class="col-sm-5 text-right"></div>
+                    </div>
+                </div>
+
+                <table class="table table-striped table-bordered">
+                    
+
+                    <thead>
+                        @if (ViewBag.StockTaking != null)
+                        {
+                            var m = ViewBag.StockTaking as SelfhelpOrderMgr.Model.T_Stock;
+                            string checkText = "编辑中";
+                            if (m.CheckFlag == 1)
+                            {
+                                checkText = "已审核";
+                            }
+                            else if (m.CheckFlag == 2)
+                            {
+                                checkText = "已完成";
+                            }
+                            <tr class="success">
+                                <th>单号</th>
+                                <td>@m.WareHouseCode  @m.StockId (   @checkText )</td>
+                                <th>日期</th>
+                                <td>@m.CrtDt.ToString("yyyy-MM-dd")</td>
+                                <th>备注</th>
+                                <td>@m.Remark</td>
+                            </tr>
+                        }
+                        <tr>
+                            <th>序号</th>
+                            <th>品名</th>
+                            <th>条码</th>
+                            <th>单价</th>
+                            <th>数量</th>
+                            <th>生成日期</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (ViewBag.Details != null)
+                        {
+                            var details = ViewBag.Details as List<SelfhelpOrderMgr.Model.T_StockDTL>;
+                            int index = 1;
+                            foreach (var item in details)
+                            {
+                                <tr>
+                                    <td>@index</td>
+                                    <td>@item.GName</td>
+                                    <td>@item.GTXM</td>
+                                    <td>@item.GDJ</td>
+                                    <td>@item.GCount</td>
+                                    <td>@item.ProductDate</td>
+                                </tr>
+                                index++;
+                            }
+                            <tr>
+                                <td>合计</td>
+                                <td></td>
+                                <td></td>
+                                <td>合计金额:</td>
+                                <td>@details.Sum(o=>o.GDJ*o.GCount)</td>
+                                <td></td>
+                            </tr>
+                        }
+
+                    </tbody>
+                </table>
+
+
+
+
+            </div>
+            <div class="col-sm-1"></div>
+
+        </div>
+    </div>
+    <script src="~/Scripts/jquery-1.11.3.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <script src="~/Scripts/myJs/commonJs.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            $("#tootipInfo").html('恭喜你,数据加载完成了。对明细记录超过5000条的记录将不再显示，请增加查询条件!');
+        });
+
+    </script>
+</body>
+</html>

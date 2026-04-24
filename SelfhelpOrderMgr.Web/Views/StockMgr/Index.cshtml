@@ -184,7 +184,8 @@
     <div id="tb-detail">
         <a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="appendRow()">增加行</a>
         <a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="removeRow()">删除行</a>
-        <a href="#" class="easyui-linkbutton" iconCls="icon-download" plain="true" onclick="importExcel()">Excel导入</a>
+        <a href="#" class="easyui-linkbutton" iconCls="icon-reload" plain="true" onclick="importExcel()">Excel导入</a>
+        <a href="#" class="easyui-linkbutton" iconCls="icon-print" plain="true" onclick="printStockBill()">打印单据</a>
         <input type="file" id="excelFile" style="display:none" accept=".xls,.xlsx">
     </div>
 
@@ -297,13 +298,7 @@
         function formatNSDate(val) {
             //console.log(val);
             return val ? getShortTime(val) : '';
-            //if (val != null || val != '' || val != undefined) {
-            //    return getShortTime(val);
-            //}
-            //else {
-            //    return ''
-            //}
-            
+
         }
 
         
@@ -326,43 +321,7 @@
                 "Remark": sRemark
             });
 
-            //$.post("/StockMgr/GetRecordList", {
-            //    "StockId": sId,
-            //    "StockType": sType,
-            //    "CrtDt_Start": sStart,
-            //    "CrtDt_End": sEnd,
-            //    "Remark":sRemark
-            //}, function (data, status) {
-            //    if ("success" == status) {
-            //        console.log(data);
-
-            //        // 模拟前端过滤数据
-            //        //var filteredData = data.rows;
-
-            //        $('#dg-list').datagrid('loadData', data);
-
-            //        if (data.rows.length === 0) {
-            //            $.messager.show({ title: '提示', msg: '没有找到符合条件的记录' });
-            //        }
-            //    }
-            //});
-
-            //// 模拟前端过滤数据
-            //var filteredData = stockMasterData.filter(function (item) {
-            //    var matchId = !sId || item.StockId.indexOf(sId) > -1;
-            //    var matchType = !sType || item.StockType === sType;
-            //    var matchDate = true;
-            //    if (sStart && item.InOutDate < sStart) matchDate = false;
-            //    if (sEnd && item.InOutDate > sEnd) matchDate = false;
-
-            //    return matchId && matchType && matchDate;
-            //});
-
-            //$('#dg-list').datagrid('loadData', filteredData);
-
-            //if (filteredData.length === 0) {
-            //    $.messager.show({ title: '提示', msg: '没有找到符合条件的记录' });
-            //}
+            
         }
 
         function clearSearchForm() {
@@ -407,12 +366,7 @@
             // 模拟加载明细数据 (实际应根据StockId去后台查 T_StockDTL)
             // 这里为了演示，随机生成一些假数据
             var mockDetails = [];
-            //if (row.StockType === '采购入库') {
-            //    mockDetails = [
-            //        { GCODE: 'G001', GTXM: '690001', GCOUNT: 50, GDJ: 10.0, Remark: '模拟明细' },
-            //        { GCODE: 'G002', GTXM: '690002', GCOUNT: 20, GDJ: 25.0, Remark: '模拟明细' }
-            //    ];
-            //}
+
 
             $.post("/StockMgr/GetStockDetailJson", { "StockId": currentStockId },
                 function(data,status) {
@@ -466,7 +420,7 @@
             if (oldRows != null) {
                 addId = oldRows.length + 1;
             }
-            $('#dg-detail').datagrid('appendRow', { Id: addId, GTXM: '', GCode: '', GName: '',ProductDate:'2026-04-11', GCount: 1, GDJ: 0, Remark: '' });
+            $('#dg-detail').datagrid('appendRow', { Id: addId, GTXM: '', GCode: '', GName: '',ProductDate:'', GCount: 1, GDJ: 0, Remark: '' });
             var rows = $('#dg-detail').datagrid('getRows');
             $('#dg-detail').datagrid('selectRow', rows.length - 1);
         }
@@ -507,15 +461,7 @@
 
             var file = fileInput.files[0]; // 获取文件对象
             var formData = new FormData();
-            //var dto = {
-            //    "stock": {
-            //        "StockId": $("#StockId").textbox('getValue'),
-            //        "StockType": $("#StockType").combobox('getValue'),
-            //        "InOutDate": $("#InOutDate").datebox('getValue'),
-            //        "Remark": $("#Remark").textbox('getValue')
-            //    },
-            //    "details": rows
-            //};
+
             // 2. 将文件添加到FormData对象中
             // 'excelFile' 这个名字需要和后台接收的参数名一致
 
@@ -577,21 +523,10 @@
                 $('#dg-detail').datagrid('endEdit', $('#dg-detail').datagrid('getRowIndex', selectedRow));
 
             });
-            //if (selectedRow) {
-            //    $('#dg-detail').datagrid('endEdit', $('#dg-detail').datagrid('getRowIndex', selectedRow));
-            //}
+
 
             console.log(rows);
 
-            //var dto = {
-            //    "stock": {
-            //        "StockId": 'STK20260401', "StockType": '采购入库', "InOutFlag": 1, "Remark": '第一批春季采购' },
-            //     "details":[
-            //         {
-            //             "Id": 0, "GCode": 'G001', "GTXM": '690001', "GCount": 50, "GDJ": 10.0, "Remark": '模拟明细' },
-            //         { "Id": 0, "GCode": 'G003', "GTXM": '690003', "GCount": 50, "GDJ": 10.0, "Remark": '模拟明细' }
-            //        ]
-            //};
 
 
             var dto = {
@@ -602,7 +537,7 @@
             };
 
             //var dto =  { StockId: 'STK20260401', StockType: '采购入库', InOutFlag: 1, Remark: '第一批春季采购' };
-
+            
             
             $.ajax({
                 url: '/StockMgr/SaveStockInfo',
@@ -627,49 +562,7 @@
                 }
             });
 
-            //// 结束编辑，确保数据已更新到行
-            //var selectedRow = $('#dg-detail').datagrid('getSelected');
-            //if (selectedRow) {
-            //    $('#dg-detail').datagrid('endEdit', $('#dg-detail').datagrid('getRowIndex', selectedRow));
-            //}
-
-            //var rows = $('#dg-detail').datagrid('getRows');
-            //if (rows.length === 0) {
-            //    $.messager.alert('警告', '请至少添加一行商品！', 'warning');
-            //    return;
-            //}
-
-            //// 模拟更新库存 (T_GOODSSTOCKMAIN)
-            //rows.forEach(function (item) {
-            //    var stockItem = goodsStockMain.find(function (g) { return g.GCODE === item.GCODE; });
-            //    if (stockItem) {
-            //        stockItem.BALANCE += parseFloat(item.GCOUNT);
-            //    } else {
-            //        goodsStockMain.push({ GCODE: item.GCODE, BALANCE: parseFloat(item.GCOUNT) });
-            //    }
-            //});
-
-            //// 更新主单状态
-            //$('#CHECKFLAG').textbox('setValue', '已审核');
-
-            //// 刷新主界面列表数据
-            //var formData = $('#stockForm').form('getData');
-            //formData.CHECKFLAG = 1; // 标记为已审核用于显示
-
-            //// 检查列表里是否已有该单号，有则更新，无则添加
-            //var exists = false;
-            //for (var i = 0; i < stockMasterData.length; i++) {
-            //    if (stockMasterData[i].StockId == currentStockId) {
-            //        stockMasterData[i] = formData;
-            //        exists = true;
-            //    }
-            //}
-            //if (!exists) stockMasterData.push(formData);
-
-            //$('#dg-list').datagrid('loadData', stockMasterData); // 刷新列表
-
-            //$.messager.alert('成功', '入库单已保存并审核，库存已更新！');
-            //// 不关闭弹窗，方便继续录入或查看
+            
         }
 
         function auditCurrent() {
@@ -802,6 +695,13 @@
 
         function closeDialog() {
             $('#dlg-edit').dialog('close');
+        }
+
+        function printStockBill() {
+            var row = $('#dg-list').datagrid('getSelected');
+            if (!row) return $.messager.alert('提示', '请选择单据');
+
+            window.open("/StockMgr/PrintStockBill/" + row.Id);
         }
     </script>
 </body>

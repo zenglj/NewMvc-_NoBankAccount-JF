@@ -42,6 +42,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Dto\PartChange\PartChangeDto.cs" />
     <Compile Include="Dto\StockMgr\StockAddPostDto.cs" />
     <Compile Include="Dto\StockMgr\StockAuditQueryDto.cs" />
     <Compile Include="Dto\StockMgr\StockDeleteDto.cs" />
@@ -51,6 +52,8 @@
     <Compile Include="Dto\StockMgr\StockImportExcelDto.cs" />
     <Compile Include="Dto\StockMgr\StockQtyQueryDto.cs" />
     <Compile Include="Dto\StockMgr\StockQueryDto.cs" />
+    <Compile Include="Dto\StockMgr\StockTakingQueryDto.cs" />
+    <Compile Include="Dto\StockMgr\StockTakingQueryQtyDto.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

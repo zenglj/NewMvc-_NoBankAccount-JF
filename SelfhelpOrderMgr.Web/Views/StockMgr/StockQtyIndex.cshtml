@@ -81,7 +81,7 @@
     <div class="easyui-layout" data-options="fit:true">
 
         <!-- 2. 顶部区域：放查询条件和按钮 -->
-        <div data-options="region:'north', border:false" style="height: 200px; padding: 10px; background: #fff;">
+        <div data-options="region:'north', border:false" style="height: 170px; padding: 10px; background: #fff;">
             
             <!-- 查询条件区域 -->
         <div class="easyui-panel" title="库存查询条件" style="width:100%;" data-options="border:false, iconCls:'icon-search'">
@@ -95,12 +95,6 @@
                         <label>商品条码:</label>
                         <input id="GTXM" name="GTXM" class="easyui-textbox" style="width:180px;" data-options="prompt:'扫描或输入条码'">
                     </div>
-                </div>
-                <div class="search-row">
-                    <div class="search-item">
-                        <label>商品类别:</label>
-                        <input id="GType" name="GType" class="easyui-combobox" style="width:180px;" data-options="valueField:'id',textField:'name'">
-                    </div>
                     <div class="search-item">
                         <label>商品简码:</label>
                         <input id="SPShortCode" name="SPShortCode" class="easyui-textbox" style="width:180px;" data-options="prompt:'助记码/简码'">
@@ -109,11 +103,45 @@
                 <div class="search-row">
                     <div class="search-item">
                         <label>消费类型:</label>
-                        <input id="SaleTypeId" name="SaleTypeId" class="easyui-combobox" style="width:180px;" data-options="valueField:'Id',textField:'PType'">
+
+                        <select id="SaleTypeId" class="easyui-combobox" name="SaleTypeId" style="width:180px;" data-options="
+                                    onSelect: function(rec){
+                                        var url = '/StockMgr/GetGoodTypes?id='+rec.Id;
+                                        $('#GType').combobox('reload', url);
+                                    }">
+                            <option value="">请选择</option>
+                            @if (ViewBag.SaleTypes != null)
+                            {
+                                var saleTypes = ViewBag.SaleTypes as List<SelfhelpOrderMgr.Model.T_SHO_SaleType>;
+                                foreach (var item in saleTypes)
+                                {
+                                    <option value="@item.Id">@item.PType</option>
+                                }
+                            }
+                        </select>
+
+
                     </div>
                     <div class="search-item">
-                        <a href="#" class="easyui-linkbutton" iconCls="icon-search"  onclick="doSearch()">查询</a>
-                        &ensp;<a href="#" class="easyui-linkbutton" iconCls="icon-clear"  onclick="resetSearch()">重置</a>
+                        <label>商品类别:</label>
+                        @*<input id="GType" name="GType" class="easyui-combobox" style="width:180px;" data-options="valueField:'FCode',textField:'FName'">*@
+
+                        <select id="GType" class="easyui-combobox" name="GType" style="width:180px;" data-options="valueField:'Fcode',textField:'Fname'">
+                            <option value="">请选择</option>
+                            @if (ViewBag.GoodTypes != null)
+                            {
+                                var goodTypes = ViewBag.GoodTypes as List<SelfhelpOrderMgr.Model.T_GoodsType>;
+                                foreach (var item in goodTypes)
+                                {
+                                    <option value="@item.Fcode">@item.Fname</option>
+                                }
+                            }
+                        </select>
+
+                    </div>
+                    <div class="search-item">
+                        <a href="#" class="easyui-linkbutton" iconCls="icon-search" onclick="doSearch()">查询</a>
+                        &ensp;<a href="#" class="easyui-linkbutton" iconCls="icon-clear" onclick="resetSearch()">重置</a>
                     </div>
                 </div>
 
@@ -122,7 +150,7 @@
 
             <!-- 按钮工具栏 -->
             <div class="toolbar">
-                <a href="#" class="easyui-linkbutton" iconCls="icon-print"  onclick="alert('正在导出Excel...')">导出</a>
+                <a href="#" class="easyui-linkbutton" iconCls="icon-print"  onclick="doExcelOut()">导出</a>
             </div>
         </div>
 
@@ -135,23 +163,37 @@
     <script>
         $(function () {
             // 1. 模拟数据源 (类别)
-            var categories = [
-                { id: 1, name: '数码产品' },
-                { id: 2, name: '食品饮料' },
-                { id: 3, name: '家居用品' },
-                { id: 4, name: '服装鞋帽' }
-            ];
-            $('#GType').combobox('loadData', categories);
+            //var categories = [
+            //    { id: 1, name: '数码产品' },
+            //    { id: 2, name: '食品饮料' },
+            //    { id: 3, name: '家居用品' },
+            //    { id: 4, name: '服装鞋帽' }
+            //];
+            //$('#GType').combobox('loadData', categories);
 
 
             // 1. 模拟数据源 (类别)
-            var saleTypes = [
-                { Id: 1, PType: '超市消费' },
-                { Id: 2, PType: '订购水果' },
-                { Id: 3, PType: '购买刑满便服' },
-                { Id: 4, PType: '积分消费' }
-            ];
-            $('#SaleTypeId').combobox('loadData', saleTypes);
+            //var saleTypes = [
+            //    { Id: 1, PType: '超市消费' },
+            //    { Id: 2, PType: '订购水果' },
+            //    { Id: 3, PType: '购买刑满便服' },
+            //    { Id: 4, PType: '积分消费' }
+            //];
+            //$('#SaleTypeId').combobox('loadData', saleTypes);
+
+
+
+            $('#SaleTypeId').combobox({
+                // 注册 onSelect 事件
+                onSelect: function (rec) {
+                    // record 参数是选中项的完整数据对象
+                    console.log('你选择了: ' + rec.text);
+                    console.log('选中项的ID是: ' + rec.value);
+                    // 在这里编写你的业务逻辑
+                    var url = '/StockMgr/GetGoodTypes?id=' + rec.value;
+                    $('#GType').combobox('reload', url);
+                }
+            });
 
             // 2. 模拟数据源 (库存列表 - 模拟后台返回)
 
@@ -188,7 +230,7 @@
                         }
                     },                    
                     { field: 'PType', title: '消费类型', width: 80 },
-                    { field: 'SaleTypeId', title: '消费类型Id', width: 80 }
+                    { field: 'SaleTypeId', title: '消费类型Id', width: 80, hidden: true }
                 ]],
                 onLoadSuccess: function (data) {
                     // 计算 Footer 合计
@@ -228,30 +270,47 @@
         }
 
 
-        // 扩展 jQuery 原型
-        $.fn.serializeObject = function () {
-            var o = {};
-            var a = this.serializeArray();
-            $.each(a, function () {
-                if (o[this.name]) {
-                    // 如果属性已存在，说明是同名元素（如 checkbox），转为数组处理
-                    if (!o[this.name].push) {
-                        o[this.name] = [o[this.name]];
-                    }
-                    o[this.name].push(this.value || '');
-                } else {
-                    // 单个值直接赋值
-                    o[this.name] = this.value || '';
-                }
-            });
-            return o;
-        };
 
         // 5. 重置功能
         function resetSearch() {
             $('#searchForm').form('clear');
             // 重置后重新加载数据
             // $('#dg-stock').datagrid('load', {});
+        }
+
+        function doExcelOut() {
+
+            var data = $("#searchForm").serializeObject();
+            $.messager.progress({ text: '正在生成文件...' });
+            $.ajax(
+                {
+                    url: '/StockMgr/ExcelOutStockBalance',
+                    type: 'POST',                    
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: 'json',
+                    data: JSON.stringify({
+                        dto: data
+                    }),
+                    success: function (data) {
+                        // 4. 处理后台返回的成功响应
+                        if (data.Flag == true) {
+                            // 假设后台返回了处理后的数据
+                            window.open('/Upload/'+data.DataInfo);
+                        }
+                        else {
+                            $.messager.alert("提示", data.ReMsg);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+
+                        $.messager.alert('错误', '系统异常，上传失败。');
+                    },
+                    complete: function () {
+                        // 6. 无论成功失败，都清空文件输入框
+                        $.messager.progress('close');
+                    }
+                }
+            );
         }
     </script>
 

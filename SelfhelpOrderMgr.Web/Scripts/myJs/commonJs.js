@@ -356,3 +356,23 @@ function base64decode(str) {
     return out;
 }
 
+
+//表单数据序列化为Json对象
+// 扩展 jQuery 原型
+$.fn.serializeObject = function () {
+    var o = {};
+    var a = this.serializeArray();
+    $.each(a, function () {
+        if (o[this.name]) {
+            // 如果属性已存在，说明是同名元素（如 checkbox），转为数组处理
+            if (!o[this.name].push) {
+                o[this.name] = [o[this.name]];
+            }
+            o[this.name].push(this.value || '');
+        } else {
+            // 单个值直接赋值
+            o[this.name] = this.value || '';
+        }
+    });
+    return o;
+};

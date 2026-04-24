@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using SelfhelpOrderMgr.Dto;
 using SelfhelpOrderMgr.Model;
 using System;
 using System.Collections.Generic;
@@ -532,6 +533,24 @@ namespace SelfhelpOrderMgr.DAL
             {
                 string sql = SqlBuilder<T>.GetDeleteSql() + id.ToString();
                 return SqlMapper.Execute(conn, sql) == 1;//
+            }
+        }
+
+        public bool Delete<T>(List<int> idsToDelete) where T : BaseModel
+        {
+            using (SqlConnection conn = new SqlConnection(SqlHelper.getConnstr()))
+            {
+                Type type = typeof(T);
+
+                // 假设要删除的ID列表
+                //var idsToDelete = new List<int> { 10, 11, 12 };
+
+                // 使用 IN 子句进行删除
+                string sql = $"DELETE FROM {type.Name} WHERE Id IN @Ids";
+                int affectedRows = conn.Execute(sql, new { Ids = idsToDelete });
+
+
+                return (affectedRows >= 1);//
             }
         }
 
@@ -1757,6 +1776,27 @@ namespace SelfhelpOrderMgr.DAL
                 var irow = SqlMapper.Execute(conn, strSql.ToString(),param);
                 return irow == 1;
 
+            }
+        }
+
+        /// <summary>
+        /// 部分字段更新数值
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="fieldName"></param>
+        /// <param name="objUpdates"></param>
+        /// <returns></returns>
+        public bool UpdatePartValueInfo<T>(string changeField,string whereFiled ,List<PartChangeDto> objUpdates)
+        {
+            using (var conn = new SqlConnection(SqlHelper.getConnstr()))
+            {
+                Type type = typeof(T);
+
+                string sql = $"UPDATE {type.Name} SET {changeField} = {changeField} + @ChangeValue WHERE {whereFiled} = @Id";
+                
+                SqlMapper.Execute(conn,sql,objUpdates);
+                return true;
+                
             }
         }
 

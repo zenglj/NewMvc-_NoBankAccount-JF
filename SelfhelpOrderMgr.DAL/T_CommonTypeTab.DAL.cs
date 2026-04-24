@@ -63,10 +63,10 @@ namespace SelfhelpOrderMgr.DAL
             strSql.Append(" FCode = @FCode , ");                                    
             strSql.Append(" FName = @FName , ");                                    
             strSql.Append(" FRemark = @FRemark  ");            			
-			strSql.Append(" where ID=@ID ");
+			strSql.Append(" where Id=@Id ");
 						
 SqlParameter[] parameters = {
-			            new SqlParameter("@ID", SqlDbType.Int,4) ,            
+			            new SqlParameter("@Id", SqlDbType.Int,4) ,            
                         new SqlParameter("@FType", SqlDbType.VarChar,50) ,            
                         new SqlParameter("@FCode", SqlDbType.VarChar,50) ,            
                         new SqlParameter("@FName", SqlDbType.VarChar,50) ,            
@@ -74,7 +74,7 @@ SqlParameter[] parameters = {
               
             };
 						            
-            parameters[0].Value = model.ID;                        
+            parameters[0].Value = model.Id;                        
             parameters[1].Value = model.FType;                        
             parameters[2].Value = model.FCode;                        
             parameters[3].Value = model.FName;                        
@@ -94,16 +94,16 @@ SqlParameter[] parameters = {
 		/// <summary>
 		/// 删除一条数据
 		/// </summary>
-		public bool Delete(int ID)
+		public bool Delete(int Id)
 		{
 			
 			StringBuilder strSql=new StringBuilder();
 			strSql.Append("delete from T_CommonTypeTab ");
-			strSql.Append(" where ID=@ID");
+			strSql.Append(" where Id=@Id");
 						SqlParameter[] parameters = {
-					new SqlParameter("@ID", SqlDbType.Int,4)
+					new SqlParameter("@Id", SqlDbType.Int,4)
 			};
-			parameters[0].Value = ID;
+			parameters[0].Value = Id;
 
 
 			int rows=SqlHelper.ExecuteSql(strSql.ToString(),parameters);
@@ -124,7 +124,7 @@ SqlParameter[] parameters = {
 		{
 			StringBuilder strSql=new StringBuilder();
 			strSql.Append("delete from T_CommonTypeTab ");
-			strSql.Append(" where ID in ("+IDlist + ")  ");
+			strSql.Append(" where Id in ("+IDlist + ")  ");
 			int rows=SqlHelper.ExecuteSql(strSql.ToString());
 			if (rows > 0)
 			{
@@ -140,17 +140,17 @@ SqlParameter[] parameters = {
 		/// <summary>
 		/// 得到一个对象实体
 		/// </summary>
-		public SelfhelpOrderMgr.Model.T_CommonTypeTab GetModel(int ID)
+		public SelfhelpOrderMgr.Model.T_CommonTypeTab GetModel(int Id)
 		{
 			
 			StringBuilder strSql=new StringBuilder();
-			strSql.Append("select ID, FType, FCode, FName, FRemark  ");			
+			strSql.Append("select Id, FType, FCode, FName, FRemark  ");			
 			strSql.Append("  from T_CommonTypeTab ");
-			strSql.Append(" where ID=@ID");
+			strSql.Append(" where Id=@Id");
 						SqlParameter[] parameters = {
-					new SqlParameter("@ID", SqlDbType.Int,4)
+					new SqlParameter("@Id", SqlDbType.Int,4)
 			};
-			parameters[0].Value = ID;
+			parameters[0].Value = Id;
 
 			
 			SelfhelpOrderMgr.Model.T_CommonTypeTab model=new SelfhelpOrderMgr.Model.T_CommonTypeTab();
@@ -158,9 +158,9 @@ SqlParameter[] parameters = {
 			
 			if(ds.Tables[0].Rows.Count>0)
 			{
-												if(ds.Tables[0].Rows[0]["ID"].ToString()!="")
+												if(ds.Tables[0].Rows[0]["Id"].ToString()!="")
 				{
-					model.ID=int.Parse(ds.Tables[0].Rows[0]["ID"].ToString());
+					model.Id=int.Parse(ds.Tables[0].Rows[0]["Id"].ToString());
 				}
 																																				model.FType= ds.Tables[0].Rows[0]["FType"].ToString();
 																																model.FCode= ds.Tables[0].Rows[0]["FCode"].ToString();
@@ -182,7 +182,7 @@ SqlParameter[] parameters = {
 		public DataSet GetList(string strWhere)
 		{
 			StringBuilder strSql=new StringBuilder();
-			strSql.Append("select ID, FType, FCode, FName, FRemark  ");
+			strSql.Append("select Id, FType, FCode, FName, FRemark  ");
 			strSql.Append(" FROM T_CommonTypeTab ");
 			if(strWhere.Trim()!="")
 			{
@@ -202,7 +202,7 @@ SqlParameter[] parameters = {
 			{
 				strSql.Append(" top "+Top.ToString());
 			}
-			strSql.Append(" ID, FType, FCode, FName, FRemark  ");
+			strSql.Append(" Id, FType, FCode, FName, FRemark  ");
 			strSql.Append(" FROM T_CommonTypeTab ");
 			if(strWhere.Trim()!="")
 			{

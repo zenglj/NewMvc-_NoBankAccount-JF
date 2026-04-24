@@ -53,6 +53,33 @@ namespace SelfhelpOrderMgr.Web.CommonHeler
             //商品库存数量查询dto映射
             TinyMapper.Bind<ViewGoodStockQty, StockQtyQueryDto>();
             TinyMapper.Bind<StockQtyQueryDto, ViewGoodStockQty>();
+
+            //盘点单查询dto映射
+            TinyMapper.Bind<ViewGoodStockQty, T_StockTakingDetail>();
+            TinyMapper.Bind<T_StockTakingDetail, ViewGoodStockQty>();
+
+
+            //盘点单查询dto映射
+            TinyMapper.Bind<T_StockTaking, StockTakingQueryDto>();
+            TinyMapper.Bind<StockTakingQueryDto, T_StockTaking>();
+
+            TinyMapper.Bind<List<T_StockTaking>, List<StockTakingQueryDto>>();
+            TinyMapper.Bind<List<StockTakingQueryDto>, List<T_StockTaking>>();
+
+
+            //库存数量查询dto映射
+            TinyMapper.Bind<ViewGoodStockQty, StockTakingQueryQtyDto>();
+            TinyMapper.Bind<StockTakingQueryQtyDto, ViewGoodStockQty>();
+
+            TinyMapper.Bind<List<ViewGoodStockQty>, List<StockTakingQueryQtyDto>>();
+            TinyMapper.Bind<List<StockTakingQueryQtyDto>, List<ViewGoodStockQty>>();
+
+            //盘点单详情查询dto映射
+            TinyMapper.Bind<List<ViewGoodStockQty>, List<T_StockTakingDetail>>();
+            TinyMapper.Bind<List<T_StockTakingDetail>, List<ViewGoodStockQty>>();
+
+            
+
         }
     }
 }

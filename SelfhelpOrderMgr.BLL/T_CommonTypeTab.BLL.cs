@@ -93,9 +93,9 @@ namespace SelfhelpOrderMgr.BLL {
 				for (int n = 0; n < rowsCount; n++)
 				{
 					model = new SelfhelpOrderMgr.Model.T_CommonTypeTab();					
-													if(dt.Rows[n]["ID"].ToString()!="")
+													if(dt.Rows[n]["Id"].ToString()!="")
 				{
-					model.ID=int.Parse(dt.Rows[n]["ID"].ToString());
+					model.Id=int.Parse(dt.Rows[n]["Id"].ToString());
 				}
 																																				model.FType= dt.Rows[n]["FType"].ToString();
 																																model.FCode= dt.Rows[n]["FCode"].ToString();

@@ -96,8 +96,14 @@ namespace SelfhelpOrderMgr.Model{
         {
             get{ return _gjieshuannumber; }
             set{ _gjieshuannumber = value; }
-        }        
-		   
-	}
+        }
+
+        /// <summary>
+        /// 仓库编码
+        /// </summary>
+        public string WareHouseCode { get; set; }
+
+
+    }
 }
 

@@ -4,18 +4,9 @@ using System.Collections.Generic;
 using System.Data;
 namespace SelfhelpOrderMgr.Model{
 	 	//T_CommonTypeTab
-		public class T_CommonTypeTab
+		public class T_CommonTypeTab:BaseModel
 	{
-   		     
-      	/// <summary>
-		/// ID
-        /// </summary>		
-		private int _id;
-        public int ID
-        {
-            get{ return _id; }
-            set{ _id = value; }
-        }        
+   		            
 		/// <summary>
 		/// FType
         /// </summary>		
