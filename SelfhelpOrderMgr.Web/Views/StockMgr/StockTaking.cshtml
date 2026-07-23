@@ -565,41 +565,47 @@
             var row = $('#dg-list').datagrid('getSelected');
             if (!row) return $.messager.alert('提示', '请选择单据');
 
-            $.messager.progress({ text: '正在生成调整单...' });
+            $.messager.confirm('审核', '确定撤销审核吗？', function (r) {
+                if (r) {
+                    $.messager.progress({ text: '正在生成调整单...' });
 
-            $.ajax({
-                url: '/StockMgr/AdjustStockTaking', // 替换为你实际的后台Controller和Action路径
-                type: 'POST',
-                contentType: 'application/json; charset=utf-8',
-                dataType: 'json',
-                // 2. 必须使用 JSON.stringify 将对象转为字符串
-                data: JSON.stringify({
-                    id: row.Id
-                }),
-                success: function (data) {
-                    // 4. 处理后台返回的成功响应
-                    if (data.Flag == true) {
-                        // 假设后台返回了处理后的数据
-                        var idx = $('#dg-list').datagrid('getRowIndex', row);
-                        $('#dg-list').datagrid('updateRow', {
-                            index: idx,
-                            row: {
-                                CheckFlag: data.DataInfo.CheckFlag,
+                    $.ajax({
+                        url: '/StockMgr/AdjustStockTaking', // 替换为你实际的后台Controller和Action路径
+                        type: 'POST',
+                        contentType: 'application/json; charset=utf-8',
+                        dataType: 'json',
+                        // 2. 必须使用 JSON.stringify 将对象转为字符串
+                        data: JSON.stringify({
+                            id: row.Id
+                        }),
+                        success: function (data) {
+                            // 4. 处理后台返回的成功响应
+                            if (data.Flag == true) {
+                                // 假设后台返回了处理后的数据
+                                var idx = $('#dg-list').datagrid('getRowIndex', row);
+                                $('#dg-list').datagrid('updateRow', {
+                                    index: idx,
+                                    row: {
+                                        CheckFlag: data.DataInfo.CheckFlag,
+                                    }
+                                });
                             }
-                        });                        
-                    }
-                    $.messager.alert("提示", data.ReMsg);
-                },
-                error: function (xhr, status, error) {
-                    // 5. 处理错误
-                    console.error('上传失败:', error);
-                    $.messager.alert('错误', '系统异常，上传失败。');
-                },
-                complete: function () {
-                    // 6. 无论成功失败，都清空文件输入框
-                    $.messager.progress('close');
+                            $.messager.alert("提示", data.ReMsg);
+                        },
+                        error: function (xhr, status, error) {
+                            // 5. 处理错误
+                            console.error('上传失败:', error);
+                            $.messager.alert('错误', '系统异常，上传失败。');
+                        },
+                        complete: function () {
+                            // 6. 无论成功失败，都清空文件输入框
+                            $.messager.progress('close');
+                        }
+                    });
+
                 }
             });
+            
 
         }
 

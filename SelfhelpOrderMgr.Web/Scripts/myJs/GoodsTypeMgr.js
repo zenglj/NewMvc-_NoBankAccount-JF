@@ -93,7 +93,7 @@ $(function () {
                 autoRowHeight: false,
                 striped: true,
                 collapsible: true,
-                url: '/Super/GetGoodsTypeMgr/' + $("#UseTypeId").val(),
+                url: '/Super/GetGoodsTypeMgr?id=' + $("#UseTypeId").val() + "&saleid=" + $("#saleid").val(),
                 sortName: 'Fcode',
                 sortOrder: 'asc',
                 remoteSort: false,

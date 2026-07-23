@@ -312,8 +312,10 @@ namespace SelfhelpOrderMgr.DAL
 
 
                     #region 增加SQL脚本
-                    strSql.Append(@"update t_Criminal_Card set amounta=a.amounta-b.amounta,amountb=a.amountb-b.amountb,amountc=a.amountc-b.amountc from  t_Criminal_card a,(
-                                select fcrimecode,sum(case acctype when 0 then(damount-camount) else 0 end) amounta,sum(case acctype when 1 then(damount-camount) else 0 end) amountb,sum(case acctype when 2 then(damount-camount) else 0 end) amountc from t_Vcrd 
+                    strSql.Append(@"update t_Criminal_Card set amounta=a.amounta-b.amounta,amountb=a.amountb-b.amountb,amountc=a.amountc-b.amountc,AmountD=a.AmountD-b.amountd from  t_Criminal_card a,(
+                                select fcrimecode,sum(case acctype when 0 then(damount-camount) else 0 end) amounta,sum(case acctype when 1 then(damount-camount) else 0 end) amountb
+                                    ,sum(case acctype when 2 then(damount-camount) else 0 end) amountc
+                                    ,sum(case acctype when 4 then(damount-camount) else 0 end) amountd  from t_Vcrd 
                                 where flag=0 and isnull(bankflag,0)<=0 and typeflag=@typeflag and origid=@pkId
                                 group by fcrimecode) b
                                 where a.fcrimecode=b.fcrimecode;");

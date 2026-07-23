@@ -507,7 +507,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
                     var _levels= _bll.QueryList<T_JF_GoodsLevel>(" UseType=1");
                     T_JF_GoodsLevel userLevel = null;
-                    if (oldModel.CompletionRate > 0)
+                    if (oldModel.CompletionRate >= 0)
                     {
                         userLevel=_levels.Where(x => x.CompletionRate <= oldModel.CompletionRate).OrderByDescending(o => o.CompletionRate).FirstOrDefault();
                     }

@@ -447,11 +447,11 @@ namespace SelfhelpOrderMgr.Web.Controllers
                             {
                                 strPointNum = mset.MgrValue;
                             }
-                            strSql.Append(@"select b.fareaname 队别,a.invoiceno 单号,a.SPShortCode 简码,a.gname 品名,isnull(a.Remark,'') 规格,a.GDJ 单价,a.gtxm 条码,convert(numeric(18," + strPointNum + @"),sum(a.qty)) 数量,sum(a.amount) 金额 from t_invoicedtl a,t_invoice b,t_invoice_outDtl c
+                            strSql.Append(@"select b.fareaname 队别,a.invoiceno 单号,a.GTXM 条码,a.SPShortCode 简码,a.gname 品名,isnull(a.Remark,'') 规格,a.GDJ 单价,a.gtxm 条码,convert(numeric(18," + strPointNum + @"),sum(a.qty)) 数量,sum(a.amount) 金额 from t_invoicedtl a,t_invoice b,t_invoice_outDtl c
                 where a.invoiceno=b.invoiceno and b.invoiceno=c.invoiceno and a.flag=1
-                and c.fsn='" + strFsn + @"' group by b.fareaname,a.invoiceno,a.SPShortCode,a.gname,isnull(a.Remark,''),a.gdj,a.gtxm
+                and c.fsn='" + strFsn + @"' group by b.fareaname,a.invoiceno,a.GTXM,a.SPShortCode,a.gname,isnull(a.Remark,''),a.gdj,a.gtxm
 				order by b.fareaname,a.invoiceno,a.SPShortCode,a.gname,isnull(a.Remark,''),a.gtxm");
-                            sumColumn = 8;
+                            sumColumn = 9;
                             groupbyColumn = 1;
                             strTitle = "商品订单号订货信息";
                         } break;

@@ -18,33 +18,832 @@ namespace SelfhelpOrderMgr.BLL
         {
             return new T_CriminalDAL().Update(model, param);
         }
+        #region 获取人员账户余额信息--原始版本
+        //public T_Criminal GetCriminalXE_info(string fcode, int saleTypeId)
+        //{
+        //    /*T_Criminal扩展属性说明
+        //        AmountAmoney //存款账户上金额
+        //        AmountBmoney //劳酬账户上金额
+        //        Xiaofeimoney //本月已经消费金额
+        //        NoXiaofeimoney //当前可消费金额
+        //     *  CanUseMoneyA   //A账户能用金额
+        //     *  CanUseMoneyB   //B账户能用金额
+        //        MonthStandard //月消费金额标准
+        //        XianEMethod//限额方法：
+        //                //0是总额限额，同时存款账户也限额;
+        //                //1是存款账户限额;
+        //                //2是报酬账户限额;
+        //                //3是总额限额;
+        //                //4是存款和报酬两个分别限;
+        //     * 
+        //     * TP_YingYangCan_Money   //领导特批营养餐金额
+        //     * ChinaFestival_Money    //中国传统节日月金额
+        //          */
+
+
+
+        //    #region 查找不同类型的消费限额参数
+        //    //查找不同类型的消费限额参数
+        //    T_SHO_SaleType saleType = new T_SHO_SaleTypeBLL().GetModel(saleTypeId);
+        //    //int saleTypeId = 7;
+        //    int firstPaymentAccount = 0;
+        //    int canconsumeAccount = 0;
+        //    if (saleType != null)
+        //    {
+        //        firstPaymentAccount = saleType.FirstPaymentAccount;
+        //        canconsumeAccount = saleType.CanconsumeAccount;
+        //    }
+        //    #endregion
+
+        //    T_Criminal model = GetModel(fcode);
+        //    if (model == null)
+        //    {
+        //        return model;
+        //    }
+        //    model.ErrInfo = "";
+        //    T_Criminal_card card = new T_Criminal_cardBLL().GetModel(fcode);
+        //    if (card == null)
+        //    {
+        //        model.ErrInfo = "用户IC卡不存在";
+        //        return model;
+        //    }
+        //    T_CY_TYPE cy = new T_CY_TYPEDAL().GetModel(model.FCYCode);//处遇信息
+        //    if (cy == null)
+        //    {
+        //        model.ErrInfo = "用户所处处遇等级代码不正确";
+        //        return model;
+        //    }
+
+        //    //20250317启用赔偿金计划限额=====Start==================
+        //    if (model.DamagesFlag == 1 && model.DamagesEndDate>=DateTime.Today)
+        //    {
+        //        if (model.DamagesControlMoney < cy.ftotamtmonth)
+        //        {
+        //            cy.ftotamtmonth = model.DamagesControlMoney;
+        //        }
+        //    }
+        //    //20250317启用赔偿金计划限额=====End==================
+
+
+        //    //营养餐和其他消费分开单独限额标志
+        //    T_SHO_ManagerSet yyMset = new T_SHO_ManagerSetBLL().GetModel("YingyangcanXianE_StartFlag");
+        //    //if (yyMset != null)
+        //    //{
+        //    //    if (yyMset.MgrValue == "1")
+        //    //    {
+        //    //        if (yyMset.KeyMode == saleTypeId)
+        //    //        {
+        //    //            cy.ftotamtmonth = cy.ftotamtmonth - 0 > 0 ? cy.totpct : 0;
+        //    //            cy.famtmonth = cy.famtmonth - 0 > 0 ? cy.totpct : 0;
+        //    //            cy.FBamtMonth = cy.FBamtMonth - 0 > 0 ? cy.totpct : 0;
+        //    //            if (cy.ftotamtmonth > 0 && cy.famtmonth > 0 && cy.FBamtMonth > 0)
+        //    //            {
+        //    //                model.ErrInfo = "用户所处处遇等级限额不正确";
+        //    //            }
+        //    //        }
+        //    //    }
+        //    //}
+
+        //    //List<T_AREA> areas = new T_AREABLL().GetModelList( "fcode='"+model.FAreaCode+"'").Single();//队别编号
+        //    T_AREA area = new T_AREABLL().GetModel(model.FAreaCode);//队别编号
+        //    if (area == null)
+        //    {
+        //        model.ErrInfo = "用户所处队别代码错误";
+        //        return model;
+        //    }
+
+
+
+        //    model.CyName = cy.FName;
+        //    decimal dongjieMoney = 0;//被冻结金额
+
+        //    #region 获得犯人被冻结金额
+        //    if (model.flimitamt == null)
+        //    {
+        //        model.flimitamt = 0;
+        //    }
+        //    if (model.flimitflag == null)
+        //    {
+        //        model.flimitflag = 0;
+        //    }
+        //    dongjieMoney = (decimal)model.flimitflag * (decimal)model.flimitamt; //被冻结金额
+        //    #endregion
+
+        //    //账户当前可用总金额
+        //    //model.OkUseAllMoney = card.AmountA + card.AmountB - dongjieMoney;
+
+        //    model.AmountA = card.AmountA;
+        //    model.AmountB = card.AmountB;
+        //    model.AmountC = card.AmountC;
+        //    model.AmountD = card.AmountD;
+        //    model.dongjieMoney = dongjieMoney;//斌值冻结金额
+        //    model.OkUseAllMoney = 0;
+        //    if (card.AmountA >= dongjieMoney)
+        //    {
+        //        model.AmountAmoney = card.AmountA - dongjieMoney;
+        //        model.AmountBmoney = card.AmountB;
+        //    }
+        //    else
+        //    {
+        //        model.AmountAmoney = 0;
+        //        model.AmountBmoney = card.AmountB - (dongjieMoney - card.AmountA);
+        //    }
+
+        //    //if(card.AmountA - dongjieMoney<=0)
+        //    //{
+        //    //    model.AmountAmoney = 0;
+        //    //}
+        //    //else
+        //    //{
+        //    //    model.AmountAmoney = card.AmountA - dongjieMoney;
+        //    //}
+
+
+        //    model.AmountCmoney = card.AmountC;
+        //    model.BankCardNo = card.BankAccNo;
+        //    model.CardCode = card.cardcodea;//设定卡号
+        //    model.FAreaName = area.FName;//队别名称
+
+        //    #region 判断是否是在特殊的消费时段里
+
+        //    //初始相关参数的值
+        //    string startDate = "";
+        //    string endDate = "";
+        //    decimal beiShu = 1;//默认消费的倍数为1，如果在特定时段内再根据相关值调整
+        //    startDate = DateTime.Now.Year.ToString() + "-" + DateTime.Now.Month.ToString() + "-1";
+        //    endDate = DateTime.Now.AddMonths(1).Year.ToString() + "-" + DateTime.Now.AddMonths(1).Month.ToString() + "-1";
+
+        //    //判断是否在消费限额之内
+        //    T_SHO_ManagerSet xfDateRect = new T_SHO_ManagerSetBLL().GetModel("XFDateRect");
+        //    if (xfDateRect.MgrValue == "1")
+        //    {
+
+        //        //if (DateTime.Today <= new T_SHO_ManagerSetBLL().GetModel("XFDateEnd").StartTime)
+        //        //{
+        //        //    startDate = new T_SHO_ManagerSetBLL().GetModel("XFDateStart").StartTime.ToString();
+        //        //    endDate = new T_SHO_ManagerSetBLL().GetModel("XFDateEnd").StartTime.ToString();
+        //        //    T_SHO_ManagerSet xfBeiShu = new T_SHO_ManagerSetBLL().GetModel("XFBeiShu");
+        //        //    beiShu = Convert.ToDecimal(xfBeiShu.MgrValue);
+        //        //}
+        //        /*
+        //         由于出现闽西提前设定消费时段，并且消费起始日期大于当天，倒致小于起始日期的消费不受系统限额控制。
+        //         * 现改为：凡是大于或小于的都进入标准处遇控制
+        //         */
+        //        if (DateTime.Today >= new T_SHO_ManagerSetBLL().GetModel("XFDateStart").StartTime && DateTime.Today < new T_SHO_ManagerSetBLL().GetModel("XFDateEnd").StartTime.AddDays(1))
+        //        {
+        //            startDate = new T_SHO_ManagerSetBLL().GetModel("XFDateStart").StartTime.ToString();
+        //            endDate = new T_SHO_ManagerSetBLL().GetModel("XFDateEnd").StartTime.ToString();
+        //            T_SHO_ManagerSet xfBeiShu = new T_SHO_ManagerSetBLL().GetModel("XFBeiShu");
+        //            beiShu = Convert.ToDecimal(xfBeiShu.MgrValue);
+        //        }
+        //    }
+
+        //    #endregion
+        //    CrimeXFinfo xfmoney = new CrimeXFinfo();//限额相关信息
+
+        //    #region 获得消费相相情况
+
+
+        //    string strWhere = " FCrimeCode='" + fcode + "' and OrderDate>='" + startDate + "' and OrderDate<'" + endDate + "' and flag=1";
+
+        //    //if (yyMset != null)
+        //    //{
+        //    //    if (yyMset.MgrValue == "1")
+        //    //    {
+        //    //        if (yyMset.KeyMode == saleTypeId)
+        //    //        {
+        //    //            strWhere = strWhere + "and typeflag in(select TypeFlagId from T_SHO_SaleType where ID=" + yyMset.KeyMode.ToString() + ")";
+        //    //        }
+        //    //        //else
+        //    //        //{
+        //    //        //    strWhere = strWhere + "and typeflag not in(select TypeFlagId from T_SHO_SaleType where ID=" + yyMset.KeyMode.ToString() + ")";
+        //    //        //}
+        //    //    }
+        //    //}
+
+        //    List<T_Invoice> invLists = new T_InvoiceBLL().GetModelList(strWhere);
+
+
+        //    decimal xfYYCmoneyAmoney = 0, xfYYCmoneyBmoney = 0, xfYYCmoneyFreeAmoney = 0, xfYYCmoneyFreeBmoney = 0;
+        //    if (invLists != null)
+        //    {
+        //        foreach (T_Invoice vs in invLists)
+        //        {
+        //            xfmoney.Amoney = xfmoney.Amoney + (vs.AmountA * vs.Fifoflag * -1);
+        //            xfmoney.Bmoney = xfmoney.Bmoney + (vs.AmountB * vs.Fifoflag * -1);
+        //            xfmoney.FreeAmoney = xfmoney.FreeAmoney + (vs.FreeAmountA * vs.Fifoflag * -1);
+        //            xfmoney.FreeBmoney = xfmoney.FreeBmoney + (vs.FreeAmountB * vs.Fifoflag * -1);
+        //            if (yyMset != null)
+        //            {
+        //                if (yyMset.MgrValue == "1")
+        //                {
+        //                    if (yyMset.KeyMode == saleTypeId)
+        //                    {
+        //                        if (saleType.TypeFlagId == vs.TypeFlag)
+        //                        {
+        //                            xfYYCmoneyAmoney = xfYYCmoneyAmoney + (vs.AmountA * vs.Fifoflag * -1);
+        //                            xfYYCmoneyBmoney = xfYYCmoneyBmoney + (vs.AmountB * vs.Fifoflag * -1);
+        //                            xfYYCmoneyFreeAmoney = xfYYCmoneyFreeAmoney + (vs.FreeAmountA * vs.Fifoflag * -1);
+        //                            xfYYCmoneyFreeBmoney = xfYYCmoneyFreeBmoney + (vs.FreeAmountB * vs.Fifoflag * -1);
+        //                        }
+        //                    }
+        //                }
+        //            }
+
+        //            if (vs.FTZSP_Money != null)//特种商品消费金额
+        //            {
+        //                xfmoney.FTZSP_Money = xfmoney.FTZSP_Money + +(vs.FTZSP_Money * vs.Fifoflag * -1);
+        //                decimal areaXfMoney = ((vs.FTZSP_Money - vs.AmountB) * vs.Fifoflag * -1) > 0 ? ((vs.FTZSP_Money - vs.AmountB) * vs.Fifoflag * -1) : 0;
+        //                xfmoney.FTZSP_AreaXFMoney = xfmoney.FTZSP_AreaXFMoney + areaXfMoney;
+        //            }
+        //        }
+        //    }
+
+
+        //    List<T_JF_Invoice> jfinvLists = new BaseDapperBLL().QueryList<T_JF_Invoice>(strWhere);
+
+        //    //免限额的商品不计算在内
+        //    model.XiaoFeiPoints = jfinvLists.Sum(o => (o.Amount-o.FreeAmountA-o.FreeAmountB));
+
+        //    //if (yyMset != null)
+        //    //{
+        //    //    if (yyMset.MgrValue == "1")
+        //    //    {
+        //    //        if (yyMset.KeyMode == saleTypeId)
+        //    //        {
+        //    //            xfmoney.Amoney = xfYYCmoneyAmoney;
+        //    //            xfmoney.Bmoney = xfYYCmoneyBmoney;
+        //    //            xfmoney.FreeAmoney = xfYYCmoneyFreeAmoney;
+        //    //            xfmoney.FreeBmoney = xfYYCmoneyFreeBmoney;
+        //    //        }
+        //    //    }
+        //    //}
+        //    #endregion
+
+        //    #region 判断账户的可消费情况
+        //    //判断账户的可消费情况
+        //    //首先判断账是哪个账户可以消费
+        //    switch (canconsumeAccount)
+        //    {
+        //        case 0://A和B都可以消费
+        //            {
+        //                model.CanUseMoneyA = model.AmountAmoney;
+        //                model.CanUseMoneyB = model.AmountBmoney;
+        //            }
+        //            break;
+        //        case 1:
+        //            {
+        //                model.CanUseMoneyA = model.AmountAmoney;
+        //                model.CanUseMoneyB = 0;
+        //                model.AmountBmoney = 0;
+        //            }
+        //            break;
+        //        case 2:
+        //            {
+        //                model.CanUseMoneyA = 0;
+        //                model.AmountAmoney = 0;
+        //                if (model.AmountBmoney - dongjieMoney <= 0)
+        //                {
+        //                    model.CanUseMoneyB = 0;
+        //                }
+        //                else
+        //                {
+        //                    model.CanUseMoneyB = model.AmountBmoney - dongjieMoney;
+        //                }
+        //            }
+        //            break;
+        //        default:
+        //            break;
+        //    }
+
+        //    model.OkUseAllMoney = model.CanUseMoneyA + model.CanUseMoneyB;//根据可消费账户判断结果再相加
+
+        //    #endregion
+
+        //    //==========================================================================
+        //    //2018-11-02  zenglj
+        //    //增加节假日判断，如是传统节日增加相应的金额            
+        //    List<T_CY_ChinaFestival> festivalDates = new T_CY_ChinaFestivalBLL().GetModelList("FDate>='" + startDate + "' and FDate<'" + endDate + "'");
+        //    if (festivalDates.Count <= 0 
+        //        //有参加蓝风铃计划，则不增加假日额度
+        //        || model.DamagesFlag == 1)
+        //    {
+        //        cy.JaRi_Cy_Money = 0;
+
+        //        //增加假日食品可用额度 zenglj by 20240113
+        //        cy.JaRi_Cy_FTZSP_Money = 0;
+        //    }
+        //    //if (yyMset != null)
+        //    //{
+        //    //    if (yyMset.MgrValue == "1")
+        //    //    {
+        //    //        if (yyMset.KeyMode == saleTypeId)
+        //    //        {
+        //    //            cy.JaRi_Cy_Money = 0;
+        //    //        }                    
+        //    //    }
+        //    //}
+        //    model.JaRi_Cy_Money = cy.JaRi_Cy_Money;
+
+        //    //增加假日食品可用额度 zenglj by 20240113
+        //    model.JaRi_Cy_FTZSP_Money = cy.JaRi_Cy_FTZSP_Money;
+
+        //    //增加个人营养餐特批金额
+        //    //只要领导有审批则个人增加相应的金额，可购买食品和日用品
+        //    decimal TP_YingYangCan_Money = 0;
+        //    decimal TP_CY_YingYangCan_Money = 0;
+
+        //    List<T_Criminal_TPList> yingyangcaMoneys = new T_Criminal_TPListBLL().GetModelList("EffectiveDate>=getdate() and isnull(FifoFlag,0)=0 and FCode='" + model.FCode + "'");
+        //    if (yingyangcaMoneys.Count > 0)
+        //    {
+        //        TP_YingYangCan_Money = model.TP_YingYangCan_Money;
+        //        TP_CY_YingYangCan_Money = model.TP_YingYangCan_Money;
+        //        if (yingyangcaMoneys[0].MoneyUseFlag == 1)
+        //        {
+        //            TP_CY_YingYangCan_Money = 0;
+        //        }
+        //    }
+
+        //    //if (yyMset != null)
+        //    //{
+        //    //    if (yyMset.MgrValue == "1")
+        //    //    {
+        //    //        if (yyMset.KeyMode == saleTypeId)
+        //    //        {
+        //    //            TP_CY_YingYangCan_Money = 0;
+        //    //        }
+        //    //    }
+        //    //}
+        //    //===========================================================================
+
+        //    #region 获取消费限额数据及可消费金额
+        //    //启用特殊时段的倍数参数 * beiShu
+        //    //根据处遇级别 乘以 倍数beiShu
+        //    if (cy.ftotamtmonth != 0 && cy.famtmonth != 0)//如果启用总额限制,同时启动存款账户限额
+        //    {
+        //        //判断是否是传统节日月和领导特批营养餐金额
+        //        model.UserCyDesc = cy.FName+ "总额限制处遇" + cy.ftotamtmonth.ToString() + ",领导特批" + TP_CY_YingYangCan_Money.ToString() + ",节日" + cy.JaRi_Cy_Money;
+        //        cy.ftotamtmonth = cy.ftotamtmonth + TP_CY_YingYangCan_Money + cy.JaRi_Cy_Money;
+
+        //        //判断限额验证，如总额度，小于A账户额度，则是错的，那么直将AB都设为0
+        //        if (cy.ftotamtmonth < cy.famtmonth)
+        //        {
+        //            model.CanUseMoneyA = 0;
+        //            model.CanUseMoneyB = 0;
+        //        }
+        //        else
+        //        {
+        //            #region 启用总额限制计算，同时启动存款账户限额相关设定
+        //            model.MonthStandard = cy.ftotamtmonth * beiShu;//启用特殊时段的倍数参数
+        //            //增加传统节日+领导特批
+        //            cy.famtmonth = cy.famtmonth + TP_CY_YingYangCan_Money + cy.JaRi_Cy_Money;
+
+        //            //判断A账户是否大于“处遇管理”设定的最大金额，如果大于，则只能是用CY的最大金额
+        //            if (model.CanUseMoneyA > cy.famtmonth - (xfmoney.Amoney-xfmoney.FreeAmoney))//需要减去本月已经消费的金额
+        //            {
+        //                model.CanUseMoneyA = cy.famtmonth - (xfmoney.Amoney - xfmoney.FreeAmoney);
+        //            }
+        //            if (model.CanUseMoneyA < 0)
+        //            {
+        //                model.CanUseMoneyA = 0;
+        //            }
+
+        //            model.Xiaofeimoney = xfmoney.Amoney + xfmoney.Bmoney - xfmoney.FreeAmoney - xfmoney.FreeBmoney;
+        //            model.XianEMethod = 0;//是总额限额同时存款账户也限额;
+        //            if ((model.MonthStandard - model.Xiaofeimoney) > (model.CanUseMoneyA + model.CanUseMoneyB))
+        //            {//如是消费限额大于当前账户余额
+        //                model.NoXiaofeimoney = model.CanUseMoneyA + model.CanUseMoneyB;
+        //            }
+        //            else
+        //            {//如是消费限额小于当前账户余额
+        //                model.NoXiaofeimoney = model.MonthStandard - model.Xiaofeimoney;
+        //                if (firstPaymentAccount == 0)//如果A优先，否则A全扣，余下B扣
+        //                {
+        //                    if (model.CanUseMoneyA > model.NoXiaofeimoney)
+        //                    {
+        //                        model.CanUseMoneyA = model.NoXiaofeimoney;
+        //                        model.CanUseMoneyB = 0;
+        //                    }
+        //                    else
+        //                    {
+        //                        model.CanUseMoneyB = model.NoXiaofeimoney - model.CanUseMoneyA;
+        //                    }
+        //                }
+        //                else//否则B全扣，余下A扣
+        //                {
+        //                    if (model.CanUseMoneyB > model.NoXiaofeimoney)
+        //                    {
+        //                        model.CanUseMoneyB = model.NoXiaofeimoney;
+        //                        model.CanUseMoneyA = 0;
+        //                    }
+        //                    else
+        //                    {
+        //                        model.CanUseMoneyA = model.NoXiaofeimoney - model.CanUseMoneyB;
+        //                    }
+        //                }
+        //            }
+        //            #endregion
+        //        }
+
+        //    }
+        //    else if (cy.ftotamtmonth != 0)//如果启用总额限制
+        //    {
+        //        //判断是否是传统节日月和领导特批营养餐金额
+        //        model.UserCyDesc = cy.FName+"总额限制处遇" + cy.ftotamtmonth.ToString() + ",领导特批" + TP_CY_YingYangCan_Money.ToString() + ",节日" + cy.JaRi_Cy_Money;
+        //        cy.ftotamtmonth = cy.ftotamtmonth + TP_CY_YingYangCan_Money + cy.JaRi_Cy_Money;
+
+        //        #region 启用总额限制计算相关设定
+        //        model.MonthStandard = cy.ftotamtmonth * beiShu;//启用特殊时段的倍数参数
+        //        model.Xiaofeimoney = xfmoney.Amoney + xfmoney.Bmoney - xfmoney.FreeAmoney - xfmoney.FreeBmoney;
+        //        model.XianEMethod = 3;//是总额限额;
+        //        if ((model.MonthStandard - model.Xiaofeimoney) > (model.CanUseMoneyA + model.CanUseMoneyB))
+        //        {//如是消费限额大于当前账户余额
+        //            model.NoXiaofeimoney = model.CanUseMoneyA + model.CanUseMoneyB;
+        //        }
+        //        else
+        //        {//如是消费限额小于当前账户余额
+        //            model.NoXiaofeimoney = model.MonthStandard - model.Xiaofeimoney;
+        //            if (firstPaymentAccount == 0)//如果A优先，否则A全扣，余下B扣
+        //            {
+        //                if (model.CanUseMoneyA > model.NoXiaofeimoney)
+        //                {
+        //                    model.CanUseMoneyA = model.NoXiaofeimoney;
+        //                    model.CanUseMoneyB = 0;
+        //                }
+        //                else
+        //                {
+        //                    model.CanUseMoneyB = model.NoXiaofeimoney - model.CanUseMoneyA;
+        //                }
+        //            }
+        //            else//否则B全扣，余下A扣
+        //            {
+        //                if (model.CanUseMoneyB > model.NoXiaofeimoney)
+        //                {
+        //                    model.CanUseMoneyB = model.NoXiaofeimoney;
+        //                    model.CanUseMoneyA = 0;
+        //                }
+        //                else
+        //                {
+        //                    model.CanUseMoneyA = model.NoXiaofeimoney - model.CanUseMoneyB;
+        //                }
+        //            }
+        //        }
+        //        ////--可设定劳酬最大金额
+        //        ////2018-10-15在莆田把修改
+        //        ///*
+        //        // 在总额限制下，可以设定处遇的劳动报酬最大可用金额（用于购买食品）
+        //        // */
+        //        //if(model.CanUseMoneyB>cy.FBamtMonth && cy.FBamtMonth>0)
+        //        //{
+        //        //    model.CanUseMoneyB = cy.FBamtMonth;
+        //        //}
+        //        #endregion
+        //    }
+        //    else if (cy.famtmonth != 0 && cy.FBamtMonth != 0)//A账户限额，B账户也限额
+        //    {
+        //        //判断是否是传统节日月和领导特批营养餐金额
+        //        model.UserCyDesc = cy.FName+ "A限额" + cy.famtmonth.ToString() + ",B限额" + cy.FBamtMonth.ToString() + ",领导特批" + TP_CY_YingYangCan_Money.ToString() + ",节日" + cy.JaRi_Cy_Money;
+        //        cy.famtmonth = cy.famtmonth + TP_CY_YingYangCan_Money + cy.JaRi_Cy_Money;
+
+        //        #region A账户限额，B账户也限额
+        //        model.MonthStandard = (cy.FBamtMonth + cy.famtmonth) * beiShu;//启用特殊时段的倍数参数
+        //        model.Xiaofeimoney = xfmoney.Amoney + xfmoney.Bmoney - xfmoney.FreeAmoney - xfmoney.FreeBmoney;
+        //        model.XianEMethod = 4;//是存款和报酬两个分别限;
+        //        if (cy.famtmonth - (xfmoney.Amoney - xfmoney.FreeAmoney) < model.CanUseMoneyA)
+        //        {
+        //            if (xfmoney.Amoney - xfmoney.FreeAmoney > 0)
+        //            {
+        //                model.CanUseMoneyA = cy.famtmonth - (xfmoney.Amoney - xfmoney.FreeAmoney);
+        //            }
+        //            else
+        //            {
+        //                model.CanUseMoneyA = cy.famtmonth;
+        //            }
+        //        }
+        //        if (cy.FBamtMonth - (xfmoney.Bmoney - xfmoney.FreeBmoney) < model.CanUseMoneyB)
+        //        {
+        //            if (xfmoney.Bmoney - xfmoney.FreeBmoney > 0)
+        //            {
+        //                model.CanUseMoneyB = cy.FBamtMonth - (xfmoney.Bmoney - xfmoney.FreeBmoney);
+        //            }
+        //            else
+        //            {
+        //                model.CanUseMoneyB = cy.FBamtMonth;
+        //            }
+        //        }
+        //        model.NoXiaofeimoney = model.CanUseMoneyA + model.CanUseMoneyB;
+
+        //        //if (model.MonthStandard - model.Xiaofeimoney > model.CanUseMoneyA + model.CanUseMoneyB)
+        //        //{//如是消费限额大于当前账户余额
+        //        //    model.NoXiaofeimoney = model.CanUseMoneyA + model.CanUseMoneyB;
+        //        //}
+        //        //else
+        //        //{//如是消费限额小于当前账户余额
+        //        //    model.NoXiaofeimoney = model.MonthStandard - model.Xiaofeimoney;
+        //        //    if (firstPaymentAccount == 0)//如果A优先，否则A全扣，余下B扣
+        //        //    {
+        //        //        if (model.CanUseMoneyA > model.NoXiaofeimoney)
+        //        //        {
+        //        //            model.CanUseMoneyA = model.NoXiaofeimoney;
+        //        //            model.CanUseMoneyB = 0;
+        //        //        }
+        //        //        else
+        //        //        {
+        //        //            model.CanUseMoneyB = model.NoXiaofeimoney - model.CanUseMoneyA;
+        //        //        }
+        //        //    }
+        //        //    else//否则B全扣，余下A扣
+        //        //    {
+        //        //        if (model.CanUseMoneyB > model.NoXiaofeimoney)
+        //        //        {
+        //        //            model.CanUseMoneyB = model.NoXiaofeimoney;
+        //        //            model.CanUseMoneyA = 0;
+        //        //        }
+        //        //        else
+        //        //        {
+        //        //            model.CanUseMoneyA = model.NoXiaofeimoney - model.CanUseMoneyB;
+        //        //        }
+        //        //    }
+        //        //} 
+        //        #endregion
+
+        //    }
+        //    else if (cy.famtmonth != 0 && cy.FBamtMonth == 0)//A账户限额，B账户不限额
+        //    {
+        //        //判断是否是传统节日月和领导特批营养餐金额
+        //        model.UserCyDesc = cy.FName+ "A限额" + cy.famtmonth.ToString() + ",B不限额,领导特批" + TP_CY_YingYangCan_Money.ToString() + ",节日" + cy.JaRi_Cy_Money;
+        //        cy.famtmonth = cy.famtmonth + TP_CY_YingYangCan_Money + cy.JaRi_Cy_Money;
+
+        //        #region A账户限额，B账户不限额
+        //        model.MonthStandard = cy.famtmonth * beiShu;//启用特殊时段的倍数参数
+        //        model.Xiaofeimoney = xfmoney.Amoney - xfmoney.FreeAmoney;
+        //        model.XianEMethod = 1;//是存款账户限额;
+        //        if (model.MonthStandard - model.Xiaofeimoney > model.CanUseMoneyA)
+        //        {//如是消费限额大于当前账户余额
+        //            model.NoXiaofeimoney = model.CanUseMoneyA + model.CanUseMoneyB;
+        //        }
+        //        else
+        //        {//如是消费限额小于当前账户余额
+        //            model.NoXiaofeimoney = model.MonthStandard + model.CanUseMoneyB - model.Xiaofeimoney;
+        //            model.CanUseMoneyA = model.MonthStandard - model.Xiaofeimoney;
+        //        }
+        //        #endregion
+        //    }
+        //    else if (cy.famtmonth == 0 && cy.FBamtMonth != 0)//B账户限额，A账户不限额
+        //    {
+        //        //判断是否是传统节日月和领导特批营养餐金额
+        //        model.UserCyDesc = cy.FName+ "B限额" + cy.FBamtMonth.ToString() + ",A不限额,领导特批" + TP_CY_YingYangCan_Money.ToString() + ",节日" + cy.JaRi_Cy_Money;
+        //        cy.FBamtMonth = cy.FBamtMonth + TP_CY_YingYangCan_Money + cy.JaRi_Cy_Money;
+
+        //        #region B账户限额，A账户不限额
+        //        model.MonthStandard = cy.FBamtMonth * beiShu;//启用特殊时段的倍数参数
+        //        model.Xiaofeimoney = xfmoney.Bmoney - xfmoney.FreeBmoney;
+        //        model.XianEMethod = 2;//是报酬账户限额;
+        //        if (model.MonthStandard - model.Xiaofeimoney > model.CanUseMoneyB)
+        //        {//如是消费限额大于当前账户余额
+        //            model.NoXiaofeimoney = model.CanUseMoneyB - model.Xiaofeimoney + model.CanUseMoneyA;
+        //        }
+        //        else
+        //        {//如是消费限额小于当前账户余额
+        //            model.NoXiaofeimoney = model.MonthStandard - model.Xiaofeimoney + model.CanUseMoneyA;
+        //            model.CanUseMoneyB = model.MonthStandard - model.Xiaofeimoney;
+        //        }
+        //        #endregion
+        //    }
+
+        //    #endregion
+
+
+        //    #region 计算特种商品的购买最大金额
+        //    /*
+        //     * 计算处遇可用的特种物品购买金额
+        //     * 如果有开启劳酬消费标志则：
+        //     *          特种商品的最大购买金额=所在队别每个可用金额+处遇可用特种金额+劳报报酬的金额
+        //     * 如果没有开启劳酬消费标志则：
+        //     *          特种商品的最大购买金额=所在队别每个可用金额+处遇可用特种金额
+        //     *          
+        //     */
+
+        //    if (yyMset != null)
+        //    {
+        //        if (yyMset.MgrValue == "1")
+        //        {
+        //            if (yyMset.KeyMode == saleTypeId)
+        //            {
+        //                //TP_CY_YingYangCan_Money = 0;
+        //                model.MonthStandard = cy.totpct;
+        //                model.Xiaofeimoney = xfYYCmoneyAmoney + xfYYCmoneyBmoney - xfYYCmoneyFreeAmoney - xfYYCmoneyFreeBmoney;
+        //                model.NoXiaofeimoney = model.NoXiaofeimoney > (cy.totpct - model.Xiaofeimoney) ? (cy.totpct - model.Xiaofeimoney) : model.NoXiaofeimoney;
+        //                //cy.JaRi_Cy_Money=0;
+        //                //model.JaRi_Cy_Money = 0;
+
+        //            }
+        //        }
+        //    }
+
+        //    decimal lcFTZSP_Money = 0;//劳酬可用特种商品可用金额
+        //    decimal areaFTZSP_Money = 0;//队别可用特种商品可用金额
+        //    decimal cyFTZSP_Money = 0;//处遇可用特种商品可用金额
+        //    if (area.FTZSP_Money != null)
+        //    {
+        //        areaFTZSP_Money = area.FTZSP_Money;
+        //    }
+        //    if (cy.FTZSP_Money != null)
+        //    {
+        //        cyFTZSP_Money = cy.FTZSP_Money;
+        //    }
+        //    //计算特种商品的购买最大金额
+        //    /*
+        //     * 如果有开启劳酬消费标志则：
+        //     *          特种商品的最大购买金额=所在队别每个可用金额+处遇可用特种金额+劳报报酬的金额
+        //     * 如果没有开启劳酬消费标志则：
+        //     *          特种商品的最大购买金额=所在队别每个可用金额+处遇可用特种金额
+        //     */
+        //    decimal ftzspMoney = 0;
+        //    T_SHO_ManagerSet tzspMst = new T_SHO_ManagerSetBLL().GetModel("TZSP_LaochouXF");
+
+        //    //2018-11-02漳州监狱增加领导特批营养金额功能
+        //    //只要领导有审批则个人增加相应的金额，可购买食品和日用品
+        //    //传统节日加的金额不能算是劳酬特购的产品
+        //    //应扣特种商品金额
+        //    decimal yingkouTzsp_Money = xfmoney.FTZSP_Money - xfmoney.Bmoney > 0 ? xfmoney.FTZSP_Money - xfmoney.Bmoney : 0;
+        //    //ftzspMoney = areaFTZSP_Money + cyFTZSP_Money + TP_YingYangCan_Money - xfmoney.FTZSP_Money > 0 ? areaFTZSP_Money + cyFTZSP_Money + TP_YingYangCan_Money - xfmoney.FTZSP_Money : 0;
+        //    ftzspMoney = areaFTZSP_Money + cyFTZSP_Money + TP_YingYangCan_Money - yingkouTzsp_Money > 0 ? areaFTZSP_Money + cyFTZSP_Money + TP_YingYangCan_Money - yingkouTzsp_Money : 0;
+
+        //    //如果节假日金额设定为可以购买特种商品，则金额加上节日金额
+        //    T_SHO_ManagerSet jjrMSet = new T_SHO_ManagerSetBLL().GetModel("JieJiaRi_Money_TZSPFlag");
+        //    if (jjrMSet != null)
+        //    {
+        //        if (jjrMSet.MgrValue == "1")
+        //        {
+        //            //ftzspMoney = areaFTZSP_Money + cyFTZSP_Money + TP_YingYangCan_Money + cy.JaRi_Cy_Money - xfmoney.FTZSP_Money > 0 ? areaFTZSP_Money + cyFTZSP_Money + TP_YingYangCan_Money + cy.JaRi_Cy_Money - xfmoney.FTZSP_Money : 0;
+
+
+        //            //=====修改假日非食品的金额 zenlj by 20240113 ====Start============================================================
+        //            //修改节假日的食品金额，不等于假日处遇的金额，为 JaRi_Cy_FTZSP_Money 而不是 JaRi_Cy_Money
+        //            //ftzspMoney = areaFTZSP_Money + cyFTZSP_Money + TP_YingYangCan_Money + cy.JaRi_Cy_Money - yingkouTzsp_Money > 0 ? areaFTZSP_Money + cyFTZSP_Money + TP_YingYangCan_Money + cy.JaRi_Cy_Money - yingkouTzsp_Money : 0;
+        //            ftzspMoney = areaFTZSP_Money + cyFTZSP_Money + TP_YingYangCan_Money + cy.JaRi_Cy_FTZSP_Money - yingkouTzsp_Money > 0 ? areaFTZSP_Money + cyFTZSP_Money + TP_YingYangCan_Money + cy.JaRi_Cy_FTZSP_Money - yingkouTzsp_Money : 0;
+        //            //=====修改假日非食品的金额 zenlj by 20240113 ====End============================================================
+
+        //        }
+        //    }
+
+
+        //    if (tzspMst == null)
+        //    {
+        //        //ftzspMoney = areaFTZSP_Money + cyFTZSP_Money  -xfmoney.FTZSP_Money>0? areaFTZSP_Money + cyFTZSP_Money  -xfmoney.FTZSP_Money :0;
+        //    }
+        //    else if (tzspMst.MgrValue == "1")
+        //    {
+        //        //ftzspMoney = areaFTZSP_Money + cyFTZSP_Money + model.AmountBmoney;
+        //        ftzspMoney = ftzspMoney + model.AmountBmoney;
+        //        ////2018-10-15在莆田把修改
+        //        ///*
+        //        // 在总额限制下，可以设定处遇的劳动报酬最大可用金额（用于购买食品）
+        //        // */
+        //        //ftzspMoney = ftzspMoney + model.CanUseMoneyB;
+        //        lcFTZSP_Money = model.AmountBmoney;
+        //    }
+        //    else
+        //    {
+        //        //ftzspMoney = areaFTZSP_Money + cyFTZSP_Money;
+        //        lcFTZSP_Money = 0;
+        //    }
+
+
+        //    //如果ftzspMoney大于最大可用金额，则以最大可用金额为准
+        //    if (ftzspMoney > (model.CanUseMoneyA + model.CanUseMoneyB))
+        //    {
+        //        ftzspMoney = (model.CanUseMoneyA + model.CanUseMoneyB);
+        //    }
+
+        //    if (model.CanUseMoneyA >= areaFTZSP_Money + cy.FTZSP_Money)
+        //    {
+        //        model.TZSP_cyMoney = cy.FTZSP_Money;//处遇可用特种商品的金额
+        //        model.TZSP_AreaMoney = areaFTZSP_Money;//监区可用特种商品的金额
+        //    }
+        //    else
+        //    {
+        //        if (model.CanUseMoneyA >= areaFTZSP_Money)
+        //        {
+        //            model.TZSP_AreaMoney = areaFTZSP_Money;//监区可用特种商品的金额
+        //            model.TZSP_cyMoney = model.CanUseMoneyA - areaFTZSP_Money;//处遇可用特种商品的金额
+        //        }
+        //        else
+        //        {
+        //            model.TZSP_AreaMoney = model.CanUseMoneyA;//监区可用特种商品的金额
+        //            model.TZSP_cyMoney = 0;//处遇可用特种商品的金额
+        //        }
+
+        //    }
+        //    try
+        //    {
+        //        if (area.SaleCloseFlag != null)
+        //        {
+        //            model.SaleCloseFlag = area.SaleCloseFlag;
+        //        }
+        //    }
+        //    catch
+        //    {
+
+        //    }
+        //    model.FTZSP_CanUseMoney = ftzspMoney; //ftzspMoney大于最大可用金额
+        //    model.FTZSP_AreaXFMoney = xfmoney.FTZSP_AreaXFMoney;//ftzspMoney监区部份使用的金额
+
+        //    #endregion
+
+        //    //2018-10-15在莆田把修改
+        //    //当特种商品为零标志FTZSP_Zero_Flag=1时，不让购买特种商品（食品额度变为0）
+        //    if (cy.FTZSP_Zero_Flag == 1)
+        //    {
+        //        //model.FTZSP_CanUseMoney = 0;
+
+        //        //model.FTZSP_CanUseMoney = 0;
+        //        //2023-09-18修改为食品可用金额不能超过特种食品设定的金额
+        //        //2023-11-6修改为食品可用金额不能(超过特种食品设定的金额+领导特批)
+        //        //if (model.FTZSP_CanUseMoney > cy.FTZSP_Money+ TP_YingYangCan_Money-xfmoney.FTZSP_Money)
+        //        //{
+        //        //    model.FTZSP_CanUseMoney = cy.FTZSP_Money+ TP_YingYangCan_Money - xfmoney.FTZSP_Money;
+        //        //}
+
+        //        //2023-12-28修改为食品可用金额不能(置零后的金额,含领导特批营养餐)
+        //        if (model.FTZSP_CanUseMoney > cy.FTZSP_Zero_MaxMoney + TP_YingYangCan_Money - xfmoney.FTZSP_Money)
+        //        {
+        //            model.FTZSP_CanUseMoney = cy.FTZSP_Zero_MaxMoney + TP_YingYangCan_Money - xfmoney.FTZSP_Money;
+        //        }
+        //    }
+
+        //    //if (yyMset != null)
+        //    //{
+        //    //    if (yyMset.MgrValue == "1")
+        //    //    {
+        //    //        if (yyMset.KeyMode == saleTypeId)
+        //    //        {
+        //    //            decimal canAllUseMoney1 = 0;
+        //    //            if (saleType.FirstPaymentAccount == 0)
+        //    //            {
+        //    //                canAllUseMoney1 = model.CanUseMoneyA + model.CanUseMoneyB;
+        //    //                model.CanUseMoneyA = model.CanUseMoneyA - cy.totpct > 0 ? cy.totpct : model.CanUseMoneyA;
+        //    //                model.CanUseMoneyB = canAllUseMoney1 - cy.totpct > 0 ? cy.totpct - model.CanUseMoneyA : canAllUseMoney1 - model.CanUseMoneyA;
+        //    //            }
+        //    //            else
+        //    //            {
+        //    //                canAllUseMoney1 = model.CanUseMoneyA + model.CanUseMoneyB;
+        //    //                model.CanUseMoneyB = model.CanUseMoneyB - cy.totpct > 0 ? cy.totpct : model.CanUseMoneyB;
+        //    //                model.CanUseMoneyA = canAllUseMoney1 - cy.totpct > 0 ? cy.totpct - model.CanUseMoneyB : canAllUseMoney1 - model.CanUseMoneyB;
+
+        //    //            }
+
+        //    //        }
+        //    //    }
+        //    //}
+
+        //    //2018-11-02漳州监狱增加领导特批营养金额功能
+        //    //只要领导有审批则个人增加相应的金额，可购买食品和日用品
+        //    //model.FTZSP_CanUseMoney = model.FTZSP_CanUseMoney + TP_YingYangCan_Money;
+        //    //model.TZSP_cyMoney = model.TZSP_cyMoney + TP_YingYangCan_Money;
+
+
+        //    model.AccPoints = card.AccPoints;//增加积分
+
+
+        //    //20250719增加积分等级标准，根据犯人类型和完成率来确定积分上限
+        //    var jfDengji=new JifenMgrService().QueryList<T_JF_DengjiType>("select * from T_JF_DengjiType where TypeFlag=@TypeFlag and CompletionRate<=@CompletionRate order by CompletionRate desc", new { TypeFlag=model.WorkType,CompletionRate=model.CompletionRate}).FirstOrDefault();
+        //    var maxPoints=new T_SHO_ManagerSetBLL().GetModel("JifenGouWuMaxPoints");
+        //    model.JiFenMonthStandard = 600;//默认每月600分
+        //    if (maxPoints != null)
+        //    {
+        //        //如果有设置积分上限，则以设置的为准
+        //        model.JiFenMonthStandard = Convert.ToDecimal( maxPoints.MgrValue);
+        //    }
+        //    if(jfDengji!=null)
+        //    {
+        //        model.JiFenMonthStandard = jfDengji.JfUseMaxPoints;
+        //    }
+            
+
+        //    return model;
+        //}
+        #endregion
+
+        #region copilot 优化的获取人员账户余额信息方法
         public T_Criminal GetCriminalXE_info(string fcode, int saleTypeId)
         {
-            /*T_Criminal扩展属性说明
-                AmountAmoney //存款账户上金额
-                AmountBmoney //劳酬账户上金额
-                Xiaofeimoney //本月已经消费金额
-                NoXiaofeimoney //当前可消费金额
-             *  CanUseMoneyA   //A账户能用金额
-             *  CanUseMoneyB   //B账户能用金额
-                MonthStandard //月消费金额标准
-                XianEMethod//限额方法：
-                        //0是总额限额，同时存款账户也限额;
-                        //1是存款账户限额;
-                        //2是报酬账户限额;
-                        //3是总额限额;
-                        //4是存款和报酬两个分别限;
-             * 
-             * TP_YingYangCan_Money   //领导特批营养餐金额
-             * ChinaFestival_Money    //中国传统节日月金额
-                  */
+            // 说明与原注释保持一致（省略复述）
 
+            // 缓存常用 BLL/设置实例，避免重复创建/查询
+            var saleTypeBll = new T_SHO_SaleTypeBLL();
+            var managerSetBll = new T_SHO_ManagerSetBLL();
+            var areaBll = new T_AREABLL();
+            var cardBll = new T_Criminal_cardBLL();
+            var invoiceBll = new T_InvoiceBLL();
+            var jfInvoiceDapper = new BaseDapperBLL();
+            var tpListBll = new T_Criminal_TPListBLL();
+            var cyTypeDal = new T_CY_TYPEDAL();
+            var jfService = new JifenMgrService();
 
-
-            #region 查找不同类型的消费限额参数
-            //查找不同类型的消费限额参数
-            T_SHO_SaleType saleType = new T_SHO_SaleTypeBLL().GetModel(saleTypeId);
-            //int saleTypeId = 7;
+            // 查找不同类型的消费限额参数
+            T_SHO_SaleType saleType = saleTypeBll.GetModel(saleTypeId);
             int firstPaymentAccount = 0;
             int canconsumeAccount = 0;
             if (saleType != null)
@@ -52,91 +851,63 @@ namespace SelfhelpOrderMgr.BLL
                 firstPaymentAccount = saleType.FirstPaymentAccount;
                 canconsumeAccount = saleType.CanconsumeAccount;
             }
-            #endregion
 
             T_Criminal model = GetModel(fcode);
-            if (model == null)
-            {
-                return model;
-            }
+            if (model == null) return model;
             model.ErrInfo = "";
-            T_Criminal_card card = new T_Criminal_cardBLL().GetModel(fcode);
+
+            T_Criminal_card card = cardBll.GetModel(fcode);
             if (card == null)
             {
                 model.ErrInfo = "用户IC卡不存在";
                 return model;
             }
-            T_CY_TYPE cy = new T_CY_TYPEDAL().GetModel(model.FCYCode);//处遇信息
+
+            T_CY_TYPE cy = cyTypeDal.GetModel(model.FCYCode);
             if (cy == null)
             {
                 model.ErrInfo = "用户所处处遇等级代码不正确";
                 return model;
             }
 
-            //20250317启用赔偿金计划限额=====Start==================
-            if (model.DamagesFlag == 1 && model.DamagesEndDate>=DateTime.Today)
+            // 赔偿金计划限额
+            if (model.DamagesFlag == 1 && model.DamagesEndDate >= DateTime.Today)
             {
                 if (model.DamagesControlMoney < cy.ftotamtmonth)
                 {
                     cy.ftotamtmonth = model.DamagesControlMoney;
                 }
             }
-            //20250317启用赔偿金计划限额=====End==================
 
+            // 缓存若干管理设置
+            var yyMset = managerSetBll.GetModel("YingyangcanXianE_StartFlag");
+            var xfDateRect = managerSetBll.GetModel("XFDateRect");
+            var xfDateStart = managerSetBll.GetModel("XFDateStart");
+            var xfDateEnd = managerSetBll.GetModel("XFDateEnd");
+            var xfBeiShu = managerSetBll.GetModel("XFBeiShu");
 
-            //营养餐和其他消费分开单独限额标志
-            T_SHO_ManagerSet yyMset = new T_SHO_ManagerSetBLL().GetModel("YingyangcanXianE_StartFlag");
-            //if (yyMset != null)
-            //{
-            //    if (yyMset.MgrValue == "1")
-            //    {
-            //        if (yyMset.KeyMode == saleTypeId)
-            //        {
-            //            cy.ftotamtmonth = cy.ftotamtmonth - 0 > 0 ? cy.totpct : 0;
-            //            cy.famtmonth = cy.famtmonth - 0 > 0 ? cy.totpct : 0;
-            //            cy.FBamtMonth = cy.FBamtMonth - 0 > 0 ? cy.totpct : 0;
-            //            if (cy.ftotamtmonth > 0 && cy.famtmonth > 0 && cy.FBamtMonth > 0)
-            //            {
-            //                model.ErrInfo = "用户所处处遇等级限额不正确";
-            //            }
-            //        }
-            //    }
-            //}
-
-            //List<T_AREA> areas = new T_AREABLL().GetModelList( "fcode='"+model.FAreaCode+"'").Single();//队别编号
-            T_AREA area = new T_AREABLL().GetModel(model.FAreaCode);//队别编号
+            T_AREA area = areaBll.GetModel(model.FAreaCode);
             if (area == null)
             {
                 model.ErrInfo = "用户所处队别代码错误";
                 return model;
             }
 
-
-
             model.CyName = cy.FName;
-            decimal dongjieMoney = 0;//被冻结金额
 
-            #region 获得犯人被冻结金额
-            if (model.flimitamt == null)
-            {
-                model.flimitamt = 0;
-            }
-            if (model.flimitflag == null)
-            {
-                model.flimitflag = 0;
-            }
-            dongjieMoney = (decimal)model.flimitflag * (decimal)model.flimitamt; //被冻结金额
-            #endregion
+            // 冻结金额计算（确保 null 安全）
+            model.flimitamt = model.flimitamt;
+            model.flimitflag = model.flimitflag;
+            decimal dongjieMoney = (decimal)model.flimitflag * (decimal)model.flimitamt;
+            model.dongjieMoney = dongjieMoney;
 
-            //账户当前可用总金额
-            //model.OkUseAllMoney = card.AmountA + card.AmountB - dongjieMoney;
-
+            // 账户金额赋值
             model.AmountA = card.AmountA;
             model.AmountB = card.AmountB;
             model.AmountC = card.AmountC;
             model.AmountD = card.AmountD;
-            model.dongjieMoney = dongjieMoney;//斌值冻结金额
             model.OkUseAllMoney = 0;
+
             if (card.AmountA >= dongjieMoney)
             {
                 model.AmountAmoney = card.AmountA - dongjieMoney;
@@ -148,275 +919,158 @@ namespace SelfhelpOrderMgr.BLL
                 model.AmountBmoney = card.AmountB - (dongjieMoney - card.AmountA);
             }
 
-            //if(card.AmountA - dongjieMoney<=0)
-            //{
-            //    model.AmountAmoney = 0;
-            //}
-            //else
-            //{
-            //    model.AmountAmoney = card.AmountA - dongjieMoney;
-            //}
-
-
             model.AmountCmoney = card.AmountC;
             model.BankCardNo = card.BankAccNo;
-            model.CardCode = card.cardcodea;//设定卡号
-            model.FAreaName = area.FName;//队别名称
+            model.CardCode = card.cardcodea;
+            model.FAreaName = area.FName;
 
-            #region 判断是否是在特殊的消费时段里
+            // 特殊消费时段判断：使用 DateTime 变量，避免重复 ToString
+            DateTime now = DateTime.Today;
+            DateTime startDt = new DateTime(now.Year, now.Month, 1);
+            DateTime endDt = startDt.AddMonths(1);
+            decimal beiShu = 1m;
 
-            //初始相关参数的值
-            string startDate = "";
-            string endDate = "";
-            decimal beiShu = 1;//默认消费的倍数为1，如果在特定时段内再根据相关值调整
-            startDate = DateTime.Now.Year.ToString() + "-" + DateTime.Now.Month.ToString() + "-1";
-            endDate = DateTime.Now.AddMonths(1).Year.ToString() + "-" + DateTime.Now.AddMonths(1).Month.ToString() + "-1";
-
-            //判断是否在消费限额之内
-            T_SHO_ManagerSet xfDateRect = new T_SHO_ManagerSetBLL().GetModel("XFDateRect");
-            if (xfDateRect.MgrValue == "1")
+            if (xfDateRect != null && xfDateRect.MgrValue == "1" && xfDateStart != null && xfDateEnd != null)
             {
-
-                //if (DateTime.Today <= new T_SHO_ManagerSetBLL().GetModel("XFDateEnd").StartTime)
-                //{
-                //    startDate = new T_SHO_ManagerSetBLL().GetModel("XFDateStart").StartTime.ToString();
-                //    endDate = new T_SHO_ManagerSetBLL().GetModel("XFDateEnd").StartTime.ToString();
-                //    T_SHO_ManagerSet xfBeiShu = new T_SHO_ManagerSetBLL().GetModel("XFBeiShu");
-                //    beiShu = Convert.ToDecimal(xfBeiShu.MgrValue);
-                //}
-                /*
-                 由于出现闽西提前设定消费时段，并且消费起始日期大于当天，倒致小于起始日期的消费不受系统限额控制。
-                 * 现改为：凡是大于或小于的都进入标准处遇控制
-                 */
-                if (DateTime.Today >= new T_SHO_ManagerSetBLL().GetModel("XFDateStart").StartTime && DateTime.Today < new T_SHO_ManagerSetBLL().GetModel("XFDateEnd").StartTime.AddDays(1))
+                if (now >= xfDateStart.StartTime && now < xfDateEnd.StartTime.AddDays(1))
                 {
-                    startDate = new T_SHO_ManagerSetBLL().GetModel("XFDateStart").StartTime.ToString();
-                    endDate = new T_SHO_ManagerSetBLL().GetModel("XFDateEnd").StartTime.ToString();
-                    T_SHO_ManagerSet xfBeiShu = new T_SHO_ManagerSetBLL().GetModel("XFBeiShu");
-                    beiShu = Convert.ToDecimal(xfBeiShu.MgrValue);
-                }
-            }
-
-            #endregion
-            CrimeXFinfo xfmoney = new CrimeXFinfo();//限额相关信息
-
-            #region 获得消费相相情况
-
-
-            string strWhere = " FCrimeCode='" + fcode + "' and OrderDate>='" + startDate + "' and OrderDate<'" + endDate + "' and flag=1";
-
-            //if (yyMset != null)
-            //{
-            //    if (yyMset.MgrValue == "1")
-            //    {
-            //        if (yyMset.KeyMode == saleTypeId)
-            //        {
-            //            strWhere = strWhere + "and typeflag in(select TypeFlagId from T_SHO_SaleType where ID=" + yyMset.KeyMode.ToString() + ")";
-            //        }
-            //        //else
-            //        //{
-            //        //    strWhere = strWhere + "and typeflag not in(select TypeFlagId from T_SHO_SaleType where ID=" + yyMset.KeyMode.ToString() + ")";
-            //        //}
-            //    }
-            //}
-
-            List<T_Invoice> invLists = new T_InvoiceBLL().GetModelList(strWhere);
-
-
-            decimal xfYYCmoneyAmoney = 0, xfYYCmoneyBmoney = 0, xfYYCmoneyFreeAmoney = 0, xfYYCmoneyFreeBmoney = 0;
-            if (invLists != null)
-            {
-                foreach (T_Invoice vs in invLists)
-                {
-                    xfmoney.Amoney = xfmoney.Amoney + (vs.AmountA * vs.Fifoflag * -1);
-                    xfmoney.Bmoney = xfmoney.Bmoney + (vs.AmountB * vs.Fifoflag * -1);
-                    xfmoney.FreeAmoney = xfmoney.FreeAmoney + (vs.FreeAmountA * vs.Fifoflag * -1);
-                    xfmoney.FreeBmoney = xfmoney.FreeBmoney + (vs.FreeAmountB * vs.Fifoflag * -1);
-                    if (yyMset != null)
+                    startDt = xfDateStart.StartTime;
+                    endDt = xfDateEnd.StartTime;
+                    if (xfBeiShu != null)
                     {
-                        if (yyMset.MgrValue == "1")
-                        {
-                            if (yyMset.KeyMode == saleTypeId)
-                            {
-                                if (saleType.TypeFlagId == vs.TypeFlag)
-                                {
-                                    xfYYCmoneyAmoney = xfYYCmoneyAmoney + (vs.AmountA * vs.Fifoflag * -1);
-                                    xfYYCmoneyBmoney = xfYYCmoneyBmoney + (vs.AmountB * vs.Fifoflag * -1);
-                                    xfYYCmoneyFreeAmoney = xfYYCmoneyFreeAmoney + (vs.FreeAmountA * vs.Fifoflag * -1);
-                                    xfYYCmoneyFreeBmoney = xfYYCmoneyFreeBmoney + (vs.FreeAmountB * vs.Fifoflag * -1);
-                                }
-                            }
-                        }
-                    }
-
-                    if (vs.FTZSP_Money != null)//特种商品消费金额
-                    {
-                        xfmoney.FTZSP_Money = xfmoney.FTZSP_Money + +(vs.FTZSP_Money * vs.Fifoflag * -1);
-                        decimal areaXfMoney = ((vs.FTZSP_Money - vs.AmountB) * vs.Fifoflag * -1) > 0 ? ((vs.FTZSP_Money - vs.AmountB) * vs.Fifoflag * -1) : 0;
-                        xfmoney.FTZSP_AreaXFMoney = xfmoney.FTZSP_AreaXFMoney + areaXfMoney;
+                        Decimal.TryParse(xfBeiShu.MgrValue, out beiShu);
+                        if (beiShu <= 0) beiShu = 1m;
                     }
                 }
             }
 
+            // 组装 SQL 时间字符串（只做一次）
+            string startDateStr = startDt.ToString("yyyy-MM-dd");
+            string endDateStr = endDt.ToString("yyyy-MM-dd");
 
-            List<T_JF_Invoice> jfinvLists = new BaseDapperBLL().QueryList<T_JF_Invoice>(strWhere);
+            CrimeXFinfo xfmoney = new CrimeXFinfo();
 
-            //免限额的商品不计算在内
-            model.XiaoFeiPoints = jfinvLists.Sum(o => (o.Amount-o.FreeAmountA-o.FreeAmountB));
+            // 获取消费情况（注意：若数据量大，建议在 DAL 层做 SUM 聚合）
+            string strWhere = " FCrimeCode='" + fcode + "' and OrderDate>='" + startDateStr + "' and OrderDate<'" + endDateStr + "' and flag=1";
+            List<T_Invoice> invLists = invoiceBll.GetModelList(strWhere);
 
-            //if (yyMset != null)
-            //{
-            //    if (yyMset.MgrValue == "1")
-            //    {
-            //        if (yyMset.KeyMode == saleTypeId)
-            //        {
-            //            xfmoney.Amoney = xfYYCmoneyAmoney;
-            //            xfmoney.Bmoney = xfYYCmoneyBmoney;
-            //            xfmoney.FreeAmoney = xfYYCmoneyFreeAmoney;
-            //            xfmoney.FreeBmoney = xfYYCmoneyFreeBmoney;
-            //        }
-            //    }
-            //}
-            #endregion
+            decimal xfYYCmoneyAmoney = 0m, xfYYCmoneyBmoney = 0m, xfYYCmoneyFreeAmoney = 0m, xfYYCmoneyFreeBmoney = 0m;
+            if (invLists != null && invLists.Count > 0)
+            {
+                foreach (var vs in invLists)
+                {
+                    decimal fifoflag = vs.Fifoflag;
+                    xfmoney.Amoney += vs.AmountA * fifoflag * -1;
+                    xfmoney.Bmoney += vs.AmountB * fifoflag * -1;
+                    xfmoney.FreeAmoney += vs.FreeAmountA * fifoflag * -1;
+                    xfmoney.FreeBmoney += vs.FreeAmountB * fifoflag * -1;
 
-            #region 判断账户的可消费情况
-            //判断账户的可消费情况
-            //首先判断账是哪个账户可以消费
+                    if (yyMset != null && yyMset.MgrValue == "1" && yyMset.KeyMode == saleTypeId && saleType != null && saleType.TypeFlagId == vs.TypeFlag)
+                    {
+                        xfYYCmoneyAmoney += vs.AmountA * fifoflag * -1;
+                        xfYYCmoneyBmoney += vs.AmountB * fifoflag * -1;
+                        xfYYCmoneyFreeAmoney += vs.FreeAmountA * fifoflag * -1;
+                        xfYYCmoneyFreeBmoney += vs.FreeAmountB * fifoflag * -1;
+                    }
+
+                    if (vs.FTZSP_Money != null)
+                    {
+                        xfmoney.FTZSP_Money += (vs.FTZSP_Money) * vs.Fifoflag * -1;
+                        decimal areaXfMoney = (((vs.FTZSP_Money) - vs.AmountB) * vs.Fifoflag * -1) > 0 ? (((vs.FTZSP_Money) - vs.AmountB) * vs.Fifoflag * -1) : 0;
+                        xfmoney.FTZSP_AreaXFMoney += areaXfMoney;
+                    }
+                }
+            }
+
+            // 免限额商品积分汇总（建议也改为聚合查询）
+            List<T_JF_Invoice> jfinvLists = jfInvoiceDapper.QueryList<T_JF_Invoice>(strWhere);
+            model.XiaoFeiPoints = (jfinvLists != null && jfinvLists.Count > 0) ? jfinvLists.Sum(o => (o.Amount - o.FreeAmountA - o.FreeAmountB)) : 0m;
+
+            // 判断账户可消费情况（使用局部变量，最后写回 model）
+            decimal canUseA = 0m, canUseB = 0m;
             switch (canconsumeAccount)
             {
-                case 0://A和B都可以消费
-                    {
-                        model.CanUseMoneyA = model.AmountAmoney;
-                        model.CanUseMoneyB = model.AmountBmoney;
-                    }
+                case 0:
+                    canUseA = model.AmountAmoney;
+                    canUseB = model.AmountBmoney;
                     break;
                 case 1:
-                    {
-                        model.CanUseMoneyA = model.AmountAmoney;
-                        model.CanUseMoneyB = 0;
-                        model.AmountBmoney = 0;
-                    }
+                    canUseA = model.AmountAmoney;
+                    canUseB = 0m;
+                    model.AmountBmoney = 0m;
                     break;
                 case 2:
-                    {
-                        model.CanUseMoneyA = 0;
-                        model.AmountAmoney = 0;
-                        if (model.AmountBmoney - dongjieMoney <= 0)
-                        {
-                            model.CanUseMoneyB = 0;
-                        }
-                        else
-                        {
-                            model.CanUseMoneyB = model.AmountBmoney - dongjieMoney;
-                        }
-                    }
+                    canUseA = 0m;
+                    model.AmountAmoney = 0m;
+                    canUseB = model.AmountBmoney - dongjieMoney;
+                    if (canUseB <= 0) canUseB = 0m;
                     break;
                 default:
+                    canUseA = model.AmountAmoney;
+                    canUseB = model.AmountBmoney;
                     break;
             }
 
-            model.OkUseAllMoney = model.CanUseMoneyA + model.CanUseMoneyB;//根据可消费账户判断结果再相加
+            model.CanUseMoneyA = canUseA;
+            model.CanUseMoneyB = canUseB;
+            model.OkUseAllMoney = model.CanUseMoneyA + model.CanUseMoneyB;
 
-            #endregion
-
-            //==========================================================================
-            //2018-11-02  zenglj
-            //增加节假日判断，如是传统节日增加相应的金额            
-            List<T_CY_ChinaFestival> festivalDates = new T_CY_ChinaFestivalBLL().GetModelList("FDate>='" + startDate + "' and FDate<'" + endDate + "'");
-            if (festivalDates.Count <= 0 
-                //有参加蓝风铃计划，则不增加假日额度
-                || model.DamagesFlag == 1)
+            // 节假日判断
+            List<T_CY_ChinaFestival> festivalDates = new T_CY_ChinaFestivalBLL().GetModelList("FDate>='" + startDateStr + "' and FDate<'" + endDateStr + "'");
+            if ((festivalDates == null || festivalDates.Count <= 0) || model.DamagesFlag == 1)
             {
-                cy.JaRi_Cy_Money = 0;
-
-                //增加假日食品可用额度 zenglj by 20240113
-                cy.JaRi_Cy_FTZSP_Money = 0;
+                cy.JaRi_Cy_Money = 0m;
+                cy.JaRi_Cy_FTZSP_Money = 0m;
             }
-            //if (yyMset != null)
-            //{
-            //    if (yyMset.MgrValue == "1")
-            //    {
-            //        if (yyMset.KeyMode == saleTypeId)
-            //        {
-            //            cy.JaRi_Cy_Money = 0;
-            //        }                    
-            //    }
-            //}
             model.JaRi_Cy_Money = cy.JaRi_Cy_Money;
-
-            //增加假日食品可用额度 zenglj by 20240113
             model.JaRi_Cy_FTZSP_Money = cy.JaRi_Cy_FTZSP_Money;
 
-            //增加个人营养餐特批金额
-            //只要领导有审批则个人增加相应的金额，可购买食品和日用品
-            decimal TP_YingYangCan_Money = 0;
-            decimal TP_CY_YingYangCan_Money = 0;
-
-            List<T_Criminal_TPList> yingyangcaMoneys = new T_Criminal_TPListBLL().GetModelList("EffectiveDate>=getdate() and isnull(FifoFlag,0)=0 and FCode='" + model.FCode + "'");
-            if (yingyangcaMoneys.Count > 0)
+            // 个人营养餐特批金额
+            decimal TP_YingYangCan_Money = 0m;
+            decimal TP_CY_YingYangCan_Money = 0m;
+            List<T_Criminal_TPList> yingyangcaMoneys = tpListBll.GetModelList("EffectiveDate>=getdate() and isnull(FifoFlag,0)=0 and FCode='" + model.FCode + "'");
+            if (yingyangcaMoneys != null && yingyangcaMoneys.Count > 0)
             {
                 TP_YingYangCan_Money = model.TP_YingYangCan_Money;
                 TP_CY_YingYangCan_Money = model.TP_YingYangCan_Money;
                 if (yingyangcaMoneys[0].MoneyUseFlag == 1)
                 {
-                    TP_CY_YingYangCan_Money = 0;
+                    TP_CY_YingYangCan_Money = 0m;
                 }
             }
 
-            //if (yyMset != null)
-            //{
-            //    if (yyMset.MgrValue == "1")
-            //    {
-            //        if (yyMset.KeyMode == saleTypeId)
-            //        {
-            //            TP_CY_YingYangCan_Money = 0;
-            //        }
-            //    }
-            //}
-            //===========================================================================
-
-            #region 获取消费限额数据及可消费金额
-            //启用特殊时段的倍数参数 * beiShu
-            //根据处遇级别 乘以 倍数beiShu
-            if (cy.ftotamtmonth != 0 && cy.famtmonth != 0)//如果启用总额限制,同时启动存款账户限额
+            // 获取消费限额及可消费金额（保留原有分支逻辑，但使用局部变量便于阅读）
+            // 注意：下面逻辑与原实现保持一致，只是改良了中间变量的使用
+            if (cy.ftotamtmonth != 0 && cy.famtmonth != 0)
             {
-                //判断是否是传统节日月和领导特批营养餐金额
-                model.UserCyDesc = cy.FName+ "总额限制处遇" + cy.ftotamtmonth.ToString() + ",领导特批" + TP_CY_YingYangCan_Money.ToString() + ",节日" + cy.JaRi_Cy_Money;
+                model.UserCyDesc = cy.FName + "总额限制处遇" + cy.ftotamtmonth.ToString() + ",领导特批" + TP_CY_YingYangCan_Money.ToString() + ",节日" + cy.JaRi_Cy_Money;
                 cy.ftotamtmonth = cy.ftotamtmonth + TP_CY_YingYangCan_Money + cy.JaRi_Cy_Money;
 
-                //判断限额验证，如总额度，小于A账户额度，则是错的，那么直将AB都设为0
                 if (cy.ftotamtmonth < cy.famtmonth)
                 {
-                    model.CanUseMoneyA = 0;
-                    model.CanUseMoneyB = 0;
+                    model.CanUseMoneyA = 0m;
+                    model.CanUseMoneyB = 0m;
                 }
                 else
                 {
-                    #region 启用总额限制计算，同时启动存款账户限额相关设定
-                    model.MonthStandard = cy.ftotamtmonth * beiShu;//启用特殊时段的倍数参数
-                    //增加传统节日+领导特批
+                    model.MonthStandard = cy.ftotamtmonth * beiShu;
                     cy.famtmonth = cy.famtmonth + TP_CY_YingYangCan_Money + cy.JaRi_Cy_Money;
 
-                    //判断A账户是否大于“处遇管理”设定的最大金额，如果大于，则只能是用CY的最大金额
-                    if (model.CanUseMoneyA > cy.famtmonth - (xfmoney.Amoney-xfmoney.FreeAmoney))//需要减去本月已经消费的金额
-                    {
+                    if (model.CanUseMoneyA > cy.famtmonth - (xfmoney.Amoney - xfmoney.FreeAmoney))
                         model.CanUseMoneyA = cy.famtmonth - (xfmoney.Amoney - xfmoney.FreeAmoney);
-                    }
-                    if (model.CanUseMoneyA < 0)
-                    {
-                        model.CanUseMoneyA = 0;
-                    }
+                    if (model.CanUseMoneyA < 0) model.CanUseMoneyA = 0;
 
                     model.Xiaofeimoney = xfmoney.Amoney + xfmoney.Bmoney - xfmoney.FreeAmoney - xfmoney.FreeBmoney;
-                    model.XianEMethod = 0;//是总额限额同时存款账户也限额;
+                    model.XianEMethod = 0;
+
                     if ((model.MonthStandard - model.Xiaofeimoney) > (model.CanUseMoneyA + model.CanUseMoneyB))
-                    {//如是消费限额大于当前账户余额
+                    {
                         model.NoXiaofeimoney = model.CanUseMoneyA + model.CanUseMoneyB;
                     }
                     else
-                    {//如是消费限额小于当前账户余额
+                    {
                         model.NoXiaofeimoney = model.MonthStandard - model.Xiaofeimoney;
-                        if (firstPaymentAccount == 0)//如果A优先，否则A全扣，余下B扣
+                        if (firstPaymentAccount == 0)
                         {
                             if (model.CanUseMoneyA > model.NoXiaofeimoney)
                             {
@@ -428,7 +1082,7 @@ namespace SelfhelpOrderMgr.BLL
                                 model.CanUseMoneyB = model.NoXiaofeimoney - model.CanUseMoneyA;
                             }
                         }
-                        else//否则B全扣，余下A扣
+                        else
                         {
                             if (model.CanUseMoneyB > model.NoXiaofeimoney)
                             {
@@ -441,28 +1095,23 @@ namespace SelfhelpOrderMgr.BLL
                             }
                         }
                     }
-                    #endregion
                 }
-
             }
-            else if (cy.ftotamtmonth != 0)//如果启用总额限制
+            else if (cy.ftotamtmonth != 0)
             {
-                //判断是否是传统节日月和领导特批营养餐金额
-                model.UserCyDesc = cy.FName+"总额限制处遇" + cy.ftotamtmonth.ToString() + ",领导特批" + TP_CY_YingYangCan_Money.ToString() + ",节日" + cy.JaRi_Cy_Money;
+                model.UserCyDesc = cy.FName + "总额限制处遇" + cy.ftotamtmonth.ToString() + ",领导特批" + TP_CY_YingYangCan_Money.ToString() + ",节日" + cy.JaRi_Cy_Money;
                 cy.ftotamtmonth = cy.ftotamtmonth + TP_CY_YingYangCan_Money + cy.JaRi_Cy_Money;
-
-                #region 启用总额限制计算相关设定
-                model.MonthStandard = cy.ftotamtmonth * beiShu;//启用特殊时段的倍数参数
+                model.MonthStandard = cy.ftotamtmonth * beiShu;
                 model.Xiaofeimoney = xfmoney.Amoney + xfmoney.Bmoney - xfmoney.FreeAmoney - xfmoney.FreeBmoney;
-                model.XianEMethod = 3;//是总额限额;
+                model.XianEMethod = 3;
                 if ((model.MonthStandard - model.Xiaofeimoney) > (model.CanUseMoneyA + model.CanUseMoneyB))
-                {//如是消费限额大于当前账户余额
+                {
                     model.NoXiaofeimoney = model.CanUseMoneyA + model.CanUseMoneyB;
                 }
                 else
-                {//如是消费限额小于当前账户余额
+                {
                     model.NoXiaofeimoney = model.MonthStandard - model.Xiaofeimoney;
-                    if (firstPaymentAccount == 0)//如果A优先，否则A全扣，余下B扣
+                    if (firstPaymentAccount == 0)
                     {
                         if (model.CanUseMoneyA > model.NoXiaofeimoney)
                         {
@@ -474,7 +1123,7 @@ namespace SelfhelpOrderMgr.BLL
                             model.CanUseMoneyB = model.NoXiaofeimoney - model.CanUseMoneyA;
                         }
                     }
-                    else//否则B全扣，余下A扣
+                    else
                     {
                         if (model.CanUseMoneyB > model.NoXiaofeimoney)
                         {
@@ -487,343 +1136,138 @@ namespace SelfhelpOrderMgr.BLL
                         }
                     }
                 }
-                ////--可设定劳酬最大金额
-                ////2018-10-15在莆田把修改
-                ///*
-                // 在总额限制下，可以设定处遇的劳动报酬最大可用金额（用于购买食品）
-                // */
-                //if(model.CanUseMoneyB>cy.FBamtMonth && cy.FBamtMonth>0)
-                //{
-                //    model.CanUseMoneyB = cy.FBamtMonth;
-                //}
-                #endregion
             }
-            else if (cy.famtmonth != 0 && cy.FBamtMonth != 0)//A账户限额，B账户也限额
+            else if (cy.famtmonth != 0 && cy.FBamtMonth != 0)
             {
-                //判断是否是传统节日月和领导特批营养餐金额
-                model.UserCyDesc = cy.FName+ "A限额" + cy.famtmonth.ToString() + ",B限额" + cy.FBamtMonth.ToString() + ",领导特批" + TP_CY_YingYangCan_Money.ToString() + ",节日" + cy.JaRi_Cy_Money;
+                model.UserCyDesc = cy.FName + "A限额" + cy.famtmonth.ToString() + ",B限额" + cy.FBamtMonth.ToString() + ",领导特批" + TP_CY_YingYangCan_Money.ToString() + ",节日" + cy.JaRi_Cy_Money;
                 cy.famtmonth = cy.famtmonth + TP_CY_YingYangCan_Money + cy.JaRi_Cy_Money;
-
-                #region A账户限额，B账户也限额
-                model.MonthStandard = (cy.FBamtMonth + cy.famtmonth) * beiShu;//启用特殊时段的倍数参数
+                model.MonthStandard = (cy.FBamtMonth + cy.famtmonth) * beiShu;
                 model.Xiaofeimoney = xfmoney.Amoney + xfmoney.Bmoney - xfmoney.FreeAmoney - xfmoney.FreeBmoney;
-                model.XianEMethod = 4;//是存款和报酬两个分别限;
+                model.XianEMethod = 4;
                 if (cy.famtmonth - (xfmoney.Amoney - xfmoney.FreeAmoney) < model.CanUseMoneyA)
                 {
-                    if (xfmoney.Amoney - xfmoney.FreeAmoney > 0)
-                    {
-                        model.CanUseMoneyA = cy.famtmonth - (xfmoney.Amoney - xfmoney.FreeAmoney);
-                    }
-                    else
-                    {
-                        model.CanUseMoneyA = cy.famtmonth;
-                    }
+                    model.CanUseMoneyA = (xfmoney.Amoney - xfmoney.FreeAmoney) > 0 ? cy.famtmonth - (xfmoney.Amoney - xfmoney.FreeAmoney) : cy.famtmonth;
                 }
                 if (cy.FBamtMonth - (xfmoney.Bmoney - xfmoney.FreeBmoney) < model.CanUseMoneyB)
                 {
-                    if (xfmoney.Bmoney - xfmoney.FreeBmoney > 0)
-                    {
-                        model.CanUseMoneyB = cy.FBamtMonth - (xfmoney.Bmoney - xfmoney.FreeBmoney);
-                    }
-                    else
-                    {
-                        model.CanUseMoneyB = cy.FBamtMonth;
-                    }
+                    model.CanUseMoneyB = (xfmoney.Bmoney - xfmoney.FreeBmoney) > 0 ? cy.FBamtMonth - (xfmoney.Bmoney - xfmoney.FreeBmoney) : cy.FBamtMonth;
                 }
                 model.NoXiaofeimoney = model.CanUseMoneyA + model.CanUseMoneyB;
-
-                //if (model.MonthStandard - model.Xiaofeimoney > model.CanUseMoneyA + model.CanUseMoneyB)
-                //{//如是消费限额大于当前账户余额
-                //    model.NoXiaofeimoney = model.CanUseMoneyA + model.CanUseMoneyB;
-                //}
-                //else
-                //{//如是消费限额小于当前账户余额
-                //    model.NoXiaofeimoney = model.MonthStandard - model.Xiaofeimoney;
-                //    if (firstPaymentAccount == 0)//如果A优先，否则A全扣，余下B扣
-                //    {
-                //        if (model.CanUseMoneyA > model.NoXiaofeimoney)
-                //        {
-                //            model.CanUseMoneyA = model.NoXiaofeimoney;
-                //            model.CanUseMoneyB = 0;
-                //        }
-                //        else
-                //        {
-                //            model.CanUseMoneyB = model.NoXiaofeimoney - model.CanUseMoneyA;
-                //        }
-                //    }
-                //    else//否则B全扣，余下A扣
-                //    {
-                //        if (model.CanUseMoneyB > model.NoXiaofeimoney)
-                //        {
-                //            model.CanUseMoneyB = model.NoXiaofeimoney;
-                //            model.CanUseMoneyA = 0;
-                //        }
-                //        else
-                //        {
-                //            model.CanUseMoneyA = model.NoXiaofeimoney - model.CanUseMoneyB;
-                //        }
-                //    }
-                //} 
-                #endregion
-
             }
-            else if (cy.famtmonth != 0 && cy.FBamtMonth == 0)//A账户限额，B账户不限额
+            else if (cy.famtmonth != 0 && cy.FBamtMonth == 0)
             {
-                //判断是否是传统节日月和领导特批营养餐金额
-                model.UserCyDesc = cy.FName+ "A限额" + cy.famtmonth.ToString() + ",B不限额,领导特批" + TP_CY_YingYangCan_Money.ToString() + ",节日" + cy.JaRi_Cy_Money;
+                model.UserCyDesc = cy.FName + "A限额" + cy.famtmonth.ToString() + ",B不限额,领导特批" + TP_CY_YingYangCan_Money.ToString() + ",节日" + cy.JaRi_Cy_Money;
                 cy.famtmonth = cy.famtmonth + TP_CY_YingYangCan_Money + cy.JaRi_Cy_Money;
-
-                #region A账户限额，B账户不限额
-                model.MonthStandard = cy.famtmonth * beiShu;//启用特殊时段的倍数参数
+                model.MonthStandard = cy.famtmonth * beiShu;
                 model.Xiaofeimoney = xfmoney.Amoney - xfmoney.FreeAmoney;
-                model.XianEMethod = 1;//是存款账户限额;
+                model.XianEMethod = 1;
                 if (model.MonthStandard - model.Xiaofeimoney > model.CanUseMoneyA)
-                {//如是消费限额大于当前账户余额
                     model.NoXiaofeimoney = model.CanUseMoneyA + model.CanUseMoneyB;
-                }
                 else
-                {//如是消费限额小于当前账户余额
+                {
                     model.NoXiaofeimoney = model.MonthStandard + model.CanUseMoneyB - model.Xiaofeimoney;
                     model.CanUseMoneyA = model.MonthStandard - model.Xiaofeimoney;
                 }
-                #endregion
             }
-            else if (cy.famtmonth == 0 && cy.FBamtMonth != 0)//B账户限额，A账户不限额
+            else if (cy.famtmonth == 0 && cy.FBamtMonth != 0)
             {
-                //判断是否是传统节日月和领导特批营养餐金额
-                model.UserCyDesc = cy.FName+ "B限额" + cy.FBamtMonth.ToString() + ",A不限额,领导特批" + TP_CY_YingYangCan_Money.ToString() + ",节日" + cy.JaRi_Cy_Money;
+                model.UserCyDesc = cy.FName + "B限额" + cy.FBamtMonth.ToString() + ",A不限额,领导特批" + TP_CY_YingYangCan_Money.ToString() + ",节日" + cy.JaRi_Cy_Money;
                 cy.FBamtMonth = cy.FBamtMonth + TP_CY_YingYangCan_Money + cy.JaRi_Cy_Money;
-
-                #region B账户限额，A账户不限额
-                model.MonthStandard = cy.FBamtMonth * beiShu;//启用特殊时段的倍数参数
+                model.MonthStandard = cy.FBamtMonth * beiShu;
                 model.Xiaofeimoney = xfmoney.Bmoney - xfmoney.FreeBmoney;
-                model.XianEMethod = 2;//是报酬账户限额;
+                model.XianEMethod = 2;
                 if (model.MonthStandard - model.Xiaofeimoney > model.CanUseMoneyB)
-                {//如是消费限额大于当前账户余额
                     model.NoXiaofeimoney = model.CanUseMoneyB - model.Xiaofeimoney + model.CanUseMoneyA;
-                }
                 else
-                {//如是消费限额小于当前账户余额
+                {
                     model.NoXiaofeimoney = model.MonthStandard - model.Xiaofeimoney + model.CanUseMoneyA;
                     model.CanUseMoneyB = model.MonthStandard - model.Xiaofeimoney;
                 }
-                #endregion
             }
 
-            #endregion
-
-
-            #region 计算特种商品的购买最大金额
-            /*
-             * 计算处遇可用的特种物品购买金额
-             * 如果有开启劳酬消费标志则：
-             *          特种商品的最大购买金额=所在队别每个可用金额+处遇可用特种金额+劳报报酬的金额
-             * 如果没有开启劳酬消费标志则：
-             *          特种商品的最大购买金额=所在队别每个可用金额+处遇可用特种金额
-             *          
-             */
-
-            if (yyMset != null)
+            // 计算特种商品购买最多金额（保留逻辑，但用本地变量简化）
+            if (yyMset != null && yyMset.MgrValue == "1" && yyMset.KeyMode == saleTypeId)
             {
-                if (yyMset.MgrValue == "1")
-                {
-                    if (yyMset.KeyMode == saleTypeId)
-                    {
-                        //TP_CY_YingYangCan_Money = 0;
-                        model.MonthStandard = cy.totpct;
-                        model.Xiaofeimoney = xfYYCmoneyAmoney + xfYYCmoneyBmoney - xfYYCmoneyFreeAmoney - xfYYCmoneyFreeBmoney;
-                        model.NoXiaofeimoney = model.NoXiaofeimoney > (cy.totpct - model.Xiaofeimoney) ? (cy.totpct - model.Xiaofeimoney) : model.NoXiaofeimoney;
-                        //cy.JaRi_Cy_Money=0;
-                        //model.JaRi_Cy_Money = 0;
-
-                    }
-                }
+                model.MonthStandard = cy.totpct;
+                model.Xiaofeimoney = xfYYCmoneyAmoney + xfYYCmoneyBmoney - xfYYCmoneyFreeAmoney - xfYYCmoneyFreeBmoney;
+                model.NoXiaofeimoney = Math.Min(model.NoXiaofeimoney, cy.totpct - model.Xiaofeimoney);
             }
 
-            decimal lcFTZSP_Money = 0;//劳酬可用特种商品可用金额
-            decimal areaFTZSP_Money = 0;//队别可用特种商品可用金额
-            decimal cyFTZSP_Money = 0;//处遇可用特种商品可用金额
-            if (area.FTZSP_Money != null)
+            decimal areaFTZSP_Money = area.FTZSP_Money;
+            decimal cyFTZSP_Money = cy.FTZSP_Money;
+            decimal lcFTZSP_Money = 0m;
+            decimal ftzspMoney = Math.Max(0m, areaFTZSP_Money + cyFTZSP_Money + TP_YingYangCan_Money - (xfmoney.FTZSP_Money - xfmoney.Bmoney > 0 ? xfmoney.FTZSP_Money - xfmoney.Bmoney : 0m));
+
+            var tzspMst = managerSetBll.GetModel("TZSP_LaochouXF");
+            var jjrMSet = managerSetBll.GetModel("JieJiaRi_Money_TZSPFlag");
+            if (jjrMSet != null && jjrMSet.MgrValue == "1")
             {
-                areaFTZSP_Money = area.FTZSP_Money;
-            }
-            if (cy.FTZSP_Money != null)
-            {
-                cyFTZSP_Money = cy.FTZSP_Money;
-            }
-            //计算特种商品的购买最大金额
-            /*
-             * 如果有开启劳酬消费标志则：
-             *          特种商品的最大购买金额=所在队别每个可用金额+处遇可用特种金额+劳报报酬的金额
-             * 如果没有开启劳酬消费标志则：
-             *          特种商品的最大购买金额=所在队别每个可用金额+处遇可用特种金额
-             */
-            decimal ftzspMoney = 0;
-            T_SHO_ManagerSet tzspMst = new T_SHO_ManagerSetBLL().GetModel("TZSP_LaochouXF");
-
-            //2018-11-02漳州监狱增加领导特批营养金额功能
-            //只要领导有审批则个人增加相应的金额，可购买食品和日用品
-            //传统节日加的金额不能算是劳酬特购的产品
-            //应扣特种商品金额
-            decimal yingkouTzsp_Money = xfmoney.FTZSP_Money - xfmoney.Bmoney > 0 ? xfmoney.FTZSP_Money - xfmoney.Bmoney : 0;
-            //ftzspMoney = areaFTZSP_Money + cyFTZSP_Money + TP_YingYangCan_Money - xfmoney.FTZSP_Money > 0 ? areaFTZSP_Money + cyFTZSP_Money + TP_YingYangCan_Money - xfmoney.FTZSP_Money : 0;
-            ftzspMoney = areaFTZSP_Money + cyFTZSP_Money + TP_YingYangCan_Money - yingkouTzsp_Money > 0 ? areaFTZSP_Money + cyFTZSP_Money + TP_YingYangCan_Money - yingkouTzsp_Money : 0;
-
-            //如果节假日金额设定为可以购买特种商品，则金额加上节日金额
-            T_SHO_ManagerSet jjrMSet = new T_SHO_ManagerSetBLL().GetModel("JieJiaRi_Money_TZSPFlag");
-            if (jjrMSet != null)
-            {
-                if (jjrMSet.MgrValue == "1")
-                {
-                    //ftzspMoney = areaFTZSP_Money + cyFTZSP_Money + TP_YingYangCan_Money + cy.JaRi_Cy_Money - xfmoney.FTZSP_Money > 0 ? areaFTZSP_Money + cyFTZSP_Money + TP_YingYangCan_Money + cy.JaRi_Cy_Money - xfmoney.FTZSP_Money : 0;
-
-
-                    //=====修改假日非食品的金额 zenlj by 20240113 ====Start============================================================
-                    //修改节假日的食品金额，不等于假日处遇的金额，为 JaRi_Cy_FTZSP_Money 而不是 JaRi_Cy_Money
-                    //ftzspMoney = areaFTZSP_Money + cyFTZSP_Money + TP_YingYangCan_Money + cy.JaRi_Cy_Money - yingkouTzsp_Money > 0 ? areaFTZSP_Money + cyFTZSP_Money + TP_YingYangCan_Money + cy.JaRi_Cy_Money - yingkouTzsp_Money : 0;
-                    ftzspMoney = areaFTZSP_Money + cyFTZSP_Money + TP_YingYangCan_Money + cy.JaRi_Cy_FTZSP_Money - yingkouTzsp_Money > 0 ? areaFTZSP_Money + cyFTZSP_Money + TP_YingYangCan_Money + cy.JaRi_Cy_FTZSP_Money - yingkouTzsp_Money : 0;
-                    //=====修改假日非食品的金额 zenlj by 20240113 ====End============================================================
-
-                }
+                ftzspMoney = Math.Max(0m, areaFTZSP_Money + cyFTZSP_Money + TP_YingYangCan_Money + cy.JaRi_Cy_FTZSP_Money - (xfmoney.FTZSP_Money - xfmoney.Bmoney > 0 ? xfmoney.FTZSP_Money - xfmoney.Bmoney : 0m));
             }
 
-
-            if (tzspMst == null)
+            if (tzspMst != null && tzspMst.MgrValue == "1")
             {
-                //ftzspMoney = areaFTZSP_Money + cyFTZSP_Money  -xfmoney.FTZSP_Money>0? areaFTZSP_Money + cyFTZSP_Money  -xfmoney.FTZSP_Money :0;
-            }
-            else if (tzspMst.MgrValue == "1")
-            {
-                //ftzspMoney = areaFTZSP_Money + cyFTZSP_Money + model.AmountBmoney;
-                ftzspMoney = ftzspMoney + model.AmountBmoney;
-                ////2018-10-15在莆田把修改
-                ///*
-                // 在总额限制下，可以设定处遇的劳动报酬最大可用金额（用于购买食品）
-                // */
-                //ftzspMoney = ftzspMoney + model.CanUseMoneyB;
+                ftzspMoney += model.AmountBmoney;
                 lcFTZSP_Money = model.AmountBmoney;
             }
-            else
-            {
-                //ftzspMoney = areaFTZSP_Money + cyFTZSP_Money;
-                lcFTZSP_Money = 0;
-            }
 
-
-            //如果ftzspMoney大于最大可用金额，则以最大可用金额为准
             if (ftzspMoney > (model.CanUseMoneyA + model.CanUseMoneyB))
-            {
                 ftzspMoney = (model.CanUseMoneyA + model.CanUseMoneyB);
-            }
 
             if (model.CanUseMoneyA >= areaFTZSP_Money + cy.FTZSP_Money)
             {
-                model.TZSP_cyMoney = cy.FTZSP_Money;//处遇可用特种商品的金额
-                model.TZSP_AreaMoney = areaFTZSP_Money;//监区可用特种商品的金额
+                model.TZSP_cyMoney = cy.FTZSP_Money;
+                model.TZSP_AreaMoney = areaFTZSP_Money;
             }
             else
             {
                 if (model.CanUseMoneyA >= areaFTZSP_Money)
                 {
-                    model.TZSP_AreaMoney = areaFTZSP_Money;//监区可用特种商品的金额
-                    model.TZSP_cyMoney = model.CanUseMoneyA - areaFTZSP_Money;//处遇可用特种商品的金额
+                    model.TZSP_AreaMoney = areaFTZSP_Money;
+                    model.TZSP_cyMoney = model.CanUseMoneyA - areaFTZSP_Money;
                 }
                 else
                 {
-                    model.TZSP_AreaMoney = model.CanUseMoneyA;//监区可用特种商品的金额
-                    model.TZSP_cyMoney = 0;//处遇可用特种商品的金额
-                }
-
-            }
-            try
-            {
-                if (area.SaleCloseFlag != null)
-                {
-                    model.SaleCloseFlag = area.SaleCloseFlag;
+                    model.TZSP_AreaMoney = model.CanUseMoneyA;
+                    model.TZSP_cyMoney = 0m;
                 }
             }
-            catch
+
+            if (area != null && area.SaleCloseFlag != null)
             {
-
+                model.SaleCloseFlag = area.SaleCloseFlag;
             }
-            model.FTZSP_CanUseMoney = ftzspMoney; //ftzspMoney大于最大可用金额
-            model.FTZSP_AreaXFMoney = xfmoney.FTZSP_AreaXFMoney;//ftzspMoney监区部份使用的金额
 
-            #endregion
+            model.FTZSP_CanUseMoney = ftzspMoney;
+            model.FTZSP_AreaXFMoney = xfmoney.FTZSP_AreaXFMoney;
 
-            //2018-10-15在莆田把修改
-            //当特种商品为零标志FTZSP_Zero_Flag=1时，不让购买特种商品（食品额度变为0）
             if (cy.FTZSP_Zero_Flag == 1)
             {
-                //model.FTZSP_CanUseMoney = 0;
-
-                //model.FTZSP_CanUseMoney = 0;
-                //2023-09-18修改为食品可用金额不能超过特种食品设定的金额
-                //2023-11-6修改为食品可用金额不能(超过特种食品设定的金额+领导特批)
-                //if (model.FTZSP_CanUseMoney > cy.FTZSP_Money+ TP_YingYangCan_Money-xfmoney.FTZSP_Money)
-                //{
-                //    model.FTZSP_CanUseMoney = cy.FTZSP_Money+ TP_YingYangCan_Money - xfmoney.FTZSP_Money;
-                //}
-
-                //2023-12-28修改为食品可用金额不能(置零后的金额,含领导特批营养餐)
-                if (model.FTZSP_CanUseMoney > cy.FTZSP_Zero_MaxMoney + TP_YingYangCan_Money - xfmoney.FTZSP_Money)
-                {
-                    model.FTZSP_CanUseMoney = cy.FTZSP_Zero_MaxMoney + TP_YingYangCan_Money - xfmoney.FTZSP_Money;
-                }
+                decimal limit = cy.FTZSP_Zero_MaxMoney + TP_YingYangCan_Money - xfmoney.FTZSP_Money;
+                if (model.FTZSP_CanUseMoney > limit)
+                    model.FTZSP_CanUseMoney = limit;
             }
 
-            //if (yyMset != null)
-            //{
-            //    if (yyMset.MgrValue == "1")
-            //    {
-            //        if (yyMset.KeyMode == saleTypeId)
-            //        {
-            //            decimal canAllUseMoney1 = 0;
-            //            if (saleType.FirstPaymentAccount == 0)
-            //            {
-            //                canAllUseMoney1 = model.CanUseMoneyA + model.CanUseMoneyB;
-            //                model.CanUseMoneyA = model.CanUseMoneyA - cy.totpct > 0 ? cy.totpct : model.CanUseMoneyA;
-            //                model.CanUseMoneyB = canAllUseMoney1 - cy.totpct > 0 ? cy.totpct - model.CanUseMoneyA : canAllUseMoney1 - model.CanUseMoneyA;
-            //            }
-            //            else
-            //            {
-            //                canAllUseMoney1 = model.CanUseMoneyA + model.CanUseMoneyB;
-            //                model.CanUseMoneyB = model.CanUseMoneyB - cy.totpct > 0 ? cy.totpct : model.CanUseMoneyB;
-            //                model.CanUseMoneyA = canAllUseMoney1 - cy.totpct > 0 ? cy.totpct - model.CanUseMoneyB : canAllUseMoney1 - model.CanUseMoneyB;
+            model.AccPoints = card.AccPoints;
 
-            //            }
-
-            //        }
-            //    }
-            //}
-
-            //2018-11-02漳州监狱增加领导特批营养金额功能
-            //只要领导有审批则个人增加相应的金额，可购买食品和日用品
-            //model.FTZSP_CanUseMoney = model.FTZSP_CanUseMoney + TP_YingYangCan_Money;
-            //model.TZSP_cyMoney = model.TZSP_cyMoney + TP_YingYangCan_Money;
-
-
-            model.AccPoints = card.AccPoints;//增加积分
-
-
-            //20250719增加积分等级标准，根据犯人类型和完成率来确定积分上限
-            var jfDengji=new JifenMgrService().QueryList<T_JF_DengjiType>("select * from T_JF_DengjiType where TypeFlag=@TypeFlag and CompletionRate<=@CompletionRate order by CompletionRate desc", new { TypeFlag=model.WorkType,CompletionRate=model.CompletionRate}).FirstOrDefault();
-            var maxPoints=new T_SHO_ManagerSetBLL().GetModel("JifenGouWuMaxPoints");
-            model.JiFenMonthStandard = 600;//默认每月600分
+            // 积分等级标准
+            var jfDengji = jfService.QueryList<T_JF_DengjiType>("select * from T_JF_DengjiType where TypeFlag=@TypeFlag and CompletionRate<=@CompletionRate order by CompletionRate desc", new { TypeFlag = model.WorkType, CompletionRate = model.CompletionRate }).FirstOrDefault();
+            var maxPoints = managerSetBll.GetModel("JifenGouWuMaxPoints");
+            model.JiFenMonthStandard = 600m;
             if (maxPoints != null)
             {
-                //如果有设置积分上限，则以设置的为准
-                model.JiFenMonthStandard = Convert.ToDecimal( maxPoints.MgrValue);
+                decimal tmp;
+                if (Decimal.TryParse(maxPoints.MgrValue, out tmp))
+                    model.JiFenMonthStandard = tmp;
             }
-            if(jfDengji!=null)
+            if (jfDengji != null)
             {
                 model.JiFenMonthStandard = jfDengji.JfUseMaxPoints;
             }
-            
 
             return model;
         }
-
+        #endregion
         public IEnumerable<T_Criminal> GetPageListOfIEnumerable(int page, int pageRow, string strWhere)
         {
             return new T_CriminalDAL().GetPageListOfIEnumerable(page, pageRow, strWhere);

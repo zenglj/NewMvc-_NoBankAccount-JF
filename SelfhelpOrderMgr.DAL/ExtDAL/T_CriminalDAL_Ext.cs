@@ -92,7 +92,8 @@ namespace SelfhelpOrderMgr.DAL
             strSql.Append(" flimitflag = @flimitflag , ");
             strSql.Append(" flimitamt = @flimitamt , ");            
             strSql.Append(" Frealareacode = @Frealareacode , ");
-            strSql.Append(" amount = @amount  ");
+            strSql.Append(" amount = @amount,  ");
+            strSql.Append(" LongTermFlag=@LongTermFlag ");
             strSql.Append(" where FCode=@FCode  ");
 
             SqlParameter[] parameters = {
@@ -113,7 +114,8 @@ namespace SelfhelpOrderMgr.DAL
                         new SqlParameter("@flimitflag", SqlDbType.Int,4) ,
                         new SqlParameter("@flimitamt", SqlDbType.Decimal,5) ,
                         new SqlParameter("@Frealareacode", SqlDbType.VarChar,20),
-                        new SqlParameter("@amount", SqlDbType.Decimal,5)
+                        new SqlParameter("@amount", SqlDbType.Decimal,5),
+                        new SqlParameter("@LongTermFlag", SqlDbType.Int,4)
 
             };
 
@@ -135,6 +137,7 @@ namespace SelfhelpOrderMgr.DAL
             parameters[15].Value = model.flimitamt;
             parameters[16].Value = model.Frealareacode;
             parameters[17].Value = model.amount;
+            parameters[18].Value = model.LongTermFlag;
             int rows = SqlHelper.ExecuteSql(strSql.ToString(), parameters);
             if (rows > 0)
             {

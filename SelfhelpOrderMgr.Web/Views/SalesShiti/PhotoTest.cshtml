@@ -1,0 +1,157 @@
+﻿
+@{ Layout = null; }
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>H5摄像头拍照示例(美化版)</title>
+    <style>
+        /* 1. 全局样式与完美居中 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            /* 使用 Flexbox 实现水平和垂直居中 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* 2. 卡片容器样式 */
+        .camera-card {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 520px;
+            width: 100%;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        /* 3. 视频预览区样式 */
+        #video {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            background-color: #000; /* 摄像头未开启时显示黑底 */
+            display: block;
+        }
+
+        /* 4. 按钮样式 */
+        button {
+            margin-top: 20px;
+            padding: 12px 30px;
+            font-size: 16px;
+            color: #fff;
+            background-color: #1890ff;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+        }
+
+            button:hover {
+                background-color: #40a9ff;
+            }
+
+            button:active {
+                transform: scale(0.98);
+            }
+
+        /* 5. 拍照结果展示区样式 */
+        .result-container {
+            margin-top: 20px;
+            display: none; /* 默认隐藏，拍照后显示 */
+        }
+
+        #resultImg {
+            width: 100%;
+            border-radius: 8px;
+            border: 1px solid #eee;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="camera-card">
+        <h2>📷 证件/文档拍照</h2>
+
+        <!-- 实时预览画面 -->
+        <video id="video" autoplay playsinline></video>
+
+        <!-- 隐藏的画布，用于截取图像 -->
+        <canvas id="canvas" style="display:none;"></canvas>
+
+        <!-- 拍照按钮 -->
+        <button id="captureBtn">点击拍照</button>
+
+        <!-- 展示拍下的照片 -->
+        <div id="resultContainer" class="result-container">
+            <img id="resultImg" alt="拍摄结果">
+        </div>
+    </div>
+
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const captureBtn = document.getElementById('captureBtn');
+        const resultImg = document.getElementById('resultImg');
+        const resultContainer = document.getElementById('resultContainer');
+
+        // 1. 开启摄像头
+        async function openCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: { width: 800, height: 600 }
+                });
+                video.srcObject = stream;
+
+                // 当视频流准备好后，设置画布尺寸与视频一致，防止图片拉伸
+                video.onloadedmetadata = () => {
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                };
+            } catch (error) {
+                console.error('摄像头启动失败:', error);
+                alert('无法访问摄像头，请检查浏览器权限或设备连接');
+            }
+        }
+
+        // 2. 拍照并生成 Base64 图片
+        captureBtn.addEventListener('click', () => {
+            // 将视频当前帧绘制到画布上
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            // 将画布内容转换为 Base64 字符串
+            const base64Image = canvas.toDataURL('image/jpeg', 0.9); // 0.9为图片质量
+            resultImg.src = base64Image;
+
+            // 显示结果区域
+            resultContainer.style.display = 'block';
+
+            // 实际开发中，这里可以拿到 base64Image 通过 Ajax/Fetch 提交到后台
+            console.log('生成的图片Base64:', base64Image);
+        });
+
+        // 页面加载时打开摄像头
+        openCamera();
+    </script>
+</body>
+</html>

@@ -151,7 +151,7 @@ namespace SelfhelpOrderMgr.BLL
                     model.FCrimeCode = dt.Rows[n]["FCrimeCode"].ToString();
                     model.FCYCode = dt.Rows[n]["FCYCode"].ToString();
                     model.FTerm = dt.Rows[n]["FTerm"].ToString();
-
+                    model.LongTermFlag = int.Parse( dt.Rows[n]["LongTermFlag"].ToString());
 
                     if (dt.Rows[n]["DamagesFlag"].ToString() != "")
                     {

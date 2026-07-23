@@ -139,7 +139,11 @@ $(function () {
                 field: 'UseType', width: 60, title: '使用模式', formatter: useTypeFormatter, editor: { type: 'combobox', options: { data: usetype, valueField: "value", textField: "text" } }
             }, {
                 field: 'ControlName', width: 60, title: '控制器名', formatter: controlNameFormatter, editor: { type: 'combobox', options: { data: controlName, valueField: "value", textField: "text" } }
-            },]]
+            },
+            {
+                field: 'MaxSaleMoney', width: 60, title: '最大销售金额', editor: 'combobox'
+            }
+        ]]
     });
 
     //$('#editWindows').window({

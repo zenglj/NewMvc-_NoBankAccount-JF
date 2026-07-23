@@ -278,7 +278,8 @@ namespace SelfhelpOrderMgr.Model
         /// </summary>
         public string WorkType { get; set; }
 
-
+        //重刑犯标志
+        public int LongTermFlag { get; set; } = 0;
     }
 }
 

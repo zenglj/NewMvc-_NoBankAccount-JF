@@ -192,7 +192,7 @@
                                                     if (@good.GTYPE == @type.Fcode)
                                                     {
                                                         <div class="col-md-2">
-                                                            <div class="thumbnail thumbnail-3d" onclick="btnBuy('@good.GTXM|@good.GDJ|@good.GNAME|@good.Ffreeflag|@good.Xgsl|@good.GStandard|@good.src|@good.Balance')">
+                                                            <div class="thumbnail thumbnail-3d" onclick="btnBuy('@good.GTXM|@good.GDJ|@good.GNAME|@good.Ffreeflag|@good.Xgsl|@good.GStandard|@good.src|@good.Balance|@good.madein')">
 
                                                                 @if (string.IsNullOrEmpty(good.src))
                                                                 {
@@ -202,7 +202,7 @@
                                                                 {
                                                                     <img class="lazy" src="@good.src" width="300" height="150" data-src="" alt="gulpjs">
                                                                 }
-                                                                <div class="" onclick="btnBuy('@good.GTXM|@good.GDJ|@good.GNAME|@good.Ffreeflag|@good.Xgsl|@good.GStandard|@good.src|@good.Balance')">
+                                                                <div class="" onclick="btnBuy('@good.GTXM|@good.GDJ|@good.GNAME|@good.Ffreeflag|@good.Xgsl|@good.GStandard|@good.src|@good.Balance|@good.madein')">
 
                                                                     <h3 style="height:70px; text-align:center;">
                                                                         <span class="MoneyFontColor"><small class="MoneyFontColor">¥</small> @good.GDJ 元</span><br />
@@ -399,6 +399,8 @@
                         <span id="inputGname">贝因美 经典优选幼儿配方奶粉3段908g罐装</span>
 
                     </h3>
+                    <h4>(作者-出版社)/产地：<span id="inputMadeIn"></span></h4>
+
                     <h5 style="color:brown;">商品编码：<span id="inputGtxm"></span>，详细描述：<span id="inputGStandard">4听起送奶瓶，6听起送天松口服液，活动价格无积分.新老包装随机发货</span></h5>
                     <div class="text-center">
 

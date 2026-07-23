@@ -1602,6 +1602,14 @@ namespace SelfhelpOrderMgr.Web.Controllers
                             }
                             catch { }
 
+
+                            string madein = "";  //作者|出版商
+                            if(!(row.GetCell(10)==null && row.GetCell(11) == null))
+                            {
+                                madein = Convert.ToString(row.GetCell(10).StringCellValue) + "-" + Convert.ToString(row.GetCell(11).StringCellValue);
+
+                            }
+
                             string strLoginName = new T_CZYBLL().GetModel(Session["loginUserCode"].ToString()).FName;
                             string imgExtName = ConfigurationManager.ConnectionStrings["imgExtName"].ConnectionString;
 
@@ -1637,19 +1645,26 @@ namespace SelfhelpOrderMgr.Web.Controllers
                             }
                             model.GTXM = Gtxm;
                             model.GNAME = GName;
-                            model.GStandard = GStandard;
+                            model.GStandard = GStandard.Replace("\n\r","").Replace("\n","");
+
+
                             string strGtype = "";
+
+                            T_GoodsType gt = new T_GoodsType();
+
                             #region 测试并添加新商品类型
                             if (!string.IsNullOrEmpty(GType))
                             {
                                 try
                                 {
 
-                                    strGtype = _baseDapperBLL.GetModelList<T_GoodsType>(jss.Serialize(new { Fname = GType }), "Id asc", 200)[0].Fcode;
+                                    gt = _baseDapperBLL.GetModelList<T_GoodsType>(jss.Serialize(new { Fname = GType }), "Id asc", 200)[0];
+                                    strGtype = gt.Fcode;
+
                                 }
                                 catch
                                 {
-                                    T_GoodsType gt = new T_GoodsType();
+                                    gt = new T_GoodsType();
                                     T_SEQNO seqModel = new T_SEQNO();
                                     if (new T_SEQNOBLL().GetModelList("SeqType='GT'").Count > 0)
                                     {
@@ -1708,19 +1723,39 @@ namespace SelfhelpOrderMgr.Web.Controllers
                                 model.Ffreeflag = 0;
                             }
 
+                            
                             if (mgrSet.KeyMode == 1)
                             {
-                                model.src = "/Content/GoodsImages/" + GName + "." + mgrSet.MgrValue;
-                                model.data = "/Content/GoodsImages/null.png";
+                                if (gt.SaleTypeId == 4)
+                                {
+                                    model.src = model.src==null? "/Content/GoodsImages/null-book.jpg":model.src;
+                                    model.data = "/Content/GoodsImages/null-book.jpg";
+                                }
+                                else
+                                {
+                                    model.src = "/Content/GoodsImages/" + GName + "." + mgrSet.MgrValue;
+                                    model.data = "/Content/GoodsImages/null.png";
+                                }
+                                    
                             }
                             else
                             {
-                                model.src = "/Content/GoodsImages/" + SPShortCode + "." + mgrSet.MgrValue;
-                                model.data = "/Content/GoodsImages/null.png";
+                                if (gt.SaleTypeId == 4)
+                                {
+                                    model.src = model.src == null ? "/Content/GoodsImages/null-book.jpg" : model.src;
+                                    model.data = "/Content/GoodsImages/null-book.jpg";
+                                }
+                                else
+                                {
+                                    model.src = "/Content/GoodsImages/" + SPShortCode + "." + mgrSet.MgrValue;
+                                    model.data = "/Content/GoodsImages/null.png";
+                                }
+                                    
                             }
                             tmpSpShortCode = model.SPShortCode;//先保留备份
                             model.SPShortCode = SPShortCode;//商品简码
 
+                            model.madein = madein;
 
                             if (chkModel == null)
                             {//增加一条记录
@@ -1734,7 +1769,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                                 model.Crtdt = DateTime.Now.ToString();
                                 model.Moddt = DateTime.Now.ToString();
                                 model.ModBy = "";
-                                model.madein = "";
+                                //model.madein = "";
                                 model.gjm = "";
                                 model.gindj = Convert.ToDecimal(GPrice);
                                 model.GSupplyer = "";
@@ -1877,9 +1912,10 @@ namespace SelfhelpOrderMgr.Web.Controllers
         }
 
         #region 商品类型管理
-        public ActionResult GoodsTypeMgr(int id = 0)//商品类别管理
+        public ActionResult GoodsTypeMgr(int id = 0, string saleid = "")//商品类别管理
         {
             ViewData["UseTypeId"] = id;
+            ViewData["saleid"] = saleid;
             //商品类别
             List<T_GoodsType> goodtypes = _baseDapperBLL.GetModelList<T_GoodsType>("", "Id asc", 200);
 
@@ -1892,15 +1928,26 @@ namespace SelfhelpOrderMgr.Web.Controllers
             return View("GoodsTypeMgr");
         }
 
-        public ActionResult GetGoodsTypeMgr(int id = 0)//获取商品类别管理
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id">0是购物，1是积分</param>
+        /// <param name="saleid">销售类别的Id,1是超市,4是书报消费</param>
+        /// <returns></returns>
+        public ActionResult GetGoodsTypeMgr(int id = 0,string saleid="")//获取商品类别管理
         {
+            
             //商品类别
             List<T_GoodsType> goodtypes = _baseDapperBLL.GetModelList<T_GoodsType>(jss.Serialize(new { UseType = id }), "Id asc", 200);
+            
+            if (saleid != "")
+            {
+                goodtypes=goodtypes.Where(o => o.SaleTypeId.ToString() == saleid).ToList();
+            }
+                //ViewData["goodtypes"] = goodtypes;
+                //JavaScriptSerializer jss = new JavaScriptSerializer();
 
-            //ViewData["goodtypes"] = goodtypes;
-            //JavaScriptSerializer jss = new JavaScriptSerializer();
-
-            return Content(jss.Serialize(goodtypes));
+                return Content(jss.Serialize(goodtypes));
         }
 
         public ActionResult SaveGoodsTypeList()//保存商品类型列表
@@ -2124,6 +2171,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 model.ShoppingFlag = Convert.ToInt32(o["ShoppingFlag"].ToString());
                 model.Remark = o["Remark"].ToString();
                 model.Fifoflag = Convert.ToInt32(o["Fifoflag"].ToString());
+                model.MaxSaleMoney = Convert.ToDecimal(o["MaxSaleMoney"].ToString());
                 model.UseType = Convert.ToInt32(o["UseType"].ToString());
                 model.ControlName =o["ControlName"].ToString();
                 T_SHO_SaleType m = new T_SHO_SaleTypeBLL().GetModel(model.Id);
@@ -2914,7 +2962,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
             string endTime = Request["endTime"];
 
             string Flag = Request["Flag"];
-            if (string.IsNullOrWhiteSpace("Flag"))
+            if (string.IsNullOrWhiteSpace(Flag))
             {
                 Flag = "1";
             }

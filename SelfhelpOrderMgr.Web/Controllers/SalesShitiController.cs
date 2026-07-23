@@ -1316,5 +1316,14 @@ namespace SelfhelpOrderMgr.Web.Controllers
         }
 
         #endregion
+
+        /// <summary>
+        /// 高拍仪器测试
+        /// </summary>
+        /// <returns></returns>
+        public ActionResult PhotoTest()
+        {
+            return View();
+        }
     }
 }

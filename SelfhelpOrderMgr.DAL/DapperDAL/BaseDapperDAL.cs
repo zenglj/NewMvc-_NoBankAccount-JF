@@ -109,7 +109,15 @@ namespace SelfhelpOrderMgr.DAL
                 string sql = $"select * from {type.Name} ";
                 if (!string.IsNullOrWhiteSpace(strWhere))
                 {
-                    sql = sql + "where " + strWhere;
+                    if (strWhere.ToLower().StartsWith("select"))
+                    {
+                        sql = strWhere;
+                    }
+                    else
+                    {
+                        sql = sql + "where " + strWhere;
+                    }
+                   
                 }
 
                 var list = SqlMapper.Query<T>(conn, sql).AsList<T>();//这里的【0】可以去掉，因为我这个只是返回一条记录，实际使用可以根据情况返回数组

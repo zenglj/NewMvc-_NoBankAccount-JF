@@ -120,6 +120,11 @@ namespace SelfhelpOrderMgr.BLL
                         model.Fifoflag = int.Parse(dt.Rows[n]["Fifoflag"].ToString());
                     }
 
+                    if (dt.Rows[n]["MaxSaleMoney"].ToString() != "")
+                    {
+                        model.MaxSaleMoney = decimal.Parse(dt.Rows[n]["MaxSaleMoney"].ToString());
+                    }
+
                     if (dt.Rows[n]["UseType"].ToString() != "")
                     {
                         model.UseType = int.Parse(dt.Rows[n]["UseType"].ToString());

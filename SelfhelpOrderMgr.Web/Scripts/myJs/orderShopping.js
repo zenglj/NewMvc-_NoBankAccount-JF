@@ -123,6 +123,8 @@ function btnBuy(e) {
     $("#inputXgsl").val(words[4]);
     $("#inputGStandard").html(words[5]);       
     $("#inputImageSrc").attr("src", words[6]);
+    $("#inputMadeIn").html( words[8]);
+    
     $("#inputGcount").val("");
     $("#goodAttributes").empty();//清空商品属性内容
     $("#goodRemark").html("");//清空商品备注内容
@@ -197,7 +199,7 @@ function btnGoodsSearch() {
                 return false;
             } else {
                 var good = $.parseJSON(words[1]);
-                var goodstr = good.GTXM + "|" + good.GDJ + "|" + good.GNAME + "|" + good.Ffreeflag + "|" + good.Xgsl + "|" + good.GStandard + "|" + good.src;
+                var goodstr = good.GTXM + "|" + good.GDJ + "|" + good.GNAME + "|" + good.Ffreeflag + "|" + good.Xgsl + "|" + good.GStandard + "|" + good.src + "|" + good.madein;
                 $("#gtxmSearchBox").val("");
                 $("#gtxmSearchBox").tooltip("destroy");
                 btnBuy(goodstr);//显示抬头栏的账户余额信息

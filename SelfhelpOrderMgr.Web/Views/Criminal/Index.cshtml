@@ -189,7 +189,14 @@
                     </tr>
                     <tr>
                         <th>备注</th>
-                        <td colspan="5"><input type="text" id="txtFDesc" name="txtFDesc" style="width:550px;" class="easyui-textbox" /></td>
+                        <td colspan="3"><input type="text" id="txtFDesc" name="txtFDesc" style="width:350px;" class="easyui-textbox" /></td>
+                        <td colspan="2">
+                            <label>重刑犯:</label>
+                            <select id="txtLongTermFlag" name="LongTermFlag" style="width:100px;" class="easyui-combobox">
+                                <option value="0">否</option>
+                                <option value="1">是</option>
+                            </select>
+                        </td>
                         <th colspan="2">
                             <label>最大存款金额:</label>
                             <input type="text" id="MaxMoney" name="amount" style="width:80px;" class="easyui-textbox" disabled="disabled" />
@@ -355,6 +362,17 @@
                                 <option value="0">待审核</option>
                                 <option value="1">已通过</option>
                                 <option value="2">已拒绝</option>
+                            </select>
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">重刑犯：</th>
+                        <td align="left">
+                            <select id="LongTermFlag" name="LongTermFlag" class="easyui-combobox" style="width:190px;">
+                                <option value="" selected="selected">请选择</option>
+                                <option value="0">否</option>
+                                <option value="1">是</option>
                             </select>
 
                         </td>

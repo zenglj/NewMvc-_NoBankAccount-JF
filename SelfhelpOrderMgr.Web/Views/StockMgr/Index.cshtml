@@ -77,19 +77,24 @@
          data-options="iconCls:'icon-search',collapsible:true">
         <form id="searchForm">
             <div class="search-row">
-                <label>入库单号:</label>
+                <label>出入库单号:</label>
                 <input id="s_StockId" class="easyui-textbox" style="width:200px;">
 
-                <label>入库类型:</label>
+                <label>出入库类型:</label>
                 <select id="s_StockType" class="easyui-combobox" style="width:150px;">
                     <option value="">--全部--</option>
-                    <option value="采购入库">采购入库</option>
-                    <option value="退货入库">退货入库</option>
-                    <option value="盘点入库">盘点入库</option>
+                    @if (ViewData["GetStokType"] != null)
+                    {
+                        var types = ViewData["GetStokType"] as List<SelfhelpOrderMgr.Model.T_CommonTypeTab>;
+                        foreach (var item in types)
+                        {
+                            <option value="@item.FName">@item.FName</option>
+                        }
+                    }
                 </select>
             </div>
             <div class="search-row">
-                <label>入库日期:</label>
+                <label>出入库日期:</label>
                 <input id="s_StartDate" class="easyui-datebox" style="width:150px;"> 至
                 <input id="s_EndDate" class="easyui-datebox" style="width:150px;">
                 <label>备注:</label>
@@ -127,9 +132,9 @@
         <div id="p-form" class="easyui-panel" title="主单信息" style="width:100%;margin-bottom:10px;" data-options="border:false">
             <form id="stockForm">
                 <div class="form-row">
-                    <label>入库单号:</label>
+                    <label>出入库单号:</label>
                     <input id="StockId" name="StockId" class="easyui-textbox" style="width:200px;" readonly>
-                    <label>入库类型:</label>
+                    <label>出入库类型:</label>
                     <select id="StockType" name="StockType" class="easyui-combobox" style="width:150px;">
                         @if (ViewData["GetStokType"] != null)
                         {
@@ -143,7 +148,7 @@
                         <option value="退货入库">退货入库</option>
                         <option value="盘点入库">盘点入库</option>*@
                     </select>
-                    <label>入库日期:</label>
+                    <label>出入库日期:</label>
                     <input id="InOutDate" name="InOutDate" class="easyui-datebox" style="width:150px;" editable="false">
                 </div>
                 <div class="form-row">
@@ -156,7 +161,7 @@
         </div>
 
         <!-- 弹窗内：明细表格 -->
-        <table id="dg-detail" class="easyui-datagrid" title="入库商品明细" style="width:100%;height:320px;"
+        <table id="dg-detail" class="easyui-datagrid" title="入库商品明细，Excel：名称、条码、单价、数量、生成日期、备注" style="width:100%;height:320px;"
                data-options="singleSelect:true,collapsible:true,showFooter: true,toolbar:'#tb-detail',onAfterEdit:onAfterEdit">
             <thead>
                 <tr>

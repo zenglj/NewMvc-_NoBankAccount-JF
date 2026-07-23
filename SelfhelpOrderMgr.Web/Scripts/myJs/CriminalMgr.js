@@ -186,6 +186,15 @@ function loadDetailTable() {
                         return "否";
                     }
                 }
+            },
+            {
+                field: 'LongTermFlag', title: '重刑犯', width: 100, sortable: true, formatter: function (value, row, index) {
+                    if (value == 1) {
+                        return "是";
+                    } else {
+                        return "否";
+                    }
+                }
             }
         ]],
         onSelect: function (rowIndex, rowData) {
@@ -218,6 +227,7 @@ function setDataRowInfo(rowData) {
     $("#txtFAddr").textbox('setValue', rowData.FAddr);
     $("#txtFAreaCode").combobox('setValue', rowData.FAreaCode);
     $("#txtFCrimeCode").combobox('setValue', rowData.FCrimeCode);
+
     $("#txtFTerm").textbox('setValue', rowData.FTerm);
     if (rowData.fflag == 1) {
         $("#txtFFlag").textbox('setValue', "离监");
@@ -250,7 +260,7 @@ function setDataRowInfo(rowData) {
         }
         $("#MaxMoney").combobox('disabled');
     }
-    
+    $("#txtLongTermFlag").combobox('setValue', rowData.LongTermFlag);
 
 }
 
@@ -505,7 +515,8 @@ function btnSaveCriminal() {
                                 FIdenNo: criminal.FIdenNo,
                                 FSex: criminal.FSex,
                                 FDesc: criminal.FDesc,
-                                amount:criminal.amount
+                                amount: criminal.amount,
+                                longTermFlag: criminal.LongTermFlag
                             });
                         }
                     }

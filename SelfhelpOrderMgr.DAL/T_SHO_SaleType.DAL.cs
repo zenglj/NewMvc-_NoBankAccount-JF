@@ -32,9 +32,9 @@ namespace SelfhelpOrderMgr.DAL
         {
             StringBuilder strSql = new StringBuilder();
             strSql.Append("insert into T_SHO_SaleType(");
-            strSql.Append("Id,PType,TypeFlagId,CanconsumeAccount,FirstPaymentAccount,ShoppingFlag,Remark,Fifoflag,UseType,ControlName");
+            strSql.Append("Id,PType,TypeFlagId,CanconsumeAccount,FirstPaymentAccount,ShoppingFlag,Remark,Fifoflag,UseType,ControlName,MaxSaleMoney");
             strSql.Append(") values (");
-            strSql.Append("@Id,@PType,@TypeFlagId,@CanconsumeAccount,@FirstPaymentAccount,@ShoppingFlag,@Remark,@Fifoflag,@UseType,@ControlName");
+            strSql.Append("@Id,@PType,@TypeFlagId,@CanconsumeAccount,@FirstPaymentAccount,@ShoppingFlag,@Remark,@Fifoflag,@UseType,@ControlName,@MaxSaleMoney");
             strSql.Append(") ");
 
             SqlParameter[] parameters = {
@@ -46,6 +46,7 @@ namespace SelfhelpOrderMgr.DAL
                         new SqlParameter("@ShoppingFlag", SqlDbType.Int,4) ,
                         new SqlParameter("@Remark", SqlDbType.VarChar,200) ,
                         new SqlParameter("@Fifoflag", SqlDbType.Int,4),
+                        new SqlParameter("@MaxSaleMoney", SqlDbType.Decimal),
                         new SqlParameter("@UseType", SqlDbType.Int,4),
                         new SqlParameter("@ControlName", SqlDbType.VarChar,50)
 
@@ -59,8 +60,9 @@ namespace SelfhelpOrderMgr.DAL
             parameters[5].Value = model.ShoppingFlag;
             parameters[6].Value = model.Remark;
             parameters[7].Value = model.Fifoflag;
-            parameters[8].Value = model.UseType;
-            parameters[9].Value = model.ControlName;
+            parameters[8].Value = model.MaxSaleMoney;
+            parameters[9].Value = model.UseType;
+            parameters[10].Value = model.ControlName;
             SqlHelper.ExecuteSql(strSql.ToString(), parameters);
 
         }
@@ -82,6 +84,7 @@ namespace SelfhelpOrderMgr.DAL
             strSql.Append(" ShoppingFlag = @ShoppingFlag , ");
             strSql.Append(" Remark = @Remark , ");
             strSql.Append(" Fifoflag = @Fifoflag,  ");
+            strSql.Append(" MaxSaleMoney = @MaxSaleMoney,  ");
             strSql.Append(" UseType = @UseType,  ");
             strSql.Append(" ControlName = @ControlName  ");
             strSql.Append(" where Id=@Id  ");
@@ -95,6 +98,7 @@ namespace SelfhelpOrderMgr.DAL
                         new SqlParameter("@ShoppingFlag", SqlDbType.Int,4) ,
                         new SqlParameter("@Remark", SqlDbType.VarChar,200) ,
                         new SqlParameter("@Fifoflag", SqlDbType.Int,4),
+                        new SqlParameter("@MaxSaleMoney", SqlDbType.Decimal),
                         new SqlParameter("@UseType", SqlDbType.Int,4),
                         new SqlParameter("@ControlName", SqlDbType.VarChar,50)
 
@@ -108,8 +112,9 @@ namespace SelfhelpOrderMgr.DAL
             parameters[5].Value = model.ShoppingFlag;
             parameters[6].Value = model.Remark;
             parameters[7].Value = model.Fifoflag;
-            parameters[8].Value = model.UseType;
-            parameters[9].Value = model.ControlName;
+            parameters[8].Value = model.MaxSaleMoney;
+            parameters[9].Value = model.UseType;
+            parameters[10].Value = model.ControlName;
             int rows = SqlHelper.ExecuteSql(strSql.ToString(), parameters);
             if (rows > 0)
             {
@@ -156,7 +161,7 @@ namespace SelfhelpOrderMgr.DAL
         {
 
             StringBuilder strSql = new StringBuilder();
-            strSql.Append("select Id, PType, TypeFlagId, CanconsumeAccount, FirstPaymentAccount, ShoppingFlag, Remark, Fifoflag ,UseType,ControlName");
+            strSql.Append("select Id, PType, TypeFlagId, CanconsumeAccount, FirstPaymentAccount, ShoppingFlag, Remark, Fifoflag ,UseType,ControlName,MaxSaleMoney");
             strSql.Append("  from T_SHO_SaleType ");
             strSql.Append(" where Id=@Id ");
             SqlParameter[] parameters = {
@@ -195,6 +200,12 @@ namespace SelfhelpOrderMgr.DAL
                 {
                     model.Fifoflag = int.Parse(ds.Tables[0].Rows[0]["Fifoflag"].ToString());
                 }
+
+                if (ds.Tables[0].Rows[0]["MaxSaleMoney"].ToString() != "")
+                {
+                    model.MaxSaleMoney = decimal.Parse(ds.Tables[0].Rows[0]["MaxSaleMoney"].ToString());
+                }
+
 
                 if (ds.Tables[0].Rows[0]["UseType"].ToString() != "")
                 {

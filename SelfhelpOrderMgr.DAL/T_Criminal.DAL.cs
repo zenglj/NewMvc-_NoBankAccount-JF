@@ -31,9 +31,9 @@ namespace SelfhelpOrderMgr.DAL
         {
             StringBuilder strSql = new StringBuilder();
             strSql.Append("insert into T_Criminal(");
-            strSql.Append("FCode,FInDate,FOuDate,FAreaCode,FSubArea,FDesc,FStatus,FStatus2,FAddr_tmp,FCZY,fflag,FName,flimitflag,flimitamt,Frealareacode,amount,TP_YingYangCan_Money,RSB_Flag,FIdenNo,FAge,FSex,FAddr,FCrimeCode,FCYCode,FTerm");
+            strSql.Append("FCode,FInDate,FOuDate,FAreaCode,FSubArea,FDesc,FStatus,FStatus2,FAddr_tmp,FCZY,fflag,FName,flimitflag,flimitamt,Frealareacode,amount,TP_YingYangCan_Money,RSB_Flag,FIdenNo,FAge,FSex,FAddr,FCrimeCode,FCYCode,FTerm,LongTermFlag");
             strSql.Append(") values (");
-            strSql.Append("@FCode,@FInDate,@FOuDate,@FAreaCode,@FSubArea,@FDesc,@FStatus,@FStatus2,@FAddr_tmp,@FCZY,@fflag,@FName,@flimitflag,@flimitamt,@Frealareacode,@amount,@TP_YingYangCan_Money,@RSB_Flag,@FIdenNo,@FAge,@FSex,@FAddr,@FCrimeCode,@FCYCode,@FTerm");
+            strSql.Append("@FCode,@FInDate,@FOuDate,@FAreaCode,@FSubArea,@FDesc,@FStatus,@FStatus2,@FAddr_tmp,@FCZY,@fflag,@FName,@flimitflag,@flimitamt,@Frealareacode,@amount,@TP_YingYangCan_Money,@RSB_Flag,@FIdenNo,@FAge,@FSex,@FAddr,@FCrimeCode,@FCYCode,@FTerm,@LongTermFlag");
             strSql.Append(") ");
 
             SqlParameter[] parameters = {
@@ -61,8 +61,9 @@ namespace SelfhelpOrderMgr.DAL
                         new SqlParameter("@FAddr", SqlDbType.VarChar,128) ,            
                         new SqlParameter("@FCrimeCode", SqlDbType.VarChar,10) ,            
                         new SqlParameter("@FCYCode", SqlDbType.VarChar,4) ,            
-                        new SqlParameter("@FTerm", SqlDbType.VarChar,20)             
-              
+                        new SqlParameter("@FTerm", SqlDbType.VarChar,20),
+                        new SqlParameter("@LongTermFlag", SqlDbType.Int,4)
+
             };
 
             parameters[0].Value = model.FCode;
@@ -90,6 +91,7 @@ namespace SelfhelpOrderMgr.DAL
             parameters[22].Value = model.FCrimeCode;
             parameters[23].Value = model.FCYCode;
             parameters[24].Value = model.FTerm;
+            parameters[25].Value = model.LongTermFlag;
             SqlHelper.ExecuteSql(strSql.ToString(), parameters);
 
         }
@@ -127,7 +129,8 @@ namespace SelfhelpOrderMgr.DAL
             strSql.Append(" FAddr = @FAddr , ");
             strSql.Append(" FCrimeCode = @FCrimeCode , ");
             strSql.Append(" FCYCode = @FCYCode , ");
-            strSql.Append(" FTerm = @FTerm  ");
+            strSql.Append(" FTerm = @FTerm , ");
+            strSql.Append(" LongTermFlag = @LongTermFlag ");
             strSql.Append(" where FCode=@FCode  ");
 
             SqlParameter[] parameters = {
@@ -155,8 +158,9 @@ namespace SelfhelpOrderMgr.DAL
                         new SqlParameter("@FAddr", SqlDbType.VarChar,128) ,            
                         new SqlParameter("@FCrimeCode", SqlDbType.VarChar,10) ,            
                         new SqlParameter("@FCYCode", SqlDbType.VarChar,4) ,            
-                        new SqlParameter("@FTerm", SqlDbType.VarChar,20)             
-              
+                        new SqlParameter("@FTerm", SqlDbType.VarChar,20),
+                        new SqlParameter("@LongTermFlag", SqlDbType.Int,4)
+
             };
 
             parameters[0].Value = model.FCode;
@@ -184,6 +188,7 @@ namespace SelfhelpOrderMgr.DAL
             parameters[22].Value = model.FCrimeCode;
             parameters[23].Value = model.FCYCode;
             parameters[24].Value = model.FTerm;
+            parameters[25].Value = model.LongTermFlag;
             int rows = SqlHelper.ExecuteSql(strSql.ToString(), parameters);
             if (rows > 0)
             {
@@ -230,7 +235,7 @@ namespace SelfhelpOrderMgr.DAL
         {
 
             StringBuilder strSql = new StringBuilder();
-            strSql.Append("select FCode, FInDate, FOuDate, FAreaCode, FSubArea, FDesc, FStatus, FStatus2, FAddr_tmp, FCZY, fflag, FName, flimitflag, flimitamt, Frealareacode, amount, TP_YingYangCan_Money, RSB_Flag, FIdenNo, FAge, FSex, FAddr, FCrimeCode, FCYCode, FTerm, DamagesFlag, DamagesControlMoney, DamagesRetentionRate, DamagesEndDate,CompletionRate,WorkType,PointsDate ");
+            strSql.Append("select FCode, FInDate, FOuDate, FAreaCode, FSubArea, FDesc, FStatus, FStatus2, FAddr_tmp, FCZY, fflag, FName, flimitflag, flimitamt, Frealareacode, amount, TP_YingYangCan_Money, RSB_Flag, FIdenNo, FAge, FSex, FAddr, FCrimeCode, FCYCode, FTerm, DamagesFlag, DamagesControlMoney, DamagesRetentionRate, DamagesEndDate,CompletionRate,WorkType,PointsDate,LongTermFlag ");
             strSql.Append("  from T_Criminal ");
             strSql.Append(" where FCode=@FCode ");
             SqlParameter[] parameters = {
@@ -301,6 +306,7 @@ namespace SelfhelpOrderMgr.DAL
                 model.FCrimeCode = ds.Tables[0].Rows[0]["FCrimeCode"].ToString();
                 model.FCYCode = ds.Tables[0].Rows[0]["FCYCode"].ToString();
                 model.FTerm = ds.Tables[0].Rows[0]["FTerm"].ToString();
+                model.LongTermFlag = ds.Tables[0].Rows[0]["LongTermFlag"] == DBNull.Value ? 0 : Convert.ToInt32(ds.Tables[0].Rows[0]["LongTermFlag"]);
 
 
                 if (ds.Tables[0].Rows[0]["DamagesFlag"].ToString() != "")

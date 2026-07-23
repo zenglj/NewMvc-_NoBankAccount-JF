@@ -2017,8 +2017,14 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
         private static void SetBonusDetailModel(string LoginUserName, string strFCode, string strFMoney, string strFBid, decimal cpctMoneyA, decimal cpctMoneyB, decimal cpctMoneyC, T_BONUSDTL model, T_Criminal criminal, T_BONUS bonus, T_AREA area, T_Criminal_card card)
         {
+            //判断是否重刑犯，如是留存比例是0
+            if (criminal.LongTermFlag == 1)
+            {
+                cpctMoneyC = 0;
+            }
             //罚金比例
             decimal _amountD = 0;
+
             if (criminal.DamagesFlag == 1 && criminal.DamagesRetentionRate > 0 && DateTime.Today <= criminal.DamagesEndDate)
             {
                 _amountD =Math.Round( (Convert.ToDecimal(strFMoney) - cpctMoneyC) * criminal.DamagesRetentionRate / 100,2);
@@ -2051,6 +2057,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
             model.FLAG = 0;
             model.vouno = "";
             model.applyby = "";
+
         }
 
         public ActionResult QueryCrimeCode()//查询账号

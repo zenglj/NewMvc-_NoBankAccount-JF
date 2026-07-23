@@ -606,13 +606,14 @@ namespace SelfhelpOrderMgr.Web.Controllers
             rts.AccPoints = criminal.AccPoints;
             rts.XiaoFeiPoints = criminal.XiaoFeiPoints;
 
-            if (criminal.AccPoints >= criminal.JiFenMonthStandard)
+            if (criminal.AccPoints >= criminal.JiFenMonthStandard - criminal.XiaoFeiPoints)
             {
                 rts.keyongJifen = criminal.JiFenMonthStandard - criminal.XiaoFeiPoints;
             }
             else
             {
-                rts.keyongJifen = criminal.AccPoints - criminal.XiaoFeiPoints;
+                //rts.keyongJifen = criminal.AccPoints - criminal.XiaoFeiPoints;
+                rts.keyongJifen = criminal.AccPoints;
             }
 
             JavaScriptSerializer css = new JavaScriptSerializer();
@@ -704,13 +705,14 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 rts.orderMoney = 0;
                 rts.FAreaName = criminal.FAreaName;
                 rts.FCrimeCode = criminal.FCode;
-                if (criminal.AccPoints >= criminal.JiFenMonthStandard)
+                if (criminal.AccPoints >= criminal.JiFenMonthStandard- criminal.XiaoFeiPoints)
                 {
                     rts.keyongJifen = criminal.JiFenMonthStandard - criminal.XiaoFeiPoints;
                 }
                 else
                 {
-                    rts.keyongJifen = criminal.AccPoints - criminal.XiaoFeiPoints;
+                    //rts.keyongJifen = criminal.AccPoints - criminal.XiaoFeiPoints;
+                    rts.keyongJifen = criminal.AccPoints;
                 }
                 //增加商品类型信息===Start===================
                 rts.dengjiMgrFlag = _dengjiMgrFlag;

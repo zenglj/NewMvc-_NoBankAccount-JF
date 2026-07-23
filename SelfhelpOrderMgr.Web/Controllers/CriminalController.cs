@@ -336,7 +336,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
         public ActionResult SaveCriminal(string txtFCode, string txtFName, string txtFSex
             , string txtFAreaCode, string txtFCyCode, string txtFAddr, string txtFIdenNo, string txtFCrimeCode,
             string txtFTerm, string txtFInDate, string txtFOuDate, string txtFlimitFlag, string txtFlimitAmt,
-            string txtFDesc, string doType,string amount)
+            string txtFDesc, string doType,string amount,int longTermFlag)
         {
             //string txtFCode = Request["txtFCode"];
             //string txtFName = Request["txtFName"];
@@ -449,7 +449,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                     criminal.FCYCode = txtFCyCode;
                     
                 }
-
+                criminal.LongTermFlag = longTermFlag;
                 criminal.FAddr = txtFAddr;
                 criminal.FIdenNo = txtFIdenNo;
                 criminal.FCrimeCode = txtFCrimeCode;
@@ -909,7 +909,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         }
                         else
                         {
-                            strSql.Append(" fcode 编号,FName 姓名,FIdenNo 身份证号,FDesc 描述,FAreaName 队别,CyName 处遇级别,CardCode IC卡号,SecondaryBankCard 新银行卡,BankCardNo 停用旧烛光卡   ");
+                            strSql.Append(" fcode 编号,FName 姓名,FIdenNo 身份证号,FDesc 描述,FAreaName 队别,CyName 处遇级别,CardCode IC卡号,SecondaryBankCard 新银行卡,BankCardNo 停用旧烛光卡,DamagesFlag 蓝风铃标志,DamagesControlMoney 控制金额,DamagesEndDate 结束日期,LongTermFlag 重刑犯   ");
                         }
                         
                         title = "用户个人信息表";

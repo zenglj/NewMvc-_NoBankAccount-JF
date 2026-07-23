@@ -140,7 +140,7 @@ namespace SelfhelpOrderMgr.DAL
                         new SqlParameter("@Xgsl", SqlDbType.Int,4) ,            
                         new SqlParameter("@GTYPE", SqlDbType.VarChar,20) ,            
                         new SqlParameter("@GUnit", SqlDbType.VarChar,20) ,            
-                        new SqlParameter("@GStandard", SqlDbType.VarChar,20) ,            
+                        new SqlParameter("@GStandard", SqlDbType.VarChar,1000) ,            
                         new SqlParameter("@GDJ", SqlDbType.Decimal,5) ,            
                         new SqlParameter("@GSupplyer", SqlDbType.VarChar,20) ,            
                         new SqlParameter("@GTXM", SqlDbType.VarChar,50) ,  

@@ -86,6 +86,8 @@ namespace SelfhelpOrderMgr.Model
 
         //控制器名称
         public string ControlName { get; set; }
+        //最高销售金额
+        public decimal MaxSaleMoney { get; set;}
     }
 }
 

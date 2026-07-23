@@ -961,10 +961,23 @@ namespace SelfhelpOrderMgr.Web.Controllers
                     {
                         return Content("Error|您有生产完成率等级不够,不能购买该类商品");
                     }
-                    
-
                 }
 
+
+
+                var _saleType = saleTypes[0];
+                if (_saleType.MaxSaleMoney > 0)
+                {
+                    var typeSumMoney = _baseDapperBLL.QueryList<T_SHO_Order>("select * from T_SHO_Order where PType=@PType and FCrimecode=@FCrimecode and Flag=@Flag", new { PType = _saleType.PType, FCrimecode = criminal.FCode, Flag = 2 })
+                        .Where(o => o.CrtDate >= new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1) && o.CrtDate <= DateTime.Now)
+                        .Sum(p => p.FAmount);
+                    if ((typeSumMoney + order.FAmount + (decimal)good.GDJ * Convert.ToDecimal(gcount)) > _saleType.MaxSaleMoney)
+                    {
+                        status = $"Error|不能超过本月最大限购金额【{_saleType.MaxSaleMoney}】";
+                        return Content(status);
+                    }
+
+                }
 
 
                 //=====根据上个月的完成率看这类商品你是否有资格购买==20250719 zenglj===End================

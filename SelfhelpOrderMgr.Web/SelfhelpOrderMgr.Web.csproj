@@ -416,6 +416,7 @@
     <Content Include="Content\GoodsImages\buttons.png" />
     <Content Include="Content\GoodsImages\chart.js.png" />
     <Content Include="Content\GoodsImages\codeguide.png" />
+    <Content Include="Content\GoodsImages\null-book.jpg" />
     <Content Include="Content\GoodsImages\expo.png" />
     <Content Include="Content\GoodsImages\flat-ui.png" />
     <Content Include="Content\GoodsImages\grey.gif" />
@@ -1461,6 +1462,7 @@
     <Content Include="Views\StockMgr\StockTaking.cshtml" />
     <Content Include="Views\StockMgr\PrintStockTaking.cshtml" />
     <Content Include="Views\StockMgr\PrintStockBill.cshtml" />
+    <Content Include="Views\SalesShiti\PhotoTest.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

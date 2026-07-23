@@ -51,7 +51,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
         {
             ViewData["id"] = id;
             ViewData["GetStokType"] = GetStokType(id);
-            _SaleTypeId = id;
+            //_SaleTypeId = id;
 
 
             return View();
@@ -587,10 +587,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
         /// <returns></returns>
         public ActionResult GetStockTakingList(StockTakingQueryDto dto, int page = 1, int rows = 10)
         {
-            //T_Stock_Search wherDto = TinyMapper.Map<T_Stock_Search>(dto);
             var list = _bll.QueryPageListByDto<T_StockTaking, StockTakingQueryDto>("T_StockTaking", dto, page, rows,"Id desc", "");
 
-            //return Content(Newtonsoft.Json.JsonConvert.SerializeObject(list.rows));
             return Content(Newtonsoft.Json.JsonConvert.SerializeObject(list));
         }
 

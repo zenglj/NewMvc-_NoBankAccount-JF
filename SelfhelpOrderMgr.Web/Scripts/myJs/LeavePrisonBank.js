@@ -126,7 +126,7 @@ function UserLoginCheck() {
                             //return false;
 
                             $("#btnNext").removeAttr('disabled');
-                            $("#FIcCardCode").val(cardNo);
+                            $("#FIcCardCode").val(data.DataInfo.criminal.CardCode);
                             //直接显示余额查询情况
                             $("#divPayDisplayInfo").hide();
                             $("#divPaySelArea").hide();
@@ -136,7 +136,7 @@ function UserLoginCheck() {
                         }
                         else if (data.DataInfo.recvBankAccount.CheckFlag == 1 || data.DataInfo.recvBankAccount.CheckFlag == 2 || data.DataInfo.recvBankAccount.CheckFlag == 3) {
                             $("#btnNext").removeAttr('disabled');
-                            $("#FIcCardCode").val(cardNo);
+                            $("#FIcCardCode").val(data.DataInfo.criminal.CardCode);
                             //直接显示余额查询情况
                             $("#divPayDisplayInfo").hide();
                             $("#divPaySelArea").hide();
@@ -151,13 +151,14 @@ function UserLoginCheck() {
                         else {
 
                             $("#btnNext").removeAttr('disabled');
-                            $("#FIcCardCode").val(cardNo);
+                            $("#FIcCardCode").val(data.DataInfo.criminal.CardCode);
 
                         }
                     } else {
                         //$("#FIcCardCode").val("");
-                        $("#FIcCardCode").val(cardNo);
-
+                        //$("#FIcCardCode").val(cardNo);
+                        $("#FIcCardCode").val(data.DataInfo.criminal.CardCode)
+                        
                         //ClearAccountEditArea();
                     }
                 }

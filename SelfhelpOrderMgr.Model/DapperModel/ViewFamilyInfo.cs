@@ -13,7 +13,8 @@ namespace SelfhelpOrderMgr.Model
         public string FAreaCode { get; set; }
         [System.ComponentModel.Description("队别名称")]
         public string FAreaName { get; set; }
-
+        [System.ComponentModel.Description("人员状态")]
+        public string UserFFlag { get; set; }
 
     }
 }

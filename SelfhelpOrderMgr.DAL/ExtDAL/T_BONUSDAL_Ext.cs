@@ -697,8 +697,8 @@ namespace SelfhelpOrderMgr.DAL
                         select 
 	                        a.Bid BID,a.FCrimeCode FCRIMECODE,b.CardCodeA CARDCODE,a.FMoney FAMOUNT,0 FLAG,c.FAreaCode fareacode,d.FName fareaName,FCriminal fcriminal,'' vouno
 	                        ,'' Frealareacode,'' FrealAreaName,FRemark remark,e.Remark ptype,e.UDate udate,e.CrtBy crtby,getDate() crtdt,e.applyby applyby,1 acctype,0 cardtype
-	                        ,convert(numeric(18,2),a.FMoney*f.cpct/100) AmountC,
-	                        convert(numeric(9,2),(a.FMoney-convert(numeric(18,2),a.FMoney*f.cpct/100))*c.DamagesFlag*(case when getdate()>c.DamagesEndDate then 0 else 1 end)*c.DamagesRetentionRate/100) AmountD,0 cqbt,0 gwjt,0 ldjx,0 tbbz,0 grkj
+	                        ,case c.LongTermFlag when 1 then 0 else  convert(numeric(18,2),a.FMoney*f.cpct/100) end AmountC
+	                        ,convert(numeric(9,2),(a.FMoney-(case c.LongTermFlag when 1 then 0 else  convert(numeric(18,2),a.FMoney*f.cpct/100) end))*c.DamagesFlag*(case when getdate()>c.DamagesEndDate then 0 else 1 end)*c.DamagesRetentionRate/100) AmountD,0 cqbt,0 gwjt,0 ldjx,0 tbbz,0 grkj
 	                        from t_bonus_Temp a,t_Criminal_Card b,t_Criminal c,t_Area d,T_Bonus e,t_Cy_Type f
 	                        where a.Bid=@Bid and a.Notes='' 
 	                        and a.FCrimeCode=C.FCode and B.FCrimeCode=C.FCode and C.FAreaCode=D.FCode
