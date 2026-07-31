@@ -1326,7 +1326,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
         private static DataRow lbExcelModel_Five(string strFBid, NPOI.SS.UserModel.ISheet sheet, int rows, DataTable dtUserAdd, DataRow drTemp)
         {
-            T_BONUS bonus = new BaseDapperBLL().GetModelFirst<T_BONUS, T_BONUS>("{\"BID\":\""+strFBid+"\"}");
+            T_JF_BONUS bonus = new BaseDapperBLL().GetModelFirst<T_JF_BONUS, T_JF_BONUS>("{\"BID\":\""+strFBid+"\"}");
             List<T_Savetype> savetypes = new T_SavetypeBLL().GetModelList("typeflag=0  and UseType=1 and fcode='" + bonus.SubTypeFlag.ToString() + "'");
             int accTypeFlag = 0;
             if (savetypes.Count > 0)

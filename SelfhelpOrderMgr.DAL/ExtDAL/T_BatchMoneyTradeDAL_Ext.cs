@@ -315,12 +315,12 @@ namespace SelfhelpOrderMgr.DAL
                     strSql.Append(@"update t_Criminal_Card set amounta=a.amounta-b.amounta,amountb=a.amountb-b.amountb,amountc=a.amountc-b.amountc,AmountD=a.AmountD-b.amountd from  t_Criminal_card a,(
                                 select fcrimecode,sum(case acctype when 0 then(damount-camount) else 0 end) amounta,sum(case acctype when 1 then(damount-camount) else 0 end) amountb
                                     ,sum(case acctype when 2 then(damount-camount) else 0 end) amountc
-                                    ,sum(case acctype when 4 then(damount-camount) else 0 end) amountd  from t_Vcrd 
+                                    ,sum(case acctype when 4 then(damount-camount) else 0 end) amountd  from t_JF_Vcrd 
                                 where flag=0 and isnull(bankflag,0)<=0 and typeflag=@typeflag and origid=@pkId
                                 group by fcrimecode) b
                                 where a.fcrimecode=b.fcrimecode;");
                     //strSql.Append("update t_bonusdtl set Remark='该记录财务入账时，已离监销户了' where flag=0 and bid=@BID;");
-                    strSql.Append(@"update t_Vcrd set flag=1,delby=@crtby,deldate=getdate(),remark='已补批量删除:' +isnull(remark,'') 
+                    strSql.Append(@"update t_JF_Vcrd set flag=1,delby=@crtby,deldate=getdate(),remark='已补批量删除:' +isnull(remark,'') 
                                     where flag in(0,-2) and isnull(bankflag,0)<=0 and typeflag=@typeflag and origid=@pkId;");
                     strSql.Append(@"delete from T_BatchMoneyTrade_dtl where bid=@pkId;");
                     strSql.Append(@"delete from T_BatchMoneyTrade where bid=@pkId;");

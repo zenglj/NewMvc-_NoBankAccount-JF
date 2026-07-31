@@ -43,6 +43,7 @@
                     <div data-options="iconCls:'icon-print'" onclick="PrintSumOrder(4)">按商品价格统计</div>
                     <div data-options="iconCls:'icon-print'" onclick="PrintSumOrder(5)">打印消费明细清单</div>
                     <div data-options="iconCls:'icon-print'" onclick="PrintSumOrder(6)">横向队别商品报表</div>
+                    <div data-options="iconCls:'icon-print'" onclick="PrintSumOrder(8)">按消费机号统计</div>
                 </div> <label>|</label>
 
                 <a href="javascript:void(0)" id="mprint" class="easyui-menubutton"
@@ -60,6 +61,7 @@
                     <div data-options="iconCls:'icon-print'" onclick="ExcelSumOrder(4)">按商品价格统计</div>
                     <div data-options="iconCls:'icon-print'" onclick="ExcelSumOrder(5)">消费明细清单导出</div>
                     <div data-options="iconCls:'icon-print'" onclick="ExcelSumOrder(6)">横向队别商品报表</div>
+                    <div data-options="iconCls:'icon-print'" onclick="ExcelSumOrder(8)">按消费机号统计</div>
                 </div>
                 <a href="#" id="btnCancelInvoiceOrder" class="easyui-linkbutton" iconcls="icon-undo" plain="true" onclick="CancelInvoiceOrder()">撤消订单</a><label>|</label>
 
@@ -90,7 +92,7 @@
 
     <div data-options="region:'east',title:'查询条件',split:true" style="width:300px;">
         <div data-options="region:'north',title:'North Title',split:true" style="height:200px;">
-            <form method="post">
+            <form id="ffSearch" method="post">
                 <table id="crimeSearch">
                     <tr>
                         <th align="right">编号：</th>
@@ -209,7 +211,7 @@
                     </tr>
                     <tr>
                         <th align="right"></th>
-                        <td align="right"><a id="btn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-search'" onclick="btnSearch()">查询</a><a id="A1" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-redo'" onclick="    clearSearch()">清空</a></td>
+                        <td align="right"><a id="btn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-search'" onclick="btnSearch()">查询</a><a id="A1" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-redo'" onclick="clearSearch()">清空</a></td>
                     </tr>
                 </table>
             </form>

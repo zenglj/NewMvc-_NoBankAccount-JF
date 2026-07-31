@@ -129,7 +129,7 @@ namespace SelfhelpOrderMgr.DAL
                         new SqlParameter("@COMBFLAG", SqlDbType.Int,4) ,            
                         new SqlParameter("@gindj", SqlDbType.Decimal,9) ,            
                         new SqlParameter("@subflag", SqlDbType.Int,4) ,            
-                        new SqlParameter("@madein", SqlDbType.VarChar,30) ,            
+                        new SqlParameter("@madein", SqlDbType.VarChar,200) ,            
                         new SqlParameter("@GNAME", SqlDbType.VarChar,100) ,            
                         new SqlParameter("@Ffreeflag", SqlDbType.Int,4) ,            
                         new SqlParameter("@balflag", SqlDbType.Int,4) ,            

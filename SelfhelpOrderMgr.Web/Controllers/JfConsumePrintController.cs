@@ -820,6 +820,22 @@ namespace SelfhelpOrderMgr.Web.Controllers
                         ExcelRender.RenderToExcel(dt, dt.Rows[0][0].ToString() + "商品订货信息", 7, strFileName);
                         return Content("OK|RoomGoodInfo.xls");
                     }
+                case 8:
+                    {
+                        strSql.Append("select b.FAreaName 队别,   消费机=b.CrtBy+'('+(select FUserChinaName from T_CZY where FName=b.CrtBy)+')',a.SPShortCode 简码,a.gname 品名");
+                        strSql.Append(" ,isnull(a.Remark,'') 规格,a.gtxm 条码,abs(sum(a.qty * b.fifoflag)) 数量");
+                        strSql.Append(" ,abs(sum(a.amount * b.fifoflag)) 积分 ");
+                        //获取商品相关信息的子条件
+                        GetGoodSubWhere(GoodsType, GoodName, GoodGTXM, SpShortCode, strWhere, strSql, startTime, endTime, Flag);
+                        strSql.Append(" group by b.FAreaName,b.CrtBy,a.SPShortCode,a.gname,isnull(a.Remark,''),a.gtxm ");
+                        strSql.Append(" order by b.FAreaName,b.CrtBy,a.SPShortCode ");
+
+                        DataTable dt = new CommTableInfoBLL().GetDataTable(strSql.ToString());
+                        string strFileName = new CommonClass().GB2312ToUTF8("RoomGoodInfo.xls");
+                        strFileName = Server.MapPath("~/Upload/" + strFileName); ;
+                        ExcelRender.RenderToExcel(dt, dt.Rows[0][0].ToString() + "商品订货信息", 7, strFileName);
+                        return Content("OK|RoomGoodInfo.xls");
+                    }
                 default:
                     {
                         return Content("Err|你传入无效的参数");

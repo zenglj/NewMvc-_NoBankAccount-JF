@@ -651,21 +651,34 @@ function SetGoodsContent(e) {
 function DeleteGood() {
     $.messager.confirm('Confirm', '您确认要删除该商品吗?', function (r) {
         if (r) {
-            var row = $('#test').datagrid('getSelected');
-            var idx = $('#test').datagrid('getRowIndex', row);
+            //var row = $('#test').datagrid('getSelected');
+            var rows = $('#test').datagrid('getSelections');
+
+            var gtxmStr = rows.map(function (row) {
+                return row.GTXM;
+            }).join(',');
+
+            //var idx = $('#test').datagrid('getRowIndex', row);
             //console.info(row);
             $.post("/Super/DeleteGood", {
                 "action": "DeleteGood",
-                "GTXM": row.GTXM,
+                "GTXM": gtxmStr,
             }, function (data, status) {
                 if ("success" != status) {
                     return false;
                 } else {
                     $.messager.alert('提示', data);
                     if (data == "OK|删除成功") {
-                        //var idx = $('#test').datagrid('getRowIndex', row);
-                        $('#test').datagrid('deleteRow', idx);
+                        for (var i = rows.length-1; i >=0; i--) {
+                            var row=rows[i];
+                            var idx = $('#test').datagrid('getRowIndex', row);
+                            $('#test').datagrid('deleteRow', idx);
+                        }
+                        
+                        // 1. 清除当前表格的所有选中状态
+                        $('#test').datagrid('clearSelections');
                     }
+
                 }
             })
         }
@@ -682,6 +695,9 @@ function FilterSearch() {
     if ($('#FGoodsIsXianE').combobox('getValue') == "") {
         $('#FGoodsIsXianE').combobox('setValue', '2');
     }
+    // 1. 清除当前表格的所有选中状态
+    $('#test').datagrid('clearSelections');
+
     $('#test').datagrid('load', {
         action: 'GetAllList',
         GName: $("#FGoodsName").val(),

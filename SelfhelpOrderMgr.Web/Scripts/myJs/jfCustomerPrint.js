@@ -595,6 +595,10 @@ function btnSearch() {
 }
 
 
+function clearSearch() {
+    $("#ffSearch").form('clear');
+}
+
 function rtnMulSaleTypes() {
     var TypeFlags = $("#TypeFlag").combobox('getValues');
     var selTypeFlags = "";

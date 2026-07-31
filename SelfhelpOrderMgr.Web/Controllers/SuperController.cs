@@ -649,7 +649,10 @@ namespace SelfhelpOrderMgr.Web.Controllers
         {
             //"GCode": row.GCODE,
             //"GActive": e
-            string gtxm = Request["GTXM"];
+            string gtxmStr = Request["GTXM"];
+
+            string[] gtxms = gtxmStr.Split(',');
+
             T_CZY czy = new T_CZYBLL().GetModel(Session["loginUserCode"].ToString());
             if (czy == null)
             {
@@ -659,17 +662,27 @@ namespace SelfhelpOrderMgr.Web.Controllers
             {
                 return Content("Error|要删除商品，请与管理员联系");
             }
-            T_Goods good = new T_GoodsBLL().GetModel(gtxm);
+            string error = "";
+            foreach (var gtxm in gtxms)
+            {
+                T_Goods good = new T_GoodsBLL().GetModel(gtxm);
 
-            bool rs = new T_GoodsBLL().Delete(gtxm);
-            if (rs == true)
+                bool rs = new T_GoodsBLL().Delete(gtxm);
+                if (!rs)
+                {
+                    error = error + gtxm + "|";
+                }
+                
+            }
+            if (error == "")
             {
                 return Content("OK|删除成功");
             }
             else
             {
-                return Content("Error|删除失败");
+                return Content("Error|删除失败,记录为:"+ error);
             }
+
 
         }
 
@@ -699,7 +712,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
             List<T_GoodsType> goodsTypes = _baseDapperBLL.QueryList<T_GoodsType>("select * from t_goodstype where UseType in(0,2) ", null);
             ViewData["goodsTypes"] = goodsTypes;
 
-            DataTable dt = new CommTableInfoBLL().GetDataTable("select distinct CrtBy from t_vcrd where dtype in(select PType from t_sho_SaleType)");
+            DataTable dt = new CommTableInfoBLL().GetDataTable("select fname as CrtBy from t_czy");
             List<string> crtbys = new List<string>();
             if (dt.Rows.Count > 0)
             {

@@ -199,7 +199,7 @@ function btnGoodsSearch() {
                 return false;
             } else {
                 var good = $.parseJSON(words[1]);
-                var goodstr = good.GTXM + "|" + good.GDJ + "|" + good.GNAME + "|" + good.Ffreeflag + "|" + good.Xgsl + "|" + good.GStandard + "|" + good.src + "|" + good.madein;
+                var goodstr = good.GTXM + "|" + good.GDJ + "|" + good.GNAME + "|" + good.Ffreeflag + "|" + good.Xgsl + "|" + good.GStandard + "|" + good.src + "|" + good.Balance+ "|" + good.madein;
                 $("#gtxmSearchBox").val("");
                 $("#gtxmSearchBox").tooltip("destroy");
                 btnBuy(goodstr);//显示抬头栏的账户余额信息
