@@ -405,12 +405,18 @@ namespace SelfhelpOrderMgr.Web.Controllers
             }
 
             #region ==新增福州监狱积分管理规定的判断逻辑=====20250719 zenglj===================================
-            //判断是否是严管，如果是严管，就不能消费
-            var cytype = new T_CY_TYPEBLL().GetModel(criminal.FCYCode);
-            if (cytype != null && cytype.FName.Contains("严管"))
+            //判断是否是严管，如果是严管，就不能消费,JifenYanguanXiaofeiFlag的管理值为1除外
+
+            T_SHO_ManagerSet jfYanguanFlag = new T_SHO_ManagerSetBLL().GetModel("JifenYanguanXiaofeiFlag");
+            if (!(jfYanguanFlag != null && jfYanguanFlag.MgrValue == "1"))
             {
-                return Content("Error|对不起，您是严管人员不能消费");
+                var cytype = new T_CY_TYPEBLL().GetModel(criminal.FCYCode);
+                if (cytype != null && cytype.FName.Contains("严管"))
+                {
+                    return Content("Error|对不起，您是严管人员不能消费");
+                }
             }
+            
 
             //判断是否在消费间隔月数之内
             var workType = _jifenMgrService.QueryList<T_JF_DengjiType>("select * from T_JF_DengjiType where TypeFlag=@TypeFlag", new { TypeFlag = criminal.WorkType }).FirstOrDefault();

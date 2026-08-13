@@ -357,6 +357,7 @@
     <Compile Include="Controllers\UserQueryController.cs" />
     <Compile Include="Controllers\VueTestController.cs" />
     <Compile Include="Controllers\WebServiceTestController.cs" />
+    <Compile Include="Controllers\YiyuanController.cs" />
     <Compile Include="Filters\CheckLicenseCodeAttribute.cs" />
     <Compile Include="Filters\LoginActionFilter.cs" />
     <Compile Include="Filters\LoginPwdErrorFilterAttribute.cs" />
@@ -387,6 +388,7 @@
     <Compile Include="Models\JF_Comploetion_ErrModel.cs" />
     <Compile Include="Models\Pcj_ErrModel.cs" />
     <Compile Include="Models\RecvBankCardInfo.cs" />
+    <Compile Include="Models\ReportSearchReqDto.cs" />
     <Compile Include="Models\ReqBankInfo.cs" />
     <Compile Include="Models\ShoppingEntity.cs" />
     <Compile Include="Models\XmlB2e0012.cs" />
@@ -1463,6 +1465,7 @@
     <Content Include="Views\StockMgr\PrintStockTaking.cshtml" />
     <Content Include="Views\StockMgr\PrintStockBill.cshtml" />
     <Content Include="Views\SalesShiti\PhotoTest.cshtml" />
+    <Content Include="Views\Yiyuan\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

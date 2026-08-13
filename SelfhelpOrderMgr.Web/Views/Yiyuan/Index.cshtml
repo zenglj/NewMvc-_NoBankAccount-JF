@@ -1,0 +1,1156 @@
+﻿﻿@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>电子处方</title>
+    <link href="~/Content/bootstrap.css" rel="stylesheet" />
+    <link href="~/Content/bootstrap-theme.min.css" rel="stylesheet" />
+    <link href="~/Content/Site.css" rel="stylesheet" />
+    <link href="~/Content/buttons.css" rel="stylesheet" />
+    
+    
+
+<style>
+    body {
+        margin: 0;
+        padding: 3px;
+        font-size: 12px;
+    }
+    .prescription-container {
+        padding: 3px;
+    }
+
+    .patient-info-box {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: #fff;
+        border-radius: 6px;
+        padding: 8px 12px;
+        margin-bottom: 8px;
+        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+    }
+
+        .patient-info-box .info-item {
+            display: inline-block;
+            margin-right: 15px;
+            font-size: 12px;
+        }
+
+        .patient-info-box .info-label {
+            opacity: 0.85;
+            margin-right: 3px;
+        }
+
+        .patient-info-box .info-value {
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+    .section-header {
+        background: #f8f9fa;
+        border-left: 3px solid #28a745;
+        padding: 5px 10px;
+        margin-bottom: 8px;
+        font-weight: bold;
+        color: #333;
+        font-size: 12px;
+        border-radius: 0 3px 3px 0;
+    }
+
+    .prescription-table {
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+        .prescription-table thead th {
+            background: #28a745;
+            color: #fff;
+            border: none;
+            padding: 5px 6px;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        .prescription-table tbody td {
+            border-color: #e9ecef;
+            padding: 4px 6px;
+            font-size: 12px;
+            vertical-align: middle;
+        }
+
+        .prescription-table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+    .total-box {
+        background: #fff3cd;
+        border: 2px solid #ffc107;
+        border-radius: 6px;
+        padding: 8px 12px;
+        text-align: right;
+        margin-top: 8px;
+    }
+
+        .total-box .total-label {
+            font-size: 13px;
+            color: #856404;
+        }
+
+        .total-box .total-amount {
+            font-size: 20px;
+            font-weight: bold;
+            color: #d9534f;
+            margin-left: 10px;
+        }
+
+    .btn-read-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        color: white;
+        padding: 6px 20px;
+        font-size: 13px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.3s;
+        box-shadow: 0 2px 6px rgba(102, 126, 234, 0.4);
+    }
+
+        .btn-read-card:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 8px rgba(102, 126, 234, 0.5);
+        }
+
+    .btn-submit {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        border: none;
+        color: white;
+        padding: 6px 25px;
+        font-size: 13px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.3s;
+        box-shadow: 0 2px 6px rgba(40, 167, 69, 0.4);
+    }
+
+        .btn-submit:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 8px rgba(40, 167, 69, 0.5);
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+    .btn-add-drug {
+        background: #17a2b8;
+        border: none;
+        color: white;
+        padding: 5px 12px;
+        font-size: 12px;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+        .btn-add-drug:hover {
+            background: #138496;
+        }
+
+    .btn-remove {
+        background: #dc3545;
+        border: none;
+        color: white;
+        padding: 2px 8px;
+        font-size: 11px;
+        border-radius: 3px;
+        cursor: pointer;
+    }
+
+        .btn-remove:hover {
+            background: #c82333;
+        }
+
+    .drug-input-group {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        padding: 8px;
+        margin-bottom: 8px;
+    }
+
+        .drug-input-group .form-control {
+            border: 1px solid #e9ecef;
+            border-radius: 3px;
+            font-size: 12px;
+            padding: 4px 8px;
+        }
+
+            .drug-input-group .form-control:focus {
+                border-color: #28a745;
+                box-shadow: 0 0 0 2px rgba(40, 167, 69, 0.15);
+            }
+
+    .info-badge {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 10px;
+        font-size: 11px;
+        margin-left: 3px;
+    }
+
+    .badge-cy {
+        background: #ffc107;
+        color: #212529;
+    }
+
+    .badge-team {
+        background: #17a2b8;
+        color: #fff;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 20px;
+        color: #6c757d;
+    }
+
+        .empty-state .icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+            opacity: 0.5;
+        }
+
+    .drug-found-hint {
+        background: #d4edda;
+        color: #155724;
+        padding: 5px 8px;
+        border-radius: 3px;
+        margin-top: 5px;
+        font-size: 11px;
+        display: none;
+    }
+
+    .drug-not-found-hint {
+        background: #f8d7da;
+        color: #721c24;
+        padding: 5px 8px;
+        border-radius: 3px;
+        margin-top: 5px;
+        font-size: 11px;
+        display: none;
+    }
+
+    .multi-select-list {
+        max-height: 150px;
+        overflow-y: auto;
+        border: 1px solid #dee2e6;
+        border-radius: 3px;
+        margin-top: 5px;
+        display: none;
+    }
+
+        .multi-select-list .drug-item {
+            padding: 4px 8px;
+            border-bottom: 1px solid #e9ecef;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+        }
+
+            .multi-select-list .drug-item:hover {
+                background: #e9ecef;
+            }
+
+            .multi-select-list .drug-item:last-child {
+                border-bottom: none;
+            }
+</style>
+</head>
+<body>
+
+    <div class="prescription-container">
+        <object id="LODOP_OB" classid="clsid:2105C259-1E0C-4534-8141-A753534CB4CA" width=0 height=0 style="position:absolute;left:0px;top:-10px;"></object>
+        <object id="LODOP_EM" type="application/x-print-lodop" width=0 height=0 style="position:absolute;left:0px;top:-10px;"></object>
+        <div class="row">
+            <object id="MWRFATL" style="WIDTH: 0px; HEIGHT: 0px"
+                    codebase="eyeFZ.cab#version =1,0,0,1"
+                    classid="CLSID:CD851DCA-5D3C-4DA9-A0F7-DE018FDC0A7F"></object>
+            <!-- 左侧：患者信息和处方编辑 -->
+            <div class="col-md-9">
+                <!-- 患者信息卡片 -->
+                <div class="patient-info-box" id="patientInfoBox">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <button class="btn-read-card" onclick="readCard()">
+                                <i class="glyphicon glyphicon-credit-card"></i> 读卡
+                            </button>
+                        </div>
+                        <div class="col-md-9" id="patientInfoArea">
+                            <div class="info-item">
+                                <span class="info-label">姓名：</span>
+                                <span class="info-value" id="patientName">--</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">队别：</span>
+                                <span class="info-value" id="patientArea">--</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">处遇：</span>
+                                <span class="info-value" id="patientCy">--</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">编号：</span>
+                                <span class="info-value" id="patientCode">--</span>
+                            </div>
+                            <div class="info-item" style="margin-top:8px;">
+                                <span class="info-label">可用余额：</span>
+                                <span class="info-value" id="patientBalance" style="color:#ffd700;">--</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 诊断和医生信息 -->
+                <div class="row" style="margin-bottom:20px;">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>诊断结果：</label>
+                            <input type="text" class="form-control" id="diagnosis" placeholder="请输入诊断结果">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>开方医生：</label>
+                            <input type="text" class="form-control" id="doctorName" value="@Session["loginUserName"]" placeholder="请输入医生姓名">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 药品录入区 -->
+                <div class="section-header">
+                    <i class="glyphicon glyphicon-edit"></i> 处方编辑栏
+                </div>
+
+                <div class="drug-input-group">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <label>药品简码/条码：</label>
+                            <input type="text" class="form-control" id="drugCode"
+                                   placeholder="输入简码后回车搜索"
+                                   onkeydown="if(event.keyCode==13) searchDrug();">
+                        </div>
+                        <div class="col-md-2">
+                            <label>药品名称：</label>
+                            <input type="text" class="form-control" id="drugName" placeholder="自动填入" readonly>
+                        </div>
+                        <div class="col-md-1">
+                            <label>规格：</label>
+                            <input type="text" class="form-control" id="drugStandard" placeholder="规格" readonly style="background:#e9ecef;">
+                        </div>
+                        <div class="col-md-1">
+                            <label>单价：</label>
+                            <input type="text" class="form-control" id="drugPrice" placeholder="单价" readonly style="background:#e9ecef;">
+                        </div>
+                        <div class="col-md-1">
+                            <label>数量：</label>
+                            <input type="number" class="form-control" id="drugQuantity" value="1" min="1" placeholder="数量" onkeydown="if(event.keyCode==13){event.preventDefault();addDrugToPrescription();}">
+                        </div>
+                        <div class="col-md-1">
+                            <label>单位：</label>
+                            <input type="text" class="form-control" id="drugUnit" placeholder="单位" readonly style="background:#e9ecef;">
+                        </div>
+                        <div class="col-md-1">
+                            <label>&nbsp;</label>
+                            <button class="btn-add-drug" onclick="addDrugToPrescription()" style="width:100%;">
+                                <i class="glyphicon glyphicon-plus"></i> 添加
+                            </button>
+                        </div>
+                    </div>
+                    <div class="row" style="margin-top:10px;">
+                        <div class="col-md-8">
+                            <div class="drug-found-hint" id="drugFoundHint"></div>
+                            <div class="drug-not-found-hint" id="drugNotFoundHint"></div>
+                            <div class="multi-select-list" id="multiSelectList"></div>
+                        </div>
+                        <div class="col-md-4 text-right">
+                            <span style="color:#6c757d;">库存：<span id="drugStock" style="font-weight:bold;color:#28a745;">--</span></span>
+                            &nbsp;&nbsp;
+                            <span style="color:#6c757d;">金额：<span id="drugAmount" style="font-weight:bold;color:#d9534f;">0.00</span></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 处方药品列表 -->
+                <div class="section-header">
+                    <i class="glyphicon glyphicon-list"></i> 处方药品明细
+                    <span class="badge" id="drugCount" style="background:#6c757d;">0 种药品</span>
+                </div>
+
+                <div class="prescription-table">
+                    <table class="table table-bordered" style="margin-bottom:0;">
+                        <thead>
+                            <tr>
+                                <th style="width:40px;">序号</th>
+                                <th>简码</th>
+                                <th>药品名称</th>
+                                <th>规格</th>
+                                <th>单价(元)</th>
+                                <th style="width:80px;">数量</th>
+                                <th>金额(元)</th>
+                                <th>用法用量</th>
+                                <th style="width:60px;">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="prescriptionList">
+                            <tr>
+                                <td colspan="9" class="empty-state">
+                                    <div class="icon">
+                                        <i class="glyphicon glyphicon-file"></i>
+                                    </div>
+                                    暂无药品，请在上方输入药品简码添加
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 合计金额 -->
+                <div class="total-box">
+                    <span class="total-label">处方合计：</span>
+                    <span class="total-amount" id="totalAmount">0.00</span>
+                    <span style="font-size:14px;color:#6c757d;">元</span>
+                    <button class="btn-submit" id="btnSubmit" onclick="submitPrescription()" style="margin-left:20px;" disabled>
+                        <i class="glyphicon glyphicon-ok"></i> 提交处方
+                    </button>
+                    <button class="btn btn-default" onclick="clearPrescription()" style="margin-left:10px;">
+                        <i class="glyphicon glyphicon-trash"></i> 清空
+                    </button>
+                </div>
+            </div>
+
+            <!-- 右侧：处方信息汇总 -->
+            <div class="col-md-3">
+                <div style="background:#fff;border:1px solid #dee2e6;border-radius:4px;padding:8px 12px;margin-bottom:8px;font-size:12px;">
+                    <h4 style="border-bottom:2px solid #667eea;padding-bottom:5px;margin-bottom:8px;font-size:14px;">
+                        <i class="glyphicon glyphicon-info-sign"></i> 处方信息
+                    </h4>
+                    <table class="table table-striped" style="margin-bottom:0;font-size:13px;">
+                        <tr>
+                            <td style="width:40%;color:#6c757d;">处方编号</td>
+                            <td id="prescriptionNo" style="font-family:monospace;">待生成</td>
+                        </tr>
+                        <tr>
+                            <td style="color:#6c757d;">开方时间</td>
+                            <td id="prescriptionTime">@DateTime.Now.ToString("yyyy-MM-dd HH:mm")</td>
+                        </tr>
+                        <tr>
+                            <td style="color:#6c757d;">药品数量</td>
+                            <td><span id="summaryDrugCount">0</span> 种</td>
+                        </tr>
+                        <tr>
+                            <td style="color:#6c757d;">处方金额</td>
+                            <td style="color:#d9534f;font-weight:bold;">¥ <span id="summaryAmount">0.00</span></td>
+                        </tr>
+                        <tr>
+                            <td style="color:#6c757d;">可用余额</td>
+                            <td style="color:#28a745;font-weight:bold;">¥ <span id="summaryBalance">--</span></td>
+                        </tr>
+                        <tr>
+                            <td style="color:#6c757d;">扣款后余额</td>
+                            <td style="color:#ffc107;font-weight:bold;">¥ <span id="summaryAfterBalance">--</span></td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div style="background:#fff3cd;border:1px solid #ffc107;border-radius:8px;padding:15px;font-size:13px;">
+                    <h5 style="color:#856404;margin-top:0;"><i class="glyphicon glyphicon-warning-sign"></i> 操作提示</h5>
+                    <ol style="padding-left:20px;color:#856404;margin-bottom:0;">
+                        <li>点击"读卡"获取服刑人员信息</li>
+                        <li>输入药品简码后按回车或点击"搜索"</li>
+                        <li>确认药品信息后设置数量</li>
+                        <li>点击"添加"加入处方列表</li>
+                        <li>完成所有药品后点击"提交处方"</li>
+                    </ol>
+                </div>
+
+                <div style="margin-top:15px;">
+                    <div class="form-group">
+                        <label>快捷操作：</label>
+                        <div>
+                            <button class="btn btn-sm btn-outline-primary" onclick="loadSampleDrugs()">加载示例药品</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 处方提交确认弹窗 -->
+    <div class="modal fade" id="confirmModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">处方提交确认</h4>
+                </div>
+                <div class="modal-body">
+                    <h5>请确认处方信息：</h5>
+                    <table class="table table-bordered">
+                        <tr><th style="width:30%;">处方编号</th><td id="confirmPrescriptionNo">--</td></tr>
+                        <tr><th>患者姓名</th><td id="confirmName">--</td></tr>
+                        <tr><th>队别</th><td id="confirmArea">--</td></tr>
+                        <tr><th>处遇</th><td id="confirmCy">--</td></tr>
+                        <tr><th>诊断</th><td id="confirmDiagnosis">--</td></tr>
+                        <tr><th>药品数量</th><td><span id="confirmDrugCount">0</span> 种</td></tr>
+                        <tr><th>处方金额</th><td style="color:#d9534f;font-weight:bold;">¥ <span id="confirmAmount">0.00</span></td></tr>
+                        <tr><th>扣款后余额</th><td>¥ <span id="confirmAfterBalance">--</span></td></tr>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="confirmSubmit()">确认提交并扣款</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 处方提交成功弹窗 -->
+    <div class="modal fade" id="successModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header" style="background:#28a745;color:#fff;border-radius:6px 6px 0 0;">
+                    <h4 class="modal-title"><i class="glyphicon glyphicon-ok-circle"></i> 处方开具成功</h4>
+                </div>
+                <div class="modal-body text-center" style="padding:30px;">
+                    <div style="font-size:48px;color:#28a745;margin-bottom:15px;">
+                        <i class="glyphicon glyphicon-ok-sign"></i>
+                    </div>
+                    <h4 id="successMessage">处方已成功提交！</h4>
+                    <table class="table table-bordered" style="margin-top:20px;text-align:left;">
+                        <tr><th style="width:40%;">处方编号</th><td id="successPrescriptionNo">--</td></tr>
+                        <tr><th>患者姓名</th><td id="successName">--</td></tr>
+                        <tr><th>处方金额</th><td style="color:#d9534f;font-weight:bold;">¥ <span id="successAmount">0.00</span></td></tr>
+                        <tr><th>扣款后余额</th><td>¥ <span id="successAfterBalance">--</span></td></tr>
+                        <tr><th>提交时间</th><td id="successTime">--</td></tr>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="printPrescriptionTicket()"><i class="glyphicon glyphicon-print"></i> 打印小票</button>
+                    <button type="button" class="btn btn-success" data-dismiss="modal" onclick="resetForm()">完成，继续下一张处方</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 消息提示弹窗 -->
+    <div class="modal fade" id="messageModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title" id="messageTitle">提示</h4>
+                </div>
+                <div class="modal-body" id="messageBody">消息内容</div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">确定</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 处方小票模板（默认隐藏） -->
+    <div id="prescriptionTemplate" style="display:none;">
+        <div>
+            <div style="text-align:center;font-size:15px;font-weight:bold;">监狱电子处方小票</div>
+            <table style="font-size:10px; width:250px;">
+                <tbody id="rxTicketTitle">
+                    <tr><td style="width:50%;">处方号：<span id="rxTicketNo">-</span></td><td>日期：<span id="rxTicketDate">-</span></td></tr>
+                    <tr><td>编号：<span id="rxTicketCode">-</span></td><td>姓名：<span id="rxTicketName">-</span></td></tr>
+                    <tr><td colspan="2">队别：<span id="rxTicketArea">-</span></td><td>处遇：<span id="rxTicketCy">-</span></td></tr>
+                    <tr><td colspan="2">诊断：<span id="rxTicketDiag">-</span></td></tr>
+                </tbody>
+            </table>
+            <hr style="border: none;border-top:1px dashed #333;margin:3px 0;" />
+            <table style="font-size:9px;width:250px;">
+                <thead>
+                    <tr><th style="width:90px;text-align:left;">药品</th><th style="width:35px;">单价</th><th style="width:30px;">数量</th><th style="width:50px;text-align:right;">金额</th></tr>
+                </thead>
+                <tbody id="rxTicketBody"></tbody>
+            </table>
+            <hr style="border: none;border-top:1px dashed #333;margin:3px 0;" />
+            <div id="rxTicketTotal" style="font-size:11px;text-align:right;">合计：0.00 元</div>
+            <hr style="border: none;border-top:1px dashed #333;margin:3px 0;" />
+            <div id="rxTicketBefore" style="font-size:10px;">消费前余额：0.00 元</div>
+            <div id="rxTicketAfter" style="font-size:10px;">扣款后余额：0.00 元</div>
+            <div style="font-size:10px;text-align:center;margin-top:4px;">-- 处方开具处 --</div>
+        </div>
+    </div>
+
+    <input type="hidden" id="hiddenPatientCode" value="">
+    <input type="hidden" id="hiddenPatientName" value="">
+    <input type="hidden" id="hiddenPatientArea" value="">
+    <input type="hidden" id="hiddenPatientCy" value="">
+    <input type="hidden" id="hiddenPatientBalance" value="">
+    <input type="hidden" id="hiddenPrintResult" value="">
+
+    <script src="~/Scripts/jquery-1.11.3.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <script src="~/Scripts/myJs/minghuaICcardCommon.js"></script>
+    <script src="~/Scripts/myJs/LodopFuncs.js"></script>
+    <script src="~/Scripts/myJs/opertorXiaopiaoFunc.js"></script>
+
+    <script>
+        var prescriptionDrugs = [];
+        var currentDrugInfo = null;
+        var lastPrescriptionResult = null;
+
+        $(document).ready(function () {
+            $('#drugQuantity').on('input', function () {
+                updateDrugAmount();
+            });
+
+            $('#drugCode').on('input', function () {
+                if ($(this).val().length >= 2) {
+                    searchDrug(true);
+                }
+            });
+        });
+
+        function showMessage(title, body) {
+            $('#messageTitle').text(title);
+            $('#messageBody').html(body);
+            $('#messageModal').modal('show');
+        }
+
+        function readCard() {
+            var cardNo = "";
+            try {
+                cardNo = readCardNo();
+            } catch (e) {
+                showMessage('读卡错误', '读卡器连接失败，请检查设备连接。错误信息：' + e.message);
+                return;
+            }
+
+            if (cardNo === "") {
+                showMessage('读卡失败', '未检测到IC卡，请将卡放在读卡器上后重试。');
+                return;
+            }
+
+            $.post("/Yiyuan/GetCardInfo", { FCardCode: cardNo }, function (data, status) {
+                if (status !== "success") {
+                    showMessage('读卡失败', '网络请求失败，请重试。');
+                    return;
+                }
+
+                var words = data.split("|");
+                if (words[0] === "Error") {
+                    showMessage('读卡失败', words[1]);
+                    return;
+                }
+
+                if (words[0] === "OK") {
+                    var info = $.parseJSON(words[1]);
+                    displayPatientInfo(info);
+                    showMessage('读卡成功',
+                        '姓名：' + info.FName + '<br>' +
+                        '队别：' + info.FAreaName + '<br>' +
+                        '处遇：' + info.CyName + '<br>' +
+                        '可用余额：' + info.OkUseAllMoney + ' 元');
+                }
+            });
+        }
+
+        //读取IC卡号
+        function readCardNo() {
+            //$("#lblInfo").html("0000000");
+            var cardNo = "";
+            Connect();//连接读卡器
+            //$("#lblInfo").html("连接成功");
+            var xunka = Scard();//寻卡
+            if (xunka != "") {
+                //$("#lblInfo").html(xunka);
+                var rlk = ReaderLoadKey();//装载密码
+                if (rlk == "1") {
+                    //$("#lblInfo").html("装载密码成功");
+                    var athk = authenticationKey();//验证密码
+                    if (athk == "1") {
+                        // $("#lblInfo").html("验证密码成功");
+                        cardNo = readDataHex();//以16进制的方式读卡
+                        if (cardNo != "") {
+                            //$("#lblInfo").html("读卡完成");
+                        }
+                    }
+                }
+            }
+            //$("#lblInfo").html(xunka);
+            //alert(cardNo);
+            exit();//断开读卡器连接
+            return cardNo;
+        }
+
+        function displayPatientInfo(info) {
+            $('#patientName').text(info.FName || '--');
+            $('#patientArea').text(info.FAreaName || '--');
+            $('#patientCy').text(info.CyName || '--');
+            $('#patientCode').text(info.FCrimeCode || '--');
+            $('#patientBalance').text(info.OkUseAllMoney ? parseFloat(info.OkUseAllMoney).toFixed(2) : '--');
+
+            $('#hiddenPatientCode').val(info.FCrimeCode || '');
+            $('#hiddenPatientName').val(info.FName || '');
+            $('#hiddenPatientArea').val(info.FAreaName || '');
+            $('#hiddenPatientCy').val(info.CyName || '');
+            $('#hiddenPatientBalance').val(info.OkUseAllMoney || '');
+
+            updateSummary();
+        }
+
+        function searchDrug(isQuick) {
+            var code = $('#drugCode').val().trim();
+            if (code === "") {
+                showMessage('提示', '请输入药品简码或条码');
+                return;
+            }
+
+            $('#drugFoundHint').hide();
+            $('#drugNotFoundHint').hide();
+            $('#multiSelectList').hide();
+
+            $.post("/Yiyuan/GetDrugInfo", { DrugCode: code }, function (data, status) {
+                if (status !== "success") {
+                    showMessage('查询失败', '网络请求失败');
+                    return;
+                }
+
+                var words = data.split("|");
+                if (words[0] === "Error") {
+                    $('#drugNotFoundHint').text(words[1]).show();
+                    clearDrugInput();
+                    return;
+                }
+
+                if (words[0] === "MULTI") {
+                    var drugs = $.parseJSON(words[1]);
+                    showMultiSelect(drugs);
+                    return;
+                }
+
+                if (words[0] === "OK") {
+                    var drug = $.parseJSON(words[1]);
+                    currentDrugInfo = drug;
+                    displayDrugInfo(drug, isQuick);
+                }
+            });
+        }
+
+        function showMultiSelect(drugs) {
+            var list = $('#multiSelectList');
+            list.empty();
+            $.each(drugs, function (i, drug) {
+                var item = $('<div class="drug-item"></div>');
+                item.html(
+                    '<span><strong>' + drug.GNAME + '</strong> <small>(' + drug.GStandard + ')</small></span>' +
+                    '<span>¥' + drug.GDJ + ' / 库存:' + drug.GBalance + '</span>'
+                );
+                item.click(function () {
+                    currentDrugInfo = drug;
+                    displayDrugInfo(drug, false);
+                    list.hide();
+                });
+                list.append(item);
+            });
+            list.show();
+        }
+
+        function displayDrugInfo(drug, isQuick) {
+            $('#drugName').val(drug.GNAME);
+            $('#drugStandard').val(drug.GStandard);
+            $('#drugPrice').val(parseFloat(drug.GDJ).toFixed(2));
+            $('#drugUnit').val(drug.GUnit);
+            $('#drugStock').text(drug.GBalance);
+            $('#drugQuantity').val(1);
+            updateDrugAmount();
+
+            $('#drugFoundHint').text('已找到药品：' + drug.GNAME + '，单价 ¥' + parseFloat(drug.GDJ).toFixed(2) + '，库存 ' + drug.GBalance).show();
+
+            if (!isQuick) {
+                $('#drugQuantity').focus().select();
+            }
+        }
+
+        function clearDrugInput() {
+            $('#drugName').val('');
+            $('#drugStandard').val('');
+            $('#drugPrice').val('');
+            $('#drugUnit').val('');
+            $('#drugStock').text('--');
+            $('#drugAmount').text('0.00');
+            currentDrugInfo = null;
+        }
+
+        function updateDrugAmount() {
+            if (currentDrugInfo && $('#drugPrice').val() && $('#drugQuantity').val()) {
+                var price = parseFloat($('#drugPrice').val());
+                var qty = parseInt($('#drugQuantity').val());
+                var amount = price * qty;
+                $('#drugAmount').text(amount.toFixed(2));
+            } else {
+                $('#drugAmount').text('0.00');
+            }
+        }
+
+        function addDrugToPrescription() {
+            if (!currentDrugInfo) {
+                showMessage('提示', '请先搜索并选择药品');
+                return;
+            }
+
+            var qty = parseInt($('#drugQuantity').val());
+            if (!qty || qty < 1) {
+                showMessage('提示', '请输入有效的数量');
+                return;
+            }
+
+            if (qty > currentDrugInfo.GBalance) {
+                showMessage('数量错误', '数量超过库存，当前库存：' + currentDrugInfo.GBalance);
+                return;
+            }
+
+            var existingIndex = -1;
+            for (var i = 0; i < prescriptionDrugs.length; i++) {
+                if (prescriptionDrugs[i].GCODE === currentDrugInfo.GCODE) {
+                    existingIndex = i;
+                    break;
+                }
+            }
+
+            if (existingIndex >= 0) {
+                prescriptionDrugs[existingIndex].Quantity += qty;
+                prescriptionDrugs[existingIndex].Amount = prescriptionDrugs[existingIndex].GDJ * prescriptionDrugs[existingIndex].Quantity;
+            } else {
+                var drugItem = {
+                    GCODE: currentDrugInfo.GCODE,
+                    GNAME: currentDrugInfo.GNAME,
+                    SPShortCode: currentDrugInfo.SPShortCode,
+                    GDJ: currentDrugInfo.GDJ,
+                    Quantity: qty,
+                    Amount: currentDrugInfo.GDJ * qty,
+                    GUnit: currentDrugInfo.GUnit,
+                    GStandard: currentDrugInfo.GStandard,
+                    Usage: '口服 每次1片 每日3次'
+                };
+                prescriptionDrugs.push(drugItem);
+            }
+
+            renderPrescriptionList();
+            clearDrugInput();
+            $('#drugCode').val('').focus();
+            $('#drugFoundHint').hide();
+        }
+
+        function renderPrescriptionList() {
+            var tbody = $('#prescriptionList');
+            tbody.empty();
+
+            if (prescriptionDrugs.length === 0) {
+                tbody.html(
+                    '<tr><td colspan="9" class="empty-state">' +
+                    '<div class="icon"><i class="glyphicon glyphicon-file"></i></div>' +
+                    '暂无药品，请在上方输入药品简码添加' +
+                    '</td></tr>'
+                );
+            } else {
+                $.each(prescriptionDrugs, function (i, drug) {
+                    var row = '<tr>' +
+                        '<td>' + (i + 1) + '</td>' +
+                        '<td>' + drug.SPShortCode + '</td>' +
+                        '<td>' + drug.GNAME + '</td>' +
+                        '<td>' + drug.GStandard + '</td>' +
+                        '<td>' + parseFloat(drug.GDJ).toFixed(2) + '</td>' +
+                        '<td><input type="number" class="form-control input-sm" value="' + drug.Quantity + '" min="1" onchange="updateQuantity(' + i + ', this.value)"></td>' +
+                        '<td style="color:#d9534f;font-weight:bold;">' + parseFloat(drug.Amount).toFixed(2) + '</td>' +
+                        '<td><input type="text" class="form-control input-sm" value="' + drug.Usage + '" onchange="updateUsage(' + i + ', this.value)"></td>' +
+                        '<td><button class="btn-remove" onclick="removeDrug(' + i + ')"><i class="glyphicon glyphicon-trash"></i></button></td>' +
+                        '</tr>';
+                    tbody.append(row);
+                });
+            }
+
+            updateSummary();
+        }
+
+        function updateQuantity(index, value) {
+            var qty = parseInt(value);
+            if (!qty || qty < 1) qty = 1;
+            prescriptionDrugs[index].Quantity = qty;
+            prescriptionDrugs[index].Amount = prescriptionDrugs[index].GDJ * qty;
+            renderPrescriptionList();
+        }
+
+        function updateUsage(index, value) {
+            prescriptionDrugs[index].Usage = value;
+        }
+
+        function removeDrug(index) {
+            prescriptionDrugs.splice(index, 1);
+            renderPrescriptionList();
+        }
+
+        function updateSummary() {
+            var total = 0;
+            $.each(prescriptionDrugs, function (i, drug) {
+                total += parseFloat(drug.Amount);
+            });
+
+            $('#totalAmount').text(total.toFixed(2));
+            $('#summaryAmount').text(total.toFixed(2));
+            $('#summaryDrugCount').text(prescriptionDrugs.length);
+            $('#drugCount').text(prescriptionDrugs.length + ' 种药品');
+
+            var balance = parseFloat($('#hiddenPatientBalance').val() || '0');
+            $('#summaryBalance').text(balance.toFixed(2));
+            $('#summaryAfterBalance').text((balance - total).toFixed(2));
+
+            $('#btnSubmit').prop('disabled', prescriptionDrugs.length === 0 || !$('#hiddenPatientCode').val());
+
+            var now = new Date();
+            $('#prescriptionTime').text(now.getFullYear() + '-' +
+                String(now.getMonth() + 1).padStart(2, '0') + '-' +
+                String(now.getDate()).padStart(2, '0') + ' ' +
+                String(now.getHours()).padStart(2, '0') + ':' +
+                String(now.getMinutes()).padStart(2, '0'));
+        }
+
+        function clearPrescription() {
+            if (prescriptionDrugs.length > 0) {
+                if (!confirm('确定要清空当前处方吗？')) return;
+            }
+            prescriptionDrugs = [];
+            renderPrescriptionList();
+            $('#diagnosis').val('');
+            clearDrugInput();
+            $('#drugCode').val('');
+        }
+
+        function submitPrescription() {
+            if (!$('#hiddenPatientCode').val()) {
+                showMessage('提示', '请先读卡获取用户信息');
+                return;
+            }
+            if (prescriptionDrugs.length === 0) {
+                showMessage('提示', '处方中没有药品，请先添加药品');
+                return;
+            }
+
+            var total = 0;
+            $.each(prescriptionDrugs, function (i, drug) {
+                total += parseFloat(drug.Amount);
+            });
+
+            var balance = parseFloat($('#hiddenPatientBalance').val() || '0');
+            if (total > balance) {
+                showMessage('余额不足', '处方金额 ¥' + total.toFixed(2) + ' 超过可用余额 ¥' + balance.toFixed(2));
+                return;
+            }
+
+            var doctorName = $('#doctorName').val();
+            var diagnosis = $('#diagnosis').val();
+
+            if (!doctorName || doctorName.trim() === '') {
+                showMessage('提示', '请输入开方医生姓名');
+                return;
+            }
+
+            if (!diagnosis || diagnosis.trim() === '') {
+                showMessage('提示', '请输入诊断结果');
+                return;
+            }
+
+            $('#confirmName').text($('#hiddenPatientName').val());
+            $('#confirmArea').text($('#hiddenPatientArea').val());
+            $('#confirmCy').text($('#hiddenPatientCy').val());
+            $('#confirmDiagnosis').text(diagnosis);
+            $('#confirmDrugCount').text(prescriptionDrugs.length);
+            $('#confirmAmount').text(total.toFixed(2));
+            $('#confirmAfterBalance').text((balance - total).toFixed(2));
+            $('#confirmPrescriptionNo').text('待生成');
+
+            $('#confirmModal').modal('show');
+        }
+
+        function confirmSubmit() {
+            var drugList = [];
+            $.each(prescriptionDrugs, function (i, drug) {
+                drugList.push({
+                    GCODE: drug.GCODE,
+                    GNAME: drug.GNAME,
+                    SPShortCode: drug.SPShortCode,
+                    GDJ: drug.GDJ,
+                    Quantity: drug.Quantity,
+                    Amount: drug.Amount,
+                    GUnit: drug.GUnit,
+                    GStandard: drug.GStandard,
+                    Usage: drug.Usage
+                });
+            });
+
+            $.ajax({
+                url: "/Yiyuan/SubmitPrescription",
+                type: "POST",
+                contentType: "application/x-www-form-urlencoded",
+                data: {
+                    FCrimeCode: $('#hiddenPatientCode').val(),
+                    DoctorName: $('#doctorName').val(),
+                    Diagnosis: $('#diagnosis').val(),
+                    DrugList: JSON.stringify(drugList)
+                },
+                success: function (data) {
+                    $('#confirmModal').modal('hide');
+                    var words = data.split("|");
+                    if (words[0] === "Error") {
+                        showMessage('提交失败', words[1]);
+                    } else if (words[0] === "OK") {
+                        var result = $.parseJSON(words[1]);
+                        showSuccessResult(result);
+                    }
+                },
+                error: function () {
+                    $('#confirmModal').modal('hide');
+                    showMessage('提交失败', '网络错误，请重试');
+                }
+            });
+        }
+
+        function showSuccessResult(result) {
+            $('#successMessage').text(result.Message || '处方已成功提交！');
+            $('#successPrescriptionNo').text(result.PrescriptionNo);
+            $('#successName').text(result.FName);
+            $('#successAmount').text(parseFloat(result.TotalAmount).toFixed(2));
+            $('#successTime').text(result.SubmitTime);
+            $('#successAfterBalance').text((parseFloat($('#hiddenPatientBalance').val() || '0') - parseFloat(result.TotalAmount)).toFixed(2));
+
+            $('#hiddenPatientBalance').text(parseFloat($('#hiddenPatientBalance').val() || '0') - parseFloat(result.TotalAmount));
+
+            lastPrescriptionResult = {
+                result: result,
+                beforeBalance: parseFloat($('#hiddenPatientBalance').val() || '0') + parseFloat(result.TotalAmount),
+                afterBalance: parseFloat($('#hiddenPatientBalance').val() || '0'),
+                drugs: $.extend(true, [], prescriptionDrugs)
+            };
+
+            $('#successModal').modal('show');
+        }
+
+        // 打印处方小票（调用Lodop）
+        function printPrescriptionTicket() {
+            if (!lastPrescriptionResult) {
+                alert('没有可打印的处方数据');
+                return;
+            }
+
+            // 1. 填充小票模板数据
+            var r = lastPrescriptionResult.result;
+            $('#rxTicketNo').text(r.PrescriptionNo);
+            $('#rxTicketDate').text(r.SubmitTime);
+            $('#rxTicketCode').text(r.FCrimeCode || $('#hiddenPatientCode').val());
+            $('#rxTicketName').text(r.FName);
+            $('#rxTicketArea').text(r.FAreaName || $('#hiddenPatientArea').val());
+            $('#rxTicketCy').text(r.CyName || $('#hiddenPatientCy').val());
+            $('#rxTicketDiag').text(r.Diagnosis || $('#diagnosis').val());
+
+            // 药品明细
+            var bodyHtml = '';
+            var total = 0;
+            $.each(lastPrescriptionResult.drugs, function (i, d) {
+                var name = d.GNAME || '';
+                if (d.GStandard && name.indexOf(d.GStandard) === -1) {
+                    name = name + '(' + d.GStandard + ')';
+                }
+                bodyHtml += '<tr>'
+                    + '<td style="text-align:left;">' + name + '</td>'
+                    + '<td align="center">' + parseFloat(d.GDJ).toFixed(2) + '</td>'
+                    + '<td align="center">' + d.Quantity + (d.GUnit ? d.GUnit : '') + '</td>'
+                    + '<td align="right">' + parseFloat(d.Amount).toFixed(2) + '</td>'
+                    + '</tr>';
+                total += parseFloat(d.Amount);
+            });
+            $('#rxTicketBody').html(bodyHtml);
+            $('#rxTicketTotal').text('合计：' + total.toFixed(2) + ' 元');
+            $('#rxTicketBefore').text('消费前余额：' + lastPrescriptionResult.beforeBalance.toFixed(2) + ' 元');
+            $('#rxTicketAfter').text('扣款后余额：' + lastPrescriptionResult.afterBalance.toFixed(2) + ' 元');
+
+            // 2. 调用 Lodop 打印 (纸张宽度 80mm ~ 315)
+            try {
+                var LODOP = getLodop(document.getElementById('LODOP_OB'), document.getElementById('LODOP_EM'));
+                if (!LODOP) {
+                    alert('请先安装 Lodop 打印控件！');
+                    return;
+                }
+                LODOP.PRINT_INIT("电子处方小票_" + r.PrescriptionNo);
+                LODOP.SET_PRINT_PAGESIZE(3, 800, 10, ""); // 连续打印纸，宽度 80mm
+                LODOP.ADD_PRINT_HTM(8, 1, "100%", "100%", $("#prescriptionTemplate").html());
+                LODOP.PRINT(); // 直接打印，不弹预览框
+            } catch (e) {
+                alert('打印失败：' + e.message);
+            }
+        }
+
+        function resetForm() {
+            // 清空药品列表
+            prescriptionDrugs = [];
+            renderPrescriptionList();
+            // 清空诊断和简码输入框
+            $('#diagnosis').val('');
+            $('#drugCode').val('');
+            clearDrugInput();
+            // 清空人员信息
+            $('#patientName').text('--');
+            $('#patientArea').text('--');
+            $('#patientCy').text('--');
+            $('#patientCode').text('--');
+            $('#patientBalance').text('--');
+            $('#hiddenPatientCode').val('');
+            $('#hiddenPatientName').val('');
+            $('#hiddenPatientArea').val('');
+            $('#hiddenPatientCy').val('');
+            $('#hiddenPatientBalance').val('');
+            // 清空右侧汇总
+            $('#summaryBalance').text('--');
+            $('#summaryAfterBalance').text('--');
+            $('#prescriptionNo').text('待生成');
+            $('#btnSubmit').prop('disabled', true);
+        }
+
+        function loadSampleDrugs() {
+            var samples = [
+                { GCODE: 'S001', GNAME: '阿莫西林胶囊', SPShortCode: 'amxl', GDJ: 12.50, GUnit: '盒', GStandard: '0.25g*24粒' },
+                { GCODE: 'S002', GNAME: '布洛芬缓释胶囊', SPShortCode: 'blf', GDJ: 18.00, GUnit: '盒', GStandard: '0.3g*20粒' },
+                { GCODE: 'S003', GNAME: '感冒灵颗粒', SPShortCode: 'gml', GDJ: 8.50, GUnit: '盒', GStandard: '10g*9袋' }
+            ];
+
+            $.each(samples, function (i, drug) {
+                var drugItem = {
+                    GCODE: drug.GCODE,
+                    GNAME: drug.GNAME,
+                    SPShortCode: drug.SPShortCode,
+                    GDJ: drug.GDJ,
+                    Quantity: 1,
+                    Amount: drug.GDJ,
+                    GUnit: drug.GUnit,
+                    GStandard: drug.GStandard,
+                    Usage: '口服 每次1袋 每日3次'
+                };
+                prescriptionDrugs.push(drugItem);
+            });
+
+            renderPrescriptionList();
+            showMessage('提示', '已加载3种示例药品，请修改数量或删除后提交');
+        }
+    </script>
+</body>
+</html>

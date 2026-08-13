@@ -305,53 +305,106 @@ function btnSaveChangeType() {
 }
 
 
+function getFormDataById(schFormId) {
+    const form = document.getElementById(schFormId);
+    const formData = new FormData(form);
+    const jsonObj = {};
+
+    for (const [key, value] of formData.entries()) {
+        // 如果 key 已存在，说明是同名多选字段，转为数组
+        if (jsonObj[key]) {
+            if (!Array.isArray(jsonObj[key])) {
+                jsonObj[key] = [jsonObj[key]]; // 将原值变为数组
+            }
+            jsonObj[key].push(value);
+        } else {
+            jsonObj[key] = value;
+        }
+    }
+
+    const jsonString = JSON.stringify(jsonObj);
+    console.log(jsonString);
+    // 输出示例: '{"hobby":["reading","swimming"],"username":"李四"}'
+
+    return jsonString;
+}
 
 function btnSearch() {
+
+    var schJson=getFormDataById('schForm');
     var rows = $("#test").datagrid('getRows');
-    for (var i = rows.length-1; i >=0 ; i--) {
-        $("#test").datagrid('deleteRow', 0);
+    if (rows != null) {
+        for (var i = rows.length - 1; i >= 0; i--) {
+            $("#test").datagrid('deleteRow', 0);
+        }
     }
+    
     //alert($("#FCashTypes").combobox('getValues'));
 
-    GetQueryComboboxValues();//获取查询栏里多选框里的值
+    //GetQueryComboboxValues();//获取查询栏里多选框里的值
     //alert(selFFlags);
 
-    $('#test').datagrid('load', {
-        FCode: $("#FCode").numberbox('getValue'),
-        FName :$("#FName").textbox('getText'),
-        FRemark :$("#FRemark").textbox('getText'),
-        cyName:$("#FCyName").combobox('getValue'),
-        startTime:$("#StartDate").datetimebox('getValue'),
-        endTime:$("#EndDate").datetimebox('getValue'),
-        areaName: $("#FAreaName").combobox('getValue'),
-        CrtBy:$("#FCrtBy").combobox('getValue'),
-        CriminalFlag:$("#FCriminalFlag").combobox('getValue'),
-        CashTypes:selCashTypes,
-        PayTypes:selPayTypes,
-        AccTypes:selAccTypes,
-        BankFlags: selBankFlags,
-        FFlags: selFFlags,
-        CheckFlag:$("#FCheckFlag").combobox('getValue'),
-        CardTypeFlag: $("#CardTypeFlag").combobox('getValue'),
-        PayMode: $("#PayMode").combobox('getValue'),
+
+
+    //$('#test').datagrid('load', $.parseJSON(schJson));
+
+    $.ajax({
+        url: '/Report/GetSearchVcrds/',
+        type: 'POST',
+        contentType: 'application/json;charset=utf-8', // 必须指定为 JSON
+        data: schJson,                // 必须转换为 JSON 字符串
+        success: function (res) {
+            console.log(res);
+            $('#test').datagrid('loadData', $.parseJSON(res));
+        }
     });
 
 
 }
 
+
+/**
+ * 将 JSON 对象转换为 GET 请求的查询参数字符串
+ * @param {Object} json - 需要转换的 JSON 对象
+ * @returns {String} - 转换后的查询参数字符串 (例如: key1=value1&key2=value2)
+ */
+function jsonToQueryString(json) {
+    if (!json || typeof json !== 'object') return '';
+
+    const params = new URLSearchParams();
+    for (const [key, value] of Object.entries(json)) {
+        if (value === null || value === undefined) {
+            // 如果值为 null 或 undefined，传空字符串
+            params.append(key, '');
+        } else if (Array.isArray(value)) {
+            // 如果是数组，遍历数组并多次 append 同一个 key
+            // 这样后端就能以传统表单格式接收 List<string>
+            value.forEach(item => params.append(key, item));
+        } else {
+            params.append(key, value);
+        }
+    }
+    return params.toString();
+}
+
 //打印报表，id 是的不同报表的参数
 function printMenuBtn(id) {
 
-    var strWhere = getSearchCondition();
-    window.open("/Report/PrintCriminalSumOrder/" + id + "?" + strWhere);
+    //var strWhere = getSearchCondition();
+
+    var strWhere = getFormDataById('schForm');
+    const queryStringJson = jsonToQueryString($.parseJSON( strWhere)); 
+    window.open("/Report/PrintCriminalSumOrder/" + id + "?" + queryStringJson);
 
 }
 
 function OutExcelSumOrder(id) {
     //$.messager.alert("提示",id);
-    var objWhere = getSearchObjCondition();
+    //var objWhere = getSearchObjCondition();
 
-    $.post("/Report/ExcelCriminalSumOrder/" + id, objWhere, function (data, status) {
+    var strWhere = getFormDataById('schForm');
+    //const queryStringJson = jsonToQueryString($.parseJSON(strWhere)); 
+    $.post("/Report/ExcelCriminalSumOrder/" + id, $.parseJSON(strWhere), function (data, status) {
         if (status != "success") {
             return false;
         } else {
@@ -562,6 +615,8 @@ function btnClear() {
     $("#FCriminalFlag").combobox('clear');
     $("#CardTypeFlag").combobox('clear');
     $("#PayMode").combobox('clear');
+    $("#SendDate_Start").datetimebox('clear');
+    $("#SendDate_Start").datetimebox('clear');
 }
 
 //A4打印消费单

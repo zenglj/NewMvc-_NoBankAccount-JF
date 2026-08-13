@@ -99,7 +99,7 @@
 
     <div data-options="region:'east',title:'查询条件',split:true" style="width:300px;">
         <div data-options="region:'north',title:'North Title',split:true" style="height:200px;">
-            <form method="post">
+            <form id="schForm" method="post">
                 <table id="crimeSearch">
                     <tr>
                         <th align="right">编号：</th>
@@ -117,7 +117,7 @@
                     <tr>
                         <th align="right">处遇：</th>
                         <td align="left">
-                            <select id="FCyName" name="FCyName" class="easyui-combobox" style="width:190px;">
+                            <select id="FCyName" name="cyName" class="easyui-combobox" style="width:190px;">
                                 <option value="" selected="selected">请选择</option>
                                 @if (ViewData["cys"] != null)
                                 {
@@ -146,7 +146,7 @@
                     <tr>
                         <th align="right">队别：</th>
                         <td align="left">
-                            <select id="FAreaName" name="FAreaName" class="easyui-combobox" style="width:190px;">
+                            <select id="FAreaName" name="areaName" class="easyui-combobox" style="width:190px;">
                                 <option value="" selected="selected">请选择队别</option>
                                 @if (ViewData["areas"] != null)
                                 {
@@ -162,7 +162,7 @@
                     <tr>
                         <th align="right">存：</th>
                         <td align="left">
-                            <select id="FCashTypes" name="FCashTypes" class="easyui-combobox" data-options=" multiple:true" style="width:190px;">
+                            <select id="FCashTypes" name="CashTypes" class="easyui-combobox" data-options=" multiple:true" style="width:190px;">
 
                                 @if (ViewData["cashtypes"] != null)
                                 {
@@ -177,7 +177,7 @@
                     <tr>
                         <th align="right">取：</th>
                         <td align="left">
-                            <select id="FPayTypes" name="FPayTypes" class="easyui-combobox" data-options=" multiple:true" style="width:190px;">
+                            <select id="FPayTypes" name="PayTypes" class="easyui-combobox" data-options=" multiple:true" style="width:190px;">
                                 @if (ViewData["paytypes"] != null)
                                 {
                                     foreach (string paytype in ViewData["paytypes"] as List<string>)
@@ -191,7 +191,7 @@
                     <tr>
                         <th align="right">操作员：</th>
                         <td align="left">
-                            <select id="FCrtBy" name="FCrtBy" class="easyui-combobox" style="width:190px;">
+                            <select id="FCrtBy" name="CrtBy" class="easyui-combobox" style="width:190px;">
                                 <option value="" selected="selected">请选择</option>
                                 @if (ViewData["crtbys"] != null)
                                 {
@@ -206,7 +206,7 @@
                     <tr>
                         <th align="right">在押状态：</th>
                         <td align="left">
-                            <select id="FCriminalFlag" name="FCriminalFlag" class="easyui-combobox" style="width:190px;">
+                            <select id="FCriminalFlag" name="CriminalFlag" class="easyui-combobox" style="width:190px;">
                                 <option value="" selected="selected">请选择</option>
                                 <option value="0">在押</option>
                                 <option value="1">离监</option>
@@ -214,9 +214,23 @@
                         </td>
                     </tr>
                     <tr>
+                        <th align="right">回款起日：</th>
+                        <td align="left">
+                            <input class="easyui-datetimebox" id="SendDate_Start" name="SendDate_Start"
+                                   data-options="required:true,showSeconds:false" value="" style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">回款止日：</th>
+                        <td align="left">
+                            <input class="easyui-datetimebox" id="SendDate_End" name="SendDate_End"
+                                   data-options="required:true,showSeconds:false" value="" style="width:190px">
+                        </td>
+                    </tr>
+                    <tr>
                         <th align="right">资金账户：</th>
                         <td align="left">
-                            <select id="FAccTypes" name="FAccTypes" class="easyui-combobox" data-options=" multiple:true" style="width:190px;">
+                            <select id="FAccTypes" name="AccTypes" class="easyui-combobox" data-options=" multiple:true" style="width:190px;">
                                 <option value="0">存款账户</option>
                                 <option value="1">报酬账户</option>
                                 <option value="2">留存账户</option>
@@ -228,7 +242,7 @@
                     <tr>
                         <th align="right">扣款状态：</th>
                         <td align="left">
-                            <select id="FBankFlags" name="FBankFlags" class="easyui-combobox" data-options=" multiple:true" style="width:190px;">
+                            <select id="FBankFlags" name="BankFlags" class="easyui-combobox" data-options=" multiple:true" style="width:190px;">
                                 <option value="0">待发送</option>
                                 <option value="1">发送中</option>
                                 <option value="2">成功</option>
@@ -240,7 +254,7 @@
                     <tr>
                         <th align="right">审核状态：</th>
                         <td align="left">
-                            <select id="FCheckFlag" name="FCheckFlag" class="easyui-combobox" style="width:190px;">
+                            <select id="FCheckFlag" name="CheckFlag" class="easyui-combobox" style="width:190px;">
                                 <option value="-1">未配货</option>
                                 <option value="0">待审核</option>
                                 <option value="1">已审核</option>
