@@ -81,11 +81,11 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 return Content("Error|药品简码不能为空");
             }
 
-            List<T_Goods> goods = (List<T_Goods>)new T_GoodsBLL().GetListOfIEnumerable("SPShortCode='" + drugCode + "' and Active='Y'");
+            List<T_Goods> goods = (List<T_Goods>)new T_GoodsBLL().GetListOfIEnumerable("SPShortCode='" + drugCode + "' and Active='Y' and GType in(select FCode from T_GoodsType a,T_SHO_SaleType b where a.SaleTypeId=b.ID and b.PType='医院消费')");
 
             if (goods.Count == 0)
             {
-                goods = (List<T_Goods>)new T_GoodsBLL().GetListOfIEnumerable("GTXM='" + drugCode + "' and Active='Y'");
+                goods = (List<T_Goods>)new T_GoodsBLL().GetListOfIEnumerable("GTXM='" + drugCode + "' and Active='Y'  and GType in(select FCode from T_GoodsType a,T_SHO_SaleType b where a.SaleTypeId=b.ID and b.PType='医院消费')");
             }
 
             if (goods.Count == 0)
@@ -191,7 +191,18 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 loginUserName = "Yiyuan";
             }
 
-            string crtby = loginUserName + "_" + ip;
+
+            string cc = ".";
+            string[] ips = ip.Split(cc.ToCharArray());
+            //string ipLastCode = string.Format("000", ips[3]);
+            string ipLastCode = "001";
+            if (ips.Length > 3)
+            {
+                ipLastCode = "000" + ips[3];
+                ipLastCode = ipLastCode.Substring(ipLastCode.Length - 3);
+            }
+
+            string crtby = loginUserName + "_" +ipLastCode + "号机";
             string prescriptionNo = "RX" + DateTime.Now.ToString("yyyyMMddHHmmss") + new Random().Next(100, 999);
 
             // 1. 创建订单主单 T_SHO_Order
@@ -254,18 +265,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 orderModel.Flag = 1;
                 new T_SHO_OrderBLL().Update(orderModel);
 
-                string ipaddr = System.Web.HttpContext.Current.Request.UserHostAddress;
-
-                string cc = ".";
-                string[] ips = ipaddr.Split(cc.ToCharArray());
-                //string ipLastCode = string.Format("000", ips[3]);
-                string ipLastCode = "001";
-                if (ips.Length > 3)
-                {
-                    ipLastCode = "000" + ips[3];
-                    ipLastCode = ipLastCode.Substring(ipLastCode.Length - 3);
-                }
-                crtby = "IP_" + ipLastCode + "号机";
+                
                 string status = new T_SHO_OrderBLL().SubmitOrder(Convert.ToInt32(orderId), crtby, ipLastCode, fcrimecode, "");
 
                 if (status != "OK|结算成功。")
