@@ -42,6 +42,8 @@
                     <a href="javascript:void(0)" class="easyui-linkbutton"
                        iconCls="icon-excel"
                        onclick="$('#winSearch').window('open')">Excel导入</a>
+
+                    <a href="#" class="easyui-linkbutton" iconCls="icon-remove" onclick="batchDelete()">批量删除</a>
                 }
                 else
                 {
@@ -329,6 +331,35 @@
         function deleteRecord(id) {
             $.messager.confirm('确认', '确定删除该记录?', function (r) {
                 if (r) $.post('/JfDengji/RequestRecDelete', { id: id }, function () {
+                    $('#dg').datagrid('reload');
+                });
+            });
+        }
+
+        // 批量删除记录
+        function batchDelete() {
+            var rows = $('#dg').datagrid('getSelections');
+            if (!rows || rows.length === 0) {
+                $.messager.alert('提示', '请先勾选要删除的记录');
+                return;
+            }
+            var rowIds = rows.map(function (r) { return r.Id; });
+            $.messager.confirm('确认', '确定删除选中的 ' + rowIds.length + ' 条记录?', function (r) {
+                if (!r) return;
+                $.messager.progress({ title: '批量删除', msg: '正在删除...' });
+                $.post('/JfDengji/RequestRecBatchDelete', { ids: JSON.stringify(rowIds) }, function (data) {
+                    $.messager.progress('close');
+                    // 后端返回 "OK|..." 表示全部成功，"Err|..." 表示部分失败
+                    if (data.Flag) {
+                        $.messager.alert('提示', data.ReMsg.replace(/^OK\|/, ''));
+                    } else {
+                        // 部分失败，提供错误明细下载
+                        $.messager.alert('提示', data.ReMsg.replace(/^Err\|/, ''), function () {
+                            if (data.DataInfo) {
+                                window.open('/Upload/' + data.DataInfo);
+                            }
+                        });
+                    }
                     $('#dg').datagrid('reload');
                 });
             });

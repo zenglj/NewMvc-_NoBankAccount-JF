@@ -1,4 +1,4 @@
-﻿
+
 $(function () {
 
     //$('#btnSave').linkbutton('disable');
@@ -579,27 +579,40 @@ function AddGoodsContent() {
 
 //修改模式
 function AlterGoodsContent() {
-
-    const row = $('#test').datagrid('getSelected');
-    if (row !=null) {
-        $('#editWindows').dialog('open').dialog('setTitle', '编辑');
-        //$('#ffGoodEdit').form('load', row);
-
-        $("#dotype").val("update");//
-        $('#FPrice').attr('disabled', "disabled");
-        if ("0" == $("#goodPriceMset").val()) {
-            $("#FPrice").numberbox('enable');
-        } else {
-            $("#FPrice").numberbox('disable');
+    //校验必须选中且仅选中一行记录
+    var selected = $('#test').datagrid('getSelected');
+    var checked = $('#test').datagrid('getChecked');
+    if (checked.length === 0) {
+        //getChecked 取不到时回退到 getSelected
+        if (selected == null) {
+            $.messager.alert('提示', '请选择一条要编辑的记录');
+            return;
         }
+        checked = [selected];
+    }
+    if (checked.length > 1) {
+        $.messager.alert('提示', '编辑只能选择一条记录，当前已选择 ' + checked.length + ' 条');
+        return;
+    }
+
+    const row = checked[0];
+    $('#editWindows').dialog('open').dialog('setTitle', '编辑');
+    //$('#ffGoodEdit').form('load', row);
+
+    $("#dotype").val("update");//
+    $('#FPrice').attr('disabled', "disabled");
+    if ("0" == $("#goodPriceMset").val()) {
+        $("#FPrice").numberbox('enable');
+    } else {
+        $("#FPrice").numberbox('disable');
     }
 
     //$('#editWindows').window({
     //    modal: true,
     //    closed: false
     //});
-    
-    
+
+
 }
 
 

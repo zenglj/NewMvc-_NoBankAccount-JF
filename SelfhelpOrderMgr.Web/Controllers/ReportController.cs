@@ -239,14 +239,14 @@ namespace SelfhelpOrderMgr.Web.Controllers
             //    endTime = edt.Year.ToString() + "-" + edt.Month.ToString() + "-" + edt.Day.ToString() + " 23:59:00";
             //}
 
-            if (req.StartDate!=null)
+            if (req.startTime!=null)
             {
                 if (id != 26)
                 {
                     strWhere = strWhere + " and  CrtDate>=@startTime ";
                 }
             }
-            if (req.EndDate!=null)
+            if (req.endTime!=null)
             {
                 strWhere = strWhere + " and  CrtDate<@endTime ";
             }
@@ -301,12 +301,12 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 strWhere = strWhere + " and Dtype in ( SELECT value FROM Split(@savePays,','))";
             }
 
-            if (!(req.AccTypes==null || req.AccTypes.Count==0))
+            if (!(req.AccTypes==null || req.AccTypes.Count==0 || string.Join("", req.AccTypes.Select(s => $"{s}")) == ""))
             {
                 strWhere = strWhere + " and AccType in (SELECT value FROM Split(@AccTypes,',') )";
             }
 
-            if (!(req.BankFlags==null ||req.BankFlags.Count==0))
+            if (!(req.BankFlags==null ||req.BankFlags.Count==0 || string.Join("", req.BankFlags.Select(s => $"{s}")) == ""))
             {
                 strWhere = strWhere + " and isnull(BankFlag,0) in ( SELECT value FROM Split(@BankFlags,',') )";
             }
@@ -347,10 +347,14 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 strWhere = strWhere + " and SendDate between @SendDate_Start and @SendDate_End ";
             }
 
-            object param = new { LoginCode = LoginCode, startTime = req.StartDate, endTime =req.EndDate
-                    , areaName = req.areaName, FName = req.FName, FCode = req.FCode
+            object param = new { LoginCode = LoginCode, startTime = req.startTime, endTime =req.endTime
+                    , areaName = req.areaName
+                    , FName = req.FName
+                    , FCode = req.FCode
                     , CrtBy = req.CrtBy, CriminalFlag = req.CriminalFlag
-                    , CashTypes = req.CashTypes, PayTypes = req.PayTypes, savePays= savePays
+                    , CashTypes = req.CashTypes
+                    , PayTypes = req.PayTypes
+                    , savePays= savePays
                     , AccTypes = req.AccTypes==null?"": string.Join(",", req.AccTypes.Select(s => $"{s}"))
                     , BankFlags = req.BankFlags == null?"": string.Join(",", req.BankFlags.Select(s => $"{s}")) 
                     , FRemark = req.FRemark

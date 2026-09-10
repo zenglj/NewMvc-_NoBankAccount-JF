@@ -13,8 +13,8 @@ namespace SelfhelpOrderMgr.Web.Models
         public string cyName { get; set; }
 
         // 日期时间类型，使用可空类型防止前端传空字符串时反序列化报错
-        public DateTime? StartDate { get; set; }
-        public DateTime? EndDate { get; set; }
+        public DateTime? startTime { get; set; }
+        public DateTime? endTime { get; set; }
 
         public string areaName { get; set; }
 

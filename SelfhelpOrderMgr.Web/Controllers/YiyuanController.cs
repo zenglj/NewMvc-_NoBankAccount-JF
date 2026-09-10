@@ -1,4 +1,4 @@
-﻿using SelfhelpOrderMgr.BLL;
+using SelfhelpOrderMgr.BLL;
 using SelfhelpOrderMgr.Common;
 using SelfhelpOrderMgr.Model;
 using System;
@@ -53,6 +53,18 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 return Content("Error|" + criminal.ErrInfo);
             }
 
+            // 查询该用户在 T_Invoice 表中的医院购药订单数量（PType='医院消费'）
+            int yyOrderCount = 0;
+            try
+            {
+                List<T_Invoice> invoices = (List<T_Invoice>)new T_InvoiceBLL().GetModelList("FCrimeCode='" + criminal.FCode.Replace("'", "''") + "' and PType='医院消费' and YEAR(OrderDate)=YEAR(GETDATE()) and MONTH(OrderDate)=MONTH(GETDATE())");
+                yyOrderCount = invoices != null ? invoices.Count : 0;
+            }
+            catch
+            {
+                yyOrderCount = 0;
+            }
+
             var result = new
             {
                 FCrimeCode = criminal.FCode,
@@ -66,7 +78,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 Xiaofeimoney = criminal.Xiaofeimoney,
                 AmountAmoney = criminal.AmountAmoney,
                 AmountBmoney = criminal.AmountBmoney,
-                AmountCmoney = criminal.AmountCmoney
+                AmountCmoney = criminal.AmountCmoney,
+                YYOrderCount = yyOrderCount
             };
 
             return Content("OK|" + jss.Serialize(result));
@@ -76,6 +89,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
         public ActionResult GetDrugInfo()
         {
             string drugCode = Request["DrugCode"];
+            string fcrimeCode = Request["FCrimeCode"] ?? "";
             if (string.IsNullOrEmpty(drugCode))
             {
                 return Content("Error|药品简码不能为空");
@@ -107,7 +121,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
                     g.GBalance,
                     g.GTYPE,
                     g.Ffreeflag,
-                    g.Xgsl
+                    g.Xgsl,
+                    YYPurchasedQty = GetYYDrugPurchasedQty(fcrimeCode, g.GTXM)
                 }).ToList();
                 return Content("MULTI|" + jss.Serialize(drugs));
             }
@@ -118,6 +133,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 return Content("Error|该药品已下架");
             }
             var kcMset = new T_SHO_ManagerSetBLL().GetModel("YanZhenKCL");
+            int yyPurchasedQty = GetYYDrugPurchasedQty(fcrimeCode, good.GTXM);
             var drugInfo = new
             {
                 GCODE = good.GCODE,
@@ -130,10 +146,34 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 GBalance = kcMset.KeyMode == 0 ? 9999 : good.GBalance,
                 GTYPE = good.GTYPE,
                 Ffreeflag = good.Ffreeflag,
-                Xgsl = good.Xgsl
+                Xgsl = good.Xgsl,
+                YYPurchasedQty = yyPurchasedQty
             };
 
             return Content("OK|" + jss.Serialize(drugInfo));
+        }
+
+        /// <summary>
+        /// 统计用户本月某药品在 T_InvoiceDTL 表的已购数量（按 GTXM 匹配）
+        /// </summary>
+        private int GetYYDrugPurchasedQty(string fcrimeCode, string gtxm)
+        {
+            if (string.IsNullOrEmpty(fcrimeCode) || string.IsNullOrEmpty(gtxm))
+            {
+                return 0;
+            }
+            try
+            {
+                List<T_InvoiceDTL> list = new T_InvoiceDTLBLL().GetModelList(
+                    "FCrimecode='" + fcrimeCode.Replace("'", "''") +
+                    "' and GTXM='" + gtxm.Replace("'", "''") +
+                    "' and YEAR(OrderDate)=YEAR(GETDATE()) and MONTH(OrderDate)=MONTH(GETDATE())");
+                return list != null ? (int)list.Sum(d => d.QTY) : 0;
+            }
+            catch
+            {
+                return 0;
+            }
         }
 
         [HttpPost]
@@ -235,7 +275,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                     T_SHO_OrderDTL dtl = new T_SHO_OrderDTL();
                     dtl.OrderID = orderId;
                     dtl.GCode = drug.GCODE;
-                    dtl.GTXM = drug.GCODE;
+                    dtl.GTXM = drug.GTXM;
                     dtl.GName = drug.GNAME;
                     dtl.GCount = drug.Quantity;
                     dtl.GPrice = drug.GDJ;
@@ -336,6 +376,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
     {
         public string GCODE { get; set; }
         public string GNAME { get; set; }
+        public string GTXM { get; set; }
         public string SPShortCode { get; set; }
         public decimal GDJ { get; set; }
         public int Quantity { get; set; }

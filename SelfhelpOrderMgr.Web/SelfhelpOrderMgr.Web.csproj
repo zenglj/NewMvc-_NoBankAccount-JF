@@ -296,6 +296,7 @@
     <Compile Include="Controllers\BankPaymentController.cs" />
     <Compile Include="Controllers\BankRcvPayController.cs" />
     <Compile Include="Controllers\BankRptController.cs" />
+    <Compile Include="Controllers\RechargeController.cs" />
     <Compile Include="Controllers\StockMgrController.cs" />
     <Compile Include="Controllers\BankVitualCardController.cs" />
     <Compile Include="Controllers\BaseController.cs" />
@@ -1466,6 +1467,7 @@
     <Content Include="Views\StockMgr\PrintStockBill.cshtml" />
     <Content Include="Views\SalesShiti\PhotoTest.cshtml" />
     <Content Include="Views\Yiyuan\Index.cshtml" />
+    <Content Include="Views\Recharge\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

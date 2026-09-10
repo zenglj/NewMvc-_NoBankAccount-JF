@@ -522,10 +522,19 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 /* length */
                 int len = fname.Length - index;
                 fname = fname.Substring(index, len);
+
+                #region 校验文件扩展名，只允许 jpg/png
+                string fileExt = System.IO.Path.GetExtension(fname).ToLower();
+                if (fileExt != ".jpg" && fileExt != ".jpeg" && fileExt != ".png")
+                {
+                    return Content("仅允许上传图片文件（.jpg 或 .png），当前文件类型：" + (string.IsNullOrEmpty(fileExt) ? "无扩展名" : fileExt));
+                }
+                #endregion
+
                 /* save to server */
                 string savePath = Server.MapPath("~/Content/GoodsImages/" + fname);
                 f.SaveAs(savePath);
-                string extName = System.IO.Path.GetExtension(fname).ToString().ToLower();//System.IO.Path.GetExtension获得文件的扩展名
+                string extName = fileExt;//System.IO.Path.GetExtension获得文件的扩展名
                 string strImgName = fname.Substring(0, (fname.Length - extName.Length));
                 T_SHO_ManagerSet mgrSet = new T_SHO_ManagerSetBLL().GetModel("ImgDRGS");//商品导入模式
 
@@ -1471,6 +1480,16 @@ namespace SelfhelpOrderMgr.Web.Controllers
             if (Request.Files.Count > 0)
             {
                 HttpPostedFileBase f = Request.Files[0];
+
+                #region 校验文件扩展名，只允许 xls/xlsx
+                string fileName = (f.FileName ?? "").Trim();
+                string fileExt = System.IO.Path.GetExtension(fileName).ToLower();
+                if (fileExt != ".xls" && fileExt != ".xlsx")
+                {
+                    return Content("仅允许上传 Excel 文件（.xls 或 .xlsx），当前文件类型：" + (string.IsNullOrEmpty(fileExt) ? "无扩展名" : fileExt));
+                }
+                #endregion
+
                 #region 保存文件的方法
                 //string fname = f.FileName;
                 ///* startIndex */
@@ -1694,6 +1713,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                                     gt.Fcode = "GT" + seqModel.SEQNO.ToString();
                                     gt.Fname = GType;
                                     gt.Remark = "";
+                                    gt.FTZSP_TypeFlag = 1;
                                     gt.SaleTypeId = id;
                                     gt.FTypeCode = "";
                                     gt.LevelNo = 2;

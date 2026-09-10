@@ -378,6 +378,59 @@ namespace SelfhelpOrderMgr.Web.Controllers
         }
 
         /// <summary>
+        /// 删除单条完成率申请记录的核心逻辑（含权限校验、软删除、已审核则重置罪犯积分）
+        /// </summary>
+        private ResultInfo DeleteRecordInfo(int id)
+        {
+            ResultInfo rs = new ResultInfo();
+            if (id <= 0)
+            {
+                rs.Flag = false;
+                rs.ReMsg = "Err|编号必须大于0";
+                return rs;
+            }
+            var oldModel = _bll.GetModel<T_JF_Completion>(id);
+            if (oldModel == null)
+            {
+                rs.Flag = false;
+                rs.ReMsg = "Err|记录不存在或已被删除";
+                return rs;
+            }
+            var criminal = _bll.QueryModel<T_Criminal>("FCode", oldModel.FCode);
+            //判断用户是否具有删除的管理权限
+            var areas = _bll.QueryList<T_Czy_area>("select *from T_Czy_area where fflag=2 and fcode=@fcode and fareacode=@fareacode",
+                new
+                {
+                    fcode = base.loginUserCode,
+                    fareacode = criminal.FAreaCode
+                });
+            if (areas == null || areas.Count <= 0)
+            {
+                rs.Flag = false;
+                rs.ReMsg = "Err|操作员没有该用户(" + oldModel.FCode + ")的删除管理权限";
+                return rs;
+            }
+            using (TransactionScope ts = new TransactionScope())
+            {
+                oldModel.ModBy = base.loginUserName;//操作员
+                oldModel.ModifyDate = DateTime.Now;
+                oldModel.IsDelete = true;
+                _bll.Delete<T_JF_Completion>(oldModel.Id);
+
+                if (oldModel.Flag == 1)
+                {
+                    criminal.CompletionRate = 0;
+                    criminal.PointsDate = new DateTime(1900, 1, 1);
+                    _bll.Update(criminal, Newtonsoft.Json.JsonConvert.SerializeObject(new { CompletionRate = 0, PointsDate = DateTime.Today }), "FCode='" + criminal.FCode + "'", false);
+                }
+                ts.Complete();
+            }
+            rs.Flag = true;
+            rs.ReMsg = "OK|删除成功";
+            return rs;
+        }
+
+        /// <summary>
         /// 删除完成率申请记录
         /// </summary>
         /// <param name="id"></param>
@@ -387,54 +440,69 @@ namespace SelfhelpOrderMgr.Web.Controllers
             ResultInfo rs = new ResultInfo();
             try
             {
+                rs = DeleteRecordInfo(id);
+                return Json(rs);
+            }
+            catch (Exception ex)
+            {
+                rs.ReMsg = "Err|" + ex.Message;
+                return Json(rs);
+            }
+        }
 
-                if (id > 0)
+        /// <summary>
+        /// 批量删除完成率申请记录
+        /// </summary>
+        /// <param name="ids">JSON数组形式的Id列表，如 [1,2,3]</param>
+        /// <returns></returns>
+        public ActionResult RequestRecBatchDelete(string ids)
+        {
+            ResultInfo rs = new ResultInfo();
+            try
+            {
+                var errList = new List<JF_Comploetion_ErrModel>();
+                var idArr = Newtonsoft.Json.JsonConvert.DeserializeObject<int[]>(ids);
+                int successCount = 0;
+                foreach (var id in idArr)
                 {
-                    var oldModel = _bll.GetModel<T_JF_Completion>(id);
-                    var criminal = _bll.QueryModel<T_Criminal>("FCode", oldModel.FCode);
-                    //判断用户是否具有删除的管理权限
-                    var areas = _bll.QueryList<T_Czy_area>("select *from T_Czy_area where fflag=2 and fcode=@fcode and fareacode=@fareacode",
-                        new
+                    rs = DeleteRecordInfo(id);
+                    if (rs.Flag == false)
+                    {
+                        var _m = _bll.GetModel<T_JF_Completion>(id);
+                        errList.Add(new JF_Comploetion_ErrModel()
                         {
-                            fcode = base.loginUserCode
-                        ,
-                            fareacode = criminal.FAreaCode
+                            FCode = _m?.FCode,
+                            FName = _m?.FName,
+                            FAreaName = _m?.FAreaName,
+                            WorkTypeName = _m?.WorkTypeName,
+                            OutputValue = _m?.OutputValue ?? 0,
+                            CompletionRate = _m?.CompletionRate ?? 0,
+                            YearMonth = _m?.YearMonth,
+                            Remark = _m?.Remark,
+                            ErrInfo = rs.ReMsg
                         });
-                    if (areas == null || areas.Count <= 0)
-                    {
-                        rs.Flag = false;
-                        rs.ReMsg = "Err|操作员没有该用户的删除管理权限";
-                        return Json(rs);
                     }
-                    using (TransactionScope ts = new TransactionScope())
+                    else
                     {
-                        oldModel.ModBy = base.loginUserName;//操作员
-                        oldModel.ModifyDate = DateTime.Now;
-                        oldModel.IsDelete = true;
-                        //_bll.Update(oldModel);
-                        _bll.Delete<T_JF_Completion>(oldModel.Id);
-
-                        if (oldModel.Flag == 1)
-                        {
-                            criminal.CompletionRate = 0;
-                            criminal.PointsDate = new DateTime(1900, 1, 1);
-                            _bll.Update(criminal, Newtonsoft.Json.JsonConvert.SerializeObject(new { CompletionRate = 0, PointsDate = DateTime.Today } ), "FCode='" + criminal.FCode + "'", false);
-                        }
-                        ts.Complete();
+                        successCount++;
                     }
-
-                    rs.Flag = true;
-                    rs.ReMsg = "OK|删除成功";
-                    return Json(rs);
+                }
+                if (errList.Count > 0)
+                {
+                    string strFileName = "批量删除结果" + DateTime.Today.ToString("yyyyMMdd") + ".xls";
+                    string fullName = Server.MapPath("~/Upload/" + strFileName);
+                    ExcelRender.RenderListToExcel(errList, "Excel批量删除结果", fullName);
+                    rs.Flag = false;
+                    rs.DataInfo = strFileName;
+                    rs.ReMsg = $"Err|成功{successCount}条,失败{errList.Count}条";
                 }
                 else
                 {
-                    rs.Flag = false;
-                    rs.ReMsg = "Err|编号必须大于0";
-                    return Json(rs);
+                    rs.Flag = true;
+                    rs.DataInfo = "";
+                    rs.ReMsg = $"OK|成功删除{successCount}条";
                 }
-
-
+                return Json(rs);
             }
             catch (Exception ex)
             {
@@ -507,7 +575,12 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
                     var _levels= _bll.QueryList<T_JF_GoodsLevel>(" UseType=1");
                     T_JF_GoodsLevel userLevel = null;
-                    if (oldModel.CompletionRate >= 0)
+                    if (oldModel.CompletionRate == 0 && string.IsNullOrWhiteSpace( oldModel.WorkResult)==false)
+                    {
+                        var _jfdj = _bll.GetModelList<T_JF_DengjiType>(Newtonsoft.Json.JsonConvert.SerializeObject(new { UseType = 1, TypeFlag = oldModel.WorkType, WorkResult = oldModel.WorkResult })).FirstOrDefault();
+                        userLevel = _levels.Where(x => x.LevelName == _jfdj.LevelName).FirstOrDefault();
+                    }
+                    else if (oldModel.CompletionRate >= 0)
                     {
                         userLevel=_levels.Where(x => x.CompletionRate <= oldModel.CompletionRate).OrderByDescending(o => o.CompletionRate).FirstOrDefault();
                     }
@@ -705,8 +778,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
                     //评议等级
                     if (!string.IsNullOrWhiteSpace(row.GetCell(7).StringCellValue))
                     {
-                        var _workResult = workResults.Where(o =>o.FName== row.GetCell(3).StringCellValue ).FirstOrDefault();
-                        if (_baseType == null)
+                        var _workResult = workResults.Where(o =>o.FName== row.GetCell(7).StringCellValue.ToString() ).FirstOrDefault();
+                        if (_workResult == null)
                         {
                             _errInfo = "评议等级不存在";
 

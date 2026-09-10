@@ -404,11 +404,24 @@ function OutExcelSumOrder(id) {
 
     var strWhere = getFormDataById('schForm');
     //const queryStringJson = jsonToQueryString($.parseJSON(strWhere)); 
-    $.post("/Report/ExcelCriminalSumOrder/" + id, $.parseJSON(strWhere), function (data, status) {
-        if (status != "success") {
-            return false;
-        } else {
-            var words = data.split("|");
+    //$.post("/Report/ExcelCriminalSumOrder/" + id, { "req": queryStringJson }, function (data, status) {
+    //    if (status != "success") {
+    //        return false;
+    //    } else {
+    //        var words = data.split("|");
+    //        if (words[0] == "OK") {
+    //            window.open("/Upload/" + words[1]);
+    //        }
+    //    }
+    //});
+
+    $.ajax({
+        url: "/Report/ExcelCriminalSumOrder/" + id,
+        type: 'POST',
+        contentType: 'application/json;charset=utf-8', // 必须指定为 JSON
+        data: strWhere,                // 必须转换为 JSON 字符串
+        success: function (res) {
+            var words = res.split("|");
             if (words[0] == "OK") {
                 window.open("/Upload/" + words[1]);
             }

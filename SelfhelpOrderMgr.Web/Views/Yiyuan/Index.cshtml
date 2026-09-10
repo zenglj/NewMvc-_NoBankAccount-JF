@@ -1,4 +1,4 @@
-﻿﻿@{
+﻿@{
     Layout = null;
 }
 <!DOCTYPE html>
@@ -564,6 +564,60 @@
         </div>
     </div>
 
+    <!-- 医院购药订单超量确认弹窗 -->
+    <div class="modal fade" id="yyOrderLimitModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header" style="background:#ffc107;color:#212529;border-radius:6px 6px 0 0;">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title"><i class="glyphicon glyphicon-warning-sign"></i> 医院购药订单提示</h4>
+                </div>
+                <div class="modal-body" id="yyOrderLimitBody" style="padding:20px;font-size:14px;">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" onclick="onCancelContinuePrescription()">取消</button>
+                    <button type="button" class="btn btn-success" data-dismiss="modal" onclick="onContinuePrescription()"><i class="glyphicon glyphicon-ok"></i> 继续购药</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 药品限购数量超量确认弹窗 -->
+    <div class="modal fade" id="drugLimitModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header" style="background:#ffc107;color:#212529;border-radius:6px 6px 0 0;">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title"><i class="glyphicon glyphicon-warning-sign"></i> 药品限购提示</h4>
+                </div>
+                <div class="modal-body" id="drugLimitBody" style="padding:20px;font-size:14px;">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" onclick="onCancelContinueDrug()">取消</button>
+                    <button type="button" class="btn btn-success" data-dismiss="modal" onclick="onContinueDrug()"><i class="glyphicon glyphicon-ok"></i> 继续购药</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加药品到列表时的限购确认弹窗 -->
+    <div class="modal fade" id="addDrugLimitModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header" style="background:#ffc107;color:#212529;border-radius:6px 6px 0 0;">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title"><i class="glyphicon glyphicon-warning-sign"></i> 药品限购提示</h4>
+                </div>
+                <div class="modal-body" id="addDrugLimitBody" style="padding:20px;font-size:14px;">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" onclick="onCancelAddDrug()">取消</button>
+                    <button type="button" class="btn btn-success" data-dismiss="modal" onclick="onContinueAddDrug()"><i class="glyphicon glyphicon-ok"></i> 继续购药</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- 处方小票模板（默认隐藏） -->
     <div id="prescriptionTemplate" style="display:none;">
         <div>
@@ -609,6 +663,13 @@
         var prescriptionDrugs = [];
         var currentDrugInfo = null;
         var lastPrescriptionResult = null;
+        // 暂存读卡返回的用户信息（用于"已超过2单"确认弹窗）
+        var pendingPatientInfo = null;
+        // 暂存限购药品信息及对应的显示参数（用于"已超过限购数量"确认弹窗）
+        var pendingDrugInfo = null;
+        var pendingDrugIsQuick = false;
+        // 暂存"添加药品到列表"场景下，待确认的数量（用于超过限购时弹窗确认）
+        var pendingAddDrugQty = 0;
 
         $(document).ready(function () {
             $('#drugQuantity').on('input', function () {
@@ -656,6 +717,24 @@
 
                 if (words[0] === "OK") {
                     var info = $.parseJSON(words[1]);
+                    var yyCount = parseInt(info.YYOrderCount || 0);
+
+                    // 如果用户在 T_invoice 表已有2单及以上医院购药订单，弹出确认提示
+                    if (yyCount >= 2) {
+                        pendingPatientInfo = info;
+                        $('#yyOrderLimitBody').html(
+                            '<div style="text-align:center;font-size:14px;color:#856404;">' +
+                            '<i class="glyphicon glyphicon-warning-sign" style="font-size:32px;color:#ffc107;"></i>' +
+                            '<div style="margin-top:10px;">该用户已存在 <strong style="color:#d9534f;font-size:18px;">' + yyCount + '</strong> 单医院购药订单</div>' +
+                            '<div style="margin-top:5px;">已超过2单是否继续开药？</div>' +
+                            '<div style="margin-top:8px;color:#6c757d;font-size:12px;">点击"继续购药"后才会显示用户信息</div>' +
+                            '</div>'
+                        );
+                        $('#yyOrderLimitModal').modal('show');
+                        return;
+                    }
+
+                    // 没有超过2单，直接显示用户信息
                     displayPatientInfo(info);
                     showMessage('读卡成功',
                         '姓名：' + info.FName + '<br>' +
@@ -664,6 +743,25 @@
                         '可用余额：' + info.OkUseAllMoney + ' 元');
                 }
             });
+        }
+
+        // 已超过2单 - 用户点击"继续购药"：显示用户信息
+        function onContinuePrescription() {
+            if (pendingPatientInfo) {
+                var info = pendingPatientInfo;
+                pendingPatientInfo = null;
+                displayPatientInfo(info);
+                showMessage('读卡成功',
+                    '姓名：' + info.FName + '<br>' +
+                    '队别：' + info.FAreaName + '<br>' +
+                    '处遇：' + info.CyName + '<br>' +
+                    '可用余额：' + info.OkUseAllMoney + ' 元');
+            }
+        }
+
+        // 已超过2单 - 用户点击"取消"：不显示用户信息
+        function onCancelContinuePrescription() {
+            pendingPatientInfo = null;
         }
 
         //读取IC卡号
@@ -721,7 +819,9 @@
             $('#drugNotFoundHint').hide();
             $('#multiSelectList').hide();
 
-            $.post("/Yiyuan/GetDrugInfo", { DrugCode: code }, function (data, status) {
+            var fcrimeCode = $('#hiddenPatientCode').val() || '';
+
+            $.post("/Yiyuan/GetDrugInfo", { DrugCode: code, FCrimeCode: fcrimeCode }, function (data, status) {
                 if (status !== "success") {
                     showMessage('查询失败', '网络请求失败');
                     return;
@@ -742,10 +842,45 @@
 
                 if (words[0] === "OK") {
                     var drug = $.parseJSON(words[1]);
+                    // 限购数量检查：本月已购数量 >= 限购数量(xgsl) 时需用户确认
+                    if (parseInt(drug.Xgsl || 0) > 0 && parseInt(drug.YYPurchasedQty || 0) >= parseInt(drug.Xgsl)) {
+                        pendingDrugInfo = drug;
+                        pendingDrugIsQuick = !!isQuick;
+                        $('#drugLimitBody').html(
+                            '<div style="text-align:center;font-size:14px;color:#856404;">' +
+                            '<i class="glyphicon glyphicon-warning-sign" style="font-size:32px;color:#ffc107;"></i>' +
+                            '<div style="margin-top:10px;">药品：<strong style="color:#d9534f;">' + drug.GNAME + '</strong></div>' +
+                            '<div style="margin-top:5px;">本月已购 <strong style="color:#d9534f;font-size:18px;">' + drug.YYPurchasedQty + '</strong> ' + (drug.GUnit || '') + '</div>' +
+                            '<div style="margin-top:5px;">本月限购数量：<strong>' + drug.Xgsl + '</strong> ' + (drug.GUnit || '') + '</div>' +
+                            '<div style="margin-top:5px;">已超过限购数量是否继续开药？</div>' +
+                            '<div style="margin-top:8px;color:#6c757d;font-size:12px;">点击"继续购药"后才会显示药品信息</div>' +
+                            '</div>'
+                        );
+                        $('#drugLimitModal').modal('show');
+                        return;
+                    }
+
+                    // 未超限购，直接显示药品信息
                     currentDrugInfo = drug;
                     displayDrugInfo(drug, isQuick);
                 }
             });
+        }
+
+        // 药品限购 - 用户点击"继续购药"：显示药品信息
+        function onContinueDrug() {
+            if (pendingDrugInfo) {
+                currentDrugInfo = pendingDrugInfo;
+                displayDrugInfo(pendingDrugInfo, pendingDrugIsQuick);
+                pendingDrugInfo = null;
+                pendingDrugIsQuick = false;
+            }
+        }
+
+        // 药品限购 - 用户点击"取消"：不显示药品信息
+        function onCancelContinueDrug() {
+            pendingDrugInfo = null;
+            pendingDrugIsQuick = false;
         }
 
         function showMultiSelect(drugs) {
@@ -758,9 +893,26 @@
                     '<span>¥' + drug.GDJ + ' / 库存:' + drug.GBalance + '</span>'
                 );
                 item.click(function () {
+                    list.hide();
+                    // 限购数量检查
+                    if (parseInt(drug.Xgsl || 0) > 0 && parseInt(drug.YYPurchasedQty || 0) >= parseInt(drug.Xgsl)) {
+                        pendingDrugInfo = drug;
+                        pendingDrugIsQuick = false;
+                        $('#drugLimitBody').html(
+                            '<div style="text-align:center;font-size:14px;color:#856404;">' +
+                            '<i class="glyphicon glyphicon-warning-sign" style="font-size:32px;color:#ffc107;"></i>' +
+                            '<div style="margin-top:10px;">药品：<strong style="color:#d9534f;">' + drug.GNAME + '</strong></div>' +
+                            '<div style="margin-top:5px;">本月已购 <strong style="color:#d9534f;font-size:18px;">' + drug.YYPurchasedQty + '</strong> ' + (drug.GUnit || '') + '</div>' +
+                            '<div style="margin-top:5px;">本月限购数量：<strong>' + drug.Xgsl + '</strong> ' + (drug.GUnit || '') + '</div>' +
+                            '<div style="margin-top:5px;">已超过限购数量是否继续开药？</div>' +
+                            '<div style="margin-top:8px;color:#6c757d;font-size:12px;">点击"继续购药"后才会显示药品信息</div>' +
+                            '</div>'
+                        );
+                        $('#drugLimitModal').modal('show');
+                        return;
+                    }
                     currentDrugInfo = drug;
                     displayDrugInfo(drug, false);
-                    list.hide();
                 });
                 list.append(item);
             });
@@ -821,6 +973,42 @@
                 return;
             }
 
+            // 限购数量检查：本月已购数量 + 当前处方列表中已存在的数量 + 本次输入数量 是否超过 Xgsl
+            var xgsl = parseInt(currentDrugInfo.Xgsl || 0);
+            if (xgsl > 0) {
+                var yyPurchased = parseInt(currentDrugInfo.YYPurchasedQty || 0);
+                var inListQty = 0;
+                for (var i = 0; i < prescriptionDrugs.length; i++) {
+                    if (prescriptionDrugs[i].GCODE === currentDrugInfo.GCODE) {
+                        inListQty += parseInt(prescriptionDrugs[i].Quantity || 0);
+                    }
+                }
+                var totalAfterAdd = yyPurchased + inListQty + qty;
+                if (totalAfterAdd > xgsl) {
+                    pendingAddDrugQty = qty;
+                    $('#addDrugLimitBody').html(
+                        '<div style="text-align:center;font-size:14px;color:#856404;">' +
+                        '<i class="glyphicon glyphicon-warning-sign" style="font-size:32px;color:#ffc107;"></i>' +
+                        '<div style="margin-top:10px;">药品：<strong style="color:#d9534f;">' + currentDrugInfo.GNAME + '</strong></div>' +
+                        '<div style="margin-top:5px;">本月限购：<strong>' + xgsl + '</strong> ' + (currentDrugInfo.GUnit || '') + '</div>' +
+                        '<div style="margin-top:5px;">本月已购：<strong>' + yyPurchased + '</strong> ' + (currentDrugInfo.GUnit || '') + '</div>' +
+                        '<div style="margin-top:5px;">本次将购：<strong>' + qty + '</strong> ' + (currentDrugInfo.GUnit || '') + '</div>' +
+                        '<div style="margin-top:5px;">合计 <strong style="color:#d9534f;font-size:18px;">' + totalAfterAdd + '</strong> ' + (currentDrugInfo.GUnit || '') + '，已超过限购数量</div>' +
+                        '<div style="margin-top:5px;">是否继续购药？</div>' +
+                        '<div style="margin-top:8px;color:#6c757d;font-size:12px;">点击"继续购药"才会添加到订单列表</div>' +
+                        '</div>'
+                    );
+                    $('#addDrugLimitModal').modal('show');
+                    return;
+                }
+            }
+
+            // 未超限购，直接添加
+            doAddDrugToPrescription(qty);
+        }
+
+        // 实际执行添加药品到列表的逻辑
+        function doAddDrugToPrescription(qty) {
             var existingIndex = -1;
             for (var i = 0; i < prescriptionDrugs.length; i++) {
                 if (prescriptionDrugs[i].GCODE === currentDrugInfo.GCODE) {
@@ -835,6 +1023,7 @@
             } else {
                 var drugItem = {
                     GCODE: currentDrugInfo.GCODE,
+                    GTXM: currentDrugInfo.GTXM,
                     GNAME: currentDrugInfo.GNAME,
                     SPShortCode: currentDrugInfo.SPShortCode,
                     GDJ: currentDrugInfo.GDJ,
@@ -851,6 +1040,19 @@
             clearDrugInput();
             $('#drugCode').val('').focus();
             $('#drugFoundHint').hide();
+        }
+
+        // 添加药品限购 - 用户点击"继续购药"：添加到订单列表
+        function onContinueAddDrug() {
+            if (pendingAddDrugQty > 0 && currentDrugInfo) {
+                doAddDrugToPrescription(pendingAddDrugQty);
+                pendingAddDrugQty = 0;
+            }
+        }
+
+        // 添加药品限购 - 用户点击"取消"：不添加到订单列表
+        function onCancelAddDrug() {
+            pendingAddDrugQty = 0;
         }
 
         function renderPrescriptionList() {
@@ -988,6 +1190,7 @@
             $.each(prescriptionDrugs, function (i, drug) {
                 drugList.push({
                     GCODE: drug.GCODE,
+                    GTXM: drug.GTXM,
                     GNAME: drug.GNAME,
                     SPShortCode: drug.SPShortCode,
                     GDJ: drug.GDJ,

@@ -295,7 +295,7 @@
                     <tr>
                         <th>Excel</th>
                         <td colspan="4">
-                            <input id="excelFileName" name="excelFileName" type="file" />
+                            <input id="excelFileName" name="excelFileName" type="file" accept=".xls,.xlsx,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
                             <input id="excelAction" name="action" type="hidden" />
                             <input id="excelBid" name="excelBid" type="hidden" />
                             
@@ -340,7 +340,7 @@
 
                     <form id="ffBankExcel" method="post" enctype="multipart/form-data">
                         <input type="hidden" id="BankResultExcelBid" name="BankResultExcelBid" />@*退回动作*@
-                        银行文件:<input type="file" id="BankResultFileName" name="BankResultFileName" />
+                        银行文件:<input type="file" id="BankResultFileName" name="BankResultFileName" accept=".xls,.xlsx,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
                         <a id="btnBankResultDo" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-ok'" onclick="ImportBankExcelResult()">确认</a>
 
                     </form>

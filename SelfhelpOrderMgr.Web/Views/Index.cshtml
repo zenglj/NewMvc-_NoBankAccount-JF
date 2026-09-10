@@ -1,0 +1,209 @@
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>银行充值记录管理系统</title>
+    @{Html.RenderPartial("~/Views/Shared/_PartialHeadPage.cshtml");}
+
+    <style>
+        .xml-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+            .xml-table th {
+                background: #f5f5f5;
+                text-align: left;
+                padding: 8px;
+                border: 1px solid #ddd;
+            }
+
+            .xml-table td {
+                padding: 8px;
+                border: 1px solid #ddd;
+            }
+
+                .xml-table td.break-nicely {
+                    word-break: break-word;
+                    overflow-wrap: break-word;
+                }
+
+        .section-title {
+            font-weight: bold;
+            background: #e6e6e6;
+            padding: 5px;
+            margin-top: 15px;
+        }
+
+        .tr-small {
+            height: 25px;
+        }
+
+        .tr-medium {
+            height: 40px;
+        }
+
+        .tr-large {
+            height: 60px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 查询表单 -->
+    <input type="hidden" id="powerId" value="@ViewData["id"]" />
+    <div id="tb" style="padding:3px">
+
+        <span>编号:</span>
+        <input id="crimeCode" name="FCode" class="easyui-textbox" style="width:100px">
+        <span>姓名:</span>
+        <input id="crimeName" name="FName" class="easyui-textbox" style="width:100px">
+        <span>订单号:</span>
+        <input id="schPayls" name="Payls" class="easyui-textbox" style="width:100px">
+        <span>来源:</span>
+        <input id="schSource" name="Source" class="easyui-textbox" style="width:100px">
+        <span>状态:</span>
+        <select id="schFlag" name="Status" class="easyui-combobox" style="width:100px">
+            <option value="">请查询</option>
+            <option value="0">待审核</option>
+            <option value="1">已审核</option>
+            <option value="2">已拒绝</option>
+        </select>
+
+        <span>充值日期:</span>
+        <input id="rechargeDate_Start" name="RechargeDate_Start" class="easyui-datebox" style="width:100px">
+        至<input id="rechargeDate_End" name="RechargeDate_End" class="easyui-datebox" style="width:100px">
+        <a href="#" class="easyui-linkbutton" iconCls="icon-search" onclick="doSearch()">查询</a>
+
+        <a href="#" class="easyui-linkbutton" iconCls="icon-redo" onclick="doExcelOut()">Excel导出</a>
+
+    </div>
+
+
+    <!-- 数据表格 -->
+    <table id="dg" class="easyui-datagrid" style="width:100%;height:400px"
+           url="/Recharge/GetRechargeList"
+           toolbar="#tb" pagination="true"
+           rownumbers="true" fitColumns="true" singleSelect="false">
+        <thead>
+            <tr>
+                <th field="ck" data-options="checkbox:true"></th>
+                <th field="Id" width="50">Id</th>
+                <th field="Payls" width="80">订单号</th>
+                <th field="FCode" width="80">编号</th>
+                <th field="FName" width="100">姓名</th>
+                <th field="Source" width="80">来源</th>
+                <th field="Amount" width="100">金额</th>
+                <th field="Status" width="80" formatter="formatStatus">状态</th>
+                <th field="FamilyName" width="100">家属</th>
+                <th field="Relation" width="100">关系</th>
+                <th field="PhoneNum" width="100">手机</th>
+                <th field="Remark" width="100">备注</th>
+                <th field="RechargeDate" width="100" formatter="formatDate">充值时间</th>
+                <th field="VerifyDate" width="100" formatter="formatDate">审核时间</th>
+                <th field="操作" width="100" formatter="operateFormatter">操作</th>
+            </tr>
+        </thead>
+    </table>
+
+    <!-- 详情对话框 -->
+    <div id="dlg" class="easyui-dialog" closed="true" buttons="#dlg-buttons" title="充值详情" style="width:400px">
+
+        <div id="payDetail">
+
+        </div>
+    </div>
+
+
+    <!-- 对话框按钮 -->
+    <div id="dlg-buttons">
+        <a href="#" class="easyui-linkbutton" iconCls="icon-cancel" onclick="$('#dlg').dialog('close')">关闭</a>
+    </div>
+
+
+    <script src="~/Scripts/myJs/myNewCommonJs.js"></script>
+    <script>
+        // 初始化组件
+        $(function () {
+            $('#dg').datagrid({
+                pageSize: 20,
+                pageList: [10, 20, 50, 100, 200, 500]
+            });
+        });
+
+
+        // 格式化操作列
+        function operateFormatter(value, row) {
+            let btns = ``;
+            btns += `<a href="#" onclick="viewRecord('${row.Id}')">✎查看</a>`;
+            return btns;
+        }
+
+        // 查询功能
+        function doSearch() {
+            var jsonString = getDivInputsToJson("tb");
+            $('#dg').datagrid('load', {
+                strJsonWhere: jsonString
+            });
+        }
+
+        // 查看记录详情
+        function viewRecord(id) {
+            $.post('/Recharge/GetRechargeRecord?id=' + id, function (data) {
+                $('#dlg').dialog('open').dialog('center').dialog('setTitle', '充值详情');
+                $("#payDetail").html("");
+                var html = "";
+                html += '<div class="section-title">充值单信息</div>';
+                html += '<table class="xml-table">';
+                html += "<tr><th style='width:20%'>订单号:</th><td>" + (data.Payls || '') + "</td></tr>";
+                html += "<tr><th>罪犯编号:</th><td>" + (data.FCode || '') + "</td></tr>";
+                html += "<tr><th>罪犯姓名:</th><td>" + (data.FName || '') + "</td></tr>";
+                html += "<tr><th>充值金额:</th><td>" + (data.Amount || 0) + "</td></tr>";
+                html += "<tr><th>来源:</th><td>" + (data.Source || '') + "</td></tr>";
+                html += "<tr><th>家属姓名:</th><td>" + (data.FamilyName || '') + "</td></tr>";
+                html += "<tr><th>关系:</th><td>" + (data.Relation || '') + "</td></tr>";
+                html += "<tr><th>手机号:</th><td>" + (data.PhoneNum || '') + "</td></tr>";
+                html += "<tr><th>状态:</th><td>" + formatStatus(data.Status) + "</td></tr>";
+                html += "<tr><th>订单信息:</th><td>" + (data.Memo || '') + "</td></tr>";
+                html += "<tr class='tr-large'><th style='width:20%'>摘要信息:</th><td><textarea rows='5' style='width:95%' readonly>" + (data.Remark || '') + "</textarea></td></tr>";
+                html += '</table>';
+                $("#payDetail").append(html);
+            });
+        }
+
+
+        // Excel导出
+        function doExcelOut() {
+            var jsonString = getDivInputsToJson("tb");
+
+            $.post("/Recharge/DoRechargeExcelOut", { strJsonWhere: jsonString }, function (data) {
+                if (data.Flag) {
+                    window.open("/Upload/" + data.DataInfo);
+                }
+                else {
+                    $.messager.alert("提示", data.ReMsg);
+                }
+            });
+        }
+
+
+        // 日期格式化
+        function formatDate(value) {
+            if (!value) return '';
+            return new Date(value).toLocaleDateString();
+        }
+
+        // 状态格式化
+        function formatStatus(value) {
+            const statusMap = { 0: '待审核', 1: '已审核', 2: '已拒绝' };
+            return statusMap[value] || '未知状态';
+        }
+
+
+    </script>
+</body>
+</html>

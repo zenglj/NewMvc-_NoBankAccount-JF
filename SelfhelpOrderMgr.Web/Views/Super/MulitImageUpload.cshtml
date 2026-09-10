@@ -1,4 +1,4 @@
-﻿
+
 @{
     Layout = null;
 }
@@ -56,6 +56,12 @@
 
     $('#test').diyUpload({
         url: '/Super/BatchUploadImages',
+        //限制只能上传 jpg/png 图片
+        accept: {
+            title: 'Images',
+            extensions: 'jpg,jpeg,png',
+            mimeTypes: 'image/jpeg,image/png'
+        },
         success: function (data) {
             console.info(data);
         },
