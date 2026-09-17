@@ -253,7 +253,17 @@ namespace SelfhelpOrderMgr.Model
         }
 
         //商品的等级名称 如A、B、C、D
-        public string LevelName { get; set; }
+        public string LevelName { get; set; } = "";
+
+        /// <summary>
+        /// 保质期天数
+        /// </summary>
+        public string SellByDay { get; set; } = "";
+
+        /// <summary>
+        /// 价格改变标志
+        /// </summary>
+        public int PriceChangeFlag { get; set; } = 0;
     }
 }
 

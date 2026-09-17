@@ -1,4 +1,4 @@
-﻿//用户列表清单
+//用户列表清单
 $('#test').datagrid({
     //title: '用户列表',
     iconCls: 'icon-save',

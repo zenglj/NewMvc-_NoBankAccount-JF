@@ -31,9 +31,9 @@ namespace SelfhelpOrderMgr.DAL
         {
             StringBuilder strSql = new StringBuilder();
             strSql.Append("insert into T_Goods(");
-            strSql.Append("GCODE,CrtBy,Crtdt,ModBy,Moddt,GBalance,ACTIVE,COMBFLAG,gindj,subflag,madein,GNAME,Ffreeflag,balflag,Serviceflag,gjm,src,data,Xgsl,XgMode,GTYPE,GUnit,GStandard,GDJ,GSupplyer,GTXM,SPShortCode");
+            strSql.Append("GCODE,CrtBy,Crtdt,ModBy,Moddt,GBalance,ACTIVE,COMBFLAG,gindj,subflag,madein,GNAME,Ffreeflag,balflag,Serviceflag,gjm,src,data,Xgsl,XgMode,GTYPE,GUnit,GStandard,GDJ,GSupplyer,GTXM,SPShortCode,LevelName,SellByDay");
             strSql.Append(") values (");
-            strSql.Append("@GCODE,@CrtBy,@Crtdt,@ModBy,@Moddt,@GBalance,@ACTIVE,@COMBFLAG,@gindj,@subflag,@madein,@GNAME,@Ffreeflag,@balflag,@Serviceflag,@gjm,@src,@data,@Xgsl,@XgMode,@GTYPE,@GUnit,@GStandard,@GDJ,@GSupplyer,@GTXM,@SPShortCode");
+            strSql.Append("@GCODE,@CrtBy,@Crtdt,@ModBy,@Moddt,@GBalance,@ACTIVE,@COMBFLAG,@gindj,@subflag,@madein,@GNAME,@Ffreeflag,@balflag,@Serviceflag,@gjm,@src,@data,@Xgsl,@XgMode,@GTYPE,@GUnit,@GStandard,@GDJ,@GSupplyer,@GTXM,@SPShortCode,@LevelName,@SellByDay");
             strSql.Append(") ");
 
             SqlParameter[] parameters = {
@@ -63,8 +63,12 @@ namespace SelfhelpOrderMgr.DAL
                         new SqlParameter("@GDJ", SqlDbType.Decimal,5) ,            
                         new SqlParameter("@GSupplyer", SqlDbType.VarChar,20) ,            
                         new SqlParameter("@GTXM", SqlDbType.VarChar,50) ,            
-                        new SqlParameter("@SPShortCode", SqlDbType.VarChar,50)             
-              
+                        new SqlParameter("@SPShortCode", SqlDbType.VarChar,50),
+                        new SqlParameter("@LevelName", SqlDbType.VarChar,50),
+                        new SqlParameter("@SellByDay", SqlDbType.VarChar,50)
+                        
+
+
             };
 
             parameters[0].Value = model.GCODE;
@@ -94,6 +98,8 @@ namespace SelfhelpOrderMgr.DAL
             parameters[24].Value = model.GSupplyer;
             parameters[25].Value = model.GTXM;
             parameters[26].Value = model.SPShortCode;
+            parameters[27].Value = model.LevelName;
+            parameters[28].Value = model.SellByDay;
             int i=SqlHelper.ExecuteSql(strSql.ToString(), parameters);
             if (i > 0)
             {

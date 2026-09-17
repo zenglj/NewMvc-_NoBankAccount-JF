@@ -114,7 +114,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 string strFCrimeName = Request["fCrimeName"];//姓名                
                 string wselCrtBy = Request["wselCrtBy"];//消费机号
                 string rtnBankFlag = Request["rtnBankFlag"];//回款状态
-                
+                string strRoomNos = Request["roomNos"];//房号（可多选，逗号分隔）
+
                 //string typeFlag = Request["typeFlag"];
                 //if (string.IsNullOrEmpty(typeFlag) == true)
                 //{
@@ -123,7 +124,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 string typeFlag = id.ToString();
                 
                 //获取查询条件的SQL
-                StringBuilder strSql = GetInvoiceSearchSql(wselCrtBy, strAreaName, strStartDate, strEndDate, strRemark, strFCrimeCode, strFCrimeName, typeFlag);
+                StringBuilder strSql = GetInvoiceSearchSql(wselCrtBy, strAreaName, strStartDate, strEndDate, strRemark, strFCrimeCode, strFCrimeName, typeFlag, strRoomNos);
                 strSql.Append(" and Flag=1 and isnull(CheckFlag,0)=0 ");
                 switch (rtnBankFlag)
                 {
@@ -898,7 +899,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
             return strSql;
         }
 
-        private static StringBuilder GetInvoiceSearchSql(string wselCrtBy, string strAreaName, string strStartDate, string strEndDate, string strRemark, string strFCrimeCode, string strFCrimeName, string typeFlag)
+        private static StringBuilder GetInvoiceSearchSql(string wselCrtBy, string strAreaName, string strStartDate, string strEndDate, string strRemark, string strFCrimeCode, string strFCrimeName, string typeFlag, string roomNos)
         {
             int whereFlag = 0;
             StringBuilder strSql = new StringBuilder();
@@ -921,6 +922,35 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 {
                     strSql.Append(" and FAreaName in( select fname from t_area where fname='" + strAreaName + @"' or fid in(
                                     select id from t_area where fname='" + strAreaName + "') ) ");
+                }
+            }
+            //房号（可多选，逗号分隔）
+            if (string.IsNullOrEmpty(roomNos) == false)
+            {
+                string[] roomArr = roomNos.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                if (roomArr.Length > 0)
+                {
+                    List<string> safeRooms = new List<string>();
+                    foreach (string room in roomArr)
+                    {
+                        string r = room.Trim();
+                        if (r.Length > 0)
+                        {
+                            safeRooms.Add("'" + r.Replace("'", "''") + "'");
+                        }
+                    }
+                    if (safeRooms.Count > 0)
+                    {
+                        if (whereFlag == 0)
+                        {
+                            strSql.Append(" RoomNo in (" + string.Join(",", safeRooms) + ") ");
+                            whereFlag = 1;
+                        }
+                        else
+                        {
+                            strSql.Append(" and RoomNo in (" + string.Join(",", safeRooms) + ") ");
+                        }
+                    }
                 }
             }
             //开始日期

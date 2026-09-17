@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+﻿﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SelfhelpOrderMgr.BLL;
 using SelfhelpOrderMgr.Model;
@@ -1829,6 +1829,11 @@ namespace SelfhelpOrderMgr.Web.Controllers
                                 {
                                     model.Ffreeflag = 0;
                                 }
+                                if(string.IsNullOrEmpty(model.SellByDay))
+                                {
+                                    model.SellByDay = "";
+                                }
+                                model.PriceChangeFlag = 0;
 
                                 try
                                 {

@@ -60,11 +60,12 @@ namespace SelfhelpOrderMgr.Web.Filters
 				ControlName = controllerName,
 				ActionName = actionName,
 				ReqJson = reqText,
-				RtnJson = rtnText,
+				RtnJson = rtnText==null?"":rtnText,
 				UserCode = (userName == null) ? "" : userName,
 				CrtDate = DateTime.Now,
 				Remark = "测试01"
 			};
+			
 			new BaseDapperBLL().Insert<T_SysOperationLog>(i);
 			Log4NetHelper.logger.Info(Newtonsoft.Json.JsonConvert.SerializeObject(i));
 		}

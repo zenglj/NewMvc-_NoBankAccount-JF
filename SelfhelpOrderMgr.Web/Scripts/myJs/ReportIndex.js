@@ -1,4 +1,4 @@
-﻿//====================================================
+//====================================================
 //=====定义模块变量===================================
 var selCashTypes = "";//存款类型
 var selPayTypes = "";//取款类型
@@ -112,7 +112,27 @@ function loadDetailTable() {
         singleSelect: true,
         striped: true,
         collapsible: true,
-        url: '/Report/GetSearchVcrds/',
+        //自定义loader：以JSON body方式发送查询条件给后端[FromBody]接口，
+        //同时让datagrid自身管理分页(page/rows)，使更改每页行数能生效
+        loader: function (param, success, error) {
+            $.ajax({
+                url: '/Report/GetSearchVcrds/',
+                type: 'POST',
+                contentType: 'application/json;charset=utf-8',
+                data: JSON.stringify(param),
+                success: function (res) {
+                    try {
+                        var data = typeof res === 'string' ? $.parseJSON(res) : res;
+                        success(data);
+                    } catch (e) {
+                        error.apply(this, arguments);
+                    }
+                },
+                error: function (xhr) {
+                    error.apply(this, arguments);
+                }
+            });
+        },
         sortName: 'seqno',
         sortOrder: 'asc',
         showFooter:true,
@@ -331,34 +351,9 @@ function getFormDataById(schFormId) {
 
 function btnSearch() {
 
-    var schJson=getFormDataById('schForm');
-    var rows = $("#test").datagrid('getRows');
-    if (rows != null) {
-        for (var i = rows.length - 1; i >= 0; i--) {
-            $("#test").datagrid('deleteRow', 0);
-        }
-    }
-    
-    //alert($("#FCashTypes").combobox('getValues'));
-
-    //GetQueryComboboxValues();//获取查询栏里多选框里的值
-    //alert(selFFlags);
-
-
-
-    //$('#test').datagrid('load', $.parseJSON(schJson));
-
-    $.ajax({
-        url: '/Report/GetSearchVcrds/',
-        type: 'POST',
-        contentType: 'application/json;charset=utf-8', // 必须指定为 JSON
-        data: schJson,                // 必须转换为 JSON 字符串
-        success: function (res) {
-            console.log(res);
-            $('#test').datagrid('loadData', $.parseJSON(res));
-        }
-    });
-
+    var schJson = getFormDataById('schForm');
+    //改用datagrid('load')，让分页器自动管理page/rows，更改每页行数能正确生效
+    $('#test').datagrid('load', $.parseJSON(schJson));
 
 }
 

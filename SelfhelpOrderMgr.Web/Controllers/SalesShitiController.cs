@@ -1001,6 +1001,18 @@ namespace SelfhelpOrderMgr.Web.Controllers
                     T_Criminal criminal = new T_CriminalBLL().GetCriminalXE_info(fcrimecode, saleTypes[0].Id);
                     List<T_InvoiceDTL> details = new T_InvoiceDTLBLL().GetModelList("InvoiceNo='" + invoice.InvoiceNo + "'");
 
+                    #region 结算成功后，扣减 T_GOODSSTOCKMAIN 库存量
+                    try
+                    {
+                        ReduceGoodsStock(details);
+                    }
+                    catch (Exception stockEx)
+                    {
+                        //库存扣减失败不阻断结算流程，仅记录日志
+                        System.Diagnostics.Debug.WriteLine("扣减库存失败：" + stockEx.Message);
+                    }
+                    #endregion
+
                     rtns.details = details;
                     rtns.invoice = invoice;
                     rtns.criminal = criminal;
@@ -1024,6 +1036,46 @@ namespace SelfhelpOrderMgr.Web.Controllers
             {
                 rs.ReMsg = "Err|更新订单状态为提交时失败。";
                 return Json(rs);
+            }
+        }
+
+        /// <summary>
+        /// 结算成功后扣减 T_GOODSSTOCKMAIN 库存量
+        /// 不存在该商品记录则新增，存在则减少 Balance
+        /// </summary>
+        /// <param name="details">发票明细列表</param>
+        private void ReduceGoodsStock(List<T_InvoiceDTL> details)
+        {
+            if (details == null || details.Count == 0) return;
+
+            //按 GCODE 分组汇总数量
+            var grouped = details.Where(d => !string.IsNullOrEmpty(d.GCODE))
+                                 .GroupBy(d => d.GCODE)
+                                 .Select(g => new { GCode = g.Key, TotalQty = g.Sum(d => d.QTY) });
+
+            T_GOODSSTOCKMAINBLL stockBll = new T_GOODSSTOCKMAINBLL();
+            foreach (var item in grouped)
+            {
+                string safeGCode = item.GCode.Replace("'", "''");
+                List<T_GOODSSTOCKMAIN> stockList = stockBll.GetModelList("GCode='" + safeGCode + "'");
+                if (stockList == null || stockList.Count == 0)
+                {
+                    //不存在该商品库存记录，则新增一条（Balance 为负数，表示已售出但未入库）
+                    T_GOODSSTOCKMAIN newStock = new T_GOODSSTOCKMAIN();
+                    newStock.GCODE = item.GCode;
+                    newStock.BALANCE = -item.TotalQty;
+                    newStock.TMPBALANCE = 0;
+                    newStock.WareHouseCode = "";
+                    newStock.LastDate = DateTime.Now;
+                    stockBll.Add(newStock);
+                }
+                else
+                {
+                    //已存在，扣减 Balance
+                    T_GOODSSTOCKMAIN stock = stockList[0];
+                    stock.BALANCE = stock.BALANCE - item.TotalQty;
+                    stockBll.Update(stock);
+                }
             }
         }
 

@@ -150,21 +150,25 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
             //分页信息
             //string action = Request["action"];
-            string strPage = Request["page"];
-            string strRow = Request["rows"];
-            int page = 1;
-            int row = 10;
+            //string strPage = Request["page"];
+            //string strRow = Request["rows"];
+            //int page = 1;
+            //int row = 10;
             decimal listRows = 0;
             string sss = "";
-            if (string.IsNullOrEmpty(strPage) == false)
-            {
-                page = Convert.ToInt32(strPage);
-            }
+            //if (string.IsNullOrEmpty(strPage) == false)
+            //{
+            //    page = Convert.ToInt32(strPage);
+            //}
 
-            if (string.IsNullOrEmpty(strRow) == false)
-            {
-                row = Convert.ToInt32(strRow);
-            }
+            //if (string.IsNullOrEmpty(strRow) == false)
+            //{
+            //    row = Convert.ToInt32(strRow);
+            //}
+
+            int page = req.page;
+            int row = req.rows;
+            
 
             //var sm = new T_VcrdBLL().GetListCount(strWhere.ToString());
             var sm = new BaseDapperBLL().QueryList<decimal>("select isnull( count(1),0) from t_Vcrd where " + strWhere, paramSchVcrds);

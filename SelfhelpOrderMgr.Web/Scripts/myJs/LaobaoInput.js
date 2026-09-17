@@ -1,4 +1,4 @@
-﻿$(function () {
+$(function () {
     //jquery js 当文本框获得焦点时，自动选中里面的文字
     $(function () {
         $(":text").focus(function () {
@@ -232,10 +232,11 @@ function DelAllDetailList(bid) {
 //检查目标审批人是否为空
 function checkTargitAppvBy() {
     var targitUser = $("#TargetUser").combobox("getValue");
-    if (targitUser == null || targitUser == "undefined") {
+    if (targitUser == null || targitUser == "undefined" || targitUser == "") {
         $.messager.alert('提示', "审批人不能为空");
         return false;
     }
+    return true;
 }
 
 //确定提交主单
@@ -280,76 +281,80 @@ function SubmitMainOrder(bid) {
 
 //审核已经提交的主单
 function AuditMain(bid) {
-    checkTargitAppvBy();//检查目标审批人是否为空
+    if (!checkTargitAppvBy()) return false;//检查目标审批人是否为空
     var row = $("#mainOrderTable").datagrid("getSelected");
     if (row == null) {
-        $.messager.alert("请选择一条劳报主单记录");
+        $.messager.alert('提示', '请选择一条劳报主单记录');
         return false;
     }
-    if (row.FCheckFlag == 1) {
-        if (row.auditflag == 0) {
-            $.post("/Laobao/AuditMainOrder", { "sbid": row.BID, "TargetUser": $("#TargetUser").combobox("getValue")}, function (data, status) {
-                if (status == "success") {
-                    var words = data.split(".");
-                    if (words[0] == "OK") {
-                        //更新确认状态                                                
-                        UpdateMainOrderStatus("1","auditflag");
-                        $.messager.alert('提示', words[1]);
-                        return false;
-                    } else {
-                        $.messager.alert('提示', data);
-                    }
-                } else {
-                    alert("通信失败");
-                }
-            });
-        } else {
-            $.messager.alert("该主单已经审核，无需再审核");
-            return false;
-        }
-
-    } else {
-        $.messager.alert("该定单未提交确认，不能审核");
+    if (row.FCheckFlag != 1) {
+        $.messager.alert('提示', '该主单未提交确认，不能审核');
         return false;
     }
-    
+    if (row.auditflag != 0) {
+        $.messager.alert('提示', '该主单已经审核，无需再审核');
+        return false;
+    }
+    $.messager.confirm('审核确认', '确认审核通过该主单？<br/>编号：' + row.BID + '<br/>队别：' + (row.FAreaName || '') + '<br/>年月：' + (row.FYearMonth || ''), function (r) {
+        if (!r) return;
+        $.messager.progress({ title: '审核中', msg: '正在提交审核...' });
+        $.post("/Laobao/AuditMainOrder", { "sbid": row.BID, "TargetUser": $("#TargetUser").combobox("getValue") }, function (data, status) {
+            $.messager.progress('close');
+            if (status != "success") {
+                $.messager.alert('提示', '通信失败');
+                return;
+            }
+            var words = (data || '').split(".");
+            if (words[0] == "OK") {
+                UpdateMainOrderStatus("1", "auditflag");
+                $.messager.alert('提示', words[1] || '审核成功', 'info');
+            } else {
+                $.messager.alert('提示', data || '审核失败');
+            }
+        }).error(function () {
+            $.messager.progress('close');
+            $.messager.alert('提示', '通信失败');
+        });
+    });
 }
 
 //复核已经提交的主单
 function DbCheckMain(bid) {
-    checkTargitAppvBy();//检查目标审批人是否为空
+    if (!checkTargitAppvBy()) return false;
     var row = $("#mainOrderTable").datagrid("getSelected");
     if (row == null) {
-        $.messager.alert("请选择一条劳报主单记录");
+        $.messager.alert('提示', '请选择一条劳报主单记录');
         return false;
     }
-    if (row.auditflag == 1) {
-        if (row.Fdbcheckflag == 0) {
-            $.post("/Laobao/DbCheckMainOrder", { "sbid": row.BID, "TargetUser": $("#TargetUser").combobox("getValue") }, function (data, status) {
-                if (status == "success") {
-                    var words = data.split(".");
-                    if (words[0] == "OK") {
-                        //更新确认状态                                                
-                        UpdateMainOrderStatus("1","Fdbcheckflag");
-                        $.messager.alert('提示', "提交成功");
-                        return false;
-                    } else {
-                        $.messager.alert('提示', data);
-                    }
-                } else {
-                    alert("通信失败");
-                }
-            });
-        } else {
-            $.messager.alert("该主单已经审核，无需再审核");
-            return false;
-        }
-
-    } else {
-        $.messager.alert("该定单未提交确认，不能审核");
+    if (row.auditflag != 1) {
+        $.messager.alert('提示', '该主单未审核，不能复核');
         return false;
     }
-
+    if (row.Fdbcheckflag != 0) {
+        $.messager.alert('提示', '该主单已经复核，无需再复核');
+        return false;
+    }
+    $.messager.confirm('复核确认', '确认复核通过该主单？<br/>编号：' + row.BID + '<br/>队别：' + (row.FAreaName || '') + '<br/>年月：' + (row.FYearMonth || ''), function (r) {
+        if (!r) return;
+        $.messager.progress({ title: '复核中', msg: '正在提交复核...' });
+        $.post("/Laobao/DbCheckMainOrder", { "sbid": row.BID, "TargetUser": $("#TargetUser").combobox("getValue") }, function (data, status) {
+            $.messager.progress('close');
+            if (status != "success") {
+                $.messager.alert('提示', '通信失败');
+                return;
+            }
+            var words = (data || '').split(".");
+            if (words[0] == "OK") {
+                UpdateMainOrderStatus("1", "Fdbcheckflag");
+                $.messager.alert('提示', words[1] || '复核成功', 'info');
+            } else {
+                $.messager.alert('提示', data || '复核失败');
+            }
+        }).error(function () {
+            $.messager.progress('close');
+            $.messager.alert('提示', '通信失败');
+        });
+    });
 }
 
 //财务入账到VCRD的主单
@@ -813,39 +818,79 @@ function SubmitMain() {
     SubmitMainOrder(okRow.BID);//确认提交主单
 }
 
+//退回动作映射
+var undoActionMap = {
+    'undoSubmit': { title: '退回中队', tip: '退回中队（撤销提交确认）', reason: '主单信息有误，退回中队修正' },
+    'undoAudit': { title: '退回审核', tip: '退回审核（撤销审核）', reason: '需要重新审核' },
+    'undoDbCheck': { title: '退回复核', tip: '退回复核（撤销复核）', reason: '需要重新复核' }
+};
+
 //取消提交确认，退回监区
 function undoSubmitAction(undoAction) {
     var okRow = $("#mainOrderTable").datagrid('getSelected');
-    if (okRow == null)
-    {
-        $.messager.alert("提示", "请选择一条主单");
+    if (okRow == null) {
+        $.messager.alert('提示', '请选择一条主单');
         return false;
     }
-    $("#FrealAreaName").val('');
+    var actionInfo = undoActionMap[undoAction] || { title: '审核退回', tip: '退回原因说明', reason: '' };
+    //回填当前操作主单信息
     $("#undoAction").val(undoAction);
-    $("#winShenHuYuanYing").window('open');
+    $("#undoBid").val(okRow.BID);
+    $("#auditUndoBID").text(okRow.BID || '-');
+    $("#auditUndoAreaName").text(okRow.FAreaName || okRow.FrealAreaName || '-');
+    $("#auditUndoYearMonth").text(okRow.FYearMonth || '-');
+    $("#auditUndoRemark").text(okRow.FRemark || okRow.FRealRemark || '-');
+    $("#auditUndoActionTip").text(actionInfo.tip);
+    $("#FrealAreaName").val(actionInfo.reason);
+    //动态设置窗口标题并打开
+    $("#winShenHuYuanYing").window('open').window('setTitle', actionInfo.title).window('center');
+}
 
-    //SubmitMainOrder(okRow.BID);//确认提交主单
+//填充退回意见（快捷按钮用）
+function fillAuditReason(reason) {
+    $("#FrealAreaName").val(reason).focus();
+}
+
+//关闭退回窗口
+function closeAuditUndoWin() {
+    $("#winShenHuYuanYing").window('close');
+    $("#undoAction").val('');
+    $("#undoBid").val('');
+    $("#FrealAreaName").val('');
 }
 
 //提交退出操作，到后台去执行
 function undoYuanYingTJ() {
     var okRow = $("#mainOrderTable").datagrid('getSelected');
     if (okRow == null) {
-        $.messager.alert("提示", "请选择一条主单");
+        $.messager.alert('提示', '请选择一条主单');
         return false;
     }
     var undoAction = $("#undoAction").val();
     var undoRemark = $("#FrealAreaName").val();
+    if (!undoAction) {
+        $.messager.alert('提示', '未识别退回动作，请重新操作');
+        return false;
+    }
+    if (!undoRemark || $.trim(undoRemark) === '') {
+        $.messager.alert('提示', '退回意见不能为空，请填写退回原因');
+        $("#FrealAreaName").focus();
+        return false;
+    }
+    $.messager.progress({ title: '处理中', msg: '正在提交退回...' });
     $.post("/Laobao/undoYuanYingTJ/" + $("#PowerId").val(), {
         "Bid": okRow.BID,
         "undoAction": undoAction,
         "undoRemark": undoRemark
     }, function (data, status) {
-        if (status == "success") {
-            var words = data.split("|");
-            if (words[0] == "OK") {
-                //$.messager.alert('提示', "删除成功");
+        $.messager.progress('close');
+        if (status != "success") {
+            $.messager.alert('提示', '通信失败');
+            return;
+        }
+        var words = (data || '').split("|");
+        if (words[0] == "OK") {
+            try {
                 var bonus = $.parseJSON(words[1]);
                 var idx = $('#mainOrderTable').datagrid('getRowIndex', okRow);
                 $('#mainOrderTable').datagrid('updateRow', {
@@ -860,15 +905,18 @@ function undoYuanYingTJ() {
                 });
                 var rowData = $("#mainOrderTable").datagrid('getSelected');
                 SetMainOrderTooltip(rowData);//设定主单的状态提示信息
-                $("#undoAction").val('');
-                $("#FrealAreaName").val('');
-                $("#winShenHuYuanYing").window('close');
-            } else {
-                $.messager.alert('提示', words[1]);
+            } catch (e) {
+                //JSON解析失败时直接刷新列表
+                $('#mainOrderTable').datagrid('reload');
             }
+            closeAuditUndoWin();
+            $.messager.alert('提示', '退回成功', 'info');
         } else {
-            $.messager.alert('提示', "通信失败");
+            $.messager.alert('提示', words[1] || '退回失败');
         }
+    }).error(function () {
+        $.messager.progress('close');
+        $.messager.alert('提示', '通信失败');
     });
 }
 

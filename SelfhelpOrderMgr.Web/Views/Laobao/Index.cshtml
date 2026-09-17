@@ -11,6 +11,36 @@
     @{Html.RenderPartial("~/Views/Shared/_PartialHeadPage.cshtml");}
     <script src="~/Scripts/diyUpload/js/webuploader.html5only.min.js"></script>
     <script src="~/Scripts/diyUpload/js/diyUpload.js"></script>
+    <style>
+        /* 审核退回弹窗美化样式 */
+        .audit-undo-panel { padding: 15px; font-size: 12px; }
+        .audit-undo-panel .audit-info-box {
+            background: #f5f5f5; border: 1px solid #ddd; border-radius: 4px;
+            padding: 10px; margin-bottom: 12px;
+        }
+        .audit-undo-panel .audit-info-box .info-row { line-height: 22px; }
+        .audit-undo-panel .audit-info-box .info-label { color: #888; display: inline-block; width: 80px; }
+        .audit-undo-panel .audit-info-box .info-value { color: #333; font-weight: bold; }
+        .audit-undo-panel .audit-action-tip {
+            color: #fff; background: #f0a020; padding: 4px 10px; border-radius: 3px;
+            display: inline-block; margin-bottom: 10px;
+        }
+        .audit-undo-panel .audit-quick-reasons { margin: 8px 0; }
+        .audit-undo-panel .audit-quick-reasons .reason-btn {
+            display: inline-block; padding: 3px 8px; margin: 2px;
+            background: #fff; border: 1px solid #ccc; border-radius: 3px;
+            cursor: pointer; color: #555;
+        }
+        .audit-undo-panel .audit-quick-reasons .reason-btn:hover {
+            background: #e0e0e0; border-color: #999;
+        }
+        .audit-undo-panel textarea.audit-remark {
+            width: 100%; height: 80px; padding: 5px;
+            border: 1px solid #ccc; border-radius: 3px; resize: vertical;
+            box-sizing: border-box;
+        }
+        .audit-undo-panel .audit-buttons { text-align: right; margin-top: 12px; }
+    </style>
 </head>
 <body class="easyui-layout">
     <input type="hidden" id="PowerId" name="PowerId" value="@ViewData["PowerId"]">
@@ -315,21 +345,47 @@
         <table id="test"></table>
     </div>
 
-    <div id="winShenHuYuanYing" class="easyui-window" title="审核窗口" style="width:400px;height:200px"
-         data-options="iconCls:'icon-save',modal:true">
+    <div id="winShenHuYuanYing" class="easyui-window" title="审核退回" style="width:480px;height:380px"
+         data-options="iconCls:'icon-undo',modal:true,collapsible:false,minimizable:false,maximizable:false,resizable:false,closed:true">
         <div class="easyui-layout" data-options="fit:true">
-            <div data-options="region:'north',split:true" style="height:200px">
-                <h2>退回原因说明：</h2>
-                <div>
-                    <input type="hidden" id="undoAction" />@*退回动作*@
-                    退回意见:<input id="FrealAreaName" name="FrealAreaName" style="width:300px;" />
-                    <a id="btn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-ok'" onclick="undoYuanYingTJ()" >确认</a>
-
+            <div data-options="region:'center',border:false" style="padding:0;">
+                <div class="audit-undo-panel">
+                    <!-- 当前退回动作提示 -->
+                    <div>
+                        <span id="auditUndoActionTip" class="audit-action-tip">退回原因说明</span>
+                    </div>
+                    <!-- 当前操作主单信息 -->
+                    <div class="audit-info-box">
+                        <div class="info-row"><span class="info-label">主单编号：</span><span id="auditUndoBID" class="info-value">-</span></div>
+                        <div class="info-row"><span class="info-label">队别：</span><span id="auditUndoAreaName" class="info-value">-</span></div>
+                        <div class="info-row"><span class="info-label">年月：</span><span id="auditUndoYearMonth" class="info-value">-</span></div>
+                        <div class="info-row"><span class="info-label">备注：</span><span id="auditUndoRemark" class="info-value">-</span></div>
+                    </div>
+                    <!-- 常用退回原因快捷按钮 -->
+                    <div class="audit-quick-reasons">
+                        <span style="color:#888;">常用原因：</span>
+                        <span class="reason-btn" onclick="fillAuditReason('数据有误，请核对')">数据有误</span>
+                        <span class="reason-btn" onclick="fillAuditReason('信息不完整，请补充')">信息不完整</span>
+                        <span class="reason-btn" onclick="fillAuditReason('金额异常，请核实')">金额异常</span>
+                        <span class="reason-btn" onclick="fillAuditReason('重复发放，请核查')">重复发放</span>
+                        <span class="reason-btn" onclick="fillAuditReason('其他原因')">其他</span>
+                    </div>
+                    <!-- 退回意见输入区 -->
+                    <div>
+                        <input type="hidden" id="undoAction" />
+                        <input type="hidden" id="undoBid" />
+                        <label style="color:#888;">退回意见：</label>
+                        <textarea id="FrealAreaName" name="FrealAreaName" class="audit-remark" placeholder="请详细描述退回原因，便于中队修正..."></textarea>
+                    </div>
+                    <!-- 操作按钮 -->
+                    <div class="audit-buttons">
+                        <a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-ok'" onclick="undoYuanYingTJ()">确认退回</a>
+                        <a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-cancel'" onclick="closeAuditUndoWin()">取消</a>
+                    </div>
                 </div>
-                <h3>在这里，您可以简要描述退回原因</h3>
             </div>
         </div>
-    </div> 
+    </div>
 
     <div id="winBankReturn" class="easyui-window" title="银行处理结果导入" style="width:400px;height:300px"
          data-options="iconCls:'icon-save',modal:true">

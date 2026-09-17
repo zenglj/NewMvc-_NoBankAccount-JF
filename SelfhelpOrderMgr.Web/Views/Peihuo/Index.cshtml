@@ -195,7 +195,8 @@
                 <th>队别</th>
                 <td>
                     <input type="hidden" id="wselOutId" />
-                    <select id="wselAreaName" name="wselAreaName" class="easyui-combobox" style="width: 135px;">
+                    <select id="wselAreaName" name="wselAreaName" class="easyui-combobox" style="width: 135px;"
+                            data-options="onSelect:function(rec){wLoadRoomNos(rec.value);},onChange:function(newVal,oldVal){if(newVal==''||newVal==null){wClearRoomNos();}}">
                         <option value="" selected="selected">请选择队别</option>
                         @if (ViewData["areas"] != null)
                         {
@@ -253,7 +254,12 @@
                 </td>
             </tr>
             <tr>
-                <td colspan="5"></td>
+                <th>房号</th>
+                <td>
+                    <input id="wselRoomNo" name="wselRoomNo" class="easyui-combobox" style="width:135px;"
+                           data-options="valueField:'text',textField:'text',multiple:true,panelHeight:'auto',editable:true,placeholder:'可多选'" />
+                </td>
+                <td colspan="3"></td>
                 <td align="right">
                     <a id="btn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-search'" onclick="wselSelectInvs()">查询</a>
                 </td>

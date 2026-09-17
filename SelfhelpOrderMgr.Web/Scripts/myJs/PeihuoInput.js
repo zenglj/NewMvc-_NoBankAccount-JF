@@ -1,4 +1,4 @@
-﻿$(function () {
+$(function () {
     //jquery js 当文本框获得焦点时，自动选中里面的文字
     $(function () {
         $(":text").focus(function () {
@@ -694,10 +694,47 @@ function wselSelectInvs() {
         wselCrtBy: $('#wselCrtBy').combobox('getValue'),
         typeFlag: $("#xfTypeFlag").val(),
         rtnBankFlag: $('#rtnBankFlag').combobox('getValue'),
+        roomNos: wGetSelectedRoomNos(),
         action: 'GetSearchMainOrder'
     });
-      
-    
+
+
+}
+
+//根据队别编号联动加载房号（房号取自 T_Criminal.RoomNo）
+function wLoadRoomNos(areaCode) {
+    var $room = $("#wselRoomNo");
+    //先清空已有选项与选中值
+    $room.combobox('clear');
+    $room.combobox('loadData', []);
+    if (areaCode == null || areaCode == '') {
+        return;
+    }
+    $.getJSON('/Super/GetRoomNosByArea', { areaCode: areaCode }, function (data) {
+        if (data && data.length > 0) {
+            var list = [];
+            for (var i = 0; i < data.length; i++) {
+                list.push({ text: data[i] });
+            }
+            $room.combobox('loadData', list);
+        }
+    });
+}
+
+//清空房号下拉（队别被清空时调用）
+function wClearRoomNos() {
+    var $room = $("#wselRoomNo");
+    $room.combobox('clear');
+    $room.combobox('loadData', []);
+}
+
+//获取已选房号，返回逗号分隔字符串
+function wGetSelectedRoomNos() {
+    var vals = $("#wselRoomNo").combobox('getValues');
+    if (vals == null || vals.length == 0) {
+        return "";
+    }
+    return vals.join(',');
 }
 
 //选择全部记录

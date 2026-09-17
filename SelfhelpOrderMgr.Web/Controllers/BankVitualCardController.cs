@@ -30,8 +30,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
     public class BankVitualCardController : BaseController
     {
 
-        private readonly static string vsaUrlBase = ConfigurationManager.ConnectionStrings["vsaUrlBase"].ConnectionString;
-        private readonly static string mainAcct = ConfigurationManager.ConnectionStrings["mainacct"].ConnectionString;
+        //private readonly static string vsaUrlBase = ConfigurationManager.ConnectionStrings["vsaUrlBase"].ConnectionString;
+        //private readonly static string mainAcct = ConfigurationManager.ConnectionStrings["mainacct"].ConnectionString;
 
         private string vsaAction = "";
         //private static readonly string vsaURL ="http://47.104.101.88:18080/api/vsa/batch-open";
