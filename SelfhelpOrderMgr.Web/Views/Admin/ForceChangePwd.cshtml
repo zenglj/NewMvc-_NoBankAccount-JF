@@ -1,0 +1,95 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>强制修改密码</title>
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+    <style>
+        body { padding-top: 60px; }
+        .panel-password { max-width: 480px; margin: 0 auto; }
+        .alert-warning-force { text-align: center; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-fixed-top navbar-inverse">
+        <div class="container">
+            <a class="navbar-brand" href="/Login/Index">JVD会见管理系统</a>
+            <ul class="nav navbar-nav">
+                <li class="active"><a href="/Login/Index">系统登录</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="panel panel-danger panel-password">
+            <div class="panel-heading">
+                <h3 class="panel-title">密码已过期 — 强制修改密码</h3>
+            </div>
+            <div class="panel-body">
+                <div class="alert alert-warning alert-warning-force" role="alert">
+                    您的密码已超过90天未修改，为保障账户安全，请先修改密码后才能继续使用系统。
+                </div>
+                <form id="forceChangePwdForm" onsubmit="return false;">
+                    <div class="form-group">
+                        <label for="oldPassword">旧密码</label>
+                        <input type="password" class="form-control" id="oldPassword" placeholder="请输入旧密码" required autofocus>
+                    </div>
+                    <div class="form-group">
+                        <label for="newPassword">新密码</label>
+                        <input type="password" class="form-control" id="newPassword" placeholder="至少8位，含大小写字母、数字、特殊字符中三种" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmPassword">确认新密码</label>
+                        <input type="password" class="form-control" id="confirmPassword" placeholder="请再次输入新密码" required>
+                    </div>
+                    <button type="button" class="btn btn-primary btn-block" onclick="saveForceChangePwd()">确认修改</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="~/Scripts/jquery-1.11.3.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <script type="text/javascript">
+        function saveForceChangePwd() {
+            var oldPwd = $('#oldPassword').val();
+            var newPwd = $('#newPassword').val();
+            var confirmPwd = $('#confirmPassword').val();
+
+            if (!oldPwd) {
+                alert('请输入旧密码');
+                return;
+            }
+            if (!newPwd) {
+                alert('请输入新密码');
+                return;
+            }
+            if (newPwd !== confirmPwd) {
+                alert('两次输入的新密码不一致');
+                return;
+            }
+            $.post('/Login/SaveForceChangePwd',
+                { OldPassword: oldPwd, NewPassword: newPwd },
+                function (data, status) {
+                    if ('success' !== status) {
+                        alert('请求失败，请重试');
+                        return;
+                    }
+                    var ss = data.split('|');
+                    if (ss[0] === 'OK') {
+                        alert(ss[1] || '密码修改成功');
+                        window.location.href = '/Home/Index';
+                    } else {
+                        alert(data);
+                    }
+                });
+        }
+    </script>
+</body>
+</html>

@@ -20,50 +20,54 @@
         #tbEdit select {
             width: 130px;
         }
+
+        /* 用户查询条件工具栏 */
+        .user-search-bar {
+            padding: 6px 8px;
+            background: #fafafa;
+            border: 1px solid #ddd;
+            margin-bottom: 4px;
+            line-height: 28px;
+        }
+
+        .user-search-bar label {
+            margin: 0 2px 0 10px;
+            font-weight: normal;
+        }
+
+        .user-search-bar .s-input {
+            vertical-align: middle;
+        }
     </style>
 </head>
 <body class="easyui-layout">
     <div data-options="region:'center',title:'用户管理'" style="padding:5px;">
+        <div id="tbUserSearch" class="user-search-bar">            
+            <label>登录名：</label>
+            <input id="sFName" class="s-input" style="width:90px" />
+            <label>用户姓名：</label>
+            <input id="sFUserChinaName" class="s-input" style="width:90px" />
+            <label>队别：</label>
+            <select id="sFUserArea" class="easyui-combobox s-input" style="width:120px;">
+                <option value="">全部</option>
+                @foreach (var userArea in ViewData["userAreas"] as Dictionary<string, string>)
+                {
+                    <option value="@userArea.Key">@userArea.Key</option>
+                }
+            </select>
+            <label>角色：</label>
+            <select id="sFRole" class="easyui-combobox s-input" style="width:120px;">
+                <option value="">全部</option>
+                @foreach (var userRole in ViewData["userRoles"] as Dictionary<string, string>)
+                {
+                    <option value="@userRole.Value">@userRole.Key</option>
+                }
+            </select>
+            <a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-search'" onclick="btnSearchUser()">查询</a>
+            <a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-redo'" onclick="clearUserSearch()">清空</a>
+        </div>
         <div>
-            <table id="test" class="easyui-datagrid">
-                <thead>
-                    <tr>
-                        <th data-options="field:'ck',checkbox:true"></th>
-                        <th data-options="field:'FCode',width:50">用户编号</th>
-                        <th data-options="field:'FName',width:100">登录名</th>
-                        <th data-options="field:'FUserChinaName',width:100">用户姓名</th>
-                        <th data-options="field:'FPwd',width:100,type:'password'">密  码</th>
-                        <th data-options="field:'FUserArea',width:100">队别名称</th>
-                        <th data-options="field:'FRole',width:100">角色</th>
-                        <th data-options="field:'FPrivate',width:60,align:'center'">管理员</th>
-
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (SelfhelpOrderMgr.Model.T_CZY czy in ViewData["czys"] as List<SelfhelpOrderMgr.Model.T_CZY>)
-                    {
-                        string strPriv = "否";
-                        if (Convert.ToBoolean(czy.FPRIVATE))
-                        {
-                            strPriv = "是";
-                        }
-                    <tr>
-                        <td></td>
-                        <td>@czy.FCode</td>
-                        <td>@czy.FName</td>
-                        <td>@czy.FUserChinaName</td>
-                        <td>@czy.FPwd</td>
-                        <td>@czy.FUserArea</td>
-                        <td>@czy.TreeRole.RoleName</td>
-                        <td>@czy.TreeRole.RoleID</td>
-                        <td>@strPriv</td>
-                        <td>@czy.FManagerCard</td>
-                        <td>@czy.FFlag</td>
-                    </tr>
-                    }
-                </tbody>
-
-            </table>
+            <table id="test" class="easyui-datagrid"></table>
         </div>
         <div class="easyui-panel" title="信息编辑栏" data-options="iconCls:'icon-edit'" style="height:200px;padding:10px;background:#fafafa;">
             <form id="ff" method="post" enctype="multipart/form-data">

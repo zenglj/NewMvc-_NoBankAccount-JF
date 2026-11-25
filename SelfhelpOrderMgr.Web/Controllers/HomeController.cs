@@ -146,7 +146,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
         {
             string ip = System.Web.HttpContext.Current.Request.UserHostAddress;
             string managerCardNo = Request["managerCardNo"];
-            List<T_CZY> users = new T_CZYBLL().GetModelList("FManagerCard='" + managerCardNo + "'");
+            //参数化查询，防止SQL注入
+            List<T_CZY> users = _baseDapperBLL.QueryList<T_CZY>("select * from t_Czy where FManagerCard=@FManagerCard", new { FManagerCard = managerCardNo });
             string status = "Error|无效的管理卡";
             if (users.Count > 0)
             {
@@ -400,7 +401,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
         /// <returns></returns>
         private string MgrCardLogin(string managerCardNo)
         {
-            List<T_CZY> users = new T_CZYBLL().GetModelList("FManagerCard='" + managerCardNo + "'");
+            //List<T_CZY> users = new T_CZYBLL().GetModelList("FManagerCard='" + managerCardNo + "'");
+            List<T_CZY> users = _baseDapperBLL.QueryList<T_CZY>("select * from t_Czy where FManagerCard=@FManagerCard", new { FManagerCard = managerCardNo });
             string status = "Error|无效的管理卡";
             if (users.Count > 0)
             {
@@ -442,7 +444,10 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 return Content("Error|密码不能为空");
             }
 
-            List<T_CZY> users = new T_CZYBLL().GetModelList("(FName='" + userName + "' or FCode='" + userName + "') and FPWD='" + userPwd + "'");
+            //参数化查询，防止SQL注入
+            List<T_CZY> users = _baseDapperBLL.QueryList<T_CZY>(
+                "select * from t_Czy where (FName=@UserName or FCode=@UserName) and FPWD=@UserPwd",
+                new { UserName = userName, UserPwd = userPwd });
             string status = "Error|用户名和密码不正确";
             if (users.Count == 1)
             {
@@ -669,9 +674,20 @@ namespace SelfhelpOrderMgr.Web.Controllers
             {
                 endTime = "23";
             }
-            string strWhere = "OrderDate>='" + sDate.Year.ToString() + "-" + sDate.Month.ToString() + "-" + sDate.Day.ToString() +
-                " " + startTime + ":00:00" + "' and OrderDate<'" + sDate.Year.ToString() + "-" + sDate.Month.ToString() + "-" + sDate.Day.ToString() +
-                " " + endTime + ":59:59" + "'";
+            //时间范围使用参数化，防止SQL注入
+            int startHour;
+            int endHour;
+            if (!int.TryParse(startTime, out startHour) || startHour < 0 || startHour > 23)
+            {
+                startHour = 0;
+            }
+            if (!int.TryParse(endTime, out endHour) || endHour < 0 || endHour > 23)
+            {
+                endHour = 23;
+            }
+            DateTime orderDateStart = sDate.Date.AddHours(startHour);
+            DateTime orderDateEnd = sDate.Date.AddHours(endHour).AddMinutes(59).AddSeconds(59);
+            string strWhere = "OrderDate>=@OrderDateStart and OrderDate<@OrderDateEnd";
             if (string.IsNullOrEmpty(areaName) == false)
             {
                 //strWhere = strWhere + " and FAreaName='" + areaName + "'";
@@ -698,7 +714,8 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
 
             //List<T_Invoice> invoices = new T_InvoiceBLL().GetModelList(1000, strWhere + " and Flag=1", "FAreaCode,RoomNo,FCriminal");
-            List<T_Invoice> invoices = _baseDapperBLL.QueryList<T_Invoice>($"select top {1000} * from T_Invoice where {strWhere}  and Flag=1 order by FAreaCode,RoomNo,FCriminal",new { areaName= areaName, FName= FName, FCode= FCode, FSaleType= FSaleType, managerCardNo= managerCardNo });
+            List<T_Invoice> invoices = _baseDapperBLL.QueryList<T_Invoice>($"select top {1000} * from T_Invoice where {strWhere}  and Flag=1 order by FAreaCode,RoomNo,FCriminal",
+                new { areaName = areaName, FName = FName, FCode = FCode, FSaleType = FSaleType, managerCardNo = managerCardNo, OrderDateStart = orderDateStart, OrderDateEnd = orderDateEnd });
 
             JavaScriptSerializer jss = new JavaScriptSerializer();
             return Content("OK|"+jss.Serialize(invoices));
@@ -758,8 +775,10 @@ namespace SelfhelpOrderMgr.Web.Controllers
             {
                 return Content("Err|没有管理卡不能取消订单");
             }
-            List<T_CZY> czys = new T_CZYBLL().GetModelList("FManagerCard='" + managerCardNo + "'");
-            if(czys.Count<=0)
+            //List<T_CZY> czys = new T_CZYBLL().GetModelList("FManagerCard='" + managerCardNo + "'");
+            List<T_CZY> czys =_baseDapperBLL.QueryList<T_CZY>("select * from t_czy where FManagerCard=@FManagerCard ",new { FManagerCard= managerCardNo });
+
+            if (czys.Count<=0)
             {
                 return Content("Err|管理卡不存在，请更换一张有效的管理卡");
             }
@@ -779,7 +798,9 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 T_Invoice invoice = new T_InvoiceBLL().GetModel(InvoiceNo);
 
                 //判断是管理卡是否有权限改
-                List<T_Czy_area> czrareas = new T_Czy_areaBLL().GetModelList("FCode ='" + czys[0].FCode + "' and FFlag=2 and FAreaCode in( select FareaCode from t_criminal where fcode='" + invoice.FCrimeCode + "' )");
+                //List<T_Czy_area> czrareas = new T_Czy_areaBLL().GetModelList("FCode ='" + czys[0].FCode + "' and FFlag=2 and FAreaCode in( select FareaCode from t_criminal where fcode='" + invoice.FCrimeCode + "' )");
+                List<T_Czy_area> czrareas =_baseDapperBLL.QueryList<T_Czy_area>("select * from T_Czy_area where FCode =@FCode and FFlag=2 and FAreaCode in( select FareaCode from t_criminal where fcode=@FCrimeCode )",new { FCode = czys[0].FCode, FCrimeCode = invoice.FCrimeCode });
+
                 if (czrareas.Count == 0)
                 {
                     return Content("Err|您没有该犯人的管理权限，请与本队别民警联系，谢谢");
@@ -886,7 +907,9 @@ namespace SelfhelpOrderMgr.Web.Controllers
             {
                 return Content("Err|没有管理卡不能改单");
             }
-            List<T_CZY> czys = new T_CZYBLL().GetModelList("FManagerCard='" + managerCardNo + "'");
+            //List<T_CZY> czys = new T_CZYBLL().GetModelList("FManagerCard='" + managerCardNo + "'");
+            List<T_CZY> czys = _baseDapperBLL.QueryList<T_CZY>("select * from T_CZY where FManagerCard=@managerCardNo",new { managerCardNo = managerCardNo });
+
             if (czys.Count <= 0)
             {
                 return Content("Err|管理卡不存在，请更换一张有效的管理卡");

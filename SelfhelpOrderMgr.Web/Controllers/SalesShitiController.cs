@@ -190,16 +190,19 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
             var _saleType = _baseDapperBLL.QueryList<T_SHO_SaleType>("select * from T_SHO_SaleType where PType=@PType", new { PType = _orderModel.PType }).FirstOrDefault();
 
-            T_Goods good = _baseDapperBLL.QueryList<T_Goods>("select * from t_goods where gtxm=@gtxm and gtype in(select fcode from T_GoodsType where saletypeid=@SaleTypeId)", new { gtxm = gtxm , SaleTypeId = _saleType.Id }).FirstOrDefault();
+            //T_Goods good = _baseDapperBLL.QueryList<T_Goods>("select * from t_goods where gtxm=@gtxm and gtype in(select fcode from T_GoodsType where saletypeid=@SaleTypeId)", new { gtxm = gtxm , SaleTypeId = _saleType.Id }).FirstOrDefault();
+            //20261023-商品类别强制改为【超市消费】的商品
+            T_Goods good = _baseDapperBLL.QueryList<T_Goods>("select * from t_goods where gtxm=@gtxm and gtype in(select fcode from T_GoodsType where saletypeid=@SaleTypeId)", new { gtxm = gtxm, SaleTypeId = 1 }).FirstOrDefault();
 
             JavaScriptSerializer jss = new JavaScriptSerializer();
             if (good != null)
             {
-                if (good.ACTIVE == "N")
-                {
-                    rs.ReMsg="Error|抱谦，该商品已经下架了";
-                    return Json( rs);
-                }
+                //处遇兑现是实体超市，取消商品下架限制，2026-11-17
+                //if (good.ACTIVE == "N")
+                //{
+                //    rs.ReMsg="Error|抱谦，该商品已经下架了";
+                //    return Json( rs);
+                //}
             }
             else
             {

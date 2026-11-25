@@ -1,0 +1,119 @@
+﻿@{
+    Layout = null;
+    var q = ViewBag.Query as SelfhelpOrderMgr.Dto.StockQueryDto;
+    string dateRange = "不限";
+    if (q.CrtDt_Start.HasValue && q.CrtDt_End.HasValue)
+    {
+        dateRange = q.CrtDt_Start.Value.ToString("yyyy-MM-dd") + " 至 " + q.CrtDt_End.Value.ToString("yyyy-MM-dd");
+    }
+    else if (q.CrtDt_Start.HasValue)
+    {
+        dateRange = q.CrtDt_Start.Value.ToString("yyyy-MM-dd") + " 起";
+    }
+    else if (q.CrtDt_End.HasValue)
+    {
+        dateRange = "至 " + q.CrtDt_End.Value.ToString("yyyy-MM-dd");
+    }
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>@(ViewBag.InOutText)统计报表</title>
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Content/PrintReportCss.css" rel="stylesheet" />
+    <style>
+        .report-cond {
+            margin-bottom: 10px;
+            font-size: 13px;
+            color: #555;
+        }
+        .report-table th {
+            text-align: center;
+        }
+        .report-table td {
+            white-space: nowrap;
+        }
+        @@media print {
+            .no-print {
+                display: none !important;
+            }
+            body {
+                margin: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="row">
+        <div class="col-sm-1"></div>
+        <div class="col-sm-10">
+            <div class="page-header text-center">
+                <h3>@(ViewBag.InOutText)统计报表 <small>打印日期: @DateTime.Now.ToString("yyyy-MM-dd HH:mm")</small></h3>
+            </div>
+
+            <div class="report-cond">
+                查询条件：
+                @if (!string.IsNullOrWhiteSpace(q.StockId))
+                {
+                    <span>单号：@q.StockId　</span>
+                }
+                @if (!string.IsNullOrWhiteSpace(q.StockType))
+                {
+                    <span>出入库类型：@q.StockType　</span>
+                }
+                <span>日期：@dateRange　</span>
+                @if (!string.IsNullOrWhiteSpace(q.Remark))
+                {
+                    <span>备注：@q.Remark</span>
+                }
+            </div>
+
+            <table class="table table-striped table-bordered report-table">
+                <thead>
+                    <tr>
+                        <th style="width:60px">序号</th>
+                        <th>GCode商品</th>
+                        <th>商品名称</th>
+                        <th>条码</th>
+                        <th style="width:100px">数量</th>
+                        <th style="width:110px">出入库标志</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        int index = 1;
+                    }
+                    @foreach (var item in ViewBag.Details)
+                    {
+                        int flag = Convert.ToInt32(item.InOutFlag);
+                        string flagText = flag == 1 ? "入库" : (flag == -1 ? "出库" : "");
+                        <tr>
+                            <td style="text-align:center">@index</td>
+                            <td>@item.GCode</td>
+                            <td>@item.GName</td>
+                            <td>@item.GTXM</td>
+                            <td style="text-align:right">@(Convert.ToDecimal(item.GCount).ToString("F2"))</td>
+                            <td style="text-align:center">@flagText</td>
+                        </tr>
+                        index++;
+                    }
+                    <tr>
+                        <td colspan="4" style="text-align:right"><b>合计</b></td>
+                        <td style="text-align:right"><b>@(Convert.ToDecimal(ViewBag.Total).ToString("F2"))</b></td>
+                        <td></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="no-print text-center" style="margin-top:20px;">
+                <button type="button" class="btn btn-primary" onclick="window.print()">打印</button>
+                <button type="button" class="btn btn-default" onclick="window.close()">关闭</button>
+            </div>
+        </div>
+        <div class="col-sm-1"></div>
+    </div>
+</body>
+</html>

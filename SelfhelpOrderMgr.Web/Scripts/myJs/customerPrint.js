@@ -693,7 +693,8 @@ function btnSearch() {
         GoodsType: $("#GoodsType").combobox('getValue'),
         GoodName: $("#GoodName").val(),
         GoodGTXM: $("#GoodGTXM").val(),
-        SpShortCode: $("#SpShortCode").val()
+        SpShortCode: $("#SpShortCode").val(),
+        CardType: $("#CardType").combobox('getValue')
     });
 
 }
@@ -828,7 +829,8 @@ function getStrSearchWhere() {
     + "&GoodsType="+ $("#GoodsType").combobox('getValue')
     + "&GoodName="+ $("#GoodName").val()
     + "&GoodGTXM="+ $("#GoodGTXM").val()
-    + "&SpShortCode="+ $("#SpShortCode").val();
+    + "&SpShortCode="+ $("#SpShortCode").val()
+    + "&CardType="+ $("#CardType").combobox('getValue');
 
     return strWhere;    
 }
@@ -848,7 +850,8 @@ function getObjSearchWhere() {
         "GoodsType": $("#GoodsType").combobox('getValue'),
         "GoodName": $("#GoodName").val(),
         "GoodGTXM": $("#GoodGTXM").val(),
-        "SpShortCode": $("#SpShortCode").val()
+        "SpShortCode": $("#SpShortCode").val(),
+        "CardType": $("#CardType").combobox('getValue')
     };
     return obj;
 }

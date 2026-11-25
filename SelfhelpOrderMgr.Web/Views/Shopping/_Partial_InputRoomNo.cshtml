@@ -36,10 +36,12 @@
                                             <div class="form-group form-inline text-right">
 
                                             </div>
+                                            
                                             <div class="form-group form-inline text-right">
                                                 <label for="userRoomNO">配货房间号：</label>
                                                 <input type="text" class="form-control" id="userRoomNO" name="userRoomNO" onkeyup="checkRate(this.id)" onkeydown="    if (event.keyCode == 13) $('#btnPayCheckSubmit').focus();" placeholder="请输入房间号(01-20)">
                                             </div>
+
 
                                         </div>
                                     </div>
@@ -79,6 +81,13 @@
                                             </div>
                                             <div class="form-group form-inline text-right">
 
+                                            </div>
+                                            <div class="form-group form-inline text-right">
+                                                <label for="cardType">配货批次：</label>
+                                                <select id="cardType" name="cardType" class="form-control" style="width:200px;">
+                                                    <option value="1" selected="selected">第一批送货</option>
+                                                    <option value="2">第二批送货</option>
+                                                </select>
                                             </div>
                                             <div class="form-group form-inline text-right">
                                                 <label for="userRoomNO">配货房间号：</label>

@@ -67,6 +67,7 @@
     <div class="toolbar">
         <a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="openCreateDialog()">新建入库单</a>
         <a href="#" class="easyui-linkbutton" iconCls="icon-reload" plain="true" onclick="resetSearch()">重置查询</a>
+        <a href="#" class="easyui-linkbutton" iconCls="icon-search" plain="true" onclick="openSummaryDialog()">统计报表</a>
         <a href="#" class="easyui-linkbutton" iconCls="icon-redo" plain="true" onclick="auditCurrent()">审核</a>
         <a href="#" class="easyui-linkbutton" iconCls="icon-undo" plain="true" onclick="unAuditCurrent()">撤销审核</a>
         <a href="#" class="easyui-linkbutton" iconCls="icon-cancel" plain="true" onclick="deleteCurrent()">删除主单</a>
@@ -79,6 +80,8 @@
             <div class="search-row">
                 <label>出入库单号:</label>
                 <input id="s_StockId" class="easyui-textbox" style="width:200px;">
+
+                <input id="inoutTypeId" type="hidden" value="@ViewData["id"]">
 
                 <label>出入库类型:</label>
                 <select id="s_StockType" class="easyui-combobox" style="width:150px;">
@@ -110,7 +113,6 @@
 
     <!-- 3. 主界面：入库单列表 -->
     <table id="dg-list" class="easyui-datagrid" title="入库单列表" style="width:100%;height:350px;"
-           url="/StockMgr/GetRecordList"
            data-options="rownumbers:true,singleSelect:true,autoRowHeight:false,pagination:true,fitColumns:true,onDblClickRow:onClickList">
         <thead>
             <tr>
@@ -124,7 +126,29 @@
         </thead>
     </table>
 
-    <!-- 4. 弹窗：新建/编辑入库单 (默认隐藏) -->
+    <!-- 4. 统计报表弹窗 -->
+    <div id="dlg-summary" class="easyui-dialog" style="width:900px;height:520px;padding:10px"
+         data-options="title:'出入库统计报表',modal:true,closed:true,iconCls:'icon-search'">
+        <table id="dg-summary" class="easyui-datagrid" style="width:100%;height:100%"
+               data-options="rownumbers:true,singleSelect:true,fitColumns:true,showFooter:true,autoRowHeight:false,toolbar:'#tb-summary'">
+            <thead>
+                <tr>
+                    <th data-options="field:'GCode',width:110">GCode商品</th>
+                    <th data-options="field:'GName',width:220">商品名称</th>
+                    <th data-options="field:'GTXM',width:140">条码</th>
+                    <th data-options="field:'GCount',width:100,align:'right',formatter:formatQty">数量</th>
+                    <th data-options="field:'InOutFlag',width:100,align:'center',formatter:formatInOutFlag">出入库标志</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+
+    <!-- 统计报表工具栏 -->
+    <div id="tb-summary">
+        <a href="#" class="easyui-linkbutton" iconCls="icon-print" plain="true" onclick="printSummary()">打印</a>
+    </div>
+
+    <!-- 5. 弹窗：新建/编辑入库单 (默认隐藏) -->
     <div id="dlg-edit" class="easyui-dialog" style="width:950px;height:550px;padding:10px"
          data-options="title:'入库单录入',modal:true,closed:true,iconCls:'icon-edit',buttons:'#dlg-buttons'">
 
@@ -207,9 +231,20 @@
         var currentStockId = null;
 
         $(function () {
+            // 预加载商品数据：保证条码编辑框初始化时可以直接拿到数据
+            loadProductList();
+
             // 初始化主列表
             $('#dg-list').datagrid({
-                data: stockMasterData,
+                url: '/StockMgr/GetRecordList',
+                queryParams: {
+                    StockId: '',
+                    StockType: '',
+                    CrtDt_Start: '',
+                    CrtDt_End: '',
+                    Remark: '',
+                    id: $('#inoutTypeId').val()
+                },
                 onLoadSuccess: function (data) {
                     // 列表加载成功
                 }
@@ -230,53 +265,62 @@
                 onBeginEdit: function (index, row) {
                     // 1. 获取 GTXM 列的编辑器对象
                     var gtxmEditor = $(this).datagrid('getEditor', { index: index, field: 'GTXM' });
-                    console.log("行数据");
-                    console.log(row);
-                    console.log(index);
-                    // 2. 将该编辑器初始化为 Combobox
-                    // 注意：这里假设你已经有一个包含所有商品的下拉数据源，或者使用 url 远程加载
-                    $(gtxmEditor.target).combobox({
-                        url: '/StockMgr/GetProductList?q=', // 后台返回商品列表的接口
-                        valueField: 'GTXM',      // 值字段：对应条码
-                        textField: 'GName',      // 显示字段：对应商品名称（下拉列表中显示名称，选中后存条码）
-                        editable: true,          // 允许手动输入条码
-                        panelHeight: 'auto',     // 面板高度
-                        mode: 'remote',          // 远程搜索模式（如果数据量大建议开启）
+                    if (!gtxmEditor) return;
 
-                        // 3. 关键逻辑：选择商品后，自动填充同行其他列
-                        onSelect: function (record) {
-                            // record 是你选中的那行商品数据（包含 GTXM, GCode, GName 等）
+                    var target = $(gtxmEditor.target);
+                    var suppressFill = false;
 
-                            // 获取其他列的编辑器
-                            var gdjEditor = $('#dg-detail').datagrid('getEditor', { index: index, field: 'GDJ' });
-                            var gcodeEditor = $('#dg-detail').datagrid('getEditor', { index: index, field: 'GCode' });
-                            var gnameEditor = $('#dg-detail').datagrid('getEditor', { index: index, field: 'GName' });
-                            
+                    // 2. 使用本地缓存的商品数据初始化 Combobox
+                    // 这样输入条码/名称后本地过滤，下拉只剩一条时点击该行也能正常触发 onSelect
+                    loadProductList(function (list) {
+                        // 编辑器可能已经结束编辑（异步加载返回时），避免在失效控件上初始化
+                        // 注意：EasyUI的getEditor返回的target是jQuery对象，需先取DOM节点
+                        var editorEl = $(gtxmEditor.target)[0];
+                        if (!editorEl || !document.body.contains(editorEl)) return;
 
-                            // 自动赋值
-                            if (gcodeEditor) $(gcodeEditor.target).textbox('setValue', record.GCode);
-                            if (gnameEditor) $(gnameEditor.target).textbox('setValue', record.GName);
-                            if (gdjEditor) $(gdjEditor.target).textbox('setValue', record.Price);
+                        target.combobox({
+                            data: list,
+                            valueField: 'GTXM',      // 值字段：对应条码
+                            textField: 'GName',      // 显示字段：对应商品名称
+                            editable: true,          // 允许手动输入条码
+                            panelHeight: 200,
+                            mode: 'local',           // 本地过滤，避免远程请求竞态导致点击无效
 
-                            // 可选：自动跳到下一列（如数量），提升录入效率
-                            // var countEditor = $('#dg-detail').datagrid('getEditor', { index: index, field: 'GCount' });
-                            // if(countEditor) $(countEditor.target).textbox('textbox').focus();
-                        },
+                            // 同时支持按条码和商品名称过滤
+                            filter: function (q, item) {
+                                if (!q) return true;
+                                var gtxm = item.GTXM || '';
+                                var gname = item.GName || '';
+                                return gtxm.indexOf(q) >= 0 || gname.indexOf(q) >= 0;
+                            },
 
-                        // 4. 处理手动输入的情况（如果用户不想下拉，直接粘贴条码）
-                        onChange: function (newValue, oldValue) {
-                            // 如果手动输入的值不在下拉列表中，onSelect 不会触发
-                            // 你可以在这里加防抖逻辑去后台校验这个 newValue
-                            // 或者留空，让用户按回车触发你之前的校验逻辑
-                            // 只有当输入值不为空，或者你想支持清空显示全部时，才进行重载
-                            // 这里直接利用 combobox 的 reload 方法，它会自动把输入框的值作为参数传给 url
-                            $(this).combobox('reload', '/StockMgr/GetProductList?q=' + newValue);
-                        },
-                        onLoadSuccess: function () {
-                            // 数据加载回来后，强制让下拉面板显示出来
-                            // 这一步能解决“数据有了但面板缩在里面”的问题
-                            $(this).combobox('showPanel');
-                        }
+                            // 3. 选择商品后，自动填充同行其他列
+                            onSelect: function (record) {
+                                fillProductToRow(index, record);
+                            },
+
+                            // 4. 手动输入完整条码时直接带出商品（不必点击下拉行）
+                            onChange: function (newValue) {
+                                //回显已有行的条码时不覆盖原单据的商品信息
+                                if (suppressFill || !newValue) return;
+
+                                var data = $(this).combobox('getData') || [];
+                                for (var i = 0; i < data.length; i++) {
+                                    if (data[i].GTXM == newValue) {
+                                        fillProductToRow(index, data[i]);
+                                        break;
+                                    }
+                                }
+
+                                //本地过滤后确保下拉面板弹出
+                                $(this).combobox('showPanel');
+                            }
+                        });
+
+                        // 编辑已有行时回显原条码
+                        suppressFill = true;
+                        target.combobox('setValue', row.GTXM || '');
+                        suppressFill = false;
                     });
                 },
 
@@ -300,6 +344,15 @@
         function formatType(val) { return val; }
         function formatFlag(val) { return val == 1 ? '<span style="color:green">已审核</span>' : '<span style="color:red">未审核</span>'; }
         function formatDate(val) { return val ? val : ''; }
+        function formatQty(val) {
+            if (val === null || val === undefined || val === '') return '';
+            return Number(val).toFixed(2);
+        }
+        function formatInOutFlag(val) {
+            if (val == 1) return '<span style="color:green">入库</span>';
+            if (val == -1) return '<span style="color:red">出库</span>';
+            return val;
+        }
         function formatNSDate(val) {
             //console.log(val);
             return val ? getShortTime(val) : '';
@@ -311,27 +364,63 @@
 
         // ================= 查询功能逻辑 =================
 
+        // 收集当前查询条件
+        function getSearchParams() {
+            return {
+                "StockId": $('#s_StockId').textbox('getValue'),
+                "StockType": $('#s_StockType').combobox('getValue'),
+                "CrtDt_Start": $('#s_StartDate').datebox('getValue'),
+                "CrtDt_End": $('#s_EndDate').datebox('getValue'),
+                "Remark": $('#s_Remark').textbox('getValue'),
+                "id": $('#inoutTypeId').val()
+            };
+        }
+
         function doSearch() {
-            var sId = $('#s_StockId').val();
-            var sType = $('#s_StockType').combobox('getValue');
-            var sStart = $('#s_StartDate').datebox('getValue');
-            var sEnd = $('#s_EndDate').datebox('getValue');
-            var sRemark = $('#s_Remark').val();;
+            $('#dg-list').datagrid('load', getSearchParams());
+        }
 
-            $('#dg-list').datagrid('load', {
-                "StockId": sId,
-                "StockType": sType,
-                "CrtDt_Start": sStart,
-                "CrtDt_End": sEnd,
-                "Remark": sRemark
-            });
+        // ================= 统计报表逻辑 =================
 
-            
+        function openSummaryDialog() {
+            var inOutText = $('#inoutTypeId').val() == '1' ? '入库' : '出库';
+            $('#dlg-summary').dialog('setTitle', inOutText + '统计报表');
+            $('#dlg-summary').dialog('open');
+            $('#dg-summary').datagrid('loadData', { rows: [], footer: [] });
+
+            $.post('/StockMgr/GetStockSummary', getSearchParams(), function (data) {
+                var total = 0;
+                $.each(data, function (i, row) {
+                    total += Number(row.GCount) || 0;
+                });
+                $('#dg-summary').datagrid('loadData', {
+                    rows: data,
+                    footer: [{ GName: '<b>合计</b>', GCount: total.toFixed(2) }]
+                });
+            }, 'json');
+        }
+
+        // 打印统计报表（按当前查询条件在新窗口打开打印页）
+        function printSummary() {
+            var url = '/StockMgr/PrintStockSummary?' + $.param(getSearchParams());
+            window.open(url);
         }
 
         function clearSearchForm() {
+            //form('clear')会清空隐藏域inoutTypeId，先保存再恢复
+            var inoutId = $('#inoutTypeId').val();
             $('#searchForm').form('clear');
-            $('#dg-list').datagrid('loadData', stockMasterData); // 恢复显示全部
+            $('#inoutTypeId').val(inoutId);
+
+            //重新从服务端加载全部数据
+            $('#dg-list').datagrid('load', {
+                StockId: '',
+                StockType: '',
+                CrtDt_Start: '',
+                CrtDt_End: '',
+                Remark: '',
+                id: inoutId
+            });
         }
 
         function resetSearch() {
@@ -414,6 +503,46 @@
         }
         // ================= 明细操作逻辑 =================
 
+        // 商品列表缓存：页面加载时预加载，保证开始编辑时能同步初始化下拉框
+        var _productList = null;
+        function loadProductList(callback) {
+            if (_productList) {
+                if (callback) callback(_productList);
+                return;
+            }
+            $.post('/StockMgr/GetProductList', { q: '' }, function (data) {
+                _productList = data || [];
+                if (callback) callback(_productList);
+            }, 'json').fail(function () {
+                //加载失败时返回空列表，避免编辑器无法初始化
+                if (callback) callback([]);
+            });
+        }
+
+        // 选中商品后，自动填充同行的商品编码、商品名称、单价
+        function fillProductToRow(index, record) {
+            var dg = $('#dg-detail');
+            var gcodeEditor = dg.datagrid('getEditor', { index: index, field: 'GCode' });
+            var gnameEditor = dg.datagrid('getEditor', { index: index, field: 'GName' });
+            var gdjEditor = dg.datagrid('getEditor', { index: index, field: 'GDJ' });
+
+            // 商品编码、名称是 EasyUI textbox 编辑器，必须调用编辑器自身的 setValue，
+            // 直接 .val() 只会改隐藏的原始 input，界面上看不到变化
+            if (gcodeEditor) gcodeEditor.actions.setValue(gcodeEditor.target, record.GCode || '');
+            if (gnameEditor) gnameEditor.actions.setValue(gnameEditor.target, record.GName || '');
+            // 单价是 numberbox 编辑器，同样走编辑器自身的 setValue
+            if (gdjEditor) gdjEditor.actions.setValue(gdjEditor.target, record.GDJG || 0);
+
+            // 同步行数据，避免编辑器值未提交时保存丢失
+            var row = dg.datagrid('getRows')[index];
+            if (row) {
+                row.GTXM = record.GTXM;
+                row.GCode = record.GCode;
+                row.GName = record.GName;
+                row.GDJ = record.GDJG || 0;
+            }
+        }
+
         function appendRow() {
             //判断是否已审核过了
             if ($("#CheckFlag").textbox('getValue') == "1") {
@@ -430,6 +559,26 @@
             $('#dg-detail').datagrid('selectRow', rows.length - 1);
         }
 
+        //根据当前明细行重新计算并刷新底部合计
+        function updateDetailFooter() {
+            var rows = $('#dg-detail').datagrid('getRows') || [];
+            var totalCount = 0;
+            var totalAmount = 0;
+
+            $.each(rows, function (i, row) {
+                var qty = parseFloat(row.GCount) || 0;
+                var price = parseFloat(row.GDJ) || 0;
+                totalCount += qty;
+                totalAmount += qty * price;
+            });
+
+            $('#dg-detail').datagrid('reloadFooter', [{
+                GTXM: '<b>本页合计</b>',
+                GCount: totalCount,
+                GDJ: totalAmount.toFixed(2)
+            }]);
+        }
+
         function removeRow() {
             //判断是否已审核过了
             if ($("#CheckFlag").textbox('getValue') == "1") {
@@ -440,6 +589,8 @@
             if (row) {
                 var index = $('#dg-detail').datagrid('getRowIndex', row);
                 $('#dg-detail').datagrid('deleteRow', index);
+                //删除后同步刷新底部合计的数量和金额
+                updateDetailFooter();
             }
         }
 
@@ -457,6 +608,14 @@
 
 
         function handleFileUpload(fileInput) {
+            // 出入库类型必须选择
+            if (!$("#StockType").combobox('getValue')) {
+                $.messager.alert('警告', '请选择出入库类型！', 'warning');
+                //清空文件框，便于用户选择类型后重新选择同一个文件
+                fileInput.value = '';
+                return;
+            }
+
             // 1. 检查是否选择了文件
             if (fileInput.files.length === 0) {
                 $.messager.alert('提示', '请选择一个Excel文件！');
@@ -512,6 +671,13 @@
         // ================= 保存与审核逻辑 =================
 
         function saveCurrentBill() {
+
+            //出入库类型必须选择
+            var stockType = $("#StockType").combobox('getValue');
+            if (!stockType) {
+                $.messager.alert('警告', '请选择出入库类型！', 'warning');
+                return;
+            }
 
             // 结束编辑，确保数据已更新到行
             

@@ -31,8 +31,14 @@ $(function () {
         sortOrder: 'asc',
         remoteSort: false,
         singleSelect: true,
+        url: "/Power/GetUserList",
         queryParams: {
-            action: 'GetUserList'
+            FCode: '',
+            FName: '',
+            FUserChinaName: '',
+            FUserArea: '',
+            FRole: '',
+            FFlag: ''
         },
         idField: 'FCode',
         pageSize: 25,
@@ -42,8 +48,8 @@ $(function () {
 	                { title: '用户编号', field: 'FCode', width: 80, sortable: true }
         ]],
         columns: [[
-					{ field: 'FName', title: '登录名', width: 120 },
-					{ field: 'FUserChinaName', title: '用户姓名', width: 120 },
+            { field: 'FName', title: '登录名', width: 120, sortable: true },
+            { field: 'FUserChinaName', title: '用户姓名', width: 120, sortable: true },
 					{
 					    field: 'FPwd', title: '密  码', width: 100, type: 'password',
 					    formatter: function (value, row, index) {
@@ -307,4 +313,23 @@ function DelRoleContent() {
             }
         }
     });
+}
+
+//查询用户
+function btnSearchUser() {
+    $('#test').datagrid('load', {
+        FName: $('#sFName').val(),
+        FUserChinaName: $('#sFUserChinaName').val(),
+        FUserArea: $('#sFUserArea').combobox('getValue'),
+        FRole: $('#sFRole').combobox('getValue'),
+    });
+}
+
+//清空查询条件
+function clearUserSearch() {
+    $('#sFName').val('');
+    $('#sFUserChinaName').val('');
+    $('#sFUserArea').combobox('clear');
+    $('#sFRole').combobox('clear');
+    btnSearchUser();
 }

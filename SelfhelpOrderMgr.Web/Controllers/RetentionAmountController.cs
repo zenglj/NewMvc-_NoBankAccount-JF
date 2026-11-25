@@ -154,6 +154,51 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
 
 
+        /// <summary>
+        /// 撤销审核：将已审核的记录恢复为待处理
+        /// </summary>
+        /// <param name="id">主单号</param>
+        /// <returns></returns>
+        public ActionResult CancelAudit(int id)
+        {
+            ResultInfo rs = new ResultInfo();
+            if (id == 0)
+            {
+                rs.ReMsg = "Err|主单号不能为0";
+                return Json(rs);
+            }
+
+            T_Bank_RetentionAmount _m = _baseDapperBll.GetModel<T_Bank_RetentionAmount>(id);
+            if (_m == null)
+            {
+                rs.ReMsg = "Err|主单号不存在";
+                return Json(rs);
+            }
+
+            if (_m.OrderStatus == 0)
+            {
+                rs.ReMsg = "Err|该记录尚未审核，无需撤销";
+                return Json(rs);
+            }
+
+            _m.OrderStatus = 0;
+            _m.ResultDesc = "";
+            _m.ModifyDate = DateTime.Now;
+            _m.ModifyBy = base.loginUserName;
+            if (_baseDapperBll.Update<T_Bank_RetentionAmount>(_m))
+            {
+                rs.Flag = true;
+                rs.ReMsg = "OK|撤销审核成功";
+                rs.DataInfo = _m;
+                Log4NetHelper.logger.Info("撤销滞留款审核,操作员：" + base.loginUserName + ",主单号:" + id);
+                return Json(rs);
+            }
+            rs.ReMsg = "Err|撤销审核失败";
+            return Json(rs);
+        }
+
+
+
         public ActionResult DeleteMainRec(int id)
         {
             ResultInfo rs = new ResultInfo();

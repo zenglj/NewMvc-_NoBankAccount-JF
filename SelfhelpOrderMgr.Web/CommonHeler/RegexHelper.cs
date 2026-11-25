@@ -17,29 +17,24 @@ namespace SelfhelpOrderMgr.Web.CommonHeler
         /// <returns></returns>
         public static string  RegexPasswordCheck(string newPwd)
         {
-            string pattern = @"^[0-9]+$";
-
-            if (Regex.IsMatch(newPwd, pattern))
+            // 判断密码长度不小于8位
+            if (string.IsNullOrEmpty(newPwd) || newPwd.Length < 8)
             {
-                return ("密码不能全是数字");
-            }
-
-            string pattern1 = @"^[A-Z]+$";
-
-            if (Regex.IsMatch(newPwd, pattern1))
-            {
-                return ("密码不能全是大写字母");
-            }
-
-            string pattern2 = @"^[a-z]+$";
-            if (Regex.IsMatch(newPwd, pattern2))
-            {
-                return ("密码不能全是小写字母");
-            }
-
-            string pattern3 = @"^.{8,20}$";
-            if (!Regex.IsMatch(newPwd, pattern3)) //判断是否包含数字
                 return ("密码长度最少要8位");
+            }
+
+            // 统计包含的字符种类：小写字母、大写字母、数字、特殊字符
+            int charTypes = 0;
+            if (Regex.IsMatch(newPwd, @"[a-z]")) charTypes++;       // 小写字母
+            if (Regex.IsMatch(newPwd, @"[A-Z]")) charTypes++;       // 大写字母
+            if (Regex.IsMatch(newPwd, @"[0-9]")) charTypes++;       // 数字
+            if (Regex.IsMatch(newPwd, @"[!@#$%^&*()_+\-=\[\]{};':""\\|,.<>\/?`~]")) charTypes++; // 特殊字符
+
+            // 至少包含上述四种中的三种
+            if (charTypes < 3)
+            {
+                return ("密码需至少包含小写字母、大写字母、数字、特殊字符中的三种");
+            }
 
             return "";
         }

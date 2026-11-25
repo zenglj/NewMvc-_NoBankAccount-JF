@@ -265,6 +265,21 @@ namespace SelfhelpOrderMgr.DAL
         }
 
         /// <summary>
+        /// 获得数据列表（参数化查询，防止SQL注入）
+        /// </summary>
+        public DataSet GetList(string strWhere, SqlParameter[] cmdParms)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("select FCode, FRole, fauditflag, fBonusPost, ver, FUserChinaName, FManagerCard, FName, FPwd, FFlag, FPRIVATE, FSTOCKCHK, FINVCHK, rolecode, FUserArea ,ErrCount,LastLoginTime,PwdUpdateTime,Photo ");
+            strSql.Append(" FROM T_CZY ");
+            if (strWhere.Trim() != "")
+            {
+                strSql.Append(" where " + strWhere);
+            }
+            return SqlHelper.Query(strSql.ToString(), cmdParms ?? new SqlParameter[0]);
+        }
+
+        /// <summary>
         /// 获得前几行数据
         /// </summary>
         public DataSet GetList(int Top, string strWhere, string filedOrder)

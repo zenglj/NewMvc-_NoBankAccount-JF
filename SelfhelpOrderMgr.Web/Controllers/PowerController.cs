@@ -6,10 +6,13 @@ using SelfhelpOrderMgr.Web.Filters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Data;
+using System.Data.SqlClient;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Script.Serialization;
 using System.Text.RegularExpressions;//正则表达式
+using System.Text;
 using SelfhelpOrderMgr.Web.CommonHeler;
 using Newtonsoft.Json;
 using System.IO;
@@ -46,15 +49,6 @@ namespace SelfhelpOrderMgr.Web.Controllers
             ViewData["userRoles"] = userRoles;
             #endregion
 
-            //加载操作员用户信息
-            List<T_CZY> czys = (List<T_CZY>)new T_CZYBLL().GetModelList("");
-            for (int i = 0; i < czys.Count; i++)
-            {
-                czys[i].FPwd = "**********";
-            }
-
-            ViewData["czys"] = czys;
-
             //加载监区信息
 
             return View();
@@ -62,15 +56,68 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
         public ActionResult GetUserList()
         {
-            //加载操作员用户信息
-            List<T_CZY> czys = (List<T_CZY>)new T_CZYBLL().GetModelList("");
-            //ViewData["czys"] = czys;
+            //查询条件（全部采用参数化查询，防止SQL注入）
+            string sFName = Request["FName"];
+            string sFUserChinaName = Request["FUserChinaName"];
+            string sFUserArea = Request["FUserArea"];
+            string sFRole = Request["FRole"];
+
+            StringBuilder sbWhere = new StringBuilder();
+            List<SqlParameter> parms = new List<SqlParameter>();
+
+            if (string.IsNullOrEmpty(sFName) == false)
+            {
+                sbWhere.Append(" and FName like @FName");
+                parms.Add(new SqlParameter("@FName", SqlDbType.VarChar, 50) { Value = "%" + sFName + "%" });
+            }
+            if (string.IsNullOrEmpty(sFUserChinaName) == false)
+            {
+                sbWhere.Append(" and FUserChinaName like @FUserChinaName");
+                parms.Add(new SqlParameter("@FUserChinaName", SqlDbType.VarChar, 50) { Value = "%" + sFUserChinaName + "%" });
+            }
+            if (string.IsNullOrEmpty(sFUserArea) == false)
+            {
+                sbWhere.Append(" and FUserArea = @FUserArea");
+                parms.Add(new SqlParameter("@FUserArea", SqlDbType.VarChar, 50) { Value = sFUserArea });
+            }
+            if (string.IsNullOrEmpty(sFRole) == false)
+            {
+                sbWhere.Append(" and FRole = @FRole");
+                parms.Add(new SqlParameter("@FRole", SqlDbType.VarChar, 50) { Value = sFRole });
+            }
+
+            string strWhere = "";
+            if (sbWhere.Length > 0)
+            {
+                //去掉开头的 " and "
+                strWhere = sbWhere.ToString().Substring(5);
+            }
+
+            //加载操作员用户信息（参数化）
+            List<T_CZY> czys = (List<T_CZY>)new T_CZYBLL().GetModelList(strWhere, parms.ToArray());
             for (int i = 0; i < czys.Count; i++)
             {
                 czys[i].FPwd = "**********";
             }
+
+            //扁平化输出，便于前端 DataGrid 直接绑定字段
+            var rows = czys.Select(c => new
+            {
+                FCode = c.FCode,
+                FName = c.FName,
+                FUserChinaName = c.FUserChinaName,
+                FPwd = c.FPwd,
+                FUserArea = c.FUserArea,
+                RoleName = c.TreeRole != null ? c.TreeRole.RoleName : "",
+                FRole = c.FRole,
+                FPrivate = c.FPRIVATE == 1 ? "是" : "否",
+                FManagerCard = c.FManagerCard,
+                FFlag = c.FFlag
+            }).ToList();
+
             JavaScriptSerializer jss = new JavaScriptSerializer();
-            return Content(jss.Serialize(czys));
+            jss.MaxJsonLength = int.MaxValue;
+            return Content(jss.Serialize(rows));
 
         }
 

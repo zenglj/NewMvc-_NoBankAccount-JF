@@ -74,7 +74,18 @@ namespace SelfhelpOrderMgr.Web.Controllers
             string fname = Request["FName"];
             string fpwd = Request["FPwd"];
 
-            string decPwd = Encoding.UTF8.GetString(Convert.FromBase64String(fpwd));
+            //新方式：前端发送两边MD5(MD5(MD5(明文)))，与数据库FPwd存储格式一致，直接比较
+            ////兼容旧方式：前端发送base64(明文)，解码后按明文/双重MD5比较
+            //string decPwd = null;
+            //try
+            //{
+            //    decPwd = Encoding.UTF8.GetString(Convert.FromBase64String(fpwd));
+            //}
+            //catch
+            //{
+            //    //非Base64格式，为新方式双重MD5哈希
+            //    decPwd = null;
+            //}
 
             //List<T_CZY> users = new T_CZYBLL().GetModelList("FName='" + fname + "' or FCode='" + fname + "'");
             List<T_CZY> users = new BaseDapperBLL().QueryList<T_CZY>("select * from t_czy where FName=@FName  or FCode=@FCode", new { FName = fname, FCode = fname });
@@ -89,11 +100,24 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 {
                     return Content("Error|该用户状态已禁用，无法登录");
                 }
-                if (user.FPwd == decPwd || user.FPwd== MD5ProcessHelper.GetMd5Password(decPwd))//明码和密码都支持
+                //新方式优先：直接比较两边MD5；旧方式兜底：base64解码后比较明文或双重MD5
+                bool pwdMatch = (user.FPwd == fpwd && user.FPwd.Length>=25)
+                    //明码部分的验证方式
+                    || (user.FPwd.Length< 25 && fpwd == MD5ProcessHelper.GetMd5Password(user.FPwd));
+                if (pwdMatch)//明码和密码都支持
                 {                    
                     Log4NetHelper.logger.Info("后台系统登录,操作员：" + user.FName + ",登录时间=" + DateTime.Now.ToString() + ",登录IP为：" + ip + "");
                     string strCookieLogin = "";
                     T_SHO_ManagerSet checkUserLoginModeMgr = new T_SHO_ManagerSetBLL().GetModel("CheckLoginSeccionOrCookie");
+
+                    if (user.FPwd.Length < 8)
+                    {
+                        //弱密码强制修改：先设置Session以便访问/Admin/ChangePassword页面
+                        Session["loginUserAdmin"] = user.FPRIVATE;
+                        Session["loginUserCode"] = user.FCode;
+                        Session["loginUserName"] = user.FName;
+                        return Content("ChangePwd|当前密码强度不足（少于8位），请修改密码后再使用系统");
+                    }
 
                     if (checkUserLoginModeMgr != null)
                     {
@@ -182,7 +206,76 @@ namespace SelfhelpOrderMgr.Web.Controllers
             }
             #endregion
         }
+
+        // GET: /Admin/ChangePassword - 弱密码强制修改密码页面
+        public ActionResult ChangePassword()
+        {
+            return View();
+        }
+
+        // POST: /Admin/SavePassword - 保存修改的密码
+        [MyLogActionFilterAttribute]
+        public ActionResult SavePassword()
+        {
+            if (Session["loginUserCode"] == null)
+            {
+                return Content("登录已过期，请重新登录");
+            }
+
+            string userCode = Session["loginUserCode"].ToString();
+            //前端发送双重MD5，与数据库FPwd存储格式一致
+            string oldPwd = Request["oldPassword"];
+            string newPwd = Request["newPassword"];
+            string chkPwd = Request["checkPassword"];
+
+            if (string.IsNullOrEmpty(oldPwd))
+            {
+                return Content("原密码不能为空");
+            }
+            if (string.IsNullOrEmpty(newPwd))
+            {
+                return Content("新密码不能为空");
+            }
+            if (newPwd != chkPwd)
+            {
+                return Content("两次新密码不一致");
+            }
+
+            //参数化查询，防止SQL注入
+            List<T_CZY> czys = new BaseDapperBLL().QueryList<T_CZY>(
+                "select * from t_czy where FCode=@FCode",
+                new { FCode = userCode });
+
+            if (czys.Count == 0)
+            {
+                return Content("用户信息不存在");
+            }
+
+            T_CZY czy = czys[0];
+            //与登录逻辑一致：兼容双重MD5密码(长度32)和明文密码(长度<32)
+            bool pwdMatch = (czy.FPwd == oldPwd && czy.FPwd.Length == 32)
+                || (czy.FPwd.Length < 32 && oldPwd == MD5ProcessHelper.GetMd5Password(czy.FPwd));
+
+            if (!pwdMatch)
+            {
+                return Content("原密码不正确");
+            }
+
+            //前端已双重MD5，直接保存
+            czy.FPwd = newPwd;
+            czy.PwdUpdateTime = DateTime.Now;
+            new T_CZYBLL().Update(czy);
+
+            Log4NetHelper.logger.Info("用户修改密码，操作员：" + czy.FName + ",修改时间=" + DateTime.Now.ToString() + ",登录IP为：" + System.Web.HttpContext.Current.Request.UserHostAddress + "");
+
+            //清除Session，强制用户使用新密码重新登录
+            Session["loginUserAdmin"] = null;
+            Session["loginUserCode"] = null;
+            Session["loginUserName"] = null;
+
+            return Content("密码修改成功");
+        }
     }
 
-    
+
 }

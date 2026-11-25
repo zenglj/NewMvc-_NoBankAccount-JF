@@ -229,9 +229,13 @@ namespace SelfhelpOrderMgr.Web.Controllers
                     return Content("Error|没有相应的狱政编号");
                 }
 
-                //获取查询到的近三个月的存款记录
+                //获取查询到的近三个月的存款记录（全部参数化，防止SQL注入并避免日期格式受区域设置影响）
+                DateTime vcrdStartDate = DateTime.Now.AddMonths(-3);
+                DateTime vcrdEndDate = DateTime.Now.AddDays(1);
+                List<T_Vcrd> vcrds = _bll.QueryList<T_Vcrd>(
+                    "select top 100 * from t_vcrd where flag=0 and fcrimecode=@fcrimecode and crtdate>=@CrtDateStart and crtdate<@CrtDateEnd order by CrtDate desc",
+                    new { fcrimecode = criminal.FCode, CrtDateStart = vcrdStartDate, CrtDateEnd = vcrdEndDate });
 
-                List<T_Vcrd> vcrds = new T_VcrdBLL().GetModelList(100, "flag=0 and fcrimecode='" + criminal.FCode + "' and crtdate>='" + DateTime.Now.AddMonths(-3).ToShortDateString() + "'and crtdate<'" + DateTime.Now.AddDays(1).ToShortDateString() + "'", " CrtDate desc");
                 rtnQueryUserInfo userinfo = new rtnQueryUserInfo();
                 userinfo.UserInfo = criminal;
                 userinfo.vcrds = vcrds;

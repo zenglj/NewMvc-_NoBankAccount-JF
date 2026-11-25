@@ -836,9 +836,7 @@ namespace SelfhelpOrderMgr.BLL
             var managerSetBll = new T_SHO_ManagerSetBLL();
             var areaBll = new T_AREABLL();
             var cardBll = new T_Criminal_cardBLL();
-            var invoiceBll = new T_InvoiceBLL();
             var jfInvoiceDapper = new BaseDapperBLL();
-            var tpListBll = new T_Criminal_TPListBLL();
             var cyTypeDal = new T_CY_TYPEDAL();
             var jfService = new JifenMgrService();
 
@@ -944,15 +942,12 @@ namespace SelfhelpOrderMgr.BLL
                 }
             }
 
-            // 组装 SQL 时间字符串（只做一次）
-            string startDateStr = startDt.ToString("yyyy-MM-dd");
-            string endDateStr = endDt.ToString("yyyy-MM-dd");
-
             CrimeXFinfo xfmoney = new CrimeXFinfo();
 
-            // 获取消费情况（注意：若数据量大，建议在 DAL 层做 SUM 聚合）
-            string strWhere = " FCrimeCode='" + fcode + "' and OrderDate>='" + startDateStr + "' and OrderDate<'" + endDateStr + "' and flag=1";
-            List<T_Invoice> invLists = invoiceBll.GetModelList(strWhere);
+            // 获取消费情况（使用Dapper参数化查询，防止SQL注入）
+            string invoiceSql = @"select * from T_Invoice where FCrimeCode=@FCrimeCode and OrderDate>=@StartDate and OrderDate<@EndDate and flag=1";
+            List<T_Invoice> invLists = jfInvoiceDapper.QueryList<T_Invoice>(invoiceSql,
+                new { FCrimeCode = fcode, StartDate = startDt, EndDate = endDt });
 
             decimal xfYYCmoneyAmoney = 0m, xfYYCmoneyBmoney = 0m, xfYYCmoneyFreeAmoney = 0m, xfYYCmoneyFreeBmoney = 0m;
             if (invLists != null && invLists.Count > 0)
@@ -982,8 +977,10 @@ namespace SelfhelpOrderMgr.BLL
                 }
             }
 
-            // 免限额商品积分汇总（建议也改为聚合查询）
-            List<T_JF_Invoice> jfinvLists = jfInvoiceDapper.QueryList<T_JF_Invoice>(strWhere);
+            // 免限额商品积分汇总（使用Dapper参数化查询，防止SQL注入）
+            string jfInvoiceSql = @"select * from T_JF_Invoice where FCrimeCode=@FCrimeCode and OrderDate>=@StartDate and OrderDate<@EndDate and flag=1";
+            List<T_JF_Invoice> jfinvLists = jfInvoiceDapper.QueryList<T_JF_Invoice>(jfInvoiceSql,
+                new { FCrimeCode = fcode, StartDate = startDt, EndDate = endDt });
             model.XiaoFeiPoints = (jfinvLists != null && jfinvLists.Count > 0) ? jfinvLists.Sum(o => (o.Amount - o.FreeAmountA - o.FreeAmountB)) : 0m;
 
             // 判断账户可消费情况（使用局部变量，最后写回 model）
@@ -1015,8 +1012,10 @@ namespace SelfhelpOrderMgr.BLL
             model.CanUseMoneyB = canUseB;
             model.OkUseAllMoney = model.CanUseMoneyA + model.CanUseMoneyB;
 
-            // 节假日判断
-            List<T_CY_ChinaFestival> festivalDates = new T_CY_ChinaFestivalBLL().GetModelList("FDate>='" + startDateStr + "' and FDate<'" + endDateStr + "'");
+            // 节假日判断（使用Dapper参数化查询，防止SQL注入）
+            string festivalSql = @"select * from T_CY_ChinaFestival where FDate>=@StartDate and FDate<@EndDate";
+            List<T_CY_ChinaFestival> festivalDates = jfInvoiceDapper.QueryList<T_CY_ChinaFestival>(festivalSql,
+                new { StartDate = startDt, EndDate = endDt });
             if ((festivalDates == null || festivalDates.Count <= 0) || model.DamagesFlag == 1)
             {
                 cy.JaRi_Cy_Money = 0m;
@@ -1025,10 +1024,12 @@ namespace SelfhelpOrderMgr.BLL
             model.JaRi_Cy_Money = cy.JaRi_Cy_Money;
             model.JaRi_Cy_FTZSP_Money = cy.JaRi_Cy_FTZSP_Money;
 
-            // 个人营养餐特批金额
+            // 个人营养餐特批金额（使用Dapper参数化查询，防止SQL注入）
             decimal TP_YingYangCan_Money = 0m;
             decimal TP_CY_YingYangCan_Money = 0m;
-            List<T_Criminal_TPList> yingyangcaMoneys = tpListBll.GetModelList("EffectiveDate>=getdate() and isnull(FifoFlag,0)=0 and FCode='" + model.FCode + "'");
+            string tpListSql = @"select * from T_Criminal_TPList where EffectiveDate>=getdate() and isnull(FifoFlag,0)=0 and FCode=@FCode";
+            List<T_Criminal_TPList> yingyangcaMoneys = jfInvoiceDapper.QueryList<T_Criminal_TPList>(tpListSql,
+                new { FCode = model.FCode });
             if (yingyangcaMoneys != null && yingyangcaMoneys.Count > 0)
             {
                 TP_YingYangCan_Money = model.TP_YingYangCan_Money;

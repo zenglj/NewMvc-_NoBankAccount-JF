@@ -171,7 +171,7 @@ namespace SelfhelpOrderMgr.DAL
             return connection;
         }
 
-        public string SubmitOrder(int orderId, string crtby, string ipLastCode, T_Criminal criminal, T_SHO_Order order, List<T_SHO_OrderDTL> details, string userRoomNo)
+        public string SubmitOrder(int orderId, string crtby, string ipLastCode, T_Criminal criminal, T_SHO_Order order, List<T_SHO_OrderDTL> details, string userRoomNo,int cardType=0)
         {
             
             //IDbConnection conn = new SqlConnection(SqlHelper.getConnstr());
@@ -532,7 +532,7 @@ namespace SelfhelpOrderMgr.DAL
                     strSql.Append(") values (");
                     strSql.Append("@InvoiceNo,@CardCode,@FCrimeCode,@Amount,@OrderDate,@PayDate,@PType,@Flag,@Remark,@ServAmount,@Crtby,@Crtdate,@fsn,@FAreaCode,@FAreaName,@FCriminal,@Frealareacode,@FrealAreaName,@TypeFlag,@CardType,@AmountA,@AmountB,@Fifoflag,@FreeAmountA,@FreeAmountB,@Checkflag,@RoomNo,@OrderId,@FTZSP_Money,@UserCyDesc");
                     strSql.Append(") ");
-                    object paramInvoice = new { InvoiceNo = invoiceno, CardCode = criminal.CardCode, FCrimeCode = criminal.FCode, Amount = order.FAmount, OrderDate = DateTime.Now, PayDate = DateTime.Now, PType = order.PType, Flag = 1, Remark = "", ServAmount = criminal.OkUseAllMoney, Crtby = crtby, Crtdate = order.CrtDate, fsn = "", FAreaCode = criminal.FAreaCode, FAreaName = criminal.FAreaName, FCriminal = criminal.FName, Frealareacode = "", FrealAreaName = "", TypeFlag = saleTypeId, CardType = 0, AmountA = dAmountA, AmountB = dAmountB, Fifoflag = -1, FreeAmountA = dFreeAmountA, FreeAmountB = dFreeAmountB, Checkflag = 0, RoomNo = userRoomNo, OrderId = orderId, FTZSP_Money = order.FTZSP_Money, UserCyDesc=criminal.UserCyDesc };
+                    object paramInvoice = new { InvoiceNo = invoiceno, CardCode = criminal.CardCode, FCrimeCode = criminal.FCode, Amount = order.FAmount, OrderDate = DateTime.Now, PayDate = DateTime.Now, PType = order.PType, Flag = 1, Remark = "", ServAmount = criminal.OkUseAllMoney, Crtby = crtby, Crtdate = order.CrtDate, fsn = "", FAreaCode = criminal.FAreaCode, FAreaName = criminal.FAreaName, FCriminal = criminal.FName, Frealareacode = "", FrealAreaName = "", TypeFlag = saleTypeId, CardType = cardType, AmountA = dAmountA, AmountB = dAmountB, Fifoflag = -1, FreeAmountA = dFreeAmountA, FreeAmountB = dFreeAmountB, Checkflag = 0, RoomNo = userRoomNo, OrderId = orderId, FTZSP_Money = order.FTZSP_Money, UserCyDesc = criminal.UserCyDesc };
 
                     #endregion
                     int i = conn.Execute(strSql.ToString(), paramInvoice, myTran);
@@ -746,7 +746,7 @@ namespace SelfhelpOrderMgr.DAL
             } 
         }
 
-        public string SubmitOrderForProc(int orderId, string crtby, string ipLastCode, T_Criminal criminal, T_SHO_Order order, List<T_SHO_OrderDTL> details, string userRoomNo)
+        public string SubmitOrderForProc(int orderId, string crtby, string ipLastCode, T_Criminal criminal, T_SHO_Order order, List<T_SHO_OrderDTL> details, string userRoomNo,int cardType=0)
         {
             using (IDbConnection conn = new SqlConnection(SqlHelper.getConnstr()))
             {
@@ -757,6 +757,7 @@ namespace SelfhelpOrderMgr.DAL
                 parems.Add("@crtby", crtby);
                 parems.Add("@userRoomNo", userRoomNo);
                 parems.Add("@UserCyDesc", criminal.UserCyDesc);
+                parems.Add("@cardType", cardType);
                 parems.Add("@result", "", DbType.String, ParameterDirection.Output);//输出返回值
                 //注意 parems.Add("@res",ParameterDirection.Output);//这样写返回值可能会出错，切记！！！
                 SqlMapper.Execute(conn, "PayAndCrtCustomerList", parems, null, null, CommandType.StoredProcedure);

@@ -505,6 +505,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
 
             //查询是有未提交的订单
+            
             if (checkflag == "1")
             {
                 List<T_SHO_Order> orders = new T_SHO_OrderBLL().GetModelList(" fcrimecode='" + fcrimeCode + "' and (flag=0 or (flag=1 and isnull(InvoiceNo,'')='')) and PType='" + stype.PType + "' and crtdate>='" + DateTime.Today.ToShortDateString() + "' and CrtDate<'" + DateTime.Now.ToString() + "'");
@@ -1259,12 +1260,12 @@ namespace SelfhelpOrderMgr.Web.Controllers
             }
 
         }
-        public ActionResult SubmitOrder()//提交订单
+        public ActionResult SubmitOrder(string OrderId,string FCrimeCode,string userRoomNo,string crtby,int cardType=0)//提交订单
         {
-            string orderId = Request["OrderId"];
-            string fcrimecode = Request["FCrimeCode"];
-            string crtby = Request["crtby"];
-            string userRoomNo = Request["userRoomNo"];
+            string orderId = OrderId;
+            string fcrimecode = FCrimeCode;
+            //string crtby = Request["crtby"];
+            //string userRoomNo = Request["userRoomNo"];
 
             if (string.IsNullOrEmpty(orderId) == true)
             {
@@ -1364,7 +1365,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
             orderModel.Flag = 1;
             if (new T_SHO_OrderBLL().Update(orderModel))//更订单状态为1“提交中”
             {
-                string status = new T_SHO_OrderBLL().SubmitOrder(Convert.ToInt32(orderId), crtby, ipLastCode, fcrimecode, userRoomNo);
+                string status = new T_SHO_OrderBLL().SubmitOrder(Convert.ToInt32(orderId), crtby, ipLastCode, fcrimecode, userRoomNo,cardType);
                 if (status == "OK|结算成功。")
                 {
                     rtnPaySubmitInfo<T_Invoice, T_InvoiceDTL> rtns = new rtnPaySubmitInfo<T_Invoice, T_InvoiceDTL>();

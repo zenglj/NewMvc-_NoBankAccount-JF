@@ -185,6 +185,34 @@ function SubmitMain() {
 
 
 
+//撤销审核
+function CancelAuditMain() {
+    var row = $("#tbPay").datagrid('getSelected');
+    if (row == null) {
+        $.messager.alert("提示", "请选择一条记录");
+        return false;
+    }
+    if (row.OrderStatus == 0 || row.OrderStatus == "") {
+        $.messager.alert("提示", "该记录尚未审核，无需撤销");
+        return false;
+    }
+    $.messager.confirm('Confirm', '您确定要撤销该记录的审核吗?', function (r) {
+        if (r) {
+            $.post("/RetentionAmount/CancelAudit", { "id": row.Id }, function (data, status) {
+                if ("success" == status) {
+                    if (data.Flag) {
+                        UpdateDataGridSelectRow('tbPay', data.DataInfo);
+                        $.messager.alert("提示", "撤销审核成功");
+                    } else {
+                        $.messager.alert("提示", data.ReMsg);
+                    }
+                }
+            });
+        }
+    });
+}
+
+
 //删除主单
 function DeleteMain() {
     var row = $("#tbPay").datagrid('getSelected');

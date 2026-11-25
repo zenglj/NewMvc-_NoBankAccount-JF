@@ -12,6 +12,20 @@
     @{Html.RenderPartial("~/Views/Shared/_PartialHeadPage.cshtml");}
     <script src="~/Scripts/diyUpload/js/webuploader.html5only.min.js"></script>
     <script src="~/Scripts/diyUpload/js/diyUpload.js"></script>
+    <style type="text/css">
+        /* 查询条件 / 编辑表单里的 th 去掉浏览器默认加粗 */
+        #crimeSearch th,
+        #editWindows table th,
+        #editGoodAttr th {
+            font-weight: normal;
+        }
+
+        /* 查询条件区域内部高度适配更多字段 */
+        #crimeSearch td input,
+        #crimeSearch td select {
+            vertical-align: middle;
+        }
+    </style>
 
 </head>
 <body class="easyui-layout">
@@ -160,7 +174,7 @@
                     <tr>
                         <th align="right">图片：</th>
                         <td>
-                            <input type="file" id="src" name="src" style="width: 150px; " />
+                            <input type="file" id="src" name="src" accept=".jpg,.jpeg,.png,image/jpeg,image/png,image/jpg" style="width: 150px; " />
                         </td>
                         <th align="right">店内码：</th>
                         <td>

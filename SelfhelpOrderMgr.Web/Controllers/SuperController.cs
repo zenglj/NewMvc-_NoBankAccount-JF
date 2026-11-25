@@ -227,6 +227,12 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 /* save to server */
                 if (fname != "")
                 {
+                    // 只允许 jpg、jpeg、png 三种格式
+                    string ext = System.IO.Path.GetExtension(fname).ToLower();
+                    if (ext != ".jpg" && ext != ".jpeg" && ext != ".png")
+                    {
+                        return Content("Error|图片只支持 jpg、jpeg、png 三种格式");
+                    }
                     string savePath = Server.MapPath("~/Content/GoodsImages/" + fname);
                     f.SaveAs(savePath);
                     src = "/Content/GoodsImages/" + fname;
@@ -263,7 +269,10 @@ namespace SelfhelpOrderMgr.Web.Controllers
             bool brs = false;
             if (doType == "add")
             {
-                List<T_Goods> gds = new T_GoodsBLL().GetModelList("Gtxm='" + gTXM + "' or SPShortCode='" + SPShortCode + "'");
+                //参数化查询，防止SQL注入
+                List<T_Goods> gds = _baseDapperBLL.QueryList<T_Goods>(
+                    "select * from T_Goods where Gtxm=@Gtxm or SPShortCode=@SPShortCode",
+                    new { Gtxm = gTXM, SPShortCode = SPShortCode });
                 if (gds.Count > 0)
                 {
                     return Content("Error|对不起，该商品编码已经存在了");
@@ -283,7 +292,10 @@ namespace SelfhelpOrderMgr.Web.Controllers
             }
             else
             {
-                List<T_Goods> gGoods = new T_GoodsBLL().GetModelList("SPShortCode='" + SPShortCode + "'");
+                //参数化查询，防止SQL注入
+                List<T_Goods> gGoods = _baseDapperBLL.QueryList<T_Goods>(
+                    "select * from T_Goods where SPShortCode=@SPShortCode",
+                    new { SPShortCode = SPShortCode });
                 if (gGoods.Count > 0)
                 {
                     good = gGoods[0];
@@ -376,7 +388,10 @@ namespace SelfhelpOrderMgr.Web.Controllers
                 }
                 else
                 {
-                    oldGood = new T_GoodsBLL().GetModelList("SPShortCode='" + good.SPShortCode + "'")[0];//保存更新前商品信息
+                    //保存更新前商品信息（参数化查询，防止SQL注入）
+                    oldGood = _baseDapperBLL.QueryList<T_Goods>(
+                        "select * from T_Goods where SPShortCode=@SPShortCode",
+                        new { SPShortCode = good.SPShortCode })[0];
                     brs = new T_GoodsBLL().UpdateByShortCode(good);
                 }
                 if (brs == true)
@@ -384,15 +399,25 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
                     if (good.GDJ != oldGood.GDJ)
                     {
-                        StringBuilder strSql = new StringBuilder();
-                        strSql.Append(@"INSERT INTO [T_Goods_ChangeList]
+                        //参数化写入变更记录，防止SQL注入
+                        string changeSql = @"INSERT INTO [T_Goods_ChangeList]
                         ([GCode],[GName],[GTXM],[ChangeType],[ChangeTypeName],[OldPrice],[NewPrice]
                         ,[ChangeInfo],[CrtBy],[CrtDate],[AuditBy],[AuditArea],[AuditDate],[AuditInfo],[AuditFlag]
                         ,[Remark])
                              VALUES
-                        ('" + good.GCODE + "','" + good.GNAME + "','" + good.GTXM + "','1','价格','" + oldGood.GDJ.ToString() + "','" + good.GDJ.ToString() + @"'
-                        ,'商品价格调整','" + Session["loginUserName"].ToString() + "','" + DateTime.Now.ToString() + "','自动审核','系统','" + DateTime.Now.ToString() + "','变更不用审核',9,'')");
-                        new CommTableInfoBLL().ExecSql(strSql.ToString());
+                        (@GCode,@GName,@GTXM,'1','价格',@OldPrice,@NewPrice
+                        ,'商品价格调整',@CrtBy,@CrtDate,'自动审核','系统',@AuditDate,'变更不用审核',9,'')";
+                        _baseDapperBLL.ExecuteSql(changeSql, new
+                        {
+                            GCode = good.GCODE,
+                            GName = good.GNAME,
+                            GTXM = good.GTXM,
+                            OldPrice = oldGood.GDJ,
+                            NewPrice = good.GDJ,
+                            CrtBy = Session["loginUserName"].ToString(),
+                            CrtDate = DateTime.Now,
+                            AuditDate = DateTime.Now
+                        });
                     }
 
                     Log4NetHelper.logger.Info("保存更新商品信息,操作员：" + strLoginName + ",更新前，商品编码:" + oldGood.GCODE + ",商品名称=" + oldGood.GNAME + ",商品条码:" + oldGood.GTXM + ",商品店内码:" + oldGood.SPShortCode + ",商品价格:" + oldGood.GDJ.ToString() + ",商品类别:" + oldGood.GTYPE + ",非限额标志:" + oldGood.Ffreeflag.ToString());
@@ -795,6 +820,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
             string FCrtBy = Request["FCrtBy"];
             string TypeFlag = Request["TypeFlag"];
             string Flag = Request["Flag"];
+            string CardType = Request["CardType"];
             string strWhere = "";
 
             if (string.IsNullOrWhiteSpace(Flag))
@@ -841,6 +867,12 @@ namespace SelfhelpOrderMgr.Web.Controllers
             if (string.IsNullOrEmpty(TypeFlag) == false)
             {
                 strWhere = strWhere + " and TypeFlag in (" + TypeFlag + ") ";
+            }
+
+            int cardType = 0;
+            if (int.TryParse(CardType, out cardType))
+            {
+                strWhere = strWhere + " and isnull(CardType,0)=" + cardType + " ";
             }
 
             if (string.IsNullOrEmpty(FName) == false)

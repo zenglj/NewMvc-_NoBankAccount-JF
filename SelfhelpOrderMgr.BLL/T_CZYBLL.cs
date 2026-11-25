@@ -2,6 +2,7 @@
 using System.Text;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.SqlClient;
 using SelfhelpOrderMgr.Model;
 namespace SelfhelpOrderMgr.BLL
 {
@@ -72,6 +73,14 @@ namespace SelfhelpOrderMgr.BLL
         public List<SelfhelpOrderMgr.Model.T_CZY> GetModelList(string strWhere)
         {
             DataSet ds = dal.GetList(strWhere);
+            return DataTableToList(ds.Tables[0]);
+        }
+        /// <summary>
+        /// 获得数据列表（参数化查询，防止SQL注入）
+        /// </summary>
+        public List<SelfhelpOrderMgr.Model.T_CZY> GetModelList(string strWhere, SqlParameter[] cmdParms)
+        {
+            DataSet ds = dal.GetList(strWhere, cmdParms);
             return DataTableToList(ds.Tables[0]);
         }
         /// <summary>

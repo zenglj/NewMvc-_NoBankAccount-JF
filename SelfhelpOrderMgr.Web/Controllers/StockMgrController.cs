@@ -19,6 +19,7 @@ using System.Drawing.Drawing2D;
 using System.EnterpriseServices;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
 using System.Web;
@@ -65,11 +66,11 @@ namespace SelfhelpOrderMgr.Web.Controllers
         /// <param name="page"></param>
         /// <param name="rows"></param>
         /// <returns></returns>
-        public ActionResult GetRecordList(StockQueryDto dto, int page = 1, int rows = 10)
+        public ActionResult GetRecordList(StockQueryDto dto, int page = 1, int rows = 10 ,int id=1)
         {
 
-            //T_Stock_Search wherDto = TinyMapper.Map<T_Stock_Search>(dto);
-            var list = _bll.QueryPageListByDto<T_Stock, StockQueryDto>("T_Stock", dto, page, rows,"Id desc", " StockFlag in (select FCode from T_CommonTypeTab where FType='KCLX' and FRemark in ('入库','出库') )");
+            //var list = _bll.QueryPageListByDto<T_Stock, StockQueryDto>("T_Stock", dto, page, rows,"Id desc", " StockFlag in (select FCode from T_CommonTypeTab where FType='KCLX' and FRemark in ('入库','出库') )");
+            var list = _bll.QueryPageListByDto<T_Stock, StockQueryDto>("T_Stock", dto, page, rows, "Id desc", $" InOutFlag={id} and StockType in (select FName from T_CommonTypeTab where FType='KCLX' and FRemark in ('入库','出库') )");
 
             //return Content(Newtonsoft.Json.JsonConvert.SerializeObject(list.rows));
             return Content(Newtonsoft.Json.JsonConvert.SerializeObject(list));
@@ -88,6 +89,85 @@ namespace SelfhelpOrderMgr.Web.Controllers
             return new CustomJsonResult { Data=list} ;
         }
 
+        /// <summary>
+        /// 出入库统计报表（按当前查询条件统计）
+        /// </summary>
+        /// <param name="dto">与主单列表相同的查询条件</param>
+        /// <returns></returns>
+        public ActionResult GetStockSummary(StockQueryDto dto, int id = 1)
+        {
+            var list = QueryStockSummary(dto, id);
+            return Content(Newtonsoft.Json.JsonConvert.SerializeObject(list));
+        }
+
+        /// <summary>
+        /// 打印出入库统计报表
+        /// </summary>
+        /// <param name="dto"></param>
+        /// <param name="id">出入库标志：1 入库，-1 出库</param>
+        /// <returns></returns>
+        public ActionResult PrintStockSummary(StockQueryDto dto, int id = 1)
+        {
+            var list = QueryStockSummary(dto, id);
+            ViewBag.Details = list;
+            ViewBag.Query = dto;
+            ViewBag.InOutText = id == 1 ? "入库" : "出库";
+            ViewBag.Total = list.Sum(o => o.GCount);
+            return View();
+        }
+
+        /// <summary>
+        /// 按查询条件统计出入库明细
+        /// </summary>
+        /// <param name="dto">查询条件</param>
+        /// <param name="id">出入库标志：1 入库，-1 出库</param>
+        private List<StockSummaryItem> QueryStockSummary(StockQueryDto dto, int id)
+        {
+            StringBuilder sql = new StringBuilder();
+            sql.Append(@"select d.GCode as GCode,
+                                max(isnull(g.GNAME, d.GName)) as GName,
+                                d.GTXM as GTXM,
+                                sum(d.GCount * d.InOutFlag) as GCount,
+                                d.InOutFlag as InOutFlag
+                           from T_StockDTL d
+                          inner join T_Stock s on s.StockId = d.StockId
+                           left join T_Goods g on g.GCODE = d.GCode
+                          where s.StockType in (select FName from T_CommonTypeTab where FType='KCLX' and FRemark in ('入库','出库'))
+                            and s.InOutFlag = @InOutFlag
+                            and (@StockId is null or s.StockId = @StockId)
+                            and (@StockType is null or s.StockType = @StockType)
+                            and (@CrtDt_Start is null or s.CrtDt >= @CrtDt_Start)
+                            and (@CrtDt_End is null or s.CrtDt <= @CrtDt_End)
+                            and (@Remark is null or s.Remark like @Remark)
+                          group by d.GCode, d.GTXM, d.InOutFlag
+                          order by d.GCode, d.GTXM, d.InOutFlag desc");
+
+            var param = new
+            {
+                InOutFlag = id,
+                StockId = string.IsNullOrWhiteSpace(dto.StockId) ? null : dto.StockId,
+                StockType = string.IsNullOrWhiteSpace(dto.StockType) ? null : dto.StockType,
+                CrtDt_Start = dto.CrtDt_Start,
+                CrtDt_End = dto.CrtDt_End,
+                Remark = string.IsNullOrWhiteSpace(dto.Remark) ? null : "%" + dto.Remark + "%"
+            };
+
+            return _bll.QueryList<StockSummaryItem>(sql.ToString(), param);
+        }
+
+        /// <summary>
+        /// 统计报表行数据
+        /// </summary>
+        public class StockSummaryItem
+        {
+            public string GCode { get; set; }
+            public string GName { get; set; }
+            public string GTXM { get; set; }
+            public decimal GCount { get; set; }
+            public int InOutFlag { get; set; }
+        }
+
+
         //审核库存主单记录
         public ActionResult AuditStock(StockAuditQueryDto dto)
         {
@@ -105,9 +185,45 @@ namespace SelfhelpOrderMgr.Web.Controllers
                     model.CheckFlag = 1;
                     model.CheckBy = base.loginUserName;
                     model.CheckDt = DateTime.Now;
-                    _bll.Update<T_Stock>(model);
-                    
-                    _bll.UpdatePartInfo<T_StockDTL>(new { Flag=2}, " StockId=@StockId", new { StockId = model.StockId });
+                    //_bll.Update<T_Stock>(model);
+
+                    //_bll.UpdatePartInfo<T_StockDTL>(new { Flag=2}, " StockId=@StockId", new { StockId = model.StockId });
+
+                    //变更库存数量
+                    StringBuilder _sqlBuilder= new StringBuilder();
+                    _sqlBuilder.Append(@"update T_Stock set FLAG=-1,InOutDate=GETDATE(), CheckFlag=1,CheckBy=@LoginName,CheckDt=GETDATE() where StockId=@StockId;");
+                    _sqlBuilder.Append(@"update T_StockDTL set FLAG=2 where StockId=@StockId;");
+                    _sqlBuilder.Append(@"INSERT INTO T_GOODSSTOCKMAIN ([GCODE]
+                                       ,[BALANCE]
+                                       ,[TMPBALANCE]
+                                       ,[GCurMonthNum]
+                                       ,[GCurMonthPrice]
+                                       ,[GLastAvgNum]
+                                       ,[GLastAvgPrice]
+                                       ,[LastDate]
+                                       ,[GJieShuanNumber]
+                                       ,[WareHouseCode]) 
+                            select distinct GCODE
+                                  ,0 as [BALANCE]
+                                  ,0 as [TMPBALANCE]
+                                  ,0 as [GCurMonthNum]
+                                  ,0 as [GCurMonthPrice]
+                                  ,0 as [GLastAvgNum]
+                                  ,0 as [GLastAvgPrice]
+                                  ,GETDATE() as [LastDate]
+                                  ,0 as [GJieShuanNumber]
+                                  ,'' as [WareHouseCode] from T_StockDTL
+                            where StockId=@StockId
+                            and GCODE not in( select GCODE from T_GOODSSTOCKMAIN);");
+
+                    _sqlBuilder.Append(@"update T_GOODSSTOCKMAIN set BALANCE=BALANCE+b.gcount from T_GOODSSTOCKMAIN a,(
+                            select GCODE,sum(gcount*InOutFlag) as gcount
+                             from T_StockDTL
+                            where StockId=@StockId
+                            group by GCODE) b
+                            where a.GCODE=b.GCODE;");
+                    _bll.ExecuteSql(_sqlBuilder.ToString(), new { StockId = model.StockId, LoginName=base.loginUserName });
+
 
                     rs.Flag = true;
                     rs.ReMsg = "审核成功!";
@@ -132,7 +248,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
             try
             {
                 var model = _bll.QueryListByDto<T_Stock, StockAuditQueryDto>("T_Stock", dto).FirstOrDefault();
-                if (model == null || model.CheckFlag == 0)
+                if (model == null || model.CheckFlag == 0 || model.StockType == "处遇兑换")
                 {
                     rs.ReMsg = "库存主单不存在；或主单未审核，不用撤审!";
                     return new CustomJsonResult { Data = rs };
@@ -142,9 +258,24 @@ namespace SelfhelpOrderMgr.Web.Controllers
                     model.CheckFlag = 0;
                     model.CheckBy = base.loginUserName;
                     model.CheckDt = DateTime.Now;
-                    _bll.Update<T_Stock>(model);
+                    //_bll.Update<T_Stock>(model);
 
-                    _bll.UpdatePartInfo<T_StockDTL>(new { Flag=0}, " StockId=@StockId", new { StockId = model.StockId });
+                    //_bll.UpdatePartInfo<T_StockDTL>(new { Flag=0}, " StockId=@StockId", new { StockId = model.StockId });
+
+                    //变更库存数量
+                    StringBuilder _sqlBuilder = new StringBuilder();
+                    _sqlBuilder.Append(@"update T_Stock set FLAG=0,InOutDate=null, CheckFlag=0,CheckBy='',CheckDt=null where StockId=@StockId;");
+                    _sqlBuilder.Append(@"update T_StockDTL set FLAG=0 where StockId=@StockId;");
+
+                    _sqlBuilder.Append(@"update T_GOODSSTOCKMAIN set BALANCE=BALANCE-b.gcount from T_GOODSSTOCKMAIN a,(
+                            select GCODE,sum(gcount*InOutFlag) as gcount
+                             from T_StockDTL
+                            where StockId=@StockId
+                            group by GCODE) b
+                            where a.GCODE=b.GCODE;");
+                    _bll.ExecuteSql(_sqlBuilder.ToString(), new { StockId = model.StockId, LoginName = base.loginUserName });
+
+
 
                     rs.Flag = true;
                     rs.ReMsg = "撤销审核成功!";
@@ -169,7 +300,7 @@ namespace SelfhelpOrderMgr.Web.Controllers
             try
             {
                 var model = _bll.QueryListByDto<T_Stock, StockDeleteDto>("T_Stock", dto).FirstOrDefault();
-                if (model == null || model.CheckFlag == 1)
+                if (model == null || model.CheckFlag == 1 || model.StockType== "处遇兑换")
                 {
                     rs.ReMsg = "库存主单不存在；或主单已审核，不能删除!";
                     return new CustomJsonResult { Data = rs };
@@ -301,15 +432,22 @@ namespace SelfhelpOrderMgr.Web.Controllers
 
         public ActionResult GetProductList(string q)
         {
-            
-            var list = _bll.QueryList<T_Goods>($" GType in(select FCode from t_goodsType where SaleTypeId={_SaleTypeId})").Select(o => new { 
-                GTXM= o.GTXM,
-                GName=o.GNAME,
-                GCode=o.GCODE,
-                GDJG=o.GDJ});
+            //20261023-强制消费类型为【超市消费】
+            //var list = _bll.QueryList<T_Goods>($" GType in(select FCode from t_goodsType where SaleTypeId={_SaleTypeId})").Select(o => new { 
+            //    GTXM= o.GTXM,
+            //    GName=o.GNAME,
+            //    GCode=o.GCODE,
+            //    GDJG=o.GDJ});
 
-            list = list.Where(o => o.GTXM.Contains(q)).ToList();
-            return Json(list);
+            var list = _bll.QueryList<T_Goods>($" GType in(select FCode from t_goodsType where SaleTypeId={1})").Select(o => new {
+                GTXM = o.GTXM,
+                GName = o.GNAME,
+                GCode = o.GCODE,
+                GDJG = o.GDJ
+            });
+            list = list.Where(o => (o.GTXM ?? "").Contains(q ?? "")).ToList();
+            //允许GET请求，供前端商品下拉框加载数据
+            return Json(list, JsonRequestBehavior.AllowGet);
         }
 
         private List<T_CommonTypeTab> GetStokType(int inoutFlag = 1)

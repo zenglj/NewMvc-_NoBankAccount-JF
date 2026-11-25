@@ -464,8 +464,10 @@ namespace SelfhelpOrderMgr.Web.Controllers
             string result;
 
 
-            string startTime = Request["startTime"];
-            string endTime = Request["endTime"];
+            //string startTime = Request["startTime"];
+            //string endTime = Request["endTime"];
+            string startTime = req.startTime.ToString();
+            string endTime = req.endTime.ToString();
             string strCountTime = string.Format("统计期间:{0}--{1}",startTime,endTime);
 
             SetSumOrderWhereSql(1,id, strWhere, out strSql, out title, out result,out mul_lan);

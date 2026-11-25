@@ -49,7 +49,7 @@ namespace SelfhelpOrderMgr.BLL
         }
 
         //订单结算
-        public string SubmitOrder(int orderId, string crtby, string ipLastCode, string fcrimecode, string userRoomNo)
+        public string SubmitOrder(int orderId, string crtby, string ipLastCode, string fcrimecode, string userRoomNo,int cardType=0)
         {
             if (new T_InvoiceBLL().Exists(orderId))
             {
@@ -90,11 +90,11 @@ namespace SelfhelpOrderMgr.BLL
                         if(payMode.MgrValue=="1")
                         {
                             //优先从存储过程结算
-                            return new T_SHO_OrderDAL().SubmitOrderForProc(order.OrderID, crtby, ipLastCode, criminal, order, details, userRoomNo); 
+                            return new T_SHO_OrderDAL().SubmitOrderForProc(order.OrderID, crtby, ipLastCode, criminal, order, details, userRoomNo,cardType); 
                         }
                     }
                     //否则从程序结算
-                    return new T_SHO_OrderDAL().SubmitOrder(order.OrderID, crtby, ipLastCode, criminal, order, details, userRoomNo); 
+                    return new T_SHO_OrderDAL().SubmitOrder(order.OrderID, crtby, ipLastCode, criminal, order, details, userRoomNo,cardType); 
 
                 }
             }

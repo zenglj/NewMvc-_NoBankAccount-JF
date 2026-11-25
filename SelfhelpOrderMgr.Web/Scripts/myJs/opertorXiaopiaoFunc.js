@@ -68,11 +68,13 @@ function printMyAddHtml(e) {
 function printXiaoPiaoXinxi(tempName, pageWidth) {
     LODOP = getLodop(document.getElementById('LODOP_OB'), document.getElementById('LODOP_EM'));
     LODOP.PRINT_INIT("");
-    LODOP.SET_PRINT_PAGESIZE(3, pageWidth, 10, "");
+    //模式3为自定义纸张；高传0表示不限高度，Lodop按内容自动裁切（打印小票时避免尾部大片空白）
+    LODOP.SET_PRINT_PAGESIZE(3, pageWidth, 0, "");
+    //ADD_PRINT_HTM 高度传0，让Lodop按HTML实际高度自适应，而不是铺满整张大纸
     if (tempName == "") {
-        LODOP.ADD_PRINT_HTM(10, 1, "100%", "100%", $("#template").html());
+        LODOP.ADD_PRINT_HTM(10, 1, "100%", 0, $("#template").html());
     } else {
-        LODOP.ADD_PRINT_HTM(10, 1, "100%", "100%", $(tempName).html());
+        LODOP.ADD_PRINT_HTM(10, 1, "100%", 0, $(tempName).html());
     }
     LODOP.PRINT();
 };

@@ -387,7 +387,7 @@ function PayCheckSubmit() {
             }
         }
     });
-    $.post("/Shopping/SubmitOrder", { "OrderId": $("#orderNumber").val(), "FCrimeCode": fcrimecode, "userRoomNo": $("#userRoomNO").val(), "crtby": "crtby" }, function (data, status) {
+    $.post("/Shopping/SubmitOrder", { "OrderId": $("#orderNumber").val(), "FCrimeCode": fcrimecode, "userRoomNo": $("#userRoomNO").val(), "crtby": "crtby","cardType": $("#cardType").val() }, function (data, status) {
         if ("success" != status) {
             return false;
         } else {

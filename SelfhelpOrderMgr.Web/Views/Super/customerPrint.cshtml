@@ -10,6 +10,12 @@
     <meta name="viewport" content="width=device-width" />
     <title>customerPrint</title>
     @{Html.RenderPartial("~/Views/Shared/_PartialHeadPage.cshtml");}
+    <style type="text/css">
+        #crimeSearch th {
+            font-weight: normal;
+            font-size: 12px;
+        }
+    </style>
     
 </head>
 <body class="easyui-layout">
@@ -212,6 +218,17 @@
                         <th align="right">店内码：</th>
                         <td align="left">
                             <input id="SpShortCode" name="SpShortCode" type="text" style="width: 190px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="right">配送批次：</th>
+                        <td align="left">
+                            <select id="CardType" name="CardType" class="easyui-combobox" style="width:190px;">
+                                <option value="" selected="selected">全选择</option>
+                                <option value="0">无批次</option>
+                                <option value="1">第一批次</option>
+                                <option value="2">第二批次</option>
+                            </select>
                         </td>
                     </tr>
                     <tr>

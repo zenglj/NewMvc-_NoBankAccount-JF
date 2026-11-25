@@ -107,10 +107,10 @@
             }
         });
         function loginCheck() {
-            var pwdBase64 = base64encode($('#FPwd').val());
-            //var pwdBase64 = $('#FPwd').val();
+            //密码两边MD5后上传后台（与数据库FPwd存储格式一致）
+            var pwdMd5 = md5Twice($('#FPwd').val());
 
-            $.post('/Admin/LoginCheck', { "FName": $('#FName').val(), "FPwd": pwdBase64 },
+            $.post('/Admin/LoginCheck', { "FName": $('#FName').val(), "FPwd": pwdMd5 },
                 function (data, status) {
                     if ('success' != status) {
                         return false;
@@ -119,6 +119,10 @@
                             var ss = data.split("|");
                             if (ss[0] == "OK") {
                                 window.location.href = "/Mainpanel/Index";
+                            } else if (ss[0] == "ChangePwd") {
+                                //弱密码强制跳转到修改密码页面
+                                alert(ss[1]);
+                                window.location.href = "/Admin/ChangePassword";
                             } else {
                                 msg = $.globalMessenger().post("提示");
                                 msg.update(data);
